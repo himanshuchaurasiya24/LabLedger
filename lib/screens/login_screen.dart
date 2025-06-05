@@ -28,23 +28,11 @@ class LoginScreen extends ConsumerWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.medical_services_outlined,
-                          size: 80,
-                          color: Color(0xFF006D77),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          ref.watch(appNameProvider),
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF006D77),
-                          ),
-                        ),
+                        ref.watch(appIconNameWidgetProvider),
+                        const SizedBox(height: 16),
                         Text(
                           "Medical Records Made Simple",
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -98,7 +86,7 @@ class LoginScreen extends ConsumerWidget {
                             child: ElevatedButton(
                               onPressed: () {},
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF006D77),
+                                backgroundColor: Theme.of(context).primaryColor,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

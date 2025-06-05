@@ -6,13 +6,13 @@ import 'package:labledger/screens/home_screen.dart';
 import 'package:labledger/screens/login_screen.dart';
 import 'package:window_manager/window_manager.dart';
 
-
 class WindowLoadingScreen extends ConsumerStatefulWidget {
   const WindowLoadingScreen({super.key, required this.onLoginScreen});
   final ValueNotifier<bool> onLoginScreen;
 
   @override
-  ConsumerState<WindowLoadingScreen> createState() => _WindowLoadingScreenState();
+  ConsumerState<WindowLoadingScreen> createState() =>
+      _WindowLoadingScreenState();
 }
 
 class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
@@ -61,7 +61,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     final token = await storage.read(key: 'access_token');
 
     if (token == null) {
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 5));
       setWindowBehavior(isForLogin: true);
       _goToLogin();
       return;
@@ -96,19 +96,12 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      // backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              ref.watch(appNameProvider),
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+            ref.read(appIconNameWidgetProvider),
             const SizedBox(height: 30),
             const SizedBox(
               width: 200,
@@ -125,3 +118,4 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     );
   }
 }
+
