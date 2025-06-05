@@ -4,13 +4,14 @@ import 'package:labledger/screens/window_loading_screen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 
+Size get initialWindowSize => const Size(700, 350); // 🟩 Initial Size
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await windowManager.ensureInitialized();
 
-  WindowOptions windowOptions = const WindowOptions(
-    size: Size(700, 350), // 🟩 Initial Size
+  WindowOptions windowOptions = WindowOptions(
+    size: initialWindowSize,
     center: true,
     title: 'LabLedger',
     backgroundColor: Colors.transparent,
@@ -34,6 +35,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WindowListener {
   bool isFullScreen = false;
+  final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     super.initState();
@@ -74,11 +77,10 @@ class _MyAppState extends State<MyApp> with WindowListener {
       focusNode: FocusNode()..requestFocus(),
       autofocus: true,
       onKeyEvent: (event) async {
+        if (isLoginScreen.value) return; // ⛔ Block keys on login screen
         if (event is KeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.escape && isFullScreen) {
             await windowManager.setFullScreen(false);
-            await windowManager.setSize(const Size(1280, 720), animate: true);
-            await windowManager.center();
           }
           if (event.logicalKey == LogicalKeyboardKey.f11) {
             if (!isFullScreen) {
@@ -118,7 +120,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
             radius: Radius.circular(4),
           ),
         ),
-        home: WindowLoadingScreen(),
+        home: WindowLoadingScreen(onLoginScreen: isLoginScreen,),
       ),
     );
   }
