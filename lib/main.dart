@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/screens/window_loading_screen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
@@ -23,7 +24,7 @@ void main() async {
     await windowManager.focus();
   });
 
-  runApp(const MyApp());
+  runApp(ProviderScope(child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -96,7 +97,28 @@ class _MyAppState extends State<MyApp> with WindowListener {
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
         theme: ThemeData(
-          primarySwatch: Colors.deepPurple,
+          scaffoldBackgroundColor: const Color(0xFFEFF7F6),
+          primaryColor: const Color(0xFF006D77),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF006D77),
+          primary: const Color(0xFF006D77),
+          secondary: const Color(0xFF83C5BE),
+        ),
+          primarySwatch: MaterialColor(
+            0xFF006D77,
+            <int, Color>{
+              50: Color(0xFFE0F2F1),
+              100: Color(0xFFB2DFDB),
+              200: Color(0xFF80CBC4),
+              300: Color(0xFF4DB6AC),
+              400: Color(0xFF26A69A),
+              500: Color(0xFF006D77),
+              600: Color(0xFF00897B),
+              700: Color(0xFF00796B),
+              800: Color(0xFF00695C),
+              900: Color(0xFF004D40),
+            },
+          ),
           visualDensity: VisualDensity.adaptivePlatformDensity,
           useMaterial3:
               true, // Enable Material You design (optional but recommended)
