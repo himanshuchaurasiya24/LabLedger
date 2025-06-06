@@ -3,23 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/providers/custom_providers.dart';
 
 class LoginScreen extends ConsumerWidget {
-  const LoginScreen({super.key});
-
+  LoginScreen({super.key});
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFEFF6F5),
-      body: Center(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
+    return ClipRRect(
+      clipBehavior: Clip.none,
+      borderRadius: BorderRadius.circular(24),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: Center(
           child: Container(
+            color: Colors.transparent,
             width: 700,
             height: 350,
-            color: Colors.white,
             child: Material(
-              elevation: 10,
               shadowColor: Colors.black26,
-              color: Colors.white,
+              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(24),
               child: Row(
                 children: [
@@ -32,7 +33,14 @@ class LoginScreen extends ConsumerWidget {
                         const SizedBox(height: 16),
                         Text(
                           "Medical Records Made Simple",
-                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                          style: TextStyle(
+                            fontSize: 18,
+                            color:
+                                Theme.of(context).colorScheme.brightness ==
+                                    Brightness.light
+                                ? Colors.black54
+                                : Colors.white70,
+                          ),
                         ),
                       ],
                     ),
@@ -55,11 +63,16 @@ class LoginScreen extends ConsumerWidget {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF006D77),
+                              color:
+                                  Theme.of(context).colorScheme.brightness ==
+                                      Brightness.light
+                                  ? Colors.black87
+                                  : Colors.white70,
                             ),
                           ),
                           const SizedBox(height: 24),
                           TextField(
+                            controller: usernameController,
                             decoration: InputDecoration(
                               labelText: "Username",
                               prefixIcon: const Icon(Icons.person_outline),
@@ -70,6 +83,7 @@ class LoginScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 16),
                           TextField(
+                            controller: passwordController,
                             obscureText: true,
                             decoration: InputDecoration(
                               labelText: "Password",
@@ -84,7 +98,16 @@ class LoginScreen extends ConsumerWidget {
                             width: double.infinity,
                             height: 45,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                // login logic here...
+                                attemptLogin(
+                                  username: usernameController.text,
+                                  password: passwordController.text,
+                                  function: () {
+                                    //
+                                  },
+                                );
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).primaryColor,
                                 shape: RoundedRectangleBorder(
@@ -92,10 +115,16 @@ class LoginScreen extends ConsumerWidget {
                                 ),
                                 elevation: 2,
                               ),
-                              child: const Text(
+                              child: Text(
                                 "Log In",
                                 style: TextStyle(
-                                  color: Colors.white, // Ensure visibility
+                                  color:
+                                      Theme.of(
+                                            context,
+                                          ).colorScheme.brightness ==
+                                          Brightness.light
+                                      ? Colors.white
+                                      : Colors.white70,
                                   fontSize: 16,
                                 ),
                               ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/screens/window_loading_screen.dart';
+import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 
@@ -96,53 +96,113 @@ class _MyAppState extends State<MyApp> with WindowListener {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
+        themeMode: ThemeMode.light,
         theme: ThemeData(
-          scaffoldBackgroundColor: const Color(0xFFEFF7F6),
-          primaryColor: const Color(0xFF006D77),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF006D77),
-          primary: const Color(0xFF006D77),
-          secondary: const Color(0xFF83C5BE),
-        ),
-          primarySwatch: MaterialColor(
-            0xFF006D77,
-            <int, Color>{
-              50: Color(0xFFE0F2F1),
-              100: Color(0xFFB2DFDB),
-              200: Color(0xFF80CBC4),
-              300: Color(0xFF4DB6AC),
-              400: Color(0xFF26A69A),
-              500: Color(0xFF006D77),
-              600: Color(0xFF00897B),
-              700: Color(0xFF00796B),
-              800: Color(0xFF00695C),
-              900: Color(0xFF004D40),
-            },
+          brightness: Brightness.light,
+          primarySwatch: MaterialColor(0xFF0072B5, <int, Color>{
+            50: Color(0xFFE1F0F9),
+            100: Color(0xFFB3DAEF),
+            200: Color(0xFF80C3E4),
+            300: Color(0xFF4DADD9),
+            400: Color(0xFF269CD1),
+            500: Color(0xFF0072B5),
+            600: Color(0xFF0066A3),
+            700: Color(0xFF005A91),
+            800: Color(0xFF004E7F),
+            900: Color(0xFF00375F),
+          }),
+          colorScheme:
+              ColorScheme.fromSeed(
+                seedColor: Color(0xFF0072B5),
+                primary: Color(0xFF0072B5),
+                secondary: Color(0xFF1AA260),
+                brightness: Brightness.light,
+              ).copyWith(
+                surface: Color(0xFFFAFAF6), // ✅ Replace deprecated background
+                surfaceContainerHighest: Color(0xFFE8F0F9),
+              ),
+          scaffoldBackgroundColor:
+              Colors.grey[200]!, // ✅ Replace deprecated background
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFF0072B5),
+            foregroundColor: Colors.white,
+            elevation: 2,
           ),
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          useMaterial3:
-              true, // Enable Material You design (optional but recommended)
-          splashFactory: InkRipple
-              .splashFactory, // Ripple effect works on all platforms nicely
-          pageTransitionsTheme: PageTransitionsTheme(
+          fontFamily: 'GoogleSans',
+          textTheme: const TextTheme(
+            headlineSmall: TextStyle(
+              color: Color(0xFF0072B5),
+              fontWeight: FontWeight.bold,
+            ),
+            bodyMedium: TextStyle(color: Colors.black87),
+          ),
+        ),
+
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          colorScheme:
+              ColorScheme.fromSeed(
+                seedColor: Color(0xFF0072B5),
+                brightness: Brightness.dark,
+                primary: Color(0xFF0072B5),
+                secondary: Color(0xFF1AA260),
+              ).copyWith(
+                surface: Color(0xFF1E1E1E),
+                surfaceContainerHighest: Color(0xFF2C2C2C),
+              ),
+          scaffoldBackgroundColor: Color(0xFF23272F),
+          // ⬅️ Dark mode BG
+          fontFamily: 'GoogleSans',
+          textTheme: const TextTheme(
+            headlineSmall: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            bodyMedium: TextStyle(color: Colors.white70),
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFF0072B5),
+            foregroundColor: Colors.white,
+            elevation: 2,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF1AA260),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          floatingActionButtonTheme: const FloatingActionButtonThemeData(
+            backgroundColor: Color(0xFF1AA260),
+          ),
+          inputDecorationTheme: const InputDecorationTheme(
+            border: OutlineInputBorder(),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF0072B5)),
+            ),
+          ),
+          useMaterial3: true,
+          splashFactory: InkRipple.splashFactory,
+          pageTransitionsTheme: const PageTransitionsTheme(
             builders: {
               TargetPlatform.android: ZoomPageTransitionsBuilder(),
               TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.windows:
-                  ZoomPageTransitionsBuilder(), // better for desktop
+              TargetPlatform.windows: ZoomPageTransitionsBuilder(),
               TargetPlatform.linux: ZoomPageTransitionsBuilder(),
               TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
               TargetPlatform.fuchsia: ZoomPageTransitionsBuilder(),
             },
           ),
-          // Optionally, customize scrollbar behavior for desktop
           scrollbarTheme: ScrollbarThemeData(
             thumbVisibility: WidgetStateProperty.all(true),
             thickness: WidgetStateProperty.all(8),
-            radius: Radius.circular(4),
+            radius: const Radius.circular(4),
           ),
         ),
-        home: WindowLoadingScreen(onLoginScreen: isLoginScreen,),
+
+        home: WindowLoadingScreen(onLoginScreen: isLoginScreen),
       ),
     );
   }

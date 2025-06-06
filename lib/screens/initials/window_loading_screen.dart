@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home_screen.dart';
+import 'package:labledger/screens/initials/animated_progress_indicator.dart';
 import 'package:labledger/screens/login_screen.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -16,17 +17,19 @@ class WindowLoadingScreen extends ConsumerStatefulWidget {
 }
 
 class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
-  String tileText = "Connecting to Server...";
+  String tileText = "";
 
   void _goToLogin() {
+    setWindowBehavior(isForLogin: true);
     widget.onLoginScreen.value = true;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      MaterialPageRoute(builder: (context) =>  LoginScreen()),
     );
   }
 
   void _goToHome() {
+    setWindowBehavior();
     widget.onLoginScreen.value = false;
     Navigator.pushReplacement(
       context,
@@ -38,7 +41,9 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   void initState() {
     super.initState();
     widget.onLoginScreen.value = true;
+    debugPrint("before checking auth");
     _checkAuth();
+    debugPrint("after checking auth");
   }
 
   void setWindowBehavior({bool? isForLogin}) async {
@@ -57,37 +62,37 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   }
 
   Future<void> _checkAuth() async {
+    debugPrint("checking auth");
     final storage = ref.read(secureStorageProvider);
     final token = await storage.read(key: 'access_token');
 
     if (token == null) {
-      await Future.delayed(const Duration(seconds: 5));
-      setWindowBehavior(isForLogin: true);
+      await Future.delayed(ref.read(splashScreenTimeProvider));
       _goToLogin();
       return;
     }
 
     try {
+      debugPrint('${ref.read(baseUrlProvider)}verify-auth/');
+      debugPrint('trying url');
       final response = await http
           .get(
             Uri.parse('${ref.read(baseUrlProvider)}verify-auth/'),
             headers: {'Authorization': 'Bearer $token'},
           )
-          .timeout(const Duration(seconds: 2));
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
-        await Future.delayed(const Duration(seconds: 2));
-        setWindowBehavior();
+        await Future.delayed(ref.read(splashScreenTimeProvider));
         _goToHome();
       } else {
-        await Future.delayed(const Duration(seconds: 2));
-        setWindowBehavior(isForLogin: true);
+        await Future.delayed(ref.read(splashScreenTimeProvider));
         _goToLogin();
       }
     } catch (e) {
-      await Future.delayed(const Duration(seconds: 3), () {
+      await Future.delayed(ref.read(splashScreenTimeProvider), () {
         setState(() {
-          tileText = "Retrying.. Check if you have started the server";
+          tileText = "Oops! Server is not responding yet, retrying...";
         });
       });
     }
@@ -96,26 +101,26 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ref.read(appIconNameWidgetProvider),
-            const SizedBox(height: 30),
-            const SizedBox(
-              width: 200,
-              child: LinearProgressIndicator(
-                backgroundColor: Colors.white24,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ref.read(splashAppNameProvider),
+            // SizedBox(height: 30),
+            SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
+            SizedBox(height: 10),
+            Text(
+              tileText,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 16,
               ),
             ),
-            const SizedBox(height: 10),
-            Text(tileText, style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),
     );
   }
 }
-
