@@ -6,6 +6,7 @@ import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 
 Size get initialWindowSize => const Size(700, 350); // 🟩 Initial Size
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
