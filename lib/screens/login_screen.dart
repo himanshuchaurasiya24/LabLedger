@@ -2,13 +2,68 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
+import 'package:labledger/screens/home_screen.dart';
+import 'package:window_manager/window_manager.dart';
 
-class LoginScreen extends ConsumerWidget {
-  LoginScreen({super.key});
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  ConsumerState<LoginScreen> createState() => LoginScreenState();
+}
+
+class LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  String errorMessage = "";
+  void setWindowBehavior({bool? isForLogin}) async {
+    bool isLogin = isForLogin ?? false;
+    if (!isLogin) {
+      await windowManager.setSize(const Size(1280, 720), animate: true);
+      await windowManager.center();
+      await windowManager.setSkipTaskbar(false);
+      await windowManager.setTitleBarStyle(TitleBarStyle.normal);
+    } else {
+      await windowManager.setSize(const Size(700, 350), animate: true);
+      await windowManager.center();
+      await windowManager.setSkipTaskbar(true);
+      await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    }
+  }
+
+  void login() async {
+    final value = await attemptLogin(
+      username: usernameController.text,
+      password: passwordController.text,
+    );
+
+    if (!mounted) return; // ✅ Prevent using context if the widget is disposed
+    if (value == "true") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen(isAdmin: true)),
+      );
+    } else if (value == 'false') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen(isAdmin: false)),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    setWindowBehavior(isForLogin: true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ClipRRect(
       clipBehavior: Clip.none,
       borderRadius: BorderRadius.circular(24),
@@ -101,13 +156,7 @@ class LoginScreen extends ConsumerWidget {
                             child: ElevatedButton(
                               onPressed: () {
                                 // login logic here...
-                                attemptLogin(
-                                  username: usernameController.text,
-                                  password: passwordController.text,
-                                  function: () {
-                                    //
-                                  },
-                                );
+                                login();
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).primaryColor,
@@ -131,6 +180,12 @@ class LoginScreen extends ConsumerWidget {
                               ),
                             ),
                           ),
+                          const SizedBox(height: 16),
+                          if (errorMessage.isNotEmpty)
+                            Text(
+                              errorMessage,
+                              style: TextStyle(color: Colors.red, fontSize: 14),
+                            ),
                         ],
                       ),
                     ),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,7 +7,6 @@ import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home_screen.dart';
 import 'package:labledger/screens/initials/animated_progress_indicator.dart';
 import 'package:labledger/screens/login_screen.dart';
-import 'package:window_manager/window_manager.dart';
 
 class WindowLoadingScreen extends ConsumerStatefulWidget {
   const WindowLoadingScreen({super.key, required this.onLoginScreen});
@@ -20,20 +21,20 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   String tileText = "";
 
   void _goToLogin() {
-    setWindowBehavior(isForLogin: true);
     widget.onLoginScreen.value = true;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) =>  LoginScreen()),
+      MaterialPageRoute(builder: (context) => LoginScreen()),
     );
   }
 
-  void _goToHome() {
-    setWindowBehavior();
+  void _goToHome({required bool isAdmin}) {
     widget.onLoginScreen.value = false;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+      MaterialPageRoute(
+        builder: (context) =>  HomeScreen(isAdmin: isAdmin),
+      ),
     );
   }
 
@@ -41,25 +42,23 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   void initState() {
     super.initState();
     widget.onLoginScreen.value = true;
-    debugPrint("before checking auth");
     _checkAuth();
-    debugPrint("after checking auth");
   }
 
-  void setWindowBehavior({bool? isForLogin}) async {
-    bool isLogin = isForLogin ?? false;
-    if (!isLogin) {
-      await windowManager.setSize(const Size(1280, 720), animate: true);
-      await windowManager.center();
-      await windowManager.setSkipTaskbar(false);
-      await windowManager.setTitleBarStyle(TitleBarStyle.normal);
-    } else {
-      await windowManager.setSize(const Size(700, 350), animate: true);
-      await windowManager.center();
-      await windowManager.setSkipTaskbar(true);
-      await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-    }
-  }
+  // void setWindowBehavior({bool? isForLogin}) async {
+  //   bool isLogin = isForLogin ?? false;
+  //   if (!isLogin) {
+  //     await windowManager.setSize(const Size(1280, 720), animate: true);
+  //     await windowManager.center();
+  //     await windowManager.setSkipTaskbar(false);
+  //     await windowManager.setTitleBarStyle(TitleBarStyle.normal);
+  //   } else {
+  //     await windowManager.setSize(const Size(700, 350), animate: true);
+  //     await windowManager.center();
+  //     await windowManager.setSkipTaskbar(true);
+  //     await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+  //   }
+  // }
 
   Future<void> _checkAuth() async {
     debugPrint("checking auth");
@@ -73,8 +72,6 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     }
 
     try {
-      debugPrint('${ref.read(baseUrlProvider)}verify-auth/');
-      debugPrint('trying url');
       final response = await http
           .get(
             Uri.parse('${ref.read(baseUrlProvider)}verify-auth/'),
@@ -83,8 +80,14 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
           .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
+        bool isAdmin = false;
+        final body = jsonDecode(response.body);
+        debugPrint(body.toString());
+        if (body['is_admin'] == "true") {
+          isAdmin = true;
+        }
         await Future.delayed(ref.read(splashScreenTimeProvider));
-        _goToHome();
+        _goToHome(isAdmin: isAdmin);
       } else {
         await Future.delayed(ref.read(splashScreenTimeProvider));
         _goToLogin();
@@ -94,6 +97,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
         setState(() {
           tileText = "Oops! Server is not responding yet, retrying...";
         });
+        _checkAuth();
       });
     }
   }
