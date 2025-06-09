@@ -109,8 +109,11 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ref.watch(appIconNameWidgetProvider),
-                        const SizedBox(height: 16),
+                        appIconNameWidget(
+                          context: context,
+                          forLogInScreen: true,
+                        ),
+                        const SizedBox(height: 5),
                         Text(
                           "Medical Records Made Simple",
                           style: TextStyle(

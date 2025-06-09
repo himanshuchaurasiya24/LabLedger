@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
@@ -8,7 +9,6 @@ import 'dart:async';
 Size get initialWindowSize => const Size(700, 350); // 🟩 Initial Size
 final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
 final ValueNotifier<bool> isDarkMode = ValueNotifier<bool>(false);
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -30,14 +30,14 @@ void main() async {
   runApp(ProviderScope(child: const MyApp()));
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  ConsumerState<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WindowListener {
+class _MyAppState extends ConsumerState<MyApp> with WindowListener {
   bool isFullScreen = false;
   @override
   void initState() {
@@ -75,6 +75,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = ref.read(themeProvider);
     return KeyboardListener(
       focusNode: FocusNode()..requestFocus(),
       autofocus: true,
@@ -97,7 +98,8 @@ class _MyAppState extends State<MyApp> with WindowListener {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
-        themeMode: isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+        themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+        // themeMode: ThemeMode.dark,
         theme: ThemeData(
           brightness: Brightness.light,
           primarySwatch: MaterialColor(0xFF0072B5, <int, Color>{

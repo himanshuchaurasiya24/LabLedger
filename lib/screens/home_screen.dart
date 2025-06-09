@@ -49,82 +49,77 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // int width = MediaQuery.of(context).size.width.toInt();
+    // double height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Row(
         children: [
           // Sidebar
-          Container(
-            width: 240,
-            color: Theme.of(context).colorScheme.primary,
-            // color: Theme.of(context).colorScheme.primary,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DrawerHeader(
-                  child: Text(
-                    'LabLedger',
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyMedium!.color,
-                      fontSize: 24,
-                    ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              width: 240,
+              color: Theme.of(context).colorScheme.primary,
+              // color: Theme.of(context).colorScheme.primary,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  appIconNameWidget(context: context),
+                  SidebarItem(
+                    icon: LucideIcons.home,
+                    label: 'Dashboard',
+                    onTap: () => setState(() => selectedIndex = 0),
                   ),
-                ),
-                SidebarItem(
-                  icon: LucideIcons.home,
-                  label: 'Dashboard',
-                  onTap: () => setState(() => selectedIndex = 0),
-                ),
-                SidebarItem(
-                  icon: LucideIcons.user,
-                  label: 'Patients',
-                  onTap: () => setState(() => selectedIndex = 1),
-                ),
-                SidebarItem(
-                  icon: LucideIcons.fileText,
-                  label: 'Bills',
-                  onTap: () => setState(() => selectedIndex = 2),
-                ),
-                SidebarItem(
-                  icon: LucideIcons.bookOpen,
-                  label: 'Reports',
-                  onTap: () => setState(() => selectedIndex = 3),
-                ),
-                SidebarItem(
-                  icon: LucideIcons.userCheck,
-                  label: 'Doctors',
-                  onTap: () => setState(() => selectedIndex = 4),
-                ),
-                SidebarItem(
-                  icon: LucideIcons.activity,
-                  label: 'Diagnosis Types',
-                  onTap: () => setState(() => selectedIndex = 5),
-                ),
-                SidebarItem(
-                  icon: LucideIcons.building2,
-                  label: 'Center Details',
-                  onTap: () => setState(() => selectedIndex = 6),
-                ),
-                SidebarItem(
-                  icon: LucideIcons.settings,
-                  label: 'Settings',
-                  onTap: () => setState(() => selectedIndex = 7),
-                ),
-                const Spacer(),
-                SidebarItem(
-                  icon: LucideIcons.logOut,
-                  label: 'Logout',
-                  onTap: () {},
-                ),
-              ],
+                  SidebarItem(
+                    icon: LucideIcons.user,
+                    label: 'Patients',
+                    onTap: () => setState(() => selectedIndex = 1),
+                  ),
+                  SidebarItem(
+                    icon: LucideIcons.fileText,
+                    label: 'Bills',
+                    onTap: () => setState(() => selectedIndex = 2),
+                  ),
+                  SidebarItem(
+                    icon: LucideIcons.bookOpen,
+                    label: 'Reports',
+                    onTap: () => setState(() => selectedIndex = 3),
+                  ),
+                  SidebarItem(
+                    icon: LucideIcons.userCheck,
+                    label: 'Doctors',
+                    onTap: () => setState(() => selectedIndex = 4),
+                  ),
+                  SidebarItem(
+                    icon: LucideIcons.activity,
+                    label: 'Diagnosis Types',
+                    onTap: () => setState(() => selectedIndex = 5),
+                  ),
+                  SidebarItem(
+                    icon: LucideIcons.building2,
+                    label: 'Center Details',
+                    onTap: () => setState(() => selectedIndex = 6),
+                  ),
+                  SidebarItem(
+                    icon: LucideIcons.settings,
+                    label: 'Settings',
+                    onTap: () => setState(() => selectedIndex = 7),
+                  ),
+                  const Spacer(),
+                  SidebarItem(
+                    icon: LucideIcons.logOut,
+                    label: 'Logout',
+                    onTap: () {},
+                  ),
+                ],
+              ),
             ),
           ),
-
-          // Main content
           Expanded(
+            flex: 5,
             child: Column(
               children: [
-                // Top bar
                 Container(
                   height: 60,
                   color:
@@ -135,15 +130,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
-                      Expanded(child: SizedBox()),
                       Text(
-                        'LabLedger Dashboard',
+                        'Dashboard',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Expanded(child: SizedBox()),
                       CircleAvatar(child: Icon(Icons.person)),
                     ],
                   ),

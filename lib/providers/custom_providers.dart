@@ -51,31 +51,88 @@ final splashAppNameProvider = Provider<Widget>((ref) {
   );
 });
 
-final appIconNameWidgetProvider = Provider<Widget>((ref) {
+/// Returns the app icon and name widget, adapting the icon to the current theme.
+Widget appIconNameWidget({
+  required BuildContext context,
+  bool? forLogInScreen,
+}) {
+  String assetLocation = 'assets/images/light.png';
+  bool isForLogInScreen = forLogInScreen ?? false;
+  if (isForLogInScreen) {
+    assetLocation = 'assets/images/app_icon.png';
+  } else {
+    if (Theme.of(context).colorScheme.brightness == Brightness.dark) {
+      assetLocation = 'assets/images/dark.png';
+    } else {
+      assetLocation = 'assets/images/light.png';
+    }
+  }
   return Column(
     children: [
-      Image.asset('assets/images/app_icon.png', width: 160, height: 160),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            "Lab",
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 0, 110, 164),
+      const SizedBox(height: 20),
+      Image.asset(assetLocation, width: 160, height: 160),
+      const SizedBox(height: 10),
+      isForLogInScreen
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Lab",
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                Text(
+                  "Ledger",
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "LabLeger",
+                  style: TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                  ),
+                ),
+              ],
             ),
-          ),
-          Text(
-            "Ledger",
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 2, 166, 36),
-            ),
-          ),
-        ],
-      ),
     ],
   );
+}
+
+final themeProvider = NotifierProvider<ThemeNotifier, bool>(() {
+  return ThemeNotifier();
 });
+
+class ThemeNotifier extends Notifier<bool> {
+  final _storage = const FlutterSecureStorage();
+  final String _darkModeKey = 'darkMode';
+
+  @override
+  bool build() {
+    _loadDarkMode();
+    return false; // default value
+  }
+
+  Future<void> _loadDarkMode() async {
+    String? storedValue = await _storage.read(key: _darkModeKey);
+    bool darkMode = storedValue == 'true';
+    state = darkMode;
+  }
+
+  Future<void> toggleDarkMode(bool value) async {
+    await _storage.write(key: _darkModeKey, value: value.toString());
+    state = value;
+  }
+}

@@ -18,7 +18,7 @@ class _SettingsState extends State<Settings> {
           children: [
             const Text(
               'Settings',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(children: [const Text('Theme:'), const SizedBox(width: 8)]),

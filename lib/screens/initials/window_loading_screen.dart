@@ -63,7 +63,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
           )
           .timeout(const Duration(seconds: 5));
 
-        bool? isAdmin;
+      bool? isAdmin;
       if (response.statusCode == 200) {
         debugPrint("status 200");
         final body = jsonDecode(response.body);
