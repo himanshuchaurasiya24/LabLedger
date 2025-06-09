@@ -6,6 +6,8 @@ import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 
 Size get initialWindowSize => const Size(700, 350); // 🟩 Initial Size
+final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
+final ValueNotifier<bool> isDarkMode = ValueNotifier<bool>(false);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,8 +39,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> with WindowListener {
   bool isFullScreen = false;
-  final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
-
   @override
   void initState() {
     super.initState();
@@ -97,7 +97,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
-        themeMode: ThemeMode.light,
+        themeMode: isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
         theme: ThemeData(
           brightness: Brightness.light,
           primarySwatch: MaterialColor(0xFF0072B5, <int, Color>{
@@ -124,11 +124,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
               ),
           scaffoldBackgroundColor:
               Colors.grey[200]!, // ✅ Replace deprecated background
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFF0072B5),
-            foregroundColor: Colors.white,
-            elevation: 2,
-          ),
+          appBarTheme: AppBarTheme(backgroundColor: Colors.grey[200]!),
           fontFamily: 'GoogleSans',
           textTheme: const TextTheme(
             headlineSmall: TextStyle(
@@ -161,11 +157,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
             ),
             bodyMedium: TextStyle(color: Colors.white70),
           ),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFF0072B5),
-            foregroundColor: Colors.white,
-            elevation: 2,
-          ),
+          appBarTheme: AppBarTheme(backgroundColor: Color(0xFF23272F)),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFF1AA260),

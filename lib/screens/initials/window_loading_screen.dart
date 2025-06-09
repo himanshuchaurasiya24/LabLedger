@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home_screen.dart';
 import 'package:labledger/screens/initials/animated_progress_indicator.dart';
-import 'package:labledger/screens/login_screen.dart';
+import 'package:labledger/screens/initials/login_screen.dart';
 
 class WindowLoadingScreen extends ConsumerStatefulWidget {
   const WindowLoadingScreen({super.key, required this.onLoginScreen});
@@ -32,9 +32,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     widget.onLoginScreen.value = false;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) =>  HomeScreen(isAdmin: isAdmin),
-      ),
+      MaterialPageRoute(builder: (context) => HomeScreen(isAdmin: isAdmin)),
     );
   }
 
@@ -45,27 +43,13 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     _checkAuth();
   }
 
-  // void setWindowBehavior({bool? isForLogin}) async {
-  //   bool isLogin = isForLogin ?? false;
-  //   if (!isLogin) {
-  //     await windowManager.setSize(const Size(1280, 720), animate: true);
-  //     await windowManager.center();
-  //     await windowManager.setSkipTaskbar(false);
-  //     await windowManager.setTitleBarStyle(TitleBarStyle.normal);
-  //   } else {
-  //     await windowManager.setSize(const Size(700, 350), animate: true);
-  //     await windowManager.center();
-  //     await windowManager.setSkipTaskbar(true);
-  //     await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-  //   }
-  // }
-
   Future<void> _checkAuth() async {
     debugPrint("checking auth");
     final storage = ref.read(secureStorageProvider);
     final token = await storage.read(key: 'access_token');
 
     if (token == null) {
+      debugPrint("token : null");
       await Future.delayed(ref.read(splashScreenTimeProvider));
       _goToLogin();
       return;
@@ -79,26 +63,29 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
           )
           .timeout(const Duration(seconds: 5));
 
+        bool? isAdmin;
       if (response.statusCode == 200) {
-        bool isAdmin = false;
+        debugPrint("status 200");
         final body = jsonDecode(response.body);
+        isAdmin = body['is_admin'];
         debugPrint(body.toString());
-        if (body['is_admin'] == "true") {
-          isAdmin = true;
-        }
+        debugPrint("splash timer running");
         await Future.delayed(ref.read(splashScreenTimeProvider));
-        _goToHome(isAdmin: isAdmin);
+        debugPrint("going home");
+        _goToHome(isAdmin: isAdmin!);
       } else {
+        debugPrint("splash timer runnig");
         await Future.delayed(ref.read(splashScreenTimeProvider));
+        debugPrint("going login");
         _goToLogin();
       }
     } catch (e) {
-      await Future.delayed(ref.read(splashScreenTimeProvider), () {
-        setState(() {
-          tileText = "Oops! Server is not responding yet, retrying...";
-        });
-        _checkAuth();
+      setState(() {
+        tileText = "Oops! Server is not responding yet, retrying...";
       });
+      debugPrint("error in windows loading screen");
+      debugPrint("checking auth...");
+      _checkAuth();
     }
   }
 

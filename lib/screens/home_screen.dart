@@ -1,34 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/login_screen.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:labledger/screens/initials/login_screen.dart';
+import 'package:labledger/screens/main_screens/dashboard.dart';
+import 'package:labledger/screens/main_screens/settings.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.isAdmin});
   final bool isAdmin;
 
   @override
-  ConsumerState<HomeScreen> createState() => HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class HomeScreenState extends ConsumerState<HomeScreen> {
-  void setWindowBehavior({bool? isForLogin}) async {
-    bool isLogin = isForLogin ?? false;
-    if (!isLogin) {
-      await windowManager.setSize(const Size(1280, 720), animate: true);
-      await windowManager.center();
-      await windowManager.setSkipTaskbar(false);
-      await windowManager.setTitleBarStyle(TitleBarStyle.normal);
-    } else {
-      await windowManager.setSize(const Size(700, 350), animate: true);
-      await windowManager.center();
-      await windowManager.setSkipTaskbar(true);
-      await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-    }
-  }
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int selectedIndex = 0;
 
+  final List<String> sidebarLabels = [
+    'Dashboard',
+    'Patients',
+    'Bills',
+    'Reports',
+    'Doctors',
+    'Diagnosis Types',
+    'Center Details',
+    'Settings',
+    'Logout',
+  ];
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
     debugPrint(secureStorage.read(key: 'access_token').toString());
@@ -49,18 +50,198 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Home Screen"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              logout();
-            },
-            icon: Icon(Icons.logout_outlined),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Row(
+        children: [
+          // Sidebar
+          Container(
+            width: 240,
+            color: Theme.of(context).colorScheme.primary,
+            // color: Theme.of(context).colorScheme.primary,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DrawerHeader(
+                  child: Text(
+                    'LabLedger',
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodyMedium!.color,
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+                SidebarItem(
+                  icon: LucideIcons.home,
+                  label: 'Dashboard',
+                  onTap: () => setState(() => selectedIndex = 0),
+                ),
+                SidebarItem(
+                  icon: LucideIcons.user,
+                  label: 'Patients',
+                  onTap: () => setState(() => selectedIndex = 1),
+                ),
+                SidebarItem(
+                  icon: LucideIcons.fileText,
+                  label: 'Bills',
+                  onTap: () => setState(() => selectedIndex = 2),
+                ),
+                SidebarItem(
+                  icon: LucideIcons.bookOpen,
+                  label: 'Reports',
+                  onTap: () => setState(() => selectedIndex = 3),
+                ),
+                SidebarItem(
+                  icon: LucideIcons.userCheck,
+                  label: 'Doctors',
+                  onTap: () => setState(() => selectedIndex = 4),
+                ),
+                SidebarItem(
+                  icon: LucideIcons.activity,
+                  label: 'Diagnosis Types',
+                  onTap: () => setState(() => selectedIndex = 5),
+                ),
+                SidebarItem(
+                  icon: LucideIcons.building2,
+                  label: 'Center Details',
+                  onTap: () => setState(() => selectedIndex = 6),
+                ),
+                SidebarItem(
+                  icon: LucideIcons.settings,
+                  label: 'Settings',
+                  onTap: () => setState(() => selectedIndex = 7),
+                ),
+                const Spacer(),
+                SidebarItem(
+                  icon: LucideIcons.logOut,
+                  label: 'Logout',
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ),
+
+          // Main content
+          Expanded(
+            child: Column(
+              children: [
+                // Top bar
+                Container(
+                  height: 60,
+                  color:
+                      Theme.of(context).appBarTheme.backgroundColor ??
+                      Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Expanded(child: SizedBox()),
+                      Text(
+                        'LabLedger Dashboard',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(child: SizedBox()),
+                      CircleAvatar(child: Icon(Icons.person)),
+                    ],
+                  ),
+                ),
+
+                // Main Screen content
+                Padding(
+                  padding: EdgeInsetsGeometry.symmetric(
+                    horizontal: defaultPadding,
+                  ),
+                  child: mainScreenContentProvider(indexNumber: selectedIndex),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-      body: Center(child: Text("Home Screen")),
     );
+  }
+}
+
+class SidebarItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const SidebarItem({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, color: Theme.of(context).scaffoldBackgroundColor),
+      title: Text(
+        label,
+        style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor),
+      ),
+      onTap: onTap,
+    );
+  }
+}
+
+class SummaryCard extends StatelessWidget {
+  final String title;
+  final String count;
+  final IconData icon;
+  const SummaryCard({
+    super.key,
+    required this.title,
+    required this.count,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 30, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(height: 12),
+            Text(
+              count,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Text(title, style: const TextStyle(color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget mainScreenContentProvider({required int indexNumber}) {
+  switch (indexNumber) {
+    case 0:
+      return Dashboard();
+    case 7:
+      return Settings();
+
+    default:
+      return Text('Invalid index');
   }
 }
