@@ -58,12 +58,10 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   }
 
   Future<void> _checkAuth() async {
-    debugPrint("checking auth");
     final storage = ref.read(secureStorageProvider);
     final token = await storage.read(key: 'access_token');
 
     if (token == null) {
-      debugPrint("token : null");
       await Future.delayed(ref.read(splashScreenTimeProvider));
       _goToLogin();
       return;
@@ -90,21 +88,16 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
         firstName = body['first_name'];
         lastName = body['last_name'];
         id = body['id'];
-        debugPrint(body.toString());
         await Future.delayed(ref.read(splashScreenTimeProvider));
         _goToHome(isAdmin: isAdmin!, firstName: firstName, id: id, lastName: lastName, username: username);
       } else {
-        debugPrint("splash timer runnig");
         await Future.delayed(ref.read(splashScreenTimeProvider));
-        debugPrint("going login");
         _goToLogin();
       }
     } catch (e) {
       setState(() {
         tileText = "Oops! Server is not responding yet, retrying...";
       });
-      debugPrint("error in windows loading screen");
-      debugPrint("checking auth...");
       _checkAuth();
     }
   }

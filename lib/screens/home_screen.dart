@@ -4,8 +4,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
-import 'package:labledger/screens/main_screens/dashboard.dart';
-import 'package:labledger/screens/main_screens/settings.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -43,8 +41,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ];
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
-    debugPrint(secureStorage.read(key: 'access_token').toString());
     secureStorage.delete(key: 'access_token');
+    secureStorage.delete(key: 'access_tokenn');
     setWindowBehavior(isForLogin: true);
     Navigator.pushReplacement(
       context,
@@ -56,6 +54,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void initState() {
     super.initState();
     setWindowBehavior();
+  }
+
+  SidebarItem sidebarItemSelector(int index) {
+    List<SidebarItem> sidebarItems = [];
+    return sidebarItems[index];
   }
 
   @override
@@ -115,6 +118,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     label: 'Settings',
                     onTap: () => setState(() => selectedIndex = 7),
                   ),
+
                   const Spacer(),
                   SidebarItem(
                     icon: LucideIcons.logOut,
@@ -142,7 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Dashboard',
+                        sidebarLabels[selectedIndex],
                         style: Theme.of(context).textTheme.headlineMedium!
                             .copyWith(fontWeight: FontWeight.bold),
                       ),
@@ -182,86 +186,5 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
     );
-  }
-}
-
-class SidebarItem extends ConsumerWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  const SidebarItem({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ListTile(
-      leading: Icon(icon, color: ref.read(lightScaffoldColorProvider)),
-      title: Text(
-        label,
-        style: TextStyle(color: ref.read(lightScaffoldColorProvider)),
-      ),
-      onTap: onTap,
-    );
-  }
-}
-
-class SummaryCard extends StatelessWidget {
-  final String title;
-  final String count;
-  final IconData icon;
-  const SummaryCard({
-    super.key,
-    required this.title,
-    required this.count,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 30, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(height: 12),
-            Text(
-              count,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Text(title, style: const TextStyle(color: Colors.grey)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-Widget mainScreenContentProvider({required int indexNumber}) {
-  switch (indexNumber) {
-    case 0:
-      return Dashboard();
-    case 7:
-      return Settings();
-
-    default:
-      return Text('Invalid index');
   }
 }

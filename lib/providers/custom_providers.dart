@@ -108,32 +108,47 @@ Widget appIconNameWidget({
   );
 }
 
-final themeProvider = NotifierProvider<ThemeNotifier, bool>(() {
-  return ThemeNotifier();
-});
 
 final lightScaffoldColorProvider = Provider<Color>((ref) {
   return ThemeData.light().scaffoldBackgroundColor;
 });
 
-class ThemeNotifier extends Notifier<bool> {
-  final _storage = const FlutterSecureStorage();
-  final String _darkModeKey = 'darkMode';
+final themeNotifierProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((ref) {
+  final storage = ref.watch(secureStorageProvider);
+  return ThemeNotifier(storage);
+});
 
-  @override
-  bool build() {
-    _loadDarkMode();
-    return false; // default value
+class ThemeNotifier extends StateNotifier<ThemeMode> {
+  static const _key = 'theme_mode';
+  final FlutterSecureStorage _storage;
+
+  ThemeNotifier(this._storage) : super(ThemeMode.system) {
+    _loadTheme();
   }
 
-  Future<void> _loadDarkMode() async {
-    String? storedValue = await _storage.read(key: _darkModeKey);
-    bool darkMode = storedValue == 'true';
-    state = darkMode;
+  Future<void> _loadTheme() async {
+    final mode = await _storage.read(key: _key);
+    switch (mode) {
+      case 'dark':
+        state = ThemeMode.dark;
+        break;
+      case 'light':
+        state = ThemeMode.light;
+        break;
+      default:
+        state = ThemeMode.system;
+    }
   }
 
-  Future<void> toggleDarkMode(bool value) async {
-    await _storage.write(key: _darkModeKey, value: value.toString());
-    state = value;
+  Future<void> toggleTheme(ThemeMode mode) async {
+    state = mode;
+
+    final value = switch (mode) {
+      ThemeMode.dark => 'dark',
+      ThemeMode.light => 'light',
+      ThemeMode.system => 'system',
+    };
+
+    await _storage.write(key: _key, value: value);
   }
 }

@@ -75,7 +75,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = ref.read(themeProvider);
+    final themeMode = ref.read(themeNotifierProvider);
     return KeyboardListener(
       focusNode: FocusNode()..requestFocus(),
       autofocus: true,
@@ -98,8 +98,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
-        themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-        // themeMode: ThemeMode.dark,
+        themeMode: themeMode,
         theme: ThemeData(
           brightness: Brightness.light,
           primarySwatch: MaterialColor(0xFF0072B5, <int, Color>{

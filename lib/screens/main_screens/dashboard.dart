@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:labledger/screens/home_screen.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class Dashboard extends StatelessWidget {
