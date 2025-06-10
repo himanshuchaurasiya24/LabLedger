@@ -19,7 +19,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   String errorMessage = "";
 
-  Future<Map<String, bool>> attemptLogin({
+  Future<Map<String, dynamic>> attemptLogin({
     required String username,
     required String password,
   }) async {
@@ -41,6 +41,10 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
         return {
           'success': true,
           'is_admin': body['is_admin'],
+          'username':body['username'],
+          'first_name':body['first_name'],
+          'last_name':body['last_name'],
+          'id':body['id'],
         }; // Return the admin status for further use if needed
       } else if (response.statusCode == 401) {
         String error = body['detail'];
@@ -63,7 +67,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void login() async {
-    debugPrint("Login PRessed.");
+    debugPrint("Login Pressed.");
     final value = await attemptLogin(
       username: usernameController.text,
       password: passwordController.text,
@@ -74,7 +78,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomeScreen(isAdmin: value["is_admin"]!),
+          builder: (context) => HomeScreen(isAdmin: value["is_admin"]!,firstName: value['first_name']!,lastName: value['last_name']!,username: value['username']!,id : value['id']),
         ),
       );
     }

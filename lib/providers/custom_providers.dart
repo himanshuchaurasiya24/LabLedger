@@ -61,12 +61,9 @@ Widget appIconNameWidget({
   if (isForLogInScreen) {
     assetLocation = 'assets/images/app_icon.png';
   } else {
-    if (Theme.of(context).colorScheme.brightness == Brightness.dark) {
-      assetLocation = 'assets/images/dark.png';
-    } else {
-      assetLocation = 'assets/images/light.png';
-    }
+    assetLocation = 'assets/images/light.png';
   }
+
   return Column(
     children: [
       const SizedBox(height: 20),
@@ -98,11 +95,11 @@ Widget appIconNameWidget({
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "LabLeger",
+                  "LabLedger",
                   style: TextStyle(
                     fontSize: 34,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).scaffoldBackgroundColor,
+                    color: ThemeData.light().scaffoldBackgroundColor,
                   ),
                 ),
               ],
@@ -113,6 +110,10 @@ Widget appIconNameWidget({
 
 final themeProvider = NotifierProvider<ThemeNotifier, bool>(() {
   return ThemeNotifier();
+});
+
+final lightScaffoldColorProvider = Provider<Color>((ref) {
+  return ThemeData.light().scaffoldBackgroundColor;
 });
 
 class ThemeNotifier extends Notifier<bool> {

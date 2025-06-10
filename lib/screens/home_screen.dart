@@ -9,8 +9,19 @@ import 'package:labledger/screens/main_screens/settings.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({super.key, required this.isAdmin});
+  const HomeScreen({
+    super.key,
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.username,
+    required this.isAdmin,
+  });
   final bool isAdmin;
+  final int id;
+  final String firstName;
+  final String lastName;
+  final String username;
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
@@ -49,8 +60,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // int width = MediaQuery.of(context).size.width.toInt();
-    // double height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Row(
@@ -110,7 +119,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   SidebarItem(
                     icon: LucideIcons.logOut,
                     label: 'Logout',
-                    onTap: () {},
+                    onTap: () {
+                      logout();
+                    },
                   ),
                 ],
               ),
@@ -129,15 +140,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   alignment: Alignment.centerLeft,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       Text(
                         'Dashboard',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.headlineMedium!
+                            .copyWith(fontWeight: FontWeight.bold),
                       ),
-                      CircleAvatar(child: Icon(Icons.person)),
+                      Row(
+                        children: [
+                          Text(
+                            "${widget.firstName} ${widget.lastName}",
+                            style: Theme.of(context).textTheme.bodyLarge!
+                                .copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(width: defaultPadding),
+                          CircleAvatar(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                            child: Text(
+                              widget.firstName[0].toUpperCase(),
+                              style: Theme.of(context).textTheme.headlineMedium,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -158,7 +185,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-class SidebarItem extends StatelessWidget {
+class SidebarItem extends ConsumerWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -170,12 +197,12 @@ class SidebarItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).scaffoldBackgroundColor),
+      leading: Icon(icon, color: ref.read(lightScaffoldColorProvider)),
       title: Text(
         label,
-        style: TextStyle(color: Theme.of(context).scaffoldBackgroundColor),
+        style: TextStyle(color: ref.read(lightScaffoldColorProvider)),
       ),
       onTap: onTap,
     );

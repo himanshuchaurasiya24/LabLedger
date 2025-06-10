@@ -28,11 +28,25 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     );
   }
 
-  void _goToHome({required bool isAdmin}) {
+  void _goToHome({
+    required bool isAdmin,
+    required id,
+    required firstName,
+    required lastName,
+    required username,
+  }) {
     widget.onLoginScreen.value = false;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen(isAdmin: isAdmin)),
+      MaterialPageRoute(
+        builder: (context) => HomeScreen(
+          isAdmin: isAdmin,
+          id: id,
+          firstName: firstName,
+          lastName: lastName,
+          username: username,
+        ),
+      ),
     );
   }
 
@@ -64,15 +78,21 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
           .timeout(const Duration(seconds: 5));
 
       bool? isAdmin;
+      String? username;
+      String? firstName;
+      String? lastName;
+      int? id;
+
       if (response.statusCode == 200) {
-        debugPrint("status 200");
         final body = jsonDecode(response.body);
         isAdmin = body['is_admin'];
+        username = body['username'];
+        firstName = body['first_name'];
+        lastName = body['last_name'];
+        id = body['id'];
         debugPrint(body.toString());
-        debugPrint("splash timer running");
         await Future.delayed(ref.read(splashScreenTimeProvider));
-        debugPrint("going home");
-        _goToHome(isAdmin: isAdmin!);
+        _goToHome(isAdmin: isAdmin!, firstName: firstName, id: id, lastName: lastName, username: username);
       } else {
         debugPrint("splash timer runnig");
         await Future.delayed(ref.read(splashScreenTimeProvider));
