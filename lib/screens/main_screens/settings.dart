@@ -12,10 +12,12 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [const SizedBox(height: 16), ThemeToggleBar()],
+        children: [
+          const SizedBox(height: 16),
+          ThemeToggleBar(),
+        ],
       ),
     );
   }

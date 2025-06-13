@@ -75,7 +75,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.read(themeNotifierProvider);
+    final themeMode = ref.watch(themeNotifierProvider);
     return KeyboardListener(
       focusNode: FocusNode()..requestFocus(),
       autofocus: true,

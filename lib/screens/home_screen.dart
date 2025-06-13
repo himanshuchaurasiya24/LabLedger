@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
+import 'package:labledger/screens/profile/profile_screen.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -158,13 +159,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 .copyWith(fontWeight: FontWeight.bold),
                           ),
                           SizedBox(width: defaultPadding),
-                          CircleAvatar(
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primary,
-                            child: Text(
-                              widget.firstName[0].toUpperCase(),
-                              style: Theme.of(context).textTheme.headlineMedium,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ProfileScreen(userId: widget.id),
+                                ),
+                              );
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+
+                              child: Text(
+                                widget.firstName[0].toUpperCase(),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineMedium,
+                              ),
                             ),
                           ),
                         ],
@@ -174,11 +188,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
 
                 // Main Screen content
-                Padding(
-                  padding: EdgeInsetsGeometry.symmetric(
-                    horizontal: defaultPadding,
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: EdgeInsetsGeometry.symmetric(
+                      horizontal: defaultPadding,
+                    ),
+                    child: mainScreenContentProvider(
+                      indexNumber: selectedIndex,
+                    ),
                   ),
-                  child: mainScreenContentProvider(indexNumber: selectedIndex),
                 ),
               ],
             ),

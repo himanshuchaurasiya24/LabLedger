@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'package:labledger/custom_models.dart';
 
 final String baseURL = 'http://127.0.0.1:8000/';
 final double defaultPadding = 24;
@@ -26,6 +30,51 @@ final appDescriptionProvider = Provider<String>((ref) {
 final baseUrlProvider = Provider<String>((ref) {
   return baseURL; // Replace with your actual base URL
 });
+final userDetailsProvider = FutureProvider.family<User?, int>((ref, id) async {
+  final token = await ref.watch(tokenProvider.future); // ⬅️ await the future here
+  final baseUrl = ref.read(baseUrlProvider);
+
+  if (token == null) {
+    // Handle token error gracefully
+    throw Exception("No access token found");
+  }
+
+  final response = await http.get(
+    Uri.parse("$baseUrl/auth/staffs/staff/$id/"),
+    headers: {"Authorization": "Bearer $token"},
+  );
+
+  if (response.statusCode == 200) {
+    return User.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception("Failed to fetch user: ${response.statusCode}");
+  }
+});
+
+final updateUserProvider = FutureProvider.family<bool, User>((ref, user) async {
+  final token = await ref.watch(tokenProvider.future);
+  final baseUrl = ref.read(baseUrlProvider);
+
+  if (token == null) {
+    throw Exception("No access token found");
+  }
+
+  final response = await http.put(
+    Uri.parse("$baseUrl/auth/staffs/staff/${user.id}/"),
+    headers: {
+      "Authorization": "Bearer $token",
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode(user.toJson()),
+  );
+
+  if (response.statusCode == 200 || response.statusCode == 204) {
+    return true;
+  } else {
+    throw Exception("Failed to update user: ${response.statusCode}");
+  }
+});
+
 
 final splashAppNameProvider = Provider<Widget>((ref) {
   return Row(
@@ -51,69 +100,13 @@ final splashAppNameProvider = Provider<Widget>((ref) {
   );
 });
 
-/// Returns the app icon and name widget, adapting the icon to the current theme.
-Widget appIconNameWidget({
-  required BuildContext context,
-  bool? forLogInScreen,
-}) {
-  String assetLocation = 'assets/images/light.png';
-  bool isForLogInScreen = forLogInScreen ?? false;
-  if (isForLogInScreen) {
-    assetLocation = 'assets/images/app_icon.png';
-  } else {
-    assetLocation = 'assets/images/light.png';
-  }
-
-  return Column(
-    children: [
-      const SizedBox(height: 20),
-      Image.asset(assetLocation, width: 160, height: 160),
-      const SizedBox(height: 10),
-      isForLogInScreen
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Lab",
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                Text(
-                  "Ledger",
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-              ],
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "LabLedger",
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
-                    color: ThemeData.light().scaffoldBackgroundColor,
-                  ),
-                ),
-              ],
-            ),
-    ],
-  );
-}
-
-
 final lightScaffoldColorProvider = Provider<Color>((ref) {
   return ThemeData.light().scaffoldBackgroundColor;
 });
 
-final themeNotifierProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((ref) {
+final themeNotifierProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((
+  ref,
+) {
   final storage = ref.watch(secureStorageProvider);
   return ThemeNotifier(storage);
 });

@@ -179,3 +179,60 @@ Widget mainScreenContentProvider({required int indexNumber}) {
       return Text('Invalid index');
   }
 }
+
+/// Returns the app icon and name widget, adapting the icon to the current theme.
+Widget appIconNameWidget({
+  required BuildContext context,
+  bool? forLogInScreen,
+}) {
+  String assetLocation = 'assets/images/light.png';
+  bool isForLogInScreen = forLogInScreen ?? false;
+  if (isForLogInScreen) {
+    assetLocation = 'assets/images/app_icon.png';
+  } else {
+    assetLocation = 'assets/images/light.png';
+  }
+
+  return Column(
+    children: [
+      const SizedBox(height: 20),
+      Image.asset(assetLocation, width: 160, height: 160),
+      const SizedBox(height: 10),
+      isForLogInScreen
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Lab",
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                Text(
+                  "Ledger",
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "LabLedger",
+                  style: TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
+                    color: ThemeData.light().scaffoldBackgroundColor,
+                  ),
+                ),
+              ],
+            ),
+    ],
+  );
+}
