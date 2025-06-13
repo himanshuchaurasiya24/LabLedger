@@ -170,14 +170,15 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              customTextField(
+                              CustomTextField(
                                 labelText: "username",
                                 controller: usernameController,
                               ),
                               const SizedBox(height: 16),
-                              customTextField(
-                                labelText: "password",
+                              CustomTextField(
+                                labelText: "Password",
                                 controller: passwordController,
+                                isObscure: true,
                               ),
                               const SizedBox(height: 24),
                               SizedBox(

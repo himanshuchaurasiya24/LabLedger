@@ -69,7 +69,7 @@ class ProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 32),
 
                     ProfileField(
-                      label: "User Type",
+                      label: "Account Type",
                       value: user.isAdmin ? "Administrator" : "",
                     ),
                     ProfileField(label: "Username", value: user.username),

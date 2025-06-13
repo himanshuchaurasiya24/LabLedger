@@ -14,7 +14,7 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 final splashScreenTimeProvider = Provider<Duration>((ref) {
   return const Duration(seconds: 3); // Duration for splash screen
 });
-final tokenProvider = FutureProvider<String?>((ref) async {
+final tokenProvider = FutureProvider.autoDispose<String?>((ref) async {
   final storage = ref.watch(secureStorageProvider);
   return await storage.read(key: 'access_token');
 });
@@ -30,8 +30,13 @@ final appDescriptionProvider = Provider<String>((ref) {
 final baseUrlProvider = Provider<String>((ref) {
   return baseURL; // Replace with your actual base URL
 });
-final userDetailsProvider = FutureProvider.family<User?, int>((ref, id) async {
-  final token = await ref.watch(tokenProvider.future); // ⬅️ await the future here
+final userDetailsProvider = FutureProvider.family.autoDispose<User?, int>((
+  ref,
+  id,
+) async {
+  final token = await ref.watch(
+    tokenProvider.future,
+  ); // ⬅️ await the future here
   final baseUrl = ref.read(baseUrlProvider);
 
   if (token == null) {
@@ -51,7 +56,10 @@ final userDetailsProvider = FutureProvider.family<User?, int>((ref, id) async {
   }
 });
 
-final updateUserProvider = FutureProvider.family<bool, User>((ref, user) async {
+final updateUserProvider = FutureProvider.family.autoDispose<bool, User>((
+  ref,
+  user,
+) async {
   final token = await ref.watch(tokenProvider.future);
   final baseUrl = ref.read(baseUrlProvider);
 
@@ -59,7 +67,7 @@ final updateUserProvider = FutureProvider.family<bool, User>((ref, user) async {
     throw Exception("No access token found");
   }
 
-  final response = await http.put(
+  final response = await http.patch(
     Uri.parse("$baseUrl/auth/staffs/staff/${user.id}/"),
     headers: {
       "Authorization": "Bearer $token",
@@ -74,7 +82,6 @@ final updateUserProvider = FutureProvider.family<bool, User>((ref, user) async {
     throw Exception("Failed to update user: ${response.statusCode}");
   }
 });
-
 
 final splashAppNameProvider = Provider<Widget>((ref) {
   return Row(

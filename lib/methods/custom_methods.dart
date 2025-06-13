@@ -20,30 +20,127 @@ void setWindowBehavior({bool? isForLogin}) async {
   }
 }
 
-Widget customTextField({
-  // required GlobalKey,
-  required String labelText,
-  required TextEditingController controller,
-}) {
-  return TextFormField(
-    validator: (value) {
-      if (value != null) {
-        if (value.isEmpty) {
-          return "Enter $labelText";
-        }
-        return null;
-      }
-      return null;
-    },
+class CustomTextField extends StatefulWidget {
+  const CustomTextField({
+    super.key,
+    required this.controller,
+    this.isObscure = false,
+    required this.labelText,
+    this.keyboardType,
+    this.passwordController,
+    this.isConfirm,
+    this.readOnly,
+    this.maxLines,
+    this.onChanged,
+    this.valueLimit,
+    this.fillColor,
+    this.hoverColor,
+  });
 
-    controller: controller,
-    obscureText: true,
-    decoration: InputDecoration(
-      labelText: labelText,
-      prefixIcon: const Icon(Icons.lock_outline),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-  );
+  final TextEditingController controller;
+  final bool? isObscure;
+  final String labelText;
+  final void Function(String)? onChanged;
+  final TextInputType? keyboardType;
+  final TextEditingController? passwordController;
+  final bool? isConfirm;
+  final bool? readOnly;
+  final int? maxLines;
+  final int? valueLimit;
+  final Color? fillColor;
+  final Color? hoverColor;
+
+  @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  bool isObscure = false;
+  @override
+  void initState() {
+    super.initState();
+    isObscure = widget.isObscure! ? true : false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      onChanged: widget.onChanged,
+      controller: widget.controller,
+      keyboardType: widget.keyboardType,
+      maxLines: widget.maxLines ?? 1,
+      obscureText: isObscure,
+      readOnly: widget.readOnly ?? false,
+      validator: (value) {
+        if (widget.isConfirm == true && widget.passwordController != null) {
+          if (value != widget.passwordController!.text) {
+            return 'Password does\'nt match';
+          }
+        }
+        if (value != null && value.trim().isEmpty) {
+          return 'Please enter ${widget.labelText}';
+        }
+        if (widget.valueLimit != null &&
+            widget.keyboardType == TextInputType.number &&
+            value != null) {
+          int pValue = int.tryParse(value)!;
+          if (pValue > widget.valueLimit!) {
+            return 'Range is only upto ${widget.valueLimit}';
+          }
+        }
+        if (value != null && widget.keyboardType == TextInputType.number) {
+          final intvalue = int.tryParse(value);
+          if (intvalue == null) {
+            return 'Invalid ${widget.labelText}';
+          }
+        }
+
+        return null;
+      },
+      decoration: InputDecoration(
+        labelText: widget.labelText,
+        suffixIcon: widget.isObscure!
+            ? IconButton(
+                onPressed: () {
+                  setState(() {
+                    isObscure = !isObscure;
+                  });
+                },
+                icon: const Icon(Icons.visibility),
+              )
+            : null,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+}
+
+Widget customButton({required BuildContext context, required GlobalKey formKey, required VoidCallback ontap}) {
+  return SizedBox(
+                height: 45,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed:ontap,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                  ),
+                  child: Text(
+                    "Update Details",
+                    style: TextStyle(
+                      color:
+                          Theme.of(context).colorScheme.brightness ==
+                              Brightness.light
+                          ? Colors.white
+                          : Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              );
 }
 
 class ThemeToggleBar extends ConsumerWidget {
@@ -97,7 +194,6 @@ class ThemeToggleBar extends ConsumerWidget {
     );
   }
 }
-
 
 class SidebarItem extends ConsumerWidget {
   final IconData icon;

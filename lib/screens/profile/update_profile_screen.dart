@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/custom_models.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
 
 class UpdateProfileScreen extends ConsumerStatefulWidget {
@@ -21,7 +22,7 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
   late final TextEditingController emailController;
   late final TextEditingController phoneController;
   late final TextEditingController addressController;
-
+  late final TextEditingController usernameController;
   late final TextEditingController centerNameController;
   late final TextEditingController centerAddressController;
   late final TextEditingController ownerNameController;
@@ -40,13 +41,12 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
   void initState() {
     super.initState();
     final user = widget.user;
-
     firstNameController = TextEditingController(text: user.firstName);
     lastNameController = TextEditingController(text: user.lastName);
     emailController = TextEditingController(text: user.email);
     phoneController = TextEditingController(text: user.phoneNumber);
     addressController = TextEditingController(text: user.address);
-
+    usernameController = TextEditingController(text: user.username);
     centerNameController = TextEditingController(
       text: user.centerDetail.centerName,
     );
@@ -71,6 +71,7 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
       addressController,
       centerNameController,
       centerAddressController,
+      usernameController,
       ownerNameController,
       ownerPhoneController,
     ]) {
@@ -82,12 +83,16 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final updatedUser = widget.user.copyWith(
+        id: widget.user.id,
+        username: usernameController.text,
+        email: emailController.text.trim(),
         firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
-        email: emailController.text.trim(),
         phoneNumber: phoneController.text.trim(),
         address: addressController.text.trim(),
+        isAdmin: widget.user.isAdmin,
         centerDetail: widget.user.centerDetail.copyWith(
+          id: widget.user.centerDetail.id,
           centerName: centerNameController.text.trim(),
           address: centerAddressController.text.trim(),
           ownerName: ownerNameController.text.trim(),
@@ -124,6 +129,7 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
           key: _formKey,
           child: Column(
             children: [
+              _buildField("username", usernameController),
               _buildField("First Name", firstNameController),
               _buildField("Last Name", lastNameController),
               _buildField(
@@ -138,19 +144,28 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
               ),
               _buildField("Address", addressController),
               const Divider(height: 32),
-              _buildField("Center Name", centerNameController),
-              _buildField("Center Address", centerAddressController),
-              _buildField("Owner Name", ownerNameController),
+              _buildField("Center Name", centerNameController, readOnly: true),
+              _buildField(
+                "Center Address",
+                centerAddressController,
+                readOnly: true,
+              ),
+              _buildField("Owner Name", ownerNameController, readOnly: true),
               _buildField(
                 "Owner Phone",
                 ownerPhoneController,
+                readOnly: true,
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 32),
-              ElevatedButton.icon(
-                onPressed: _submitForm,
-                icon: const Icon(Icons.save),
-                label: const Text('Save Changes'),
+              customButton(
+                context: context,
+                formKey: _formKey,
+                ontap: () {
+                  if (_formKey.currentState!.validate()) {
+                    _submitForm();
+                  }
+                },
               ),
             ],
           ),
@@ -163,19 +178,14 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
     String label,
     TextEditingController controller, {
     TextInputType keyboardType = TextInputType.text,
+    bool readOnly = false,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
+      padding: EdgeInsets.all(defaultPadding / 2),
+      child: CustomTextField(
         controller: controller,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
-        validator: (value) => (value == null || value.trim().isEmpty)
-            ? 'Please enter $label'
-            : null,
+        labelText: label,
+        readOnly: readOnly,
       ),
     );
   }
