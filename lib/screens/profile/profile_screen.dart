@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/profile/update_profile_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   final int userId;
 
-  const ProfileScreen({super.key, required this.userId});
+  ProfileScreen({super.key, required this.userId});
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -92,18 +94,28 @@ class ProfileScreen extends ConsumerWidget {
 
                     // Update Button
                     Center(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
+                      child: customButton(
+                        context: context,
+                        formKey: _formKey,
+                        ontap: () {
                           ref
                               .read(userDetailsProvider(userId).future)
-                              .then((user) {
+                              .then((user) async {
                                 if (user != null) {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          UpdateProfileScreen(user: user),
-                                    ),
-                                  );
+                                  await Navigator.of(context)
+                                      .push(
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              UpdateProfileScreen(user: user),
+                                        ),
+                                      )
+                                      .then((value) {
+                                        if (value == true) {
+                                          ref.invalidate(
+                                            userDetailsProvider(userId),
+                                          );
+                                        }
+                                      });
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -114,12 +126,10 @@ class ProfileScreen extends ConsumerWidget {
                               })
                               .catchError((e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Error: $e")),
+                                  SnackBar(content: Text("Errorrrr: $e")),
                                 );
                               });
                         },
-                        icon: const Icon(Icons.edit),
-                        label: const Text('Update Details'),
                       ),
                     ),
                   ],
@@ -136,18 +146,17 @@ class ProfileScreen extends ConsumerWidget {
 class ProfileField extends StatelessWidget {
   final String label;
   final String? value;
-
   const ProfileField({super.key, required this.label, this.value});
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodyMedium;
+    final style = Theme.of(context).textTheme.bodyLarge;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: style?.copyWith(fontWeight: FontWeight.bold)),
+          Text(label, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 4),
           Text(value ?? '—', style: style),
         ],

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/custom_models.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
+import 'package:labledger/screens/home_screen.dart';
 
 class UpdateProfileScreen extends ConsumerStatefulWidget {
   final User user;
@@ -84,20 +85,14 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
     if (_formKey.currentState!.validate()) {
       final updatedUser = widget.user.copyWith(
         id: widget.user.id,
-        username: usernameController.text,
+        username: usernameController.text.toLowerCase(),
         email: emailController.text.trim(),
         firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
         phoneNumber: phoneController.text.trim(),
         address: addressController.text.trim(),
         isAdmin: widget.user.isAdmin,
-        centerDetail: widget.user.centerDetail.copyWith(
-          id: widget.user.centerDetail.id,
-          centerName: centerNameController.text.trim(),
-          address: centerAddressController.text.trim(),
-          ownerName: ownerNameController.text.trim(),
-          ownerPhone: ownerPhoneController.text.trim(),
-        ),
+        centerDetail: widget.user.centerDetail,
       );
 
       final success = await updateUserData(updatedUser, ref);
@@ -114,7 +109,26 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
           ),
         );
 
-        if (success) Navigator.pop(context, updatedUser);
+        if (success) {
+          ref.invalidate(
+            userDetailsProvider(widget.user.id),
+          ); // <--- Add this line
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return HomeScreen(
+                  id: widget.user.id,
+                  firstName: updatedUser.firstName,
+                  lastName: updatedUser.lastName,
+                  username: updatedUser.username,
+                  isAdmin: updatedUser.isAdmin,
+                );
+              },
+            ),
+          );
+        }
       }
     }
   }
@@ -129,35 +143,34 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
           key: _formKey,
           child: Column(
             children: [
-              _buildField("username", usernameController),
-              _buildField("First Name", firstNameController),
-              _buildField("Last Name", lastNameController),
-              _buildField(
-                "Email",
-                emailController,
-                keyboardType: TextInputType.emailAddress,
+              Row(
+                children: [
+                  _buildField("First Name", firstNameController),
+                  _buildField("Last Name", lastNameController),
+                ],
               ),
-              _buildField(
-                "Phone",
-                phoneController,
-                keyboardType: TextInputType.phone,
+              Row(
+                children: [
+                  _buildField("username", usernameController),
+                  _buildField(
+                    "Email",
+                    emailController,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ],
               ),
-              _buildField("Address", addressController),
-              const Divider(height: 32),
-              _buildField("Center Name", centerNameController, readOnly: true),
-              _buildField(
-                "Center Address",
-                centerAddressController,
-                readOnly: true,
+              Row(
+                children: [
+                  _buildField(
+                    "Phone",
+                    phoneController,
+                    keyboardType: TextInputType.phone,
+                  ),
+                  _buildField("Address", addressController),
+                ],
               ),
-              _buildField("Owner Name", ownerNameController, readOnly: true),
-              _buildField(
-                "Owner Phone",
-                ownerPhoneController,
-                readOnly: true,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 32),
+
+              SizedBox(height: defaultPadding),
               customButton(
                 context: context,
                 formKey: _formKey,
@@ -180,12 +193,14 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
     TextInputType keyboardType = TextInputType.text,
     bool readOnly = false,
   }) {
-    return Padding(
-      padding: EdgeInsets.all(defaultPadding / 2),
-      child: CustomTextField(
-        controller: controller,
-        labelText: label,
-        readOnly: readOnly,
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.all(defaultPadding / 2),
+        child: CustomTextField(
+          controller: controller,
+          labelText: label,
+          readOnly: readOnly,
+        ),
       ),
     );
   }

@@ -37,7 +37,7 @@ class Dashboard extends StatelessWidget {
           ],
         ),
         SizedBox(height: 32),
-
+    
         // Recent Reports
         const Text(
           'Recent Reports',

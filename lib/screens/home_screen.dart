@@ -160,14 +160,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                           SizedBox(width: defaultPadding),
                           GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
+                            onTap: () async {
+                             final updated =  await Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) =>
                                       ProfileScreen(userId: widget.id),
                                 ),
                               );
+                              if(updated){
+                                setState(() {
+                                  //
+                                });
+                              }
                             },
+                            
                             child: CircleAvatar(
                               backgroundColor: Theme.of(
                                 context,

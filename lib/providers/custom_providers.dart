@@ -83,6 +83,8 @@ final updateUserProvider = FutureProvider.family.autoDispose<bool, User>((
   }
 });
 
+
+
 final splashAppNameProvider = Provider<Widget>((ref) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
