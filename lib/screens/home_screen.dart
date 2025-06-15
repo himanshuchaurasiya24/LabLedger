@@ -37,9 +37,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     'Doctors',
     'Diagnosis Types',
     'Center Details',
+    "Database Manager",
     'Settings',
     'Logout',
   ];
+
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
     secureStorage.delete(key: 'access_token');
@@ -57,11 +59,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     setWindowBehavior();
   }
 
-  SidebarItem sidebarItemSelector(int index) {
-    List<SidebarItem> sidebarItems = [];
-    return sidebarItems[index];
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,53 +71,71 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Container(
               width: 240,
               color: Theme.of(context).colorScheme.primary,
-              // color: Theme.of(context).colorScheme.primary,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   appIconNameWidget(context: context),
-                  SidebarItem(
-                    icon: LucideIcons.home,
-                    label: 'Dashboard',
-                    onTap: () => setState(() => selectedIndex = 0),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SidebarItem(
+                            icon: LucideIcons.home,
+                            label: 'Dashboard',
+                            onTap: () => setState(() => selectedIndex = 0),
+                          ),
+                          SidebarItem(
+                            icon: LucideIcons.user,
+                            label: 'Patients',
+                            onTap: () => setState(() => selectedIndex = 1),
+                          ),
+                          SidebarItem(
+                            icon: LucideIcons.fileText,
+                            label: 'Bills',
+                            onTap: () => setState(() => selectedIndex = 2),
+                          ),
+                          SidebarItem(
+                            icon: LucideIcons.bookOpen,
+                            label: 'Reports',
+                            onTap: () => setState(() => selectedIndex = 3),
+                          ),
+                          SidebarItem(
+                            icon: LucideIcons.userCheck,
+                            label: 'Doctors',
+                            onTap: () => setState(() => selectedIndex = 4),
+                          ),
+                          SidebarItem(
+                            icon: LucideIcons.activity,
+                            label: 'Diagnosis Types',
+                            onTap: () => setState(() => selectedIndex = 5),
+                          ),
+                          SidebarItem(
+                            icon: LucideIcons.building2,
+                            label: 'Center Details',
+                            onTap: () => setState(() => selectedIndex = 6),
+                          ),
+                          Visibility(
+                            visible: widget.isAdmin,
+                            child: SidebarItem(
+                              icon: LucideIcons.database,
+                              label: "Database Manager",
+                              onTap: () {
+                                setState(() {
+                                  selectedIndex = 7;
+                                });
+                              },
+                            ),
+                          ),
+                          SidebarItem(
+                            icon: LucideIcons.settings,
+                            label: 'Settings',
+                            onTap: () => setState(() => selectedIndex = 8),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  SidebarItem(
-                    icon: LucideIcons.user,
-                    label: 'Patients',
-                    onTap: () => setState(() => selectedIndex = 1),
-                  ),
-                  SidebarItem(
-                    icon: LucideIcons.fileText,
-                    label: 'Bills',
-                    onTap: () => setState(() => selectedIndex = 2),
-                  ),
-                  SidebarItem(
-                    icon: LucideIcons.bookOpen,
-                    label: 'Reports',
-                    onTap: () => setState(() => selectedIndex = 3),
-                  ),
-                  SidebarItem(
-                    icon: LucideIcons.userCheck,
-                    label: 'Doctors',
-                    onTap: () => setState(() => selectedIndex = 4),
-                  ),
-                  SidebarItem(
-                    icon: LucideIcons.activity,
-                    label: 'Diagnosis Types',
-                    onTap: () => setState(() => selectedIndex = 5),
-                  ),
-                  SidebarItem(
-                    icon: LucideIcons.building2,
-                    label: 'Center Details',
-                    onTap: () => setState(() => selectedIndex = 6),
-                  ),
-                  SidebarItem(
-                    icon: LucideIcons.settings,
-                    label: 'Settings',
-                    onTap: () => setState(() => selectedIndex = 7),
-                  ),
-
-                  const Spacer(),
                   SidebarItem(
                     icon: LucideIcons.logOut,
                     label: 'Logout',
@@ -132,6 +147,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ),
+          // Main content
           Expanded(
             flex: 5,
             child: Column(
@@ -161,24 +177,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           SizedBox(width: defaultPadding),
                           GestureDetector(
                             onTap: () async {
-                             final updated =  await Navigator.of(context).push(
+                              final updated = await Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) =>
                                       ProfileScreen(userId: widget.id),
                                 ),
                               );
-                              if(updated){
-                                setState(() {
-                                  //
-                                });
+                              if (updated == true) {
+                                setState(() {});
                               }
                             },
-                            
                             child: CircleAvatar(
                               backgroundColor: Theme.of(
                                 context,
                               ).colorScheme.primary,
-
                               child: Text(
                                 widget.firstName[0].toUpperCase(),
                                 style: Theme.of(
@@ -192,14 +204,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ],
                   ),
                 ),
-
-                // Main Screen content
+                // Main screen content
                 Expanded(
                   flex: 1,
                   child: Padding(
-                    padding: EdgeInsetsGeometry.symmetric(
-                      horizontal: defaultPadding,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: defaultPadding),
                     child: mainScreenContentProvider(
                       indexNumber: selectedIndex,
                     ),

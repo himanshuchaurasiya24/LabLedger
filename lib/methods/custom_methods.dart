@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/main_screens/dashboard.dart';
+import 'package:labledger/screens/main_screens/database_manager.dart';
 import 'package:labledger/screens/main_screens/settings.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -115,32 +116,32 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 }
 
-Widget customButton({required BuildContext context, required GlobalKey formKey, required VoidCallback ontap}) {
+Widget customButton({
+  required BuildContext context,
+  required GlobalKey formKey,
+  required VoidCallback ontap,
+}) {
   return SizedBox(
-                height: 45,
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed:ontap,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: Text(
-                    "Update Details",
-                    style: TextStyle(
-                      color:
-                          Theme.of(context).colorScheme.brightness ==
-                              Brightness.light
-                          ? Colors.white
-                          : Colors.white70,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              );
+    height: 45,
+    width: double.infinity,
+    child: ElevatedButton(
+      onPressed: ontap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 2,
+      ),
+      child: Text(
+        "Update Details",
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.brightness == Brightness.light
+              ? Colors.white
+              : Colors.white70,
+          fontSize: 16,
+        ),
+      ),
+    ),
+  );
 }
 
 class ThemeToggleBar extends ConsumerWidget {
@@ -269,6 +270,8 @@ Widget mainScreenContentProvider({required int indexNumber}) {
     case 0:
       return Dashboard();
     case 7:
+      return DatabaseManager();
+    case 8:
       return Settings();
 
     default:
