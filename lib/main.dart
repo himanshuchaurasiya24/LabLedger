@@ -132,6 +132,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
               color: Color(0xFF0072B5),
               fontWeight: FontWeight.bold,
             ),
+            bodyLarge: TextStyle(fontSize: 20),
             bodyMedium: TextStyle(color: Colors.black87),
           ),
         ),
@@ -156,6 +157,8 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
               color: Color(0xFF0072B5),
               fontWeight: FontWeight.bold,
             ),
+            bodyLarge: TextStyle(fontSize: 20),
+
             bodyMedium: TextStyle(color: Colors.white70),
           ),
           appBarTheme: AppBarTheme(backgroundColor: Color(0xFF23272F)),

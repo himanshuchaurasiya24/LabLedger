@@ -10,6 +10,36 @@ class ProfileScreen extends ConsumerWidget {
   ProfileScreen({super.key, required this.userId});
   final _formKey = GlobalKey<FormState>();
 
+  // Outside your widget class (or as a method inside a StatefulWidget or HookWidget)
+  Future<void> _handleUserTap(
+    BuildContext context,
+    WidgetRef ref,
+    int userId,
+  ) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    try {
+      final user = await ref.read(userDetailsProvider(userId).future);
+
+      if (user != null) {
+        final result = await navigator.push(
+          MaterialPageRoute(builder: (_) => UpdateProfileScreen(user: user)),
+        );
+
+        if (result == true) {
+          ref.invalidate(userDetailsProvider(userId));
+        }
+      } else {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text("Unable to load user data")),
+        );
+      }
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text("Errorrrr: $e")));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userDetailsProvider(userId));
@@ -98,37 +128,7 @@ class ProfileScreen extends ConsumerWidget {
                         context: context,
                         formKey: _formKey,
                         ontap: () {
-                          ref
-                              .read(userDetailsProvider(userId).future)
-                              .then((user) async {
-                                if (user != null) {
-                                  await Navigator.of(context)
-                                      .push(
-                                        MaterialPageRoute(
-                                          builder: (_) =>
-                                              UpdateProfileScreen(user: user),
-                                        ),
-                                      )
-                                      .then((value) {
-                                        if (value == true) {
-                                          ref.invalidate(
-                                            userDetailsProvider(userId),
-                                          );
-                                        }
-                                      });
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("Unable to load user data"),
-                                    ),
-                                  );
-                                }
-                              })
-                              .catchError((e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Errorrrr: $e")),
-                                );
-                              });
+                          _handleUserTap(context, ref, userId);
                         },
                       ),
                     ),

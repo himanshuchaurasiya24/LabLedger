@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/main_screens/dashboard.dart';
-import 'package:labledger/screens/main_screens/settings.dart';
+import 'package:labledger/screens/side_screens/dashboard.dart';
+import 'package:labledger/screens/side_screens/settings.dart';
 import 'package:window_manager/window_manager.dart';
 
 void setWindowBehavior({bool? isForLogin}) async {
@@ -132,13 +132,7 @@ Widget customButton({
       ),
       child: Text(
         "Update Details",
-        style: TextStyle(
-          // color: Theme.of(context).colorScheme.brightness == Brightness.light
-          //     ? Colors.white
-          //     : Colors.white70,
-          color: Colors.white,
-          fontSize: 16,
-        ),
+        style: TextStyle(color: Colors.white, fontSize: 16),
       ),
     ),
   );
@@ -146,29 +140,39 @@ Widget customButton({
 
 Widget customBar({
   required BuildContext context,
-  required ThemeMode themeMode,
-  required ThemeNotifier themeNotifier,
+  required String barText,
+  required IconData iconData,
   required Widget child,
 }) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.05),
-          blurRadius: 6,
-          offset: const Offset(0, 3),
+  return Column(
+    children: [
+      Container(
+        height: MediaQuery.of(context).size.height / 10,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
-      ],
-    ),
-    child: child,
+        child: Row(
+          children: [
+            Icon(iconData, size: 30),
+            const SizedBox(width: 12),
+            Text(barText, style: Theme.of(context).textTheme.bodyLarge),
+            const Spacer(),
+            child,
+          ],
+        ),
+      ),
+      const SizedBox(height: 10),
+    ],
   );
-}
-
-Widget databaseManager() {
-  return Text("Database Manager");
 }
 
 class ThemeToggleBar extends ConsumerWidget {
@@ -181,34 +185,56 @@ class ThemeToggleBar extends ConsumerWidget {
 
     return customBar(
       context: context,
-      themeMode: themeMode,
-      themeNotifier: themeNotifier,
-      child: Row(
-        children: [
-          const Icon(Icons.color_lens_outlined, size: 20),
-          const SizedBox(width: 12),
-          const Text(
-            'Theme Mode',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          const Spacer(),
-          DropdownButton<ThemeMode>(
-            value: themeMode,
-            dropdownColor: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(10),
-            underline: const SizedBox.shrink(),
-            onChanged: (mode) {
-              if (mode != null) {
-                themeNotifier.toggleTheme(mode);
-              }
-            },
-            items: const [
-              DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-              DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
-              DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
-            ],
-          ),
+      barText: "Theme Mode",
+      iconData: Icons.color_lens_outlined,
+      child: DropdownButton<ThemeMode>(
+        value: themeMode,
+        dropdownColor: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(10),
+        underline: const SizedBox.shrink(),
+        onChanged: (mode) {
+          if (mode != null) {
+            themeNotifier.toggleTheme(mode);
+          }
+        },
+        items: const [
+          DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
+          DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+          DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
         ],
+      ),
+    );
+  }
+}
+
+class PageNavigatorBar extends StatelessWidget {
+  const PageNavigatorBar({
+    super.key,
+    required this.iconData,
+    required this.barText,
+    required this.goToPage,
+  });
+  final IconData iconData;
+  final String barText;
+  final Widget goToPage;
+
+  @override
+  Widget build(BuildContext context) {
+    return customBar(
+      context: context,
+      barText: barText,
+      iconData: iconData,
+      child: IconButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return goToPage;
+              },
+            ),
+          );
+        },
+        icon: Icon(Icons.arrow_right_outlined),
       ),
     );
   }
@@ -228,10 +254,17 @@ class SidebarItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
-      leading: Icon(icon, color: ref.read(lightScaffoldColorProvider)),
+      leading: Icon(
+        icon,
+        color: ref.read(lightScaffoldColorProvider),
+        size: 24,
+      ),
       title: Text(
         label,
-        style: TextStyle(color: ref.read(lightScaffoldColorProvider)),
+        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+          color: ref.read(lightScaffoldColorProvider),
+          fontSize: 24,
+        ),
       ),
       onTap: onTap,
     );
@@ -341,7 +374,7 @@ Widget appIconNameWidget({
                 Text(
                   "LabLedger",
                   style: TextStyle(
-                    fontSize: 34,
+                    fontSize: 40,
                     fontWeight: FontWeight.bold,
                     color: ThemeData.light().scaffoldBackgroundColor,
                   ),
