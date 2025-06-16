@@ -207,13 +207,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                                   child: Text(
                                     "Log In",
                                     style: TextStyle(
-                                      color:
-                                          Theme.of(
-                                                context,
-                                              ).colorScheme.brightness ==
-                                              Brightness.light
-                                          ? Colors.white
-                                          : Colors.white70,
+                                      color: Colors.white,
                                       fontSize: 16,
                                     ),
                                   ),

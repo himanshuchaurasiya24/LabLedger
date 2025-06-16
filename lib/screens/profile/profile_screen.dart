@@ -150,7 +150,6 @@ class ProfileField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodyLarge;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -158,7 +157,7 @@ class ProfileField extends StatelessWidget {
         children: [
           Text(label, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 4),
-          Text(value ?? '—', style: style),
+          Text(value ?? '—', style: Theme.of(context).textTheme.bodyLarge),
         ],
       ),
     );

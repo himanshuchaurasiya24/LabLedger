@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/main_screens/dashboard.dart';
-import 'package:labledger/screens/main_screens/database_manager.dart';
 import 'package:labledger/screens/main_screens/settings.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -134,14 +133,42 @@ Widget customButton({
       child: Text(
         "Update Details",
         style: TextStyle(
-          color: Theme.of(context).colorScheme.brightness == Brightness.light
-              ? Colors.white
-              : Colors.white70,
+          // color: Theme.of(context).colorScheme.brightness == Brightness.light
+          //     ? Colors.white
+          //     : Colors.white70,
+          color: Colors.white,
           fontSize: 16,
         ),
       ),
     ),
   );
+}
+
+Widget customBar({
+  required BuildContext context,
+  required ThemeMode themeMode,
+  required ThemeNotifier themeNotifier,
+  required Widget child,
+}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 6,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
+    child: child,
+  );
+}
+
+Widget databaseManager() {
+  return Text("Database Manager");
 }
 
 class ThemeToggleBar extends ConsumerWidget {
@@ -152,19 +179,10 @@ class ThemeToggleBar extends ConsumerWidget {
     final themeMode = ref.watch(themeNotifierProvider);
     final themeNotifier = ref.read(themeNotifierProvider.notifier);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+    return customBar(
+      context: context,
+      themeMode: themeMode,
+      themeNotifier: themeNotifier,
       child: Row(
         children: [
           const Icon(Icons.color_lens_outlined, size: 20),
@@ -269,9 +287,7 @@ Widget mainScreenContentProvider({required int indexNumber}) {
   switch (indexNumber) {
     case 0:
       return Dashboard();
-    case 7:
-      return DatabaseManager();
-    case 8:
+    case 5:
       return Settings();
 
     default:

@@ -35,9 +35,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     'Bills',
     'Reports',
     'Doctors',
-    'Diagnosis Types',
-    'Center Details',
-    "Database Manager",
     'Settings',
     'Logout',
   ];
@@ -106,31 +103,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             onTap: () => setState(() => selectedIndex = 4),
                           ),
                           SidebarItem(
-                            icon: LucideIcons.activity,
-                            label: 'Diagnosis Types',
-                            onTap: () => setState(() => selectedIndex = 5),
-                          ),
-                          SidebarItem(
-                            icon: LucideIcons.building2,
-                            label: 'Center Details',
-                            onTap: () => setState(() => selectedIndex = 6),
-                          ),
-                          Visibility(
-                            visible: widget.isAdmin,
-                            child: SidebarItem(
-                              icon: LucideIcons.database,
-                              label: "Database Manager",
-                              onTap: () {
-                                setState(() {
-                                  selectedIndex = 7;
-                                });
-                              },
-                            ),
-                          ),
-                          SidebarItem(
                             icon: LucideIcons.settings,
                             label: 'Settings',
-                            onTap: () => setState(() => selectedIndex = 8),
+                            onTap: () => setState(() => selectedIndex = 5),
                           ),
                         ],
                       ),
@@ -193,9 +168,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ).colorScheme.primary,
                               child: Text(
                                 widget.firstName[0].toUpperCase(),
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineMedium,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                ),
                               ),
                             ),
                           ),

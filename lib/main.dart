@@ -153,7 +153,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           fontFamily: 'GoogleSans',
           textTheme: const TextTheme(
             headlineSmall: TextStyle(
-              color: Colors.white,
+              color: Color(0xFF0072B5),
               fontWeight: FontWeight.bold,
             ),
             bodyMedium: TextStyle(color: Colors.white70),
