@@ -151,7 +151,7 @@ Widget customBar({
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(7),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -242,7 +242,6 @@ class PageNavigatorBar extends StatelessWidget {
         iconData: iconData,
         child: IconButton(
           onPressed: () {
-
             onTapFunction(context: context);
           },
           icon: Icon(Icons.arrow_right_outlined),
@@ -302,7 +301,7 @@ class SummaryCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(5),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withValues(alpha: 0.1),

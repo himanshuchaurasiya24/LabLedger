@@ -17,8 +17,8 @@ class _DoctorsDatabaseScreenState extends ConsumerState<DoctorsDatabaseScreen> {
     super.initState();
     // Invalidate to force refetch
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    ref.invalidate(doctorNotifierProvider);
-  });
+      ref.invalidate(doctorNotifierProvider);
+    });
   }
 
   @override
@@ -26,21 +26,19 @@ class _DoctorsDatabaseScreenState extends ConsumerState<DoctorsDatabaseScreen> {
     final doctorsAsync = ref.watch(doctorNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Doctors'),
-        backgroundColor: const Color(0xFF0061A8),
-      ),
-      backgroundColor: const Color(0xFFF9F9F9),
+      appBar: AppBar(title: const Text('Doctors List')),
       body: doctorsAsync.when(
-        data: (doctors) => ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemCount: doctors.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final doc = doctors[index];
-            return DoctorCard(doc: doc);
-          },
-        ),
+        data: (doctors) {
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: doctors.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final doc = doctors[index];
+              return DoctorCard(doc: doc);
+            },
+          );
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Error: $err')),
       ),
@@ -61,7 +59,6 @@ class _DoctorCardState extends ConsumerState<DoctorCard> {
   bool isExpanded = false;
 
   void showEditDialog(Doctor doc) {
-    debugPrint(doc.toString());
     final ultrasoundController = TextEditingController(
       text: doc.ultrasoundPercentage.toString(),
     );
@@ -136,13 +133,22 @@ class _DoctorCardState extends ConsumerState<DoctorCard> {
   @override
   Widget build(BuildContext context) {
     final doc = widget.doc;
-    return Material(
-      elevation: 2,
-      borderRadius: BorderRadius.circular(16),
-      color: Colors.white,
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: ExpansionTile(
+        // visualDensity: VisualDensity.adaptivePlatformDensity,
         tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
         title: Text(
           '${doc.firstName} ${doc.lastName}',
           style: const TextStyle(fontWeight: FontWeight.bold),
