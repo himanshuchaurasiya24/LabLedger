@@ -4,19 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:labledger/custom_models.dart';
+import 'package:labledger/models/user_model.dart';
 
 final String baseURL = 'http://127.0.0.1:8000/';
 final double defaultPadding = 24;
-final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
-  return const FlutterSecureStorage();
-});
+
 final splashScreenTimeProvider = Provider<Duration>((ref) {
   return const Duration(seconds: 3); // Duration for splash screen
 });
-final tokenProvider = FutureProvider.autoDispose<String?>((ref) async {
-  final storage = ref.watch(secureStorageProvider);
-  return await storage.read(key: 'access_token');
+final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
+  return const FlutterSecureStorage();
+});
+final tokenProvider = FutureProvider.autoDispose<String?>((ref) {
+  final storage = FlutterSecureStorage();
+  return storage.read(key: 'access_token');
 });
 final appNameProvider = Provider<String>((ref) {
   return 'LabLedger';

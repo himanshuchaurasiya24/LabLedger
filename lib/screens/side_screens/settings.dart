@@ -35,7 +35,7 @@ class _SettingsState extends State<Settings> {
           PageNavigatorBar(
             iconData: Icons.person_4_outlined,
             barText: 'Doctors',
-            goToPage: DoctorsDatabase(),
+            goToPage: DoctorsDatabaseScreen(),
           ),
           SizedBox(height: defaultPadding / 2),
           PageNavigatorBar(
