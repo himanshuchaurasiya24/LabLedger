@@ -132,7 +132,7 @@ Widget customButton({
       ),
       child: Text(
         "Update Details",
-        style: TextStyle(color: Colors.white, fontSize: 16),
+        style: Theme.of(context).textTheme.bodyLarge,
       ),
     ),
   );
@@ -150,7 +150,7 @@ Widget customBar({
         height: MediaQuery.of(context).size.height / 10,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -186,7 +186,9 @@ class ThemeToggleBar extends ConsumerWidget {
     return customBar(
       context: context,
       barText: "Theme Mode",
-      iconData: Icons.color_lens_outlined,
+      iconData: Theme.of(context).colorScheme.brightness == Brightness.light
+          ? Icons.dark_mode_outlined
+          : Icons.light_mode_outlined,
       child: DropdownButton<ThemeMode>(
         value: themeMode,
         dropdownColor: Theme.of(context).colorScheme.surface,
@@ -217,24 +219,34 @@ class PageNavigatorBar extends StatelessWidget {
   final IconData iconData;
   final String barText;
   final Widget goToPage;
+  void onTapFunction({required BuildContext context}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return goToPage;
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return customBar(
-      context: context,
-      barText: barText,
-      iconData: iconData,
-      child: IconButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return goToPage;
-              },
-            ),
-          );
-        },
-        icon: Icon(Icons.arrow_right_outlined),
+    return GestureDetector(
+      onTap: () {
+        onTapFunction(context: context);
+      },
+      child: customBar(
+        context: context,
+        barText: barText,
+        iconData: iconData,
+        child: IconButton(
+          onPressed: () {
+
+            onTapFunction(context: context);
+          },
+          icon: Icon(Icons.arrow_right_outlined),
+        ),
       ),
     );
   }

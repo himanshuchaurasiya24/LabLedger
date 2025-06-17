@@ -78,12 +78,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SidebarItem(
-                            icon: LucideIcons.home,
+                            icon: LucideIcons.layoutGrid,
                             label: 'Dashboard',
                             onTap: () => setState(() => selectedIndex = 0),
                           ),
                           SidebarItem(
-                            icon: LucideIcons.user,
+                            icon: LucideIcons.bed,
                             label: 'Patients',
                             onTap: () => setState(() => selectedIndex = 1),
                           ),
@@ -98,7 +98,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             onTap: () => setState(() => selectedIndex = 3),
                           ),
                           SidebarItem(
-                            icon: LucideIcons.userCheck,
+                            icon: Icons.local_hospital_outlined,
                             label: 'Doctors',
                             onTap: () => setState(() => selectedIndex = 4),
                           ),

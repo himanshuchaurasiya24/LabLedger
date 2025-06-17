@@ -92,7 +92,7 @@ class ProfileScreen extends ConsumerWidget {
                             const SizedBox(height: 4),
                             Text(
                               user.email,
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              style: Theme.of(context).textTheme.bodyLarge,
                             ),
                           ],
                         ),
