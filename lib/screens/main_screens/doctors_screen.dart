@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/providers/custom_providers.dart';
 
 class DoctorsScreen extends ConsumerStatefulWidget {
   const DoctorsScreen({super.key});
@@ -19,6 +20,22 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
   @override
   Widget build(BuildContext context) {
     // final doctorAsync = ref.watch(doctorNotifierProvider);
-    return Scaffold(body: Column(children: [settingsPageTopBar(context)]));
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            settingsPageTopBar(context),
+            Text(
+              "Doctors List",
+              style: Theme.of(
+                context,
+              ).textTheme.headlineLarge!.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

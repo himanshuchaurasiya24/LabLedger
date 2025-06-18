@@ -3,7 +3,7 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/main_screens/bills_database_screen.dart';
 import 'package:labledger/screens/main_screens/diagnosis_type_database_screen.dart';
-import 'package:labledger/screens/main_screens/doctors_database_screen.dart';
+import 'package:labledger/screens/main_screens/doctors_screen.dart';
 import 'package:labledger/screens/main_screens/report_database_screen.dart';
 import "package:lucide_icons/lucide_icons.dart";
 
@@ -35,7 +35,7 @@ class _SettingsState extends State<Settings> {
           PageNavigatorBar(
             iconData: Icons.person_4_outlined,
             barText: 'Doctors',
-            goToPage: DoctorsDatabaseScreen(),
+            goToPage: DoctorsScreen(),
           ),
           SizedBox(height: defaultPadding / 2),
           PageNavigatorBar(

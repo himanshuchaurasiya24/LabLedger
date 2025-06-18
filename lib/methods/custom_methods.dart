@@ -8,51 +8,74 @@ import 'package:window_manager/window_manager.dart';
 
 Widget settingsPageTopBar(BuildContext context) {
   final themeErrorColor = Theme.of(context).colorScheme.error;
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            appIconName(context: context),
-            Spacer(),
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                height: 40,
-                width: 92,
-                decoration: BoxDecoration(
-                  color: Colors.red[100],
-                  border: BoxBorder.all(
-                    color: Colors.red[200]!,
-                    style: BorderStyle.solid,
-                    strokeAlign: BorderSide.strokeAlignCenter,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(minimalBorderRadius),
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(CupertinoIcons.back, color: themeErrorColor),
-                      Text(
-                        "Go Back  ",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: themeErrorColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+  return Column(
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          appIconName(
+            context: context,
+            firstName: "Lab",
+            secondName: "Ledger",
+            fontSize: 50,
+          ),
+          Spacer(),
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: customChip(
+              chipColor: themeErrorColor,
+              backgroundColor: Colors.red[100]!,
+              chipTitle: "Go Back ",
+              iconWidget: Icon(CupertinoIcons.back, color: themeErrorColor),
+              iconVisible: true,
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+Widget customChip({
+  required Color chipColor,
+  required Color backgroundColor,
+  required String chipTitle,
+  double? height,
+  double? width,
+  Widget? iconWidget,
+  bool? iconVisible,
+}) {
+  return Container(
+    height: height ?? 40,
+    width: width ?? 92,
+    decoration: BoxDecoration(
+      color: Colors.red[100],
+      border: BoxBorder.all(
+        color: backgroundColor,
+        style: BorderStyle.solid,
+        strokeAlign: BorderSide.strokeAlignCenter,
+        width: 2,
+      ),
+      borderRadius: BorderRadius.circular(minimalBorderRadius),
+    ),
+    child: Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Visibility(
+            visible: iconVisible ?? true,
+            child: iconWidget ?? const SizedBox(),
+          ),
+          Text(
+            chipTitle,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: chipColor,
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }
@@ -395,12 +418,17 @@ Widget mainScreenContentProvider({required int indexNumber}) {
   }
 }
 
-Widget appIconName({required BuildContext context, double? fontSize}) {
+Widget appIconName({
+  required BuildContext context,
+  double? fontSize,
+  required String firstName,
+  required String secondName,
+}) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.start,
     children: [
       Text(
-        "Lab",
+        firstName,
         style: TextStyle(
           fontSize: fontSize ?? 40,
           fontWeight: FontWeight.bold,
@@ -408,7 +436,7 @@ Widget appIconName({required BuildContext context, double? fontSize}) {
         ),
       ),
       Text(
-        "Ledger",
+        secondName,
         style: TextStyle(
           fontSize: fontSize ?? 40,
           fontWeight: FontWeight.bold,
