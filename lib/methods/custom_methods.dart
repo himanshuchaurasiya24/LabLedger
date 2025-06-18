@@ -6,33 +6,70 @@ import 'package:labledger/screens/side_screens/dashboard.dart';
 import 'package:labledger/screens/side_screens/settings.dart';
 import 'package:window_manager/window_manager.dart';
 
-Widget settingsPageTopBar(BuildContext context) {
-  final themeErrorColor = Theme.of(context).colorScheme.error;
+Widget settingsPageTopBar({
+  required BuildContext context,
+  required String pageName,
+  required Color chipColor,
+}) {
   return Column(
     children: [
       Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          appIconName(
-            context: context,
-            firstName: "Lab",
-            secondName: "Ledger",
-            fontSize: 50,
+          Expanded(
+            flex: 2,
+            child: appIconName(
+              context: context,
+              firstName: "Lab",
+              secondName: "Ledger",
+              // fontSize: 50,
+            ),
           ),
-          Spacer(),
+          Expanded(
+            flex: 2,
+            child: Text(
+              pageName,
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+          ),
+
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: customChip(
-              chipColor: themeErrorColor,
+              chipColor: chipColor,
               backgroundColor: Colors.red[100]!,
               chipTitle: "Go Back ",
-              iconWidget: Icon(CupertinoIcons.back, color: themeErrorColor),
+              iconWidget: Icon(CupertinoIcons.back, color: chipColor),
               iconVisible: true,
             ),
           ),
         ],
       ),
     ],
+  );
+}
+
+Widget customChipButton({
+  required void Function() onTap,
+  required Color chipColor,
+  required Color backgroundColor,
+  required String chipTitle,
+  double? height,
+  double? width,
+  Widget? iconWidget,
+  bool? iconVisible,
+}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: customChip(
+      chipColor: chipColor,
+      backgroundColor: backgroundColor,
+      chipTitle: chipTitle,
+      height: height,
+      width: width,
+      iconVisible: iconVisible,
+      iconWidget: iconWidget,
+    ),
   );
 }
 
@@ -49,7 +86,7 @@ Widget customChip({
     height: height ?? 40,
     width: width ?? 92,
     decoration: BoxDecoration(
-      color: Colors.red[100],
+      color: backgroundColor,
       border: BoxBorder.all(
         color: backgroundColor,
         style: BorderStyle.solid,
@@ -85,7 +122,7 @@ void setWindowBehavior({bool? isForLogin, bool? removeTitleBar}) async {
   bool removeTitle = removeTitleBar ?? true;
 
   if (!isLogin) {
-    await windowManager.setSize(const Size(1280, 720), animate: true);
+    await windowManager.setSize(const Size(1600, 900), animate: true);
     await windowManager.center();
     await windowManager.setSkipTaskbar(false);
     await windowManager.setTitleBarStyle(

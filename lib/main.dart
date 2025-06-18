@@ -134,6 +134,11 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
             ),
             bodyLarge: TextStyle(fontSize: 20),
             bodyMedium: TextStyle(color: Colors.black87),
+            headlineLarge: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+            headlineMedium: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 35,
+            ),
           ),
         ),
 
@@ -160,6 +165,11 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
             bodyLarge: TextStyle(fontSize: 20),
 
             bodyMedium: TextStyle(color: Colors.white70),
+            headlineLarge: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+            headlineMedium: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 35,
+            ),
           ),
           appBarTheme: AppBarTheme(backgroundColor: Color(0xFF23272F)),
           elevatedButtonTheme: ElevatedButtonThemeData(
