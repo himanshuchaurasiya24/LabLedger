@@ -51,21 +51,23 @@ class CenterDetail {
   }
 }
 class CenterDetailOutput {
-  final int id;
-  final String centerName;
-  final String address;
+  int? id;
+  String? centerName;
+  String? address;
 
-  CenterDetailOutput({
-    required this.id,
-    required this.centerName,
-    required this.address,
-  });
+  CenterDetailOutput({this.id, this.centerName, this.address});
 
-  factory CenterDetailOutput.fromJson(Map<String, dynamic> json) {
-    return CenterDetailOutput(
-      id: json['id'],
-      centerName: json['center_name'],
-      address: json['address'],
-    );
+  CenterDetailOutput.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    centerName = json['center_name'];
+    address = json['address'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['center_name'] = centerName;
+    data['address'] = address;
+    return data;
   }
 }

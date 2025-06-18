@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/providers/custom_providers.dart';
@@ -5,13 +6,68 @@ import 'package:labledger/screens/side_screens/dashboard.dart';
 import 'package:labledger/screens/side_screens/settings.dart';
 import 'package:window_manager/window_manager.dart';
 
-void setWindowBehavior({bool? isForLogin}) async {
+Widget settingsPageTopBar(BuildContext context) {
+  final themeErrorColor = Theme.of(context).colorScheme.error;
+  return Padding(
+    padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+    child: Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            appIconName(context: context),
+            Spacer(),
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                height: 40,
+                width: 92,
+                decoration: BoxDecoration(
+                  color: Colors.red[100],
+                  border: BoxBorder.all(
+                    color: Colors.red[200]!,
+                    style: BorderStyle.solid,
+                    strokeAlign: BorderSide.strokeAlignCenter,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(minimalBorderRadius),
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(CupertinoIcons.back, color: themeErrorColor),
+                      Text(
+                        "Go Back  ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: themeErrorColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+void setWindowBehavior({bool? isForLogin, bool? removeTitleBar}) async {
   bool isLogin = isForLogin ?? false;
+  bool removeTitle = removeTitleBar ?? true;
+
   if (!isLogin) {
     await windowManager.setSize(const Size(1280, 720), animate: true);
     await windowManager.center();
     await windowManager.setSkipTaskbar(false);
-    await windowManager.setTitleBarStyle(TitleBarStyle.normal);
+    await windowManager.setTitleBarStyle(
+      removeTitle == false ? TitleBarStyle.normal : TitleBarStyle.hidden,
+    );
   } else {
     await windowManager.setSize(const Size(700, 350), animate: true);
     await windowManager.center();
@@ -151,7 +207,7 @@ Widget customBar({
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(7),
+          borderRadius: BorderRadius.circular(minimalBorderRadius),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -301,7 +357,7 @@ class SummaryCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(minimalBorderRadius),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withValues(alpha: 0.1),
@@ -337,6 +393,30 @@ Widget mainScreenContentProvider({required int indexNumber}) {
     default:
       return Text('Invalid index');
   }
+}
+
+Widget appIconName({required BuildContext context, double? fontSize}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.start,
+    children: [
+      Text(
+        "Lab",
+        style: TextStyle(
+          fontSize: fontSize ?? 40,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+      Text(
+        "Ledger",
+        style: TextStyle(
+          fontSize: fontSize ?? 40,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+      ),
+    ],
+  );
 }
 
 /// Returns the app icon and name widget, adapting the icon to the current theme.

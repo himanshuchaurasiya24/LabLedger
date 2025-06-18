@@ -32,9 +32,9 @@ class DoctorNotifier extends StateNotifier<AsyncValue<List<Doctor>>> {
         );
       }
     } catch (e, st) {
-  debugPrint('Error fetching doctors: ${e.toString()}');
-  state = AsyncValue.error(e.toString(), st);
-}
+      debugPrint('Error fetching doctors: ${e.toString()}');
+      state = AsyncValue.error(e.toString(), st);
+    }
   }
 
   Future<void> fetchDoctors() async {
@@ -60,31 +60,33 @@ class DoctorNotifier extends StateNotifier<AsyncValue<List<Doctor>>> {
       state = AsyncValue.error(e, st);
     }
   }
+
   Future<void> createDoctor(Doctor newDoctor) async {
-  try {
-          final token = await ref.read(tokenProvider.future);
+    try {
+      final token = await ref.read(tokenProvider.future);
+      final url = Uri.parse("${baseURL}diagnosis/doctors/doctor/");
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
 
-    final url = Uri.parse("${baseURL}diagnosis/doctors/");
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode(newDoctor.toJson()),
-    );
+        body: jsonEncode(newDoctor.toJson()),
+      );
 
-    if (response.statusCode == 201) {
-      final created = Doctor.fromJson(jsonDecode(response.body));
-      state = AsyncValue.data([...state.value ?? [], created]);
-    } else {
-      throw Exception('Failed to create doctor: ${response.body}');
+      if (response.statusCode == 201) {
+        final created = Doctor.fromJson(jsonDecode(response.body));
+        state = AsyncValue.data([...state.value ?? [], created]);
+      } else {
+        throw Exception('Failed to create doctor: ${response.body}');
+      }
+    } catch (e, stack) {
+      debugPrint(e.toString());
+      debugPrint(stack.toString());
+      state = AsyncValue.error(e, stack);
     }
-  } catch (e, stack) {
-    state = AsyncValue.error(e, stack);
   }
-}
-
 
   Future<void> updateDoctor(
     int doctorId,

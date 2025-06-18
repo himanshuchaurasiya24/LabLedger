@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 
-  late CenterDetailOutput centerDetailOutput;
 class DoctorsDatabaseScreen extends ConsumerWidget {
   const DoctorsDatabaseScreen({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    int centerId = 0;
     final doctorsAsync = ref.watch(doctorNotifierProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Doctors')),
@@ -18,7 +16,8 @@ class DoctorsDatabaseScreen extends ConsumerWidget {
         child: doctorsAsync.when(
           data: (doctors) => LayoutBuilder(
             builder: (context, constraints) {
-              centerDetailOutput = doctors[0].centerDetail;
+              centerId = doctors[0].centerDetail!;
+              debugPrint(centerId.toString());
               int crossAxisCount = (constraints.maxWidth ~/ 250).clamp(2, 5);
               return GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -38,13 +37,13 @@ class DoctorsDatabaseScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddDoctorDialog(context, ref, centerDetailOutput),
+        onPressed: () => _showAddDoctorDialog(context, ref, centerId),
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  void _showAddDoctorDialog(BuildContext context, WidgetRef ref, CenterDetailOutput centerDetailOutput) {
+  void _showAddDoctorDialog(BuildContext context, WidgetRef ref, int ctrId) {
     final firstNameController = TextEditingController();
     final lastNameController = TextEditingController();
     final hospitalController = TextEditingController();
@@ -114,8 +113,7 @@ class DoctorsDatabaseScreen extends ConsumerWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              final newDoctorJSON = {
-                "id": 0,
+              final newDoctor = Doctor.fromJson({
                 "first_name": firstNameController.text,
                 "last_name": lastNameController.text,
                 "hospital_name": hospitalController.text,
@@ -129,9 +127,8 @@ class DoctorsDatabaseScreen extends ConsumerWidget {
                 "xray_percentage": int.tryParse(xrayController.text) ?? 0,
                 "franchise_lab_percentage":
                     int.tryParse(franchiseLabController.text) ?? 0,
-                "center_detail": 1,
-              };
-              final newDoctor = Doctor.fromJson(newDoctorJSON);
+                "center_detail": ctrId,
+              });
               await ref
                   .read(doctorNotifierProvider.notifier)
                   .createDoctor(newDoctor);
@@ -172,7 +169,7 @@ class DoctorSummaryCard extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                doc.hospitalName,
+                doc.hospitalName!,
                 style: const TextStyle(fontSize: 13, color: Colors.black87),
               ),
               const SizedBox(height: 4),
@@ -182,7 +179,7 @@ class DoctorSummaryCard extends ConsumerWidget {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      doc.address,
+                      doc.address!,
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.black54,
@@ -301,7 +298,7 @@ class DoctorSummaryCard extends ConsumerWidget {
               );
               await ref
                   .read(doctorNotifierProvider.notifier)
-                  .updateDoctor(doc.id, updated.toJson());
+                  .updateDoctor(doc.id!, updated.toJson());
               Navigator.pop(context);
             },
             child: const Text('Update'),
