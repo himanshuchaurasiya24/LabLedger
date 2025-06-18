@@ -27,8 +27,12 @@ class DoctorsDatabaseScreen extends ConsumerWidget {
                   childAspectRatio: 4 / 3,
                 ),
                 itemCount: doctors.length,
-                itemBuilder: (context, index) =>
-                    DoctorSummaryCard(doc: doctors[index]),
+                itemBuilder: (context, index) {
+                  return DoctorSummaryCard(
+                    doc: doctors[index],
+                    id: doctors[index].id!,
+                  );
+                },
               );
             },
           ),
@@ -144,7 +148,8 @@ class DoctorsDatabaseScreen extends ConsumerWidget {
 
 class DoctorSummaryCard extends ConsumerWidget {
   final Doctor doc;
-  const DoctorSummaryCard({super.key, required this.doc});
+  final int id;
+  const DoctorSummaryCard({super.key, required this.doc, required this.id});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -223,56 +228,73 @@ class DoctorSummaryCard extends ConsumerWidget {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Edit Doctor'),
-        content: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: firstNameController,
-                decoration: const InputDecoration(labelText: 'First Name'),
-              ),
-              TextField(
-                controller: lastNameController,
-                decoration: const InputDecoration(labelText: 'Last Name'),
-              ),
-              TextField(
-                controller: hospitalController,
-                decoration: const InputDecoration(labelText: 'Hospital'),
-              ),
-              TextField(
-                controller: addressController,
-                decoration: const InputDecoration(labelText: 'Address'),
-              ),
-              TextField(
-                controller: phoneController,
-                decoration: const InputDecoration(labelText: 'Phone'),
-              ),
-              TextField(
-                controller: ultrasoundController,
-                decoration: const InputDecoration(labelText: 'Ultrasound %'),
-              ),
-              TextField(
-                controller: pathologyController,
-                decoration: const InputDecoration(labelText: 'Pathology %'),
-              ),
-              TextField(
-                controller: ecgController,
-                decoration: const InputDecoration(labelText: 'ECG %'),
-              ),
-              TextField(
-                controller: xrayController,
-                decoration: const InputDecoration(labelText: 'X-Ray %'),
-              ),
-              TextField(
-                controller: franchiseLabController,
-                decoration: const InputDecoration(labelText: 'Franchise Lab %'),
-              ),
-            ],
+        content: SizedBox(
+          width: 600,
+          height: 500,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: firstNameController,
+                  decoration: const InputDecoration(labelText: 'First Name'),
+                ),
+                TextField(
+                  controller: lastNameController,
+                  decoration: const InputDecoration(labelText: 'Last Name'),
+                ),
+                TextField(
+                  controller: hospitalController,
+                  decoration: const InputDecoration(labelText: 'Hospital'),
+                ),
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(labelText: 'Address'),
+                ),
+                TextField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: 'Phone'),
+                ),
+                TextField(
+                  controller: ultrasoundController,
+                  decoration: const InputDecoration(labelText: 'Ultrasound %'),
+                ),
+                TextField(
+                  controller: pathologyController,
+                  decoration: const InputDecoration(labelText: 'Pathology %'),
+                ),
+                TextField(
+                  controller: ecgController,
+                  decoration: const InputDecoration(labelText: 'ECG %'),
+                ),
+                TextField(
+                  controller: xrayController,
+                  decoration: const InputDecoration(labelText: 'X-Ray %'),
+                ),
+                TextField(
+                  controller: franchiseLabController,
+                  decoration: const InputDecoration(
+                    labelText: 'Franchise Lab %',
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ref
+                  .read(doctorNotifierProvider.notifier)
+                  .deleteDoctor(id)
+                  .then((value) {
+                    Navigator.pop(context);
+                  });
+            },
+            child: Text('delete'),
           ),
           ElevatedButton(
             onPressed: () async {
