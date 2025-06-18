@@ -1,64 +1,211 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 
-class DoctorsDatabaseScreen extends ConsumerStatefulWidget {
+  late CenterDetailOutput centerDetailOutput;
+class DoctorsDatabaseScreen extends ConsumerWidget {
   const DoctorsDatabaseScreen({super.key});
 
   @override
-  ConsumerState<DoctorsDatabaseScreen> createState() =>
-      _DoctorsDatabaseScreenState();
-}
-
-class _DoctorsDatabaseScreenState extends ConsumerState<DoctorsDatabaseScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Invalidate to force refetch
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(doctorNotifierProvider);
-    });
+  Widget build(BuildContext context, WidgetRef ref) {
+    final doctorsAsync = ref.watch(doctorNotifierProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Doctors')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: doctorsAsync.when(
+          data: (doctors) => LayoutBuilder(
+            builder: (context, constraints) {
+              centerDetailOutput = doctors[0].centerDetail;
+              int crossAxisCount = (constraints.maxWidth ~/ 250).clamp(2, 5);
+              return GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 4 / 3,
+                ),
+                itemCount: doctors.length,
+                itemBuilder: (context, index) =>
+                    DoctorSummaryCard(doc: doctors[index]),
+              );
+            },
+          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, _) => Center(child: Text('Error: $err')),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddDoctorDialog(context, ref, centerDetailOutput),
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final doctorsAsync = ref.watch(doctorNotifierProvider);
+  void _showAddDoctorDialog(BuildContext context, WidgetRef ref, CenterDetailOutput centerDetailOutput) {
+    final firstNameController = TextEditingController();
+    final lastNameController = TextEditingController();
+    final hospitalController = TextEditingController();
+    final addressController = TextEditingController();
+    final phoneController = TextEditingController();
+    final ultrasoundController = TextEditingController();
+    final pathologyController = TextEditingController();
+    final ecgController = TextEditingController();
+    final xrayController = TextEditingController();
+    final franchiseLabController = TextEditingController();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Doctors List')),
-      body: doctorsAsync.when(
-        data: (doctors) {
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: doctors.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final doc = doctors[index];
-              return DoctorCard(doc: doc);
+    showDialog(
+      context: context,
+
+      builder: (_) => AlertDialog(
+        title: const Text('Add Doctor'),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: firstNameController,
+                decoration: const InputDecoration(labelText: 'First Name'),
+              ),
+              TextField(
+                controller: lastNameController,
+                decoration: const InputDecoration(labelText: 'Last Name'),
+              ),
+              TextField(
+                controller: hospitalController,
+                decoration: const InputDecoration(labelText: 'Hospital Name'),
+              ),
+              TextField(
+                controller: addressController,
+                decoration: const InputDecoration(labelText: 'Address'),
+              ),
+              TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(labelText: 'Phone Number'),
+              ),
+              TextField(
+                controller: ultrasoundController,
+                decoration: const InputDecoration(labelText: 'Ultrasound %'),
+              ),
+              TextField(
+                controller: pathologyController,
+                decoration: const InputDecoration(labelText: 'Pathology %'),
+              ),
+              TextField(
+                controller: ecgController,
+                decoration: const InputDecoration(labelText: 'ECG %'),
+              ),
+              TextField(
+                controller: xrayController,
+                decoration: const InputDecoration(labelText: 'X-Ray %'),
+              ),
+              TextField(
+                controller: franchiseLabController,
+                decoration: const InputDecoration(labelText: 'Franchise Lab %'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newDoctorJSON = {
+                "id": 0,
+                "first_name": firstNameController.text,
+                "last_name": lastNameController.text,
+                "hospital_name": hospitalController.text,
+                "address": addressController.text,
+                "phone_number": phoneController.text,
+                "ultrasound_percentage":
+                    int.tryParse(ultrasoundController.text) ?? 0,
+                "pathology_percentage":
+                    int.tryParse(pathologyController.text) ?? 0,
+                "ecg_percentage": int.tryParse(ecgController.text) ?? 0,
+                "xray_percentage": int.tryParse(xrayController.text) ?? 0,
+                "franchise_lab_percentage":
+                    int.tryParse(franchiseLabController.text) ?? 0,
+                "center_detail": 1,
+              };
+              final newDoctor = Doctor.fromJson(newDoctorJSON);
+              await ref
+                  .read(doctorNotifierProvider.notifier)
+                  .createDoctor(newDoctor);
+              Navigator.pop(context);
             },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Error: $err')),
+            child: const Text('Add'),
+          ),
+        ],
       ),
     );
   }
 }
 
-class DoctorCard extends ConsumerStatefulWidget {
+class DoctorSummaryCard extends ConsumerWidget {
   final Doctor doc;
-
-  const DoctorCard({super.key, required this.doc});
+  const DoctorSummaryCard({super.key, required this.doc});
 
   @override
-  ConsumerState<DoctorCard> createState() => _DoctorCardState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    return GestureDetector(
+      onTap: () => _showUpdateDialog(context, ref),
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: const Color(0xFFF9F9F9),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${doc.firstName} ${doc.lastName}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0061A8),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                doc.hospitalName,
+                style: const TextStyle(fontSize: 13, color: Colors.black87),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      doc.address,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-class _DoctorCardState extends ConsumerState<DoctorCard> {
-  bool isExpanded = false;
-
-  void showEditDialog(Doctor doc) {
+  void _showUpdateDialog(BuildContext context, WidgetRef ref) {
+    final firstNameController = TextEditingController(text: doc.firstName);
+    final lastNameController = TextEditingController(text: doc.lastName);
+    final hospitalController = TextEditingController(text: doc.hospitalName);
+    final addressController = TextEditingController(text: doc.address);
+    final phoneController = TextEditingController(text: doc.phoneNumber);
     final ultrasoundController = TextEditingController(
       text: doc.ultrasoundPercentage.toString(),
     );
@@ -71,22 +218,57 @@ class _DoctorCardState extends ConsumerState<DoctorCard> {
     final xrayController = TextEditingController(
       text: doc.xrayPercentage.toString(),
     );
-    final franchiseController = TextEditingController(
+    final franchiseLabController = TextEditingController(
       text: doc.franchiseLabPercentage.toString(),
     );
 
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Update Doctor Info'),
+        title: const Text('Edit Doctor'),
         content: SingleChildScrollView(
           child: Column(
             children: [
-              _buildPercentageField('Ultrasound %', ultrasoundController),
-              _buildPercentageField('Pathology %', pathologyController),
-              _buildPercentageField('ECG %', ecgController),
-              _buildPercentageField('X-Ray %', xrayController),
-              _buildPercentageField('Franchise Lab %', franchiseController),
+              TextField(
+                controller: firstNameController,
+                decoration: const InputDecoration(labelText: 'First Name'),
+              ),
+              TextField(
+                controller: lastNameController,
+                decoration: const InputDecoration(labelText: 'Last Name'),
+              ),
+              TextField(
+                controller: hospitalController,
+                decoration: const InputDecoration(labelText: 'Hospital'),
+              ),
+              TextField(
+                controller: addressController,
+                decoration: const InputDecoration(labelText: 'Address'),
+              ),
+              TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(labelText: 'Phone'),
+              ),
+              TextField(
+                controller: ultrasoundController,
+                decoration: const InputDecoration(labelText: 'Ultrasound %'),
+              ),
+              TextField(
+                controller: pathologyController,
+                decoration: const InputDecoration(labelText: 'Pathology %'),
+              ),
+              TextField(
+                controller: ecgController,
+                decoration: const InputDecoration(labelText: 'ECG %'),
+              ),
+              TextField(
+                controller: xrayController,
+                decoration: const InputDecoration(labelText: 'X-Ray %'),
+              ),
+              TextField(
+                controller: franchiseLabController,
+                decoration: const InputDecoration(labelText: 'Franchise Lab %'),
+              ),
             ],
           ),
         ),
@@ -96,116 +278,34 @@ class _DoctorCardState extends ConsumerState<DoctorCard> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               final updated = doc.copyWith(
-                ultrasoundPercentage: int.parse(ultrasoundController.text),
-                pathologyPercentage: int.parse(pathologyController.text),
-                ecgPercentage: int.parse(ecgController.text),
-                xrayPercentage: int.parse(xrayController.text),
-                franchiseLabPercentage: int.parse(franchiseController.text),
+                firstName: firstNameController.text,
+                lastName: lastNameController.text,
+                hospitalName: hospitalController.text,
+                address: addressController.text,
+                phoneNumber: phoneController.text,
+                ultrasoundPercentage:
+                    int.tryParse(ultrasoundController.text) ??
+                    doc.ultrasoundPercentage,
+                pathologyPercentage:
+                    int.tryParse(pathologyController.text) ??
+                    doc.pathologyPercentage,
+                ecgPercentage:
+                    int.tryParse(ecgController.text) ?? doc.ecgPercentage,
+                xrayPercentage:
+                    int.tryParse(xrayController.text) ?? doc.xrayPercentage,
+                franchiseLabPercentage:
+                    int.tryParse(franchiseLabController.text) ??
+                    doc.franchiseLabPercentage,
               );
-              ref
+              await ref
                   .read(doctorNotifierProvider.notifier)
                   .updateDoctor(doc.id, updated.toJson());
               Navigator.pop(context);
             },
-            child: const Text('Save'),
+            child: const Text('Update'),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPercentageField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
-        keyboardType: TextInputType.number,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final doc = widget.doc;
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ExpansionTile(
-        // visualDensity: VisualDensity.adaptivePlatformDensity,
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
-        title: Text(
-          '${doc.firstName} ${doc.lastName}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(doc.phoneNumber),
-        onExpansionChanged: (val) => setState(() => isExpanded = val),
-        childrenPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
-        children: [
-          _infoText('Address', doc.address),
-          _infoText('Ultrasound %', doc.ultrasoundPercentage.toString()),
-          _infoText('Pathology %', doc.pathologyPercentage.toString()),
-          _infoText('ECG %', doc.ecgPercentage.toString()),
-          _infoText('X-Ray %', doc.xrayPercentage.toString()),
-          _infoText('Franchise Lab %', doc.franchiseLabPercentage.toString()),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton.icon(
-                onPressed: () => showEditDialog(doc),
-                icon: const Icon(
-                  Icons.edit,
-                  size: 18,
-                  color: Color(0xFF0061A8),
-                ),
-                label: const Text(
-                  'Update',
-                  style: TextStyle(color: Color(0xFF0061A8)),
-                ),
-              ),
-              TextButton.icon(
-                onPressed: () => ref
-                    .read(doctorNotifierProvider.notifier)
-                    .deleteDoctor(doc.id),
-                icon: const Icon(Icons.delete, size: 18, color: Colors.red),
-                label: const Text(
-                  'Delete',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _infoText(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-          Expanded(child: Text(value)),
         ],
       ),
     );

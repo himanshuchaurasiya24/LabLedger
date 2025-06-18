@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
@@ -10,17 +11,20 @@ class DoctorNotifier extends StateNotifier<AsyncValue<List<Doctor>>> {
   DoctorNotifier(this.ref) : super(const AsyncValue.loading()) {
     fetchDoctors();
   }
-final String doctorsUrl = "${baseURL}diagnosis/doctors/doctor/";
+  final String doctorsUrl = "${baseURL}diagnosis/doctors/doctor/";
   Future<void> fetchSingleDoctor({required int id}) async {
     try {
       final token = await ref.read(tokenProvider.future);
       final response = await http.get(
         Uri.parse("$doctorsUrl$id/?list_format=true"),
-        headers: {"Authorisation": "Bearer $token"},
+        headers: {"Authorization": "Bearer $token"},
       );
       if (response.statusCode == 200) {
         final List data = jsonDecode(response.body);
-        final users = data.map((e) => Doctor.fromJson(e)).toList().cast<Doctor>();
+        final users = data
+            .map((e) => Doctor.fromJson(e))
+            .toList()
+            .cast<Doctor>();
         state = AsyncValue.data(users);
       } else {
         throw Exception(
@@ -28,9 +32,11 @@ final String doctorsUrl = "${baseURL}diagnosis/doctors/doctor/";
         );
       }
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
+  debugPrint('Error fetching doctors: ${e.toString()}');
+  state = AsyncValue.error(e.toString(), st);
+}
   }
+
   Future<void> fetchDoctors() async {
     try {
       final token = await ref.read(tokenProvider.future);
@@ -50,9 +56,35 @@ final String doctorsUrl = "${baseURL}diagnosis/doctors/doctor/";
         throw Exception('Failed to fetch doctors: ${response.body}');
       }
     } catch (e, st) {
+      debugPrint(st.toString());
       state = AsyncValue.error(e, st);
     }
   }
+  Future<void> createDoctor(Doctor newDoctor) async {
+  try {
+          final token = await ref.read(tokenProvider.future);
+
+    final url = Uri.parse("${baseURL}diagnosis/doctors/");
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(newDoctor.toJson()),
+    );
+
+    if (response.statusCode == 201) {
+      final created = Doctor.fromJson(jsonDecode(response.body));
+      state = AsyncValue.data([...state.value ?? [], created]);
+    } else {
+      throw Exception('Failed to create doctor: ${response.body}');
+    }
+  } catch (e, stack) {
+    state = AsyncValue.error(e, stack);
+  }
+}
+
 
   Future<void> updateDoctor(
     int doctorId,
@@ -104,6 +136,6 @@ final String doctorsUrl = "${baseURL}diagnosis/doctors/doctor/";
 }
 
 final doctorNotifierProvider =
-    StateNotifierProvider<DoctorNotifier, AsyncValue<List<Doctor>>>(
+    StateNotifierProvider.autoDispose<DoctorNotifier, AsyncValue<List<Doctor>>>(
       (ref) => DoctorNotifier(ref),
     );

@@ -50,3 +50,22 @@ class CenterDetail {
     );
   }
 }
+class CenterDetailOutput {
+  final int id;
+  final String centerName;
+  final String address;
+
+  CenterDetailOutput({
+    required this.id,
+    required this.centerName,
+    required this.address,
+  });
+
+  factory CenterDetailOutput.fromJson(Map<String, dynamic> json) {
+    return CenterDetailOutput(
+      id: json['id'],
+      centerName: json['center_name'],
+      address: json['address'],
+    );
+  }
+}
