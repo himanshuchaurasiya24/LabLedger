@@ -173,7 +173,6 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
               SizedBox(height: defaultPadding),
               customButton(
                 context: context,
-                formKey: _formKey,
                 ontap: () {
                   if (_formKey.currentState!.validate()) {
                     _submitForm();

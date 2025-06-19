@@ -7,8 +7,7 @@ import 'package:labledger/screens/profile/update_profile_screen.dart';
 class ProfileScreen extends ConsumerWidget {
   final int userId;
 
-  ProfileScreen({super.key, required this.userId});
-  final _formKey = GlobalKey<FormState>();
+  const ProfileScreen({super.key, required this.userId});
 
   // Outside your widget class (or as a method inside a StatefulWidget or HookWidget)
   Future<void> _handleUserTap(
@@ -126,7 +125,6 @@ class ProfileScreen extends ConsumerWidget {
                     Center(
                       child: customButton(
                         context: context,
-                        formKey: _formKey,
                         ontap: () {
                           _handleUserTap(context, ref, userId);
                         },

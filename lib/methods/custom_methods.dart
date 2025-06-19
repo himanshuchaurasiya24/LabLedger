@@ -9,9 +9,60 @@ import 'package:window_manager/window_manager.dart';
 final containerLightColor = Color(0xFFEEEEEE);
 final containerDarkColor = Color(0xFF212121);
 
+class CenterSearchBar extends StatelessWidget {
+  final String hintText;
+  final Function() onSearch;
+  final TextEditingController controller;
+  final FocusNode searchFocusNode;
+
+  const CenterSearchBar({
+    super.key,
+    required this.hintText,
+    required this.onSearch,
+    required this.controller,
+    required this.searchFocusNode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 45,
+      width: 200,
+      child: Center(
+        child: TextField(
+          focusNode: searchFocusNode,
+          controller: controller,
+          decoration: InputDecoration(
+            fillColor: Theme.of(context).brightness == Brightness.light
+                ? containerLightColor
+                : containerDarkColor,
+            filled: true,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(minimalBorderRadius),
+            ),
+            hoverColor: Theme.of(context).brightness == Brightness.light
+                ? containerLightColor
+                : containerDarkColor,
+            focusColor: Theme.of(context).brightness == Brightness.light
+                ? containerLightColor
+                : containerDarkColor,
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(minimalBorderRadius),
+            ),
+            hintText: hintText,
+          ),
+          onChanged: (value) {
+            onSearch();
+          },
+        ),
+      ),
+    );
+  }
+}
+
 Widget settingsPageTopBar({
   required BuildContext context,
-  required String pageName,
+  required Widget centerWidget,
   required Color chipColor,
 }) {
   return Column(
@@ -19,23 +70,8 @@ Widget settingsPageTopBar({
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            flex: 2,
-            child: appIconName(
-              context: context,
-              firstName: "Lab",
-              secondName: "Ledger",
-              // fontSize: 50,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              pageName,
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-          ),
-
+          appIconName(context: context, firstName: "Lab", secondName: "Ledger"),
+          centerWidget,
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: customChip(
@@ -236,7 +272,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
 Widget customButton({
   required BuildContext context,
-  required GlobalKey formKey,
   required VoidCallback ontap,
 }) {
   return SizedBox(
