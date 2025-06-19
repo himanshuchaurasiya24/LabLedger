@@ -6,6 +6,9 @@ import 'package:labledger/screens/side_screens/dashboard.dart';
 import 'package:labledger/screens/side_screens/settings.dart';
 import 'package:window_manager/window_manager.dart';
 
+final containerLightColor = Color(0xFFEEEEEE);
+final containerDarkColor = Color(0xFF212121);
+
 Widget settingsPageTopBar({
   required BuildContext context,
   required String pageName,
@@ -266,7 +269,9 @@ Widget customBar({
         height: MediaQuery.of(context).size.height / 10,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: Theme.of(context).brightness == Brightness.light
+              ? containerLightColor
+              : containerDarkColor,
           borderRadius: BorderRadius.circular(minimalBorderRadius),
           boxShadow: [
             BoxShadow(
@@ -367,7 +372,7 @@ class PageNavigatorBar extends StatelessWidget {
   }
 }
 
-class SidebarItem extends ConsumerWidget {
+class SidebarItem extends StatefulWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -379,21 +384,33 @@ class SidebarItem extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: ref.read(lightScaffoldColorProvider),
-        size: 24,
+  State<SidebarItem> createState() => _SidebarItemState();
+}
+
+class _SidebarItemState extends State<SidebarItem> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(minimalBorderRadius),
       ),
-      title: Text(
-        label,
-        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-          color: ref.read(lightScaffoldColorProvider),
-          fontSize: 24,
+      child: ListTile(
+        leading: Icon(
+          widget.icon,
+          color: ThemeData.light().scaffoldBackgroundColor,
+          size: 24,
         ),
+        title: Text(
+          widget.label,
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            color: ThemeData.light().scaffoldBackgroundColor,
+            fontSize: 24,
+          ),
+        ),
+        onTap: () {
+          widget.onTap();
+        },
       ),
-      onTap: onTap,
     );
   }
 }

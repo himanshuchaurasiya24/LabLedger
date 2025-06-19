@@ -123,9 +123,10 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 surface: Color(0xFFFAFAF6), // ✅ Replace deprecated background
                 surfaceContainerHighest: Color(0xFFE8F0F9),
               ),
-          scaffoldBackgroundColor:
-              Colors.grey[200]!, // ✅ Replace deprecated background
-          appBarTheme: AppBarTheme(backgroundColor: Colors.grey[200]!),
+          scaffoldBackgroundColor: Color(
+            0xFFE5E5E5,
+          ), // ✅ Replace deprecated background
+          appBarTheme: AppBarTheme(backgroundColor: Color(0xFFE5E5E5)),
           fontFamily: 'GoogleSans',
           textTheme: const TextTheme(
             headlineSmall: TextStyle(
@@ -154,7 +155,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 surface: Color(0xFF1E1E1E),
                 surfaceContainerHighest: Color(0xFF2C2C2C),
               ),
-          scaffoldBackgroundColor: Color(0xFF23272F),
+          scaffoldBackgroundColor: Color(0xFF171717),
           // ⬅️ Dark mode BG
           fontFamily: 'GoogleSans',
           textTheme: const TextTheme(

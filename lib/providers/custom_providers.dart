@@ -112,9 +112,7 @@ final splashAppNameProvider = Provider<Widget>((ref) {
   );
 });
 
-final lightScaffoldColorProvider = Provider<Color>((ref) {
-  return ThemeData.light().scaffoldBackgroundColor;
-});
+
 
 final themeNotifierProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((
   ref,

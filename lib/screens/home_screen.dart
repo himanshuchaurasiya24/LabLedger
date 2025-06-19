@@ -59,7 +59,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Row(
         children: [
           // Sidebar
@@ -67,7 +66,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             flex: 1,
             child: Container(
               width: 240,
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Theme.of(context).colorScheme.primary
+                  : containerDarkColor,
+              // : Theme.of(context).scaffoldBackgroundColor,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -80,7 +82,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           SidebarItem(
                             icon: LucideIcons.layoutGrid,
                             label: 'Dashboard',
-                            onTap: () => setState(() => selectedIndex = 0),
+
+                            onTap: () => setState(() {
+                              selectedIndex = 0;
+                            }),
                           ),
                           SidebarItem(
                             icon: LucideIcons.bed,
@@ -129,9 +134,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               children: [
                 Container(
                   height: 60,
-                  color:
-                      Theme.of(context).appBarTheme.backgroundColor ??
-                      Colors.white,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   padding: EdgeInsets.symmetric(horizontal: defaultPadding),
                   alignment: Alignment.centerLeft,
                   child: Row(
@@ -163,9 +166,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               }
                             },
                             child: CircleAvatar(
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primary,
+                              backgroundColor:
+                                  Theme.of(context).brightness ==
+                                      Brightness.light
+                                  ? Theme.of(context).colorScheme.primary
+                                  : containerDarkColor,
                               child: Text(
                                 widget.firstName[0].toUpperCase(),
                                 style: TextStyle(
