@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -211,6 +213,62 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
         ),
 
         home: WindowLoadingScreen(onLoginScreen: isLoginScreen),
+        // home: GlassEffectExample(),
+      ),
+    );
+  }
+}
+
+class GlassEffectExample extends StatelessWidget {
+  const GlassEffectExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // backgroundColor: const Color(0xFF1C1C1E), // iOS dark background
+      body: Center(child: GlassContainer()),
+    );
+  }
+}
+
+class GlassContainer extends StatelessWidget {
+  final double width;
+  final double height;
+  final Widget? child;
+  final BorderRadius borderRadius;
+  final Color backgroundColor;
+  const GlassContainer({
+    super.key,
+    this.width = 300,
+    this.height = 200,
+    this.child,
+    this.backgroundColor = Colors.white60,
+    this.borderRadius = const BorderRadius.all(Radius.circular(20)),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+        child: Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            // .withValues(alpha: alphaValue), // Glass tint
+            borderRadius: borderRadius,
+            border: Border.all(
+              color: backgroundColor,
+              // .withValues(
+                // alpha: alphaValue,
+              // ), // Optional white border
+              width: 1.5,
+            ),
+          ),
+          child: child,
+        ),
       ),
     );
   }

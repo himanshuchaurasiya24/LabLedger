@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
-import 'package:labledger/screens/profile/profile_screen.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -27,18 +26,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int selectedIndex = 0;
-
-  final List<String> sidebarLabels = [
-    'Dashboard',
-    'Patients',
-    'Bills',
-    'Reports',
-    'Doctors',
-    'Settings',
-    'Logout',
-  ];
-
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
     secureStorage.delete(key: 'access_token');
@@ -56,149 +43,111 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     setWindowBehavior();
   }
 
+  int currentIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: [
-          // Sidebar
-          Expanded(
-            flex: 1,
-            child: Container(
-              width: 240,
-              color: Theme.of(context).brightness == Brightness.light
-                  ? Theme.of(context).colorScheme.primary
-                  : containerDarkColor,
-              // : Theme.of(context).scaffoldBackgroundColor,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  appIconNameWidget(context: context),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SidebarItem(
-                            icon: LucideIcons.layoutGrid,
-                            label: 'Dashboard',
-
-                            onTap: () => setState(() {
-                              selectedIndex = 0;
-                            }),
-                          ),
-                          SidebarItem(
-                            icon: LucideIcons.bed,
-                            label: 'Patients',
-                            onTap: () => setState(() => selectedIndex = 1),
-                          ),
-                          SidebarItem(
-                            icon: LucideIcons.fileText,
-                            label: 'Bills',
-                            onTap: () => setState(() => selectedIndex = 2),
-                          ),
-                          SidebarItem(
-                            icon: LucideIcons.bookOpen,
-                            label: 'Reports',
-                            onTap: () => setState(() => selectedIndex = 3),
-                          ),
-                          SidebarItem(
-                            icon: Icons.local_hospital_outlined,
-                            label: 'Doctors',
-                            onTap: () => setState(() => selectedIndex = 4),
-                          ),
-                          SidebarItem(
-                            icon: LucideIcons.settings,
-                            label: 'Settings',
-                            onTap: () => setState(() => selectedIndex = 5),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SidebarItem(
-                    icon: LucideIcons.logOut,
-                    label: 'Logout',
-                    onTap: () {
-                      logout();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Main content
-          Expanded(
-            flex: 5,
-            child: Column(
+      body: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: defaultPadding,
+          vertical: defaultPadding,
+        ),
+        child: Column(
+          children: [
+            Row(
               children: [
-                Container(
-                  height: 60,
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        sidebarLabels[selectedIndex],
-                        style: Theme.of(context).textTheme.headlineMedium!
-                            .copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "${widget.firstName} ${widget.lastName}",
-                            style: Theme.of(context).textTheme.bodyLarge!
-                                .copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(width: defaultPadding),
-                          GestureDetector(
-                            onTap: () async {
-                              final updated = await Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ProfileScreen(userId: widget.id),
-                                ),
-                              );
-                              if (updated == true) {
-                                setState(() {});
-                              }
-                            },
-                            child: CircleAvatar(
-                              backgroundColor:
-                                  Theme.of(context).brightness ==
-                                      Brightness.light
-                                  ? Theme.of(context).colorScheme.primary
-                                  : containerDarkColor,
-                              child: Text(
-                                widget.firstName[0].toUpperCase(),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                appIconName(
+                  context: context,
+                  firstName: "Lab",
+                  secondName: "Ledger",
+                  fontSize: 50,
                 ),
-                // Main screen content
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-                    child: mainScreenContentProvider(
-                      indexNumber: selectedIndex,
+                Row(
+                  children: [
+                    TopActionsTab(
+                      title: "Overview",
+                      selectedColor: Color(0xFF020711),
+                      tabIndex: 1,
+                      selectedtabIndex: currentIndex,
+                      onTap: () => setState(() {
+                        currentIndex = 1;
+                      }),
                     ),
-                  ),
+                    SizedBox(width: 20),
+                    TopActionsTab(
+                      title: "Bills",
+                      selectedColor: Color(0xFF020711),
+                      tabIndex: 2,
+                      selectedtabIndex: currentIndex,
+                      onTap: () => setState(() {
+                        currentIndex = 2;
+                      }),
+                    ),
+                    SizedBox(width: 20),
+                    TopActionsTab(
+                      title: "Doctors",
+                      selectedColor: Color(0xFF020711),
+                      tabIndex: 3,
+                      selectedtabIndex: currentIndex,
+                      onTap: () => setState(() {
+                        currentIndex = 3;
+                      }),
+                    ),
+                    SizedBox(width: 20),
+                    TopActionsTab(
+                      title: "Reports",
+                      selectedColor: Color(0xFF020711),
+                      tabIndex: 4,
+                      selectedtabIndex: currentIndex,
+                      onTap: () => setState(() {
+                        currentIndex = 4;
+                      }),
+                    ),
+                  ],
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TopActionsTab extends StatelessWidget {
+  final String title;
+  final Color selectedColor;
+  final int tabIndex;
+  final int selectedtabIndex;
+  final void Function() onTap;
+  const TopActionsTab({
+    super.key,
+    required this.title,
+    required this.tabIndex,
+    required this.selectedColor,
+    required this.selectedtabIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: GlassContainer(
+        backgroundColor: tabIndex == selectedtabIndex
+            ? selectedColor
+            : Color(0xFFFFFFFF).withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(30),
+        height: 60,
+        width: 180,
+        child: Center(
+          child: Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w500),
           ),
-        ],
+        ),
       ),
     );
   }
