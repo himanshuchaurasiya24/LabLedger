@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:labledger/models/user_model.dart';
 
 final String baseURL = 'http://127.0.0.1:8000/';
-final double defaultPadding = 12;
+final double defaultPadding = 24;
 final double minimalBorderRadius = 6;
 final titleBarStatusProvider = FutureProvider<String?>((ref) {
   final storage = FlutterSecureStorage();
@@ -111,8 +111,6 @@ final splashAppNameProvider = Provider<Widget>((ref) {
     ],
   );
 });
-
-
 
 final themeNotifierProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((
   ref,

@@ -1,9 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/providers/custom_providers.dart';
+// import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
@@ -77,7 +75,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(themeNotifierProvider);
+    // final themeMode = ref.watch(themeNotifierProvider);
     return KeyboardListener(
       focusNode: FocusNode()..requestFocus(),
       autofocus: true,
@@ -122,7 +120,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 secondary: Color(0xFF1AA260),
                 brightness: Brightness.light,
                 tertiary:Color(0xFF020711),
-                tertiaryFixed: Color(0xFFFFFFFF).withValues(alpha: 0.9)
+                tertiaryFixed: Color(0xFFFFFFFF)
               ).copyWith(
                 surface: Color(0xFFFAFAF6), // ✅ Replace deprecated background
                 surfaceContainerHighest: Color(0xFFE8F0F9),
@@ -155,7 +153,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 brightness: Brightness.dark,
                 primary: Color(0xFF0072B5),
                 secondary: Color(0xFF1AA260),
-                tertiary: Color(0xFFFFFFFF).withValues(alpha: 0.9),
+                tertiary: Color(0xFFFFFFFF),
                 tertiaryFixed:Color(0xFF020711), 
               ).copyWith(
                 surface: Color(0xFF1E1E1E),
@@ -223,57 +221,3 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
   }
 }
 
-class GlassEffectExample extends StatelessWidget {
-  const GlassEffectExample({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      // backgroundColor: const Color(0xFF1C1C1E), // iOS dark background
-      body: Center(child: GlassContainer()),
-    );
-  }
-}
-
-class GlassContainer extends StatelessWidget {
-  final double width;
-  final double height;
-  final Widget? child;
-  final BorderRadius borderRadius;
-  final Color backgroundColor;
-  const GlassContainer({
-    super.key,
-    this.width = 300,
-    this.height = 200,
-    this.child,
-    this.backgroundColor = Colors.white60,
-    this.borderRadius = const BorderRadius.all(Radius.circular(20)),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            // .withValues(alpha: alphaValue), // Glass tint
-            borderRadius: borderRadius,
-            border: Border.all(
-              color: backgroundColor,
-              // .withValues(
-              // alpha: alphaValue,
-              // ), // Optional white border
-              width: 1.5,
-            ),
-          ),
-          child: child,
-        ),
-      ),
-    );
-  }
-}
