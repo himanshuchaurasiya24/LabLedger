@@ -62,6 +62,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   secondName: "Ledger",
                   fontSize: 50,
                 ),
+                Spacer(),
                 Row(
                   children: [
                     TopActionsTab(
@@ -105,6 +106,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ],
                 ),
+                Spacer(),
+                GlassContainer(
+                  height: 60,
+                  width: 180,
+                  borderRadius: BorderRadius.circular(30),
+                  backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
+                ),
               ],
             ),
           ],
@@ -135,17 +143,20 @@ class TopActionsTab extends StatelessWidget {
       onTap: onTap,
       child: GlassContainer(
         backgroundColor: tabIndex == selectedtabIndex
-            ? selectedColor
-            : Color(0xFFFFFFFF).withValues(alpha: 0.6),
+            ? Theme.of(context).colorScheme.tertiary
+            : Theme.of(context).colorScheme.tertiaryFixed,
         borderRadius: BorderRadius.circular(30),
         height: 60,
         width: 180,
         child: Center(
           child: Text(
             title,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.w500),
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              fontWeight: FontWeight.w500,
+              color: tabIndex == selectedtabIndex
+                  ? Theme.of(context).colorScheme.tertiaryFixed
+                  : Theme.of(context).colorScheme.tertiary,
+            ),
           ),
         ),
       ),

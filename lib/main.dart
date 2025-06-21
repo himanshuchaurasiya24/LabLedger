@@ -100,7 +100,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
-        themeMode: themeMode,
+        themeMode: ThemeMode.system,
         theme: ThemeData(
           brightness: Brightness.light,
           primarySwatch: MaterialColor(0xFF0072B5, <int, Color>{
@@ -121,6 +121,8 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 primary: Color(0xFF0072B5),
                 secondary: Color(0xFF1AA260),
                 brightness: Brightness.light,
+                tertiary:Color(0xFF020711),
+                tertiaryFixed: Color(0xFFFFFFFF).withValues(alpha: 0.9)
               ).copyWith(
                 surface: Color(0xFFFAFAF6), // ✅ Replace deprecated background
                 surfaceContainerHighest: Color(0xFFE8F0F9),
@@ -153,6 +155,8 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 brightness: Brightness.dark,
                 primary: Color(0xFF0072B5),
                 secondary: Color(0xFF1AA260),
+                tertiary: Color(0xFFFFFFFF).withValues(alpha: 0.9),
+                tertiaryFixed:Color(0xFF020711), 
               ).copyWith(
                 surface: Color(0xFF1E1E1E),
                 surfaceContainerHighest: Color(0xFF2C2C2C),
@@ -213,7 +217,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
         ),
 
         home: WindowLoadingScreen(onLoginScreen: isLoginScreen),
-        // home: GlassEffectExample(),
+        // home: Settings(),
       ),
     );
   }
@@ -262,7 +266,7 @@ class GlassContainer extends StatelessWidget {
             border: Border.all(
               color: backgroundColor,
               // .withValues(
-                // alpha: alphaValue,
+              // alpha: alphaValue,
               // ), // Optional white border
               width: 1.5,
             ),

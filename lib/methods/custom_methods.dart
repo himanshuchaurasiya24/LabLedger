@@ -9,6 +9,7 @@ import 'package:window_manager/window_manager.dart';
 final containerLightColor = Color(0xFFEEEEEE);
 final containerDarkColor = Color(0xFF212121);
 
+
 class CenterSearchBar extends StatelessWidget {
   final String hintText;
   final Function() onSearch;
