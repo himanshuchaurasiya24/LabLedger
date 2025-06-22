@@ -8,7 +8,6 @@ import 'dart:async';
 
 Size get initialWindowSize => const Size(700, 350); // 🟩 Initial Size
 final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
-final ValueNotifier<bool> isDarkMode = ValueNotifier<bool>(false);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

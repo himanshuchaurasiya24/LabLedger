@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
@@ -58,13 +59,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     containerWidth = width / 2.962963;
-    containerHeight = height / 2.4;
-    longContainerHeight = height / 2.25;
     sideContainerWidth = width / 3.7037037;
     smallWidthSpacing = width / 80;
-    smallheightSpacing = height / 45;
     bigWidthSpacing = width / 32;
     wideContainerSize = width / 1.4545455;
+    smallheightSpacing = height / 56.25;
+    containerHeight = height * 0.388888;
+    longContainerHeight = height * 0.475;
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
@@ -94,6 +95,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     TopActionsTab(
                       title: "Overview",
                       selectedColor: Color(0xFF020711),
+                      tabIndex: 0,
+                      selectedtabIndex: currentIndex,
+                      onTap: () => setState(() {
+                        currentIndex = 0;
+                      }),
+                    ),
+                    SizedBox(width: smallWidthSpacing),
+                    TopActionsTab(
+                      title: "Bills",
+                      selectedColor: Color(0xFF020711),
                       tabIndex: 1,
                       selectedtabIndex: currentIndex,
                       onTap: () => setState(() {
@@ -102,7 +113,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     SizedBox(width: smallWidthSpacing),
                     TopActionsTab(
-                      title: "Bills",
+                      title: "Doctors",
                       selectedColor: Color(0xFF020711),
                       tabIndex: 2,
                       selectedtabIndex: currentIndex,
@@ -112,22 +123,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     SizedBox(width: smallWidthSpacing),
                     TopActionsTab(
-                      title: "Doctors",
+                      title: "Reports",
                       selectedColor: Color(0xFF020711),
                       tabIndex: 3,
                       selectedtabIndex: currentIndex,
                       onTap: () => setState(() {
                         currentIndex = 3;
-                      }),
-                    ),
-                    SizedBox(width: smallWidthSpacing),
-                    TopActionsTab(
-                      title: "Reports",
-                      selectedColor: Color(0xFF020711),
-                      tabIndex: 4,
-                      selectedtabIndex: currentIndex,
-                      onTap: () => setState(() {
-                        currentIndex = 4;
                       }),
                     ),
                   ],
@@ -200,7 +201,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: ScrollConfiguration(
                 behavior: NoThumbScrollBehavior(),
                 child: SingleChildScrollView(
-                  // This is for vertical scrolling if the content below gets too tall
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -215,7 +215,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     height: containerHeight,
                                     width: containerWidth,
                                     borderRadius: BorderRadius.circular(20),
+                                    child: Padding(
+                                      padding: EdgeInsetsGeometry.symmetric(
+                                        vertical: defaultPadding / 2,
+                                        horizontal: defaultPadding,
+                                      ), // Larger internal padding
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment
+                                            .spaceAround, // spread evenly
+                                        children: [
+                                          Text(
+                                            "Database Overview",
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.headlineLarge,
+                                          ),
+                                          SizedBox(height: smallheightSpacing),
+                                          SystemOverviewChips(
+                                            chipText: "100",
+                                            iconData:
+                                                HugeIcons.strokeRoundedDoctor01,
+                                          ),
+                                          SystemOverviewChips(
+                                            iconData:
+                                                HugeIcons.strokeRoundedInvoice,
+                                            chipText: "3000",
+                                          ),
+                                          SystemOverviewChips(
+                                            iconData: HugeIcons
+                                                .strokeRoundedSchoolReportCard,
+                                            chipText: "3000",
+                                          ),
+
+                                          SystemOverviewChips(
+                                            iconData: HugeIcons
+                                                .strokeRoundedSchoolReportCard,
+                                            chipText: "3000",
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
+
                                   SizedBox(width: smallWidthSpacing),
                                   GlassContainer(
                                     height: containerHeight,
@@ -238,6 +281,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 height: longContainerHeight,
                                 width: sideContainerWidth,
                               ),
+                              SizedBox(height: smallheightSpacing),
+                              GlassContainer(
+                                height: containerHeight,
+                                width: sideContainerWidth,
+                              ),
                             ],
                           ),
                         ],
@@ -250,6 +298,58 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class SystemOverviewChips extends StatelessWidget {
+  const SystemOverviewChips({
+    super.key,
+    required this.iconData,
+    required this.chipText,
+  });
+  final IconData iconData;
+  final String chipText;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.tertiary,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15),
+              bottomLeft: Radius.circular(15),
+            ),
+          ),
+          height: 55,
+          width: 60,
+          child: Icon(
+            iconData,
+            color: Theme.of(context).scaffoldBackgroundColor,
+            size: 40,
+          ),
+        ),
+        Container(
+          height: 55,
+          width: 200,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary,
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(15),
+              bottomRight: Radius.circular(15),
+            ),
+          ),
+          child: Text(
+            chipText,
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge!.copyWith(color: Colors.white),
+          ),
+        ),
+      ],
     );
   }
 }
