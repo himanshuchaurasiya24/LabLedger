@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
@@ -118,8 +117,8 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 primary: Color(0xFF0072B5),
                 secondary: Color(0xFF1AA260),
                 brightness: Brightness.light,
-                tertiary:Color(0xFF020711),
-                tertiaryFixed: Color(0xFFFFFFFF)
+                tertiary: Color(0xFF020711),
+                tertiaryFixed: Color(0xFFFFFFFF),
               ).copyWith(
                 surface: Color(0xFFFAFAF6), // ✅ Replace deprecated background
                 surfaceContainerHighest: Color(0xFFE8F0F9),
@@ -153,7 +152,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 primary: Color(0xFF0072B5),
                 secondary: Color(0xFF1AA260),
                 tertiary: Color(0xFFFFFFFF),
-                tertiaryFixed:Color(0xFF020711), 
+                tertiaryFixed: Color(0xFF020711),
               ).copyWith(
                 surface: Color(0xFF1E1E1E),
                 surfaceContainerHighest: Color(0xFF2C2C2C),
@@ -219,4 +218,3 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
     );
   }
 }
-

@@ -26,7 +26,7 @@ final singleDoctorProvider = FutureProvider.autoDispose.family<Doctor, int>((
 ) async {
   final token = await ref.read(tokenProvider.future);
   final response = await http.get(
-    Uri.parse("${baseURL}diagnosis/doctors/doctor/id/?list_format=true"),
+    Uri.parse("${baseURL}diagnosis/doctors/doctor/$id/?list_format=true"),
     headers: {"Authorization": "Bearer $token"},
   );
 
@@ -61,7 +61,7 @@ final createDoctorProvider = FutureProvider.autoDispose.family<Doctor, Doctor>((
 });
 
 final updateDoctorProvider = FutureProvider.autoDispose
-    .family<Map<dynamic, String>, Map<String, dynamic>>((ref, input) async {
+    .family<Map<String, dynamic>, Map<String, dynamic>>((ref, input) async {
       final token = await ref.read(tokenProvider.future);
       final int id = input['id'];
       final Map<String, dynamic> updatedData = input['data'];

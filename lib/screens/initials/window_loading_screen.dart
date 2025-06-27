@@ -39,13 +39,16 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => HomeScreen(
-          isAdmin: isAdmin,
-          id: id,
-          firstName: firstName,
-          lastName: lastName,
-          username: username,
-        ),
+        builder: (context) {
+          debugPrint(".....");
+          return HomeScreen(
+            isAdmin: isAdmin,
+            id: id,
+            firstName: firstName,
+            lastName: lastName,
+            username: username,
+          );
+        },
       ),
     );
   }
@@ -60,7 +63,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   Future<void> _checkAuth() async {
     final storage = ref.read(secureStorageProvider);
     final token = await storage.read(key: 'access_token');
-
+    debugPrint(token);
     if (token == null) {
       await Future.delayed(ref.read(splashScreenTimeProvider));
       _goToLogin();
@@ -83,13 +86,20 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
 
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
+        debugPrint(body.toString());
         isAdmin = body['is_admin'];
         username = body['username'];
         firstName = body['first_name'];
         lastName = body['last_name'];
         id = body['id'];
         await Future.delayed(ref.read(splashScreenTimeProvider));
-        _goToHome(isAdmin: isAdmin!, firstName: firstName, id: id, lastName: lastName, username: username);
+        _goToHome(
+          isAdmin: isAdmin!,
+          firstName: firstName,
+          id: id,
+          lastName: lastName,
+          username: username,
+        );
       } else {
         await Future.delayed(ref.read(splashScreenTimeProvider));
         _goToLogin();

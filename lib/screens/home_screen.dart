@@ -1,10 +1,12 @@
 import 'dart:ui';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 
@@ -54,6 +56,52 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   double wideContainerSize = 0;
   double smallheightSpacing = 0;
   int currentIndex = 0;
+
+  Map<String, int> getBillStats(List<Map<String, dynamic>> bills) {
+    final now = DateTime.now();
+    final today = now;
+    final yesterday = now.subtract(Duration(days: 1));
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final startOfPrevWeek = startOfWeek.subtract(Duration(days: 7));
+    final endOfPrevWeek = startOfWeek.subtract(Duration(days: 1));
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final startOf3MonthsAgo = DateTime(now.year, now.month - 2, 1);
+
+    int todayCount = 0,
+        yesterdayCount = 0,
+        thisWeek = 0,
+        prevWeek = 0,
+        thisMonth = 0,
+        pastThreeMonths = 0;
+
+    for (var bill in bills) {
+      final date = DateTime.parse(bill['created_at']);
+      if (_isSameDay(date, today)) todayCount++;
+      if (_isSameDay(date, yesterday)) yesterdayCount++;
+      if (date.isAfter(startOfWeek.subtract(Duration(days: 1)))) thisWeek++;
+      if (date.isAfter(startOfPrevWeek.subtract(Duration(days: 1))) &&
+          date.isBefore(endOfPrevWeek.add(Duration(days: 1)))) {
+        prevWeek++;
+      }
+      if (date.isAfter(startOfMonth.subtract(Duration(days: 1)))) thisMonth++;
+      if (date.isAfter(startOf3MonthsAgo.subtract(Duration(days: 1)))) {
+        pastThreeMonths++;
+      }
+    }
+
+    return {
+      'Today': todayCount,
+      'Yesterday': yesterdayCount,
+      'This Week': thisWeek,
+      'Previous Week': prevWeek,
+      'This Month': thisMonth,
+      'Past 3 Months': pastThreeMonths,
+    };
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -66,6 +114,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     smallheightSpacing = height / 56.25;
     containerHeight = height * 0.388888;
     longContainerHeight = height * 0.475;
+    final billsAsync = ref.watch(billsProvider);
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
@@ -230,7 +279,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             "Database Overview",
                                             style: Theme.of(
                                               context,
-                                            ).textTheme.headlineLarge,
+                                            ).textTheme.headlineSmall,
                                           ),
                                           SizedBox(height: smallheightSpacing),
                                           SystemOverviewChips(
@@ -264,6 +313,91 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     height: containerHeight,
                                     width: containerWidth,
                                     borderRadius: BorderRadius.circular(20),
+                                    child: Padding(
+                                      padding: EdgeInsetsGeometry.symmetric(
+                                        horizontal: defaultPadding,
+                                        vertical: defaultPadding / 2,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Bills Counter",
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.headlineSmall,
+                                          ),
+                                          billsAsync.when(
+                                            data: (bills) {
+                                              final data = getBillStats(bills);
+                                              final keys = data.keys.toList();
+                                              return SizedBox(
+                                                height: 200,
+                                                child: BarChart(
+                                                  BarChartData(
+                                                    alignment: BarChartAlignment
+                                                        .spaceAround,
+                                                    barGroups: List.generate(
+                                                      keys.length,
+                                                      (i) {
+                                                        return BarChartGroupData(
+                                                          x: i,
+                                                          barRods: [
+                                                            BarChartRodData(
+                                                              toY: data[keys[i]]!
+                                                                  .toDouble(),
+                                                              color:
+                                                                  Colors.blue,
+                                                            ),
+                                                          ],
+                                                        );
+                                                      },
+                                                    ),
+                                                    titlesData: FlTitlesData(
+                                                      bottomTitles: AxisTitles(
+                                                        sideTitles: SideTitles(
+                                                          showTitles: true,
+                                                          getTitlesWidget:
+                                                              (
+                                                                value,
+                                                                meta,
+                                                              ) => Text(
+                                                                keys[value
+                                                                    .toInt()],
+                                                                style:
+                                                                    TextStyle(
+                                                                      fontSize:
+                                                                          10,
+                                                                    ),
+                                                              ),
+                                                        ),
+                                                      ),
+                                                      leftTitles: AxisTitles(
+                                                        sideTitles: SideTitles(
+                                                          showTitles: true,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    borderData: FlBorderData(
+                                                      show: false,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            error: (error, stackTrace) {
+                                              return Text(
+                                                "Error loading bills",
+                                              );
+                                            },
+                                            loading: () {
+                                              return CircularProgressIndicator();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -271,6 +405,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               GlassContainer(
                                 height: longContainerHeight,
                                 width: wideContainerSize,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: defaultPadding,
+                                    vertical: defaultPadding / 2,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Recent Bills",
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.headlineSmall,
+                                      ),
+                                      Text("data"),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),
