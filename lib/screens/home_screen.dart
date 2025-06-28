@@ -11,6 +11,18 @@ import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 
+enum TimeRange {
+  oneDay,
+  oneWeek,
+  oneMonth,
+  threeMonths,
+  sixMonths,
+  oneYear,
+  threeYears,
+  fiveYears,
+  all,
+}
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
     super.key,
@@ -31,6 +43,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  TimeRange _selectedRange = TimeRange.all;
+
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
     secureStorage.delete(key: 'access_token');
@@ -57,30 +71,148 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   double wideContainerSize = 0;
   double smallheightSpacing = 0;
   int currentIndex = 0;
-  List<BarChartGroupData> generateMonthlyBarChartGroups(List<Bill> bills) {
-    final Map<String, int> monthlyCount = {};
+  final timeRangeLabels = {
+    TimeRange.oneDay: '1D',
+    TimeRange.oneWeek: '1W',
+    TimeRange.oneMonth: '1M',
+    TimeRange.threeMonths: '3M',
+    TimeRange.sixMonths: '6M',
+    TimeRange.oneYear: '1Y',
+    TimeRange.threeYears: '3Y',
+    TimeRange.fiveYears: '5Y',
+    TimeRange.all: 'All',
+  };
+  Widget _buildTimeRangeSelector(
+    TimeRange selected,
+    ValueChanged<TimeRange> onChanged,
+  ) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: TimeRange.values.map((range) {
+          final label = timeRangeLabels[range]!;
+          final isSelected = selected == range;
+          return Padding(
+            padding: EdgeInsetsGeometry.symmetric(
+              horizontal: defaultPadding / 6,
+            ),
+            child: ChoiceChip(
+              label: Text(label),
+              selected: isSelected,
+              onSelected: (value) {
+                onChanged(range);
+              },
+              selectedColor: Colors.blue.shade700,
+              backgroundColor: Colors.grey.shade200,
+              labelStyle: TextStyle(
+                color: isSelected ? Colors.white : Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  LineChartData _getChartData(List<FlSpot> data) {
+    return LineChartData(
+      lineTouchData: LineTouchData(
+        enabled: true,
+        touchTooltipData: LineTouchTooltipData(
+          // tooltipBgColor: Colors.black87,
+          getTooltipItems: (List<LineBarSpot> touchedSpots) {
+            return touchedSpots.map((spot) {
+              return LineTooltipItem(
+                '${spot.y.toInt()} bills',
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            }).toList();
+          },
+        ),
+        handleBuiltInTouches: true,
+      ),
+      lineBarsData: [
+        LineChartBarData(
+          spots: data,
+          isCurved: true,
+          color: Theme.of(context).colorScheme.primary,
+          barWidth: 3,
+          belowBarData: BarAreaData(show: false),
+          dotData: FlDotData(show: false),
+        ),
+      ],
+      titlesData: FlTitlesData(show: false),
+      gridData: FlGridData(show: false),
+      borderData: FlBorderData(show: false),
+    );
+  }List<Bill> filterBillsByRange(List<Bill> bills, TimeRange range) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day); // Strip time
+  DateTime from;
+
+  switch (range) {
+    case TimeRange.oneDay:
+      from = today.subtract(const Duration(days: 1));
+      break;
+    case TimeRange.oneWeek:
+      from = today.subtract(const Duration(days: 7));
+      break;
+    case TimeRange.oneMonth:
+      from = DateTime(today.year, today.month - 1, today.day);
+      break;
+    case TimeRange.threeMonths:
+      from = DateTime(today.year, today.month - 3, today.day);
+      break;
+    case TimeRange.sixMonths:
+      from = DateTime(today.year, today.month - 6, today.day);
+      break;
+    case TimeRange.oneYear:
+      from = DateTime(today.year - 1, today.month, today.day);
+      break;
+    case TimeRange.threeYears:
+      from = DateTime(today.year - 3, today.month, today.day);
+      break;
+    case TimeRange.fiveYears:
+      from = DateTime(today.year - 5, today.month, today.day);
+      break;
+    case TimeRange.all:
+      return bills;
+  }
+
+  return bills.where((bill) {
+    final parsed = DateTime.tryParse(bill.dateOfBill.toString())?.toLocal();
+    debugPrint("Parsed date: $parsed");
+    if (parsed == null) return false;
+
+    final billDate = DateTime(parsed.year, parsed.month, parsed.day);
+    debugPrint("Bill date: ${bill.dateOfBill}");
+
+
+    // return billDate.isAtSameMomentAs(from) || billDate.isAfter(from);
+    return !billDate.isBefore(from);
+
+  }).toList();
+}
+
+
+
+  List<FlSpot> prepareSpots(List<Bill> bills) {
+    bills.sort((a, b) => a.dateOfBill.compareTo(b.dateOfBill));
+    final Map<String, int> dailyCounts = {};
+
     for (final bill in bills) {
-      final date =
-          DateTime.tryParse(bill.dateOfBill.toString()) ?? DateTime.now();
-      final key = "${date.year}-${date.month.toString().padLeft(2, '0')}";
-      monthlyCount[key] = (monthlyCount[key] ?? 0) + 1;
+      final date = bill.dateOfBill.toString().substring(0, 10); // 'YYYY-MM-DD'
+      dailyCounts[date] = (dailyCounts[date] ?? 0) + 1;
     }
 
-    final sortedKeys = monthlyCount.keys.toList()..sort();
-    int index = 0;
-    return sortedKeys.map((month) {
-      return BarChartGroupData(
-        x: index++,
-        barRods: [
-          BarChartRodData(
-            toY: monthlyCount[month]!.toDouble(),
-            color: const Color(0xFF0061A8),
-            width: 14,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ],
-      );
-    }).toList();
+    final dates = dailyCounts.keys.toList()..sort();
+    return List.generate(dates.length, (i) {
+      return FlSpot(i.toDouble(), dailyCounts[dates[i]]!.toDouble());
+    });
   }
 
   @override
@@ -298,136 +430,59 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         horizontal: defaultPadding,
                                         vertical: defaultPadding / 2,
                                       ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Bills Counter",
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.headlineSmall,
-                                          ),
-                                          Consumer(
-                                            builder: (context, ref, _) {
-                                              final billsAsync = ref.watch(
-                                                billsProvider,
-                                              );
-                                              return billsAsync.when(
-                                                data: (bills) {
-                                                  final Map<String, int>
-                                                  monthlyCount = {};
-                                                  for (final bill in bills) {
-                                                    final date =
-                                                        DateTime.tryParse(
-                                                          bill.dateOfTest
-                                                              .toString(),
-                                                        ) ??
-                                                        DateTime.now();
-                                                    final key =
-                                                        "${date.year}-${date.month.toString().padLeft(2, '0')}";
-                                                    monthlyCount[key] =
-                                                        (monthlyCount[key] ??
-                                                            0) +
-                                                        1;
-                                                  }
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.vertical,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Bills Counter",
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.headlineSmall,
+                                            ),
 
-                                                  final sortedKeys =
-                                                      monthlyCount.keys.toList()
-                                                        ..sort();
-                                                  final barGroups = List.generate(
-                                                    sortedKeys.length,
-                                                    (i) {
-                                                      final monthKey =
-                                                          sortedKeys[i];
-                                                      return BarChartGroupData(
-                                                        x: i,
-                                                        barRods: [
-                                                          BarChartRodData(
-                                                            toY:
-                                                                monthlyCount[monthKey]!
-                                                                    .toDouble(),
-                                                            color: const Color(
-                                                              0xFF0061A8,
-                                                            ),
-                                                            width: 14,
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  4,
-                                                                ),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    },
-                                                  );
-
-                                                  return SizedBox(
-                                                    height: 180,
-                                                    child: BarChart(
-                                                      BarChartData(
-                                                        barGroups: barGroups,
-                                                        titlesData: FlTitlesData(
-                                                          bottomTitles: AxisTitles(
-                                                            sideTitles: SideTitles(
-                                                              showTitles: true,
-                                                              getTitlesWidget: (value, _) {
-                                                                final index =
-                                                                    value
-                                                                        .toInt();
-                                                                if (index >=
-                                                                        0 &&
-                                                                    index <
-                                                                        sortedKeys
-                                                                            .length) {
-                                                                  final parts =
-                                                                      sortedKeys[index]
-                                                                          .split(
-                                                                            '-',
-                                                                          );
-                                                                  return Text(
-                                                                    '${parts[1]}/${parts[0]}',
-                                                                    style: const TextStyle(
-                                                                      fontSize:
-                                                                          10,
-                                                                    ),
-                                                                  );
-                                                                }
-                                                                return const Text(
-                                                                  '',
-                                                                );
-                                                              },
-                                                            ),
-                                                          ),
-                                                          leftTitles: AxisTitles(
-                                                            sideTitles:
-                                                                SideTitles(
-                                                                  showTitles:
-                                                                      true,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        borderData:
-                                                            FlBorderData(
-                                                              show: false,
-                                                            ),
-                                                        gridData: FlGridData(
-                                                          show: false,
+                                            ref
+                                                .watch(billsProvider)
+                                                .when(
+                                                  data: (bills) {
+                                                    final filteredData =
+                                                        filterBillsByRange(
+                                                          bills,
+                                                          _selectedRange,
+                                                        );
+                                                    final chartData =
+                                                        prepareSpots(
+                                                          filteredData,
+                                                        );
+                                                    return SizedBox(
+                                                      height: 230,
+                                                      child: LineChart(
+                                                        _getChartData(
+                                                          chartData,
                                                         ),
                                                       ),
-                                                    ),
-                                                  );
-                                                },
-                                                loading: () => const Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
+                                                    );
+                                                  },
+                                                  loading: () => const Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  ),
+                                                  error: (err, _) => Text(
+                                                    "Error loading chart: $err",
+                                                  ),
                                                 ),
-                                                error: (e, _) => Text(
-                                                  "Error loading chart: $e",
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ],
+                                            _buildTimeRangeSelector(
+                                              _selectedRange,
+                                              (range) {
+                                                setState(() {
+                                                  _selectedRange = range;
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
