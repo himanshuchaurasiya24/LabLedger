@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
@@ -56,51 +57,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   double wideContainerSize = 0;
   double smallheightSpacing = 0;
   int currentIndex = 0;
-
-  Map<String, int> getBillStats(List<Map<String, dynamic>> bills) {
-    final now = DateTime.now();
-    final today = now;
-    final yesterday = now.subtract(Duration(days: 1));
-    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final startOfPrevWeek = startOfWeek.subtract(Duration(days: 7));
-    final endOfPrevWeek = startOfWeek.subtract(Duration(days: 1));
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final startOf3MonthsAgo = DateTime(now.year, now.month - 2, 1);
-
-    int todayCount = 0,
-        yesterdayCount = 0,
-        thisWeek = 0,
-        prevWeek = 0,
-        thisMonth = 0,
-        pastThreeMonths = 0;
-
-    for (var bill in bills) {
-      final date = DateTime.parse(bill['created_at']);
-      if (_isSameDay(date, today)) todayCount++;
-      if (_isSameDay(date, yesterday)) yesterdayCount++;
-      if (date.isAfter(startOfWeek.subtract(Duration(days: 1)))) thisWeek++;
-      if (date.isAfter(startOfPrevWeek.subtract(Duration(days: 1))) &&
-          date.isBefore(endOfPrevWeek.add(Duration(days: 1)))) {
-        prevWeek++;
-      }
-      if (date.isAfter(startOfMonth.subtract(Duration(days: 1)))) thisMonth++;
-      if (date.isAfter(startOf3MonthsAgo.subtract(Duration(days: 1)))) {
-        pastThreeMonths++;
-      }
+  List<BarChartGroupData> generateMonthlyBarChartGroups(List<Bill> bills) {
+    final Map<String, int> monthlyCount = {};
+    for (final bill in bills) {
+      final date =
+          DateTime.tryParse(bill.dateOfBill.toString()) ?? DateTime.now();
+      final key = "${date.year}-${date.month.toString().padLeft(2, '0')}";
+      monthlyCount[key] = (monthlyCount[key] ?? 0) + 1;
     }
 
-    return {
-      'Today': todayCount,
-      'Yesterday': yesterdayCount,
-      'This Week': thisWeek,
-      'Previous Week': prevWeek,
-      'This Month': thisMonth,
-      'Past 3 Months': pastThreeMonths,
-    };
+    final sortedKeys = monthlyCount.keys.toList()..sort();
+    int index = 0;
+    return sortedKeys.map((month) {
+      return BarChartGroupData(
+        x: index++,
+        barRods: [
+          BarChartRodData(
+            toY: monthlyCount[month]!.toDouble(),
+            color: const Color(0xFF0061A8),
+            width: 14,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ],
+      );
+    }).toList();
   }
-
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +95,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     smallheightSpacing = height / 56.25;
     containerHeight = height * 0.388888;
     longContainerHeight = height * 0.475;
-    final billsAsync = ref.watch(billsProvider);
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
@@ -328,71 +308,123 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                               context,
                                             ).textTheme.headlineSmall,
                                           ),
-                                          billsAsync.when(
-                                            data: (bills) {
-                                              final data = getBillStats(bills);
-                                              final keys = data.keys.toList();
-                                              return SizedBox(
-                                                height: 200,
-                                                child: BarChart(
-                                                  BarChartData(
-                                                    alignment: BarChartAlignment
-                                                        .spaceAround,
-                                                    barGroups: List.generate(
-                                                      keys.length,
-                                                      (i) {
-                                                        return BarChartGroupData(
-                                                          x: i,
-                                                          barRods: [
-                                                            BarChartRodData(
-                                                              toY: data[keys[i]]!
-                                                                  .toDouble(),
-                                                              color:
-                                                                  Colors.blue,
+                                          Consumer(
+                                            builder: (context, ref, _) {
+                                              final billsAsync = ref.watch(
+                                                billsProvider,
+                                              );
+                                              return billsAsync.when(
+                                                data: (bills) {
+                                                  final Map<String, int>
+                                                  monthlyCount = {};
+                                                  for (final bill in bills) {
+                                                    final date =
+                                                        DateTime.tryParse(
+                                                          bill.dateOfTest
+                                                              .toString(),
+                                                        ) ??
+                                                        DateTime.now();
+                                                    final key =
+                                                        "${date.year}-${date.month.toString().padLeft(2, '0')}";
+                                                    monthlyCount[key] =
+                                                        (monthlyCount[key] ??
+                                                            0) +
+                                                        1;
+                                                  }
+
+                                                  final sortedKeys =
+                                                      monthlyCount.keys.toList()
+                                                        ..sort();
+                                                  final barGroups = List.generate(
+                                                    sortedKeys.length,
+                                                    (i) {
+                                                      final monthKey =
+                                                          sortedKeys[i];
+                                                      return BarChartGroupData(
+                                                        x: i,
+                                                        barRods: [
+                                                          BarChartRodData(
+                                                            toY:
+                                                                monthlyCount[monthKey]!
+                                                                    .toDouble(),
+                                                            color: const Color(
+                                                              0xFF0061A8,
                                                             ),
-                                                          ],
-                                                        );
-                                                      },
-                                                    ),
-                                                    titlesData: FlTitlesData(
-                                                      bottomTitles: AxisTitles(
-                                                        sideTitles: SideTitles(
-                                                          showTitles: true,
-                                                          getTitlesWidget:
-                                                              (
-                                                                value,
-                                                                meta,
-                                                              ) => Text(
-                                                                keys[value
-                                                                    .toInt()],
-                                                                style:
-                                                                    TextStyle(
+                                                            width: 14,
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  4,
+                                                                ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+
+                                                  return SizedBox(
+                                                    height: 180,
+                                                    child: BarChart(
+                                                      BarChartData(
+                                                        barGroups: barGroups,
+                                                        titlesData: FlTitlesData(
+                                                          bottomTitles: AxisTitles(
+                                                            sideTitles: SideTitles(
+                                                              showTitles: true,
+                                                              getTitlesWidget: (value, _) {
+                                                                final index =
+                                                                    value
+                                                                        .toInt();
+                                                                if (index >=
+                                                                        0 &&
+                                                                    index <
+                                                                        sortedKeys
+                                                                            .length) {
+                                                                  final parts =
+                                                                      sortedKeys[index]
+                                                                          .split(
+                                                                            '-',
+                                                                          );
+                                                                  return Text(
+                                                                    '${parts[1]}/${parts[0]}',
+                                                                    style: const TextStyle(
                                                                       fontSize:
                                                                           10,
                                                                     ),
-                                                              ),
+                                                                  );
+                                                                }
+                                                                return const Text(
+                                                                  '',
+                                                                );
+                                                              },
+                                                            ),
+                                                          ),
+                                                          leftTitles: AxisTitles(
+                                                            sideTitles:
+                                                                SideTitles(
+                                                                  showTitles:
+                                                                      true,
+                                                                ),
+                                                          ),
                                                         ),
-                                                      ),
-                                                      leftTitles: AxisTitles(
-                                                        sideTitles: SideTitles(
-                                                          showTitles: true,
+                                                        borderData:
+                                                            FlBorderData(
+                                                              show: false,
+                                                            ),
+                                                        gridData: FlGridData(
+                                                          show: false,
                                                         ),
                                                       ),
                                                     ),
-                                                    borderData: FlBorderData(
-                                                      show: false,
-                                                    ),
-                                                  ),
+                                                  );
+                                                },
+                                                loading: () => const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
+                                                error: (e, _) => Text(
+                                                  "Error loading chart: $e",
                                                 ),
                                               );
-                                            },
-                                            error: (error, stackTrace) {
-                                              return Text(
-                                                "Error loading bills",
-                                              );
-                                            },
-                                            loading: () {
-                                              return CircularProgressIndicator();
                                             },
                                           ),
                                         ],
@@ -420,7 +452,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           context,
                                         ).textTheme.headlineSmall,
                                       ),
-                                      Text("data"),
+                                      Consumer(
+                                        builder: (context, ref, _) {
+                                          final billsAsync = ref.watch(
+                                            billsProvider,
+                                          );
+                                          return billsAsync.when(
+                                            data: (bills) {
+                                              final latest = bills
+                                                  .take(5)
+                                                  .toList();
+                                              return Column(
+                                                children: latest.map((bill) {
+                                                  return ListTile(
+                                                    leading: Icon(
+                                                      Icons.receipt_long,
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).primaryColor,
+                                                    ),
+                                                    title: Text(
+                                                      "Bill #${bill.id}",
+                                                    ),
+                                                    subtitle: Text(
+                                                      "Date: ${bill.dateOfBill}",
+                                                    ),
+                                                    trailing: Text(
+                                                      "₹${bill.totalAmount}",
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                              );
+                                            },
+                                            loading: () =>
+                                                const CircularProgressIndicator(),
+                                            error: (err, _) => Text(
+                                              "Error loading bills: $err",
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     ],
                                   ),
                                 ),
