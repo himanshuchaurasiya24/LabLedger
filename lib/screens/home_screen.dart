@@ -4,24 +4,14 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:hugeicons/hugeicons.dart';
+import 'package:intl/intl.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 
-enum TimeRange {
-  oneDay,
-  oneWeek,
-  oneMonth,
-  threeMonths,
-  sixMonths,
-  oneYear,
-  threeYears,
-  fiveYears,
-  all,
-}
+enum TimeFilter { thisWeek, thisMonth, thisYear, allTime }
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -43,7 +33,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  TimeRange _selectedRange = TimeRange.all;
+  TimeFilter _selectedRange = TimeFilter.allTime;
 
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
@@ -71,38 +61,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   double wideContainerSize = 0;
   double smallheightSpacing = 0;
   int currentIndex = 0;
-  final timeRangeLabels = {
-    TimeRange.oneDay: '1D',
-    TimeRange.oneWeek: '1W',
-    TimeRange.oneMonth: '1M',
-    TimeRange.threeMonths: '3M',
-    TimeRange.sixMonths: '6M',
-    TimeRange.oneYear: '1Y',
-    TimeRange.threeYears: '3Y',
-    TimeRange.fiveYears: '5Y',
-    TimeRange.all: 'All',
+  final Map<TimeFilter, String> timeFilterLabels = {
+    TimeFilter.thisWeek: 'This Week',
+    TimeFilter.thisMonth: 'This Month',
+    TimeFilter.thisYear: 'This Year',
+    TimeFilter.allTime: 'All Time',
   };
-  Widget _buildTimeRangeSelector(
-    TimeRange selected,
-    ValueChanged<TimeRange> onChanged,
+
+  Widget _buildTimeFilterSelector(
+    TimeFilter selected,
+    ValueChanged<TimeFilter> onChanged,
   ) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: TimeRange.values.map((range) {
-          final label = timeRangeLabels[range]!;
-          final isSelected = selected == range;
+        children: TimeFilter.values.map((filter) {
+          final label = timeFilterLabels[filter]!;
+          final isSelected = selected == filter;
           return Padding(
-            padding: EdgeInsetsGeometry.symmetric(
-              horizontal: defaultPadding / 6,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: ChoiceChip(
               label: Text(label),
+              checkmarkColor: Colors.white,
               selected: isSelected,
-              onSelected: (value) {
-                onChanged(range);
-              },
-              selectedColor: Colors.blue.shade700,
+              onSelected: (_) => onChanged(filter),
+              selectedColor: Theme.of(context).colorScheme.secondary,
               backgroundColor: Colors.grey.shade200,
               labelStyle: TextStyle(
                 color: isSelected ? Colors.white : Colors.black,
@@ -115,103 +98,144 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  LineChartData _getChartData(List<FlSpot> data) {
+  List<String> extractDateLabels(List<Bill> bills) {
+    final dailyCounts = <String, int>{};
+
+    for (final bill in bills) {
+      final date = DateTime.tryParse(bill.dateOfBill.toString());
+      if (date != null) {
+        final key = date.toIso8601String().substring(0, 10);
+        dailyCounts[key] = (dailyCounts[key] ?? 0) + 1;
+      }
+    }
+
+    final sortedDates = dailyCounts.keys.toList()..sort();
+    return sortedDates.map((d) {
+      final dt = DateTime.parse(d);
+      return DateFormat('MMM d yyyy').format(dt);
+    }).toList();
+  }
+
+  LineChartData _getChartData(List<FlSpot> data, List<String> dates) {
     return LineChartData(
-      lineTouchData: LineTouchData(
-        enabled: true,
-        touchTooltipData: LineTouchTooltipData(
-          // tooltipBgColor: Colors.black87,
-          getTooltipItems: (List<LineBarSpot> touchedSpots) {
-            return touchedSpots.map((spot) {
-              return LineTooltipItem(
-                '${spot.y.toInt()} bills',
-                const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              );
-            }).toList();
-          },
-        ),
-        handleBuiltInTouches: true,
-      ),
       lineBarsData: [
         LineChartBarData(
           spots: data,
           isCurved: true,
-          color: Theme.of(context).colorScheme.primary,
           barWidth: 3,
+          color: Theme.of(context).colorScheme.secondary,
           belowBarData: BarAreaData(show: false),
-          dotData: FlDotData(show: false),
+          dotData: FlDotData(show: true),
         ),
       ],
       titlesData: FlTitlesData(show: false),
       gridData: FlGridData(show: false),
       borderData: FlBorderData(show: false),
-    );
-  }List<Bill> filterBillsByRange(List<Bill> bills, TimeRange range) {
-  final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day); // Strip time
-  DateTime from;
+      lineTouchData: LineTouchData(
+        enabled: true,
+        getTouchedSpotIndicator: (barData, spotIndexes) {
+          return spotIndexes.map((i) {
+            return TouchedSpotIndicatorData(
+              FlLine(
+                color: Theme.of(context).colorScheme.secondary,
+                strokeWidth: 3,
+              ),
+              FlDotData(show: true),
+            );
+          }).toList();
+        },
+        touchTooltipData: LineTouchTooltipData(
+          fitInsideHorizontally: true,
+          fitInsideVertically: true,
+          tooltipPadding: const EdgeInsets.all(8),
+          getTooltipItems: (touchedSpots) {
+            return touchedSpots.map((touched) {
+              final index = touched.spotIndex;
+              final date = (index >= 0 && index < dates.length)
+                  ? dates[index]
+                  : 'Unknown';
+              final y = touched.y.toInt();
 
-  switch (range) {
-    case TimeRange.oneDay:
-      from = today.subtract(const Duration(days: 1));
-      break;
-    case TimeRange.oneWeek:
-      from = today.subtract(const Duration(days: 7));
-      break;
-    case TimeRange.oneMonth:
-      from = DateTime(today.year, today.month - 1, today.day);
-      break;
-    case TimeRange.threeMonths:
-      from = DateTime(today.year, today.month - 3, today.day);
-      break;
-    case TimeRange.sixMonths:
-      from = DateTime(today.year, today.month - 6, today.day);
-      break;
-    case TimeRange.oneYear:
-      from = DateTime(today.year - 1, today.month, today.day);
-      break;
-    case TimeRange.threeYears:
-      from = DateTime(today.year - 3, today.month, today.day);
-      break;
-    case TimeRange.fiveYears:
-      from = DateTime(today.year - 5, today.month, today.day);
-      break;
-    case TimeRange.all:
-      return bills;
+              return LineTooltipItem(
+                "$y bills\non $date",
+
+                const TextStyle(color: Colors.white),
+              );
+            }).toList();
+          },
+        ),
+      ),
+    );
   }
 
-  return bills.where((bill) {
-    final parsed = DateTime.tryParse(bill.dateOfBill.toString())?.toLocal();
-    debugPrint("Parsed date: $parsed");
-    if (parsed == null) return false;
+  List<Bill> filterBillsByTimeFilter(List<Bill> bills, TimeFilter filter) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
 
-    final billDate = DateTime(parsed.year, parsed.month, parsed.day);
-    debugPrint("Bill date: ${bill.dateOfBill}");
+    late DateTime from;
+    late DateTime to;
 
+    switch (filter) {
+      case TimeFilter.thisWeek: // last 7 days
+        from = DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(const Duration(days: 6));
+        to = now.add(const Duration(days: 1));
+        break;
 
-    // return billDate.isAtSameMomentAs(from) || billDate.isAfter(from);
-    return !billDate.isBefore(from);
+      case TimeFilter.thisMonth:
+        from = DateTime(today.year, today.month, 1);
+        to = today.add(Duration(days: 1));
+        break;
 
-  }).toList();
-}
+      case TimeFilter.thisYear:
+        from = DateTime(today.year, 1, 1);
+        to = today.add(Duration(days: 1));
+        break;
 
+      case TimeFilter.allTime:
+        return bills;
+    }
 
+    return bills.where((bill) {
+      final parsedUtc = DateTime.tryParse(bill.dateOfBill.toString());
+      final local = parsedUtc?.toLocal();
+
+      if (local == null) return false;
+
+      final localDate = DateTime(local.year, local.month, local.day);
+
+      final inRange =
+          (localDate.isAtSameMomentAs(from) || localDate.isAfter(from)) &&
+          localDate.isBefore(to);
+
+      debugPrint(
+        "BILL DATE: $localDate | FROM: $from | TO: $to | SHOW: $inRange",
+      );
+      return inRange;
+    }).toList();
+  }
 
   List<FlSpot> prepareSpots(List<Bill> bills) {
-    bills.sort((a, b) => a.dateOfBill.compareTo(b.dateOfBill));
     final Map<String, int> dailyCounts = {};
 
     for (final bill in bills) {
-      final date = bill.dateOfBill.toString().substring(0, 10); // 'YYYY-MM-DD'
-      dailyCounts[date] = (dailyCounts[date] ?? 0) + 1;
+      final rawDate = bill.dateOfBill;
+      final parsed = DateTime.tryParse(rawDate.toString());
+      if (parsed == null) continue;
+
+      final dateKey =
+          "${parsed.year}-${parsed.month.toString().padLeft(2, '0')}-${parsed.day.toString().padLeft(2, '0')}";
+      dailyCounts[dateKey] = (dailyCounts[dateKey] ?? 0) + 1;
     }
 
-    final dates = dailyCounts.keys.toList()..sort();
-    return List.generate(dates.length, (i) {
-      return FlSpot(i.toDouble(), dailyCounts[dates[i]]!.toDouble());
+    final sortedDates = dailyCounts.keys.toList()..sort();
+
+    return List.generate(sortedDates.length, (i) {
+      final count = dailyCounts[sortedDates[i]]!;
+      return FlSpot(i.toDouble(), count.toDouble());
     });
   }
 
@@ -233,7 +257,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           horizontal: defaultPadding,
           vertical: defaultPadding / 2,
         ),
-        // Remove the SingleChildScrollView here
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -361,6 +384,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Expanded(
               child: ScrollConfiguration(
                 behavior: NoThumbScrollBehavior(),
+
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,8 +408,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .spaceAround, // spread evenly
+                                        // spread evenly
                                         children: [
                                           Text(
                                             "Database Overview",
@@ -394,27 +417,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             ).textTheme.headlineSmall,
                                           ),
                                           SizedBox(height: smallheightSpacing),
-                                          SystemOverviewChips(
-                                            chipText: "100",
-                                            iconData:
-                                                HugeIcons.strokeRoundedDoctor01,
-                                          ),
-                                          SystemOverviewChips(
-                                            iconData:
-                                                HugeIcons.strokeRoundedInvoice,
-                                            chipText: "3000",
-                                          ),
-                                          SystemOverviewChips(
-                                            iconData: HugeIcons
-                                                .strokeRoundedSchoolReportCard,
-                                            chipText: "3000",
-                                          ),
+                                          // SystemOverviewChips(
+                                          //   chipText: "100",
+                                          //   iconData:
+                                          //       HugeIcons.strokeRoundedDoctor01,
+                                          // ),
+                                          // SystemOverviewChips(
+                                          //   iconData:
+                                          //       HugeIcons.strokeRoundedInvoice,
+                                          //   chipText: "3000",
+                                          // ),
+                                          // SystemOverviewChips(
+                                          //   iconData: HugeIcons
+                                          //       .strokeRoundedSchoolReportCard,
+                                          //   chipText: "3000",
+                                          // ),
 
-                                          SystemOverviewChips(
-                                            iconData: HugeIcons
-                                                .strokeRoundedSchoolReportCard,
-                                            chipText: "3000",
-                                          ),
+                                          // SystemOverviewChips(
+                                          //   iconData: HugeIcons
+                                          //       .strokeRoundedSchoolReportCard,
+                                          //   chipText: "3000",
+                                          // ),
                                         ],
                                       ),
                                     ),
@@ -430,25 +453,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         horizontal: defaultPadding,
                                         vertical: defaultPadding / 2,
                                       ),
-                                      child: SingleChildScrollView(
-                                        scrollDirection: Axis.vertical,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Bills Counter",
-                                              style: Theme.of(
-                                                context,
-                                              ).textTheme.headlineSmall,
-                                            ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            "Bills Counter",
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.headlineSmall,
+                                          ),
+                                          Spacer(),
 
-                                            ref
+                                          SizedBox(
+                                            height:
+                                                containerHeight -
+                                                defaultPadding -
+                                                94,
+                                            child: ref
                                                 .watch(billsProvider)
                                                 .when(
                                                   data: (bills) {
                                                     final filteredData =
-                                                        filterBillsByRange(
+                                                        filterBillsByTimeFilter(
                                                           bills,
                                                           _selectedRange,
                                                         );
@@ -456,12 +485,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                         prepareSpots(
                                                           filteredData,
                                                         );
-                                                    return SizedBox(
-                                                      height: 230,
-                                                      child: LineChart(
-                                                        _getChartData(
-                                                          chartData,
-                                                        ),
+                                                    final dateLabels =
+                                                        extractDateLabels(
+                                                          filteredData,
+                                                        );
+                                                    return LineChart(
+                                                      _getChartData(
+                                                        chartData,
+                                                        dateLabels,
                                                       ),
                                                     );
                                                   },
@@ -473,16 +504,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                     "Error loading chart: $err",
                                                   ),
                                                 ),
-                                            _buildTimeRangeSelector(
-                                              _selectedRange,
-                                              (range) {
-                                                setState(() {
-                                                  _selectedRange = range;
-                                                });
-                                              },
-                                            ),
-                                          ],
-                                        ),
+                                          ),
+                                          const SizedBox(height: 25),
+                                          _buildTimeFilterSelector(
+                                            _selectedRange,
+                                            (newFilter) {
+                                              setState(() {
+                                                _selectedRange = newFilter;
+                                              });
+                                            },
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
