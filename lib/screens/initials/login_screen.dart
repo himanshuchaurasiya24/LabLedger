@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home_screen.dart';
 
@@ -46,7 +47,8 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
           'first_name': body['first_name'],
           'last_name': body['last_name'],
           'id': body['id'],
-        }; // Return the admin status for further use if needed
+          'center_detail':body['center_detail']
+        }; 
       } else if (response.statusCode == 401) {
         String error = body['detail'];
         setState(() {
@@ -61,7 +63,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
       }
     } catch (e) {
       setState(() {
-        errorMessage = "Some error occurred.\nCheck server status...";
+        errorMessage = "Some error occurred. $e \nCheck server status...";
       });
     }
     return {"success": false, "is_admin": false};
@@ -84,6 +86,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
             lastName: value['last_name']!,
             username: value['username']!,
             id: value['id'],
+            centerDetail: CenterDetail.fromJson(value['center_detail']),
           ),
         ),
       );

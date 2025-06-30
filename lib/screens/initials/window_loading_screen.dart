@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home_screen.dart';
 import 'package:labledger/screens/initials/animated_progress_indicator.dart';
@@ -30,23 +31,24 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
 
   void _goToHome({
     required bool isAdmin,
-    required id,
-    required firstName,
-    required lastName,
-    required username,
+    required int id,
+    required String firstName,
+    required String lastName,
+    required String username,
+    required CenterDetail centerDetail,
   }) {
     widget.onLoginScreen.value = false;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) {
-          debugPrint(".....");
           return HomeScreen(
             isAdmin: isAdmin,
             id: id,
             firstName: firstName,
             lastName: lastName,
             username: username,
+            centerDetail: centerDetail,
           );
         },
       ),
@@ -63,7 +65,6 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   Future<void> _checkAuth() async {
     final storage = ref.read(secureStorageProvider);
     final token = await storage.read(key: 'access_token');
-    debugPrint(token);
     if (token == null) {
       await Future.delayed(ref.read(splashScreenTimeProvider));
       _goToLogin();
@@ -83,22 +84,25 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       String? firstName;
       String? lastName;
       int? id;
+      CenterDetail? centerDetail;
 
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
-        debugPrint(body.toString());
         isAdmin = body['is_admin'];
         username = body['username'];
         firstName = body['first_name'];
         lastName = body['last_name'];
+        centerDetail = CenterDetail.fromJson(body['center_detail']);
+
         id = body['id'];
         await Future.delayed(ref.read(splashScreenTimeProvider));
         _goToHome(
           isAdmin: isAdmin!,
-          firstName: firstName,
-          id: id,
-          lastName: lastName,
-          username: username,
+          firstName: firstName!,
+          id: id!,
+          lastName: lastName!,
+          username: username!,
+          centerDetail: centerDetail,
         );
       } else {
         await Future.delayed(ref.read(splashScreenTimeProvider));
@@ -106,7 +110,8 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       }
     } catch (e) {
       setState(() {
-        tileText = "Oops! Server is not responding yet, retrying...";
+        // tileText = "Oops! Server is not responding yet, retrying...";
+        tileText = e.toString();
       });
       _checkAuth();
     }

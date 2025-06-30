@@ -124,6 +124,7 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
                   lastName: updatedUser.lastName,
                   username: updatedUser.username,
                   isAdmin: updatedUser.isAdmin,
+                  centerDetail: updatedUser.centerDetail,
                 );
               },
             ),

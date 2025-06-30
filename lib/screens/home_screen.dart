@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
+import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
@@ -21,19 +22,21 @@ class HomeScreen extends ConsumerStatefulWidget {
     required this.lastName,
     required this.username,
     required this.isAdmin,
+    required this.centerDetail,
   });
-  final bool isAdmin;
   final int id;
+  final bool isAdmin;
   final String firstName;
   final String lastName;
   final String username;
+  final CenterDetail centerDetail;
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  TimeFilter _selectedRange = TimeFilter.allTime;
+  TimeFilter _selectedRange = TimeFilter.thisMonth;
 
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
@@ -60,7 +63,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   double bigWidthSpacing = 0;
   double wideContainerSize = 0;
   double smallheightSpacing = 0;
-  int currentIndex = 0;
+  // int currentIndex = 0;
   final Map<TimeFilter, String> timeFilterLabels = {
     TimeFilter.thisWeek: 'This Week',
     TimeFilter.thisMonth: 'This Month',
@@ -273,50 +276,54 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 SizedBox(
                   width: bigWidthSpacing,
                 ), // Replaced Spacer with a fixed space for horizontal scrolling
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TopActionsTab(
-                      title: "Overview",
-                      selectedColor: Color(0xFF020711),
-                      tabIndex: 0,
-                      selectedtabIndex: currentIndex,
-                      onTap: () => setState(() {
-                        currentIndex = 0;
-                      }),
-                    ),
-                    SizedBox(width: smallWidthSpacing),
-                    TopActionsTab(
-                      title: "Bills",
-                      selectedColor: Color(0xFF020711),
-                      tabIndex: 1,
-                      selectedtabIndex: currentIndex,
-                      onTap: () => setState(() {
-                        currentIndex = 1;
-                      }),
-                    ),
-                    SizedBox(width: smallWidthSpacing),
-                    TopActionsTab(
-                      title: "Doctors",
-                      selectedColor: Color(0xFF020711),
-                      tabIndex: 2,
-                      selectedtabIndex: currentIndex,
-                      onTap: () => setState(() {
-                        currentIndex = 2;
-                      }),
-                    ),
-                    SizedBox(width: smallWidthSpacing),
-                    TopActionsTab(
-                      title: "Reports",
-                      selectedColor: Color(0xFF020711),
-                      tabIndex: 3,
-                      selectedtabIndex: currentIndex,
-                      onTap: () => setState(() {
-                        currentIndex = 3;
-                      }),
-                    ),
-                  ],
+                Text(
+                  "${widget.centerDetail.centerName}, ${widget.centerDetail.address}",
+                  style: Theme.of(context).textTheme.headlineLarge,
                 ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     TopActionsTab(
+                //       title: "Overview",
+                //       selectedColor: Color(0xFF020711),
+                //       tabIndex: 0,
+                //       selectedtabIndex: currentIndex,
+                //       onTap: () => setState(() {
+                //         currentIndex = 0;
+                //       }),
+                //     ),
+                //     SizedBox(width: smallWidthSpacing),
+                //     TopActionsTab(
+                //       title: "Bills",
+                //       selectedColor: Color(0xFF020711),
+                //       tabIndex: 1,
+                //       selectedtabIndex: currentIndex,
+                //       onTap: () => setState(() {
+                //         currentIndex = 1;
+                //       }),
+                //     ),
+                //     SizedBox(width: smallWidthSpacing),
+                //     TopActionsTab(
+                //       title: "Doctors",
+                //       selectedColor: Color(0xFF020711),
+                //       tabIndex: 2,
+                //       selectedtabIndex: currentIndex,
+                //       onTap: () => setState(() {
+                //         currentIndex = 2;
+                //       }),
+                //     ),
+                //     SizedBox(width: smallWidthSpacing),
+                //     TopActionsTab(
+                //       title: "Reports",
+                //       selectedColor: Color(0xFF020711),
+                //       tabIndex: 3,
+                //       selectedtabIndex: currentIndex,
+                //       onTap: () => setState(() {
+                //         currentIndex = 3;
+                //       }),
+                //     ),
+                //   ],
+                // ),
                 SizedBox(
                   width: bigWidthSpacing,
                 ), // Replaced Spacer with a fixed space
