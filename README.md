@@ -2,8 +2,6 @@
 
 ![App Screenshot](https://github.com/himanshuchaurasiya24/LabLedger/raw/main/assets/images/app_image.png)
 
-Crafted with precision by [Himanshu Chaurasiya](https://github.com/himanshuchaurasiya24) — Full-Stack Developer specializing in Flutter and Django for scalable and elegant software solutions.
-
 
 **LabLedger** is a robust and modern lab management system built using Flutter and Django REST Framework. It streamlines the operational workflow of diagnostic centers, enabling efficient handling of patients, doctors, diagnosis records, billing, and reporting — all within a unified platform.
 
@@ -45,6 +43,29 @@ Crafted with precision by [Himanshu Chaurasiya](https://github.com/himanshuchaur
 - **PostgreSQL** (recommended) — robust database support
 
 ---
+
+---
+
+## 👨‍💻 About the Developer
+
+### Himanshu Chaurasiya
+
+[![GitHub](https://img.shields.io/badge/GitHub-himanshuchaurasiya24-181717?style=for-the-badge&logo=github)](https://github.com/himanshuchaurasiya24)
+
+🔹 **Full-Stack Developer** | 🔹 **Flutter & Django Specialist**  
+🔹 Passionate about clean architecture, intuitive UI, and performance optimization  
+🔹 Focused on building scalable solutions for real-world applications  
+🔹 Enthusiastic about open source and continuous learning
+
+> “I believe in writing elegant code that solves complex problems simply.”
+
+---
+
+📫 **Let’s Connect**  
+- GitHub: [himanshuchaurasiya24](https://github.com/himanshuchaurasiya24)
+- Email: *[add your email if you wish]*  
+- Portfolio: *[link to portfolio if available]*  
+
 
 ## 🚀 Getting Started
 
