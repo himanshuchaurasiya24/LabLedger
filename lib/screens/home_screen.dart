@@ -105,11 +105,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     for (final bill in bills) {
       final date = DateTime.tryParse(bill.dateOfBill.toString())!.toLocal();
-      debugPrint(date.toString());
-      // if (date == null) {
+
+      // if (date != null) {
       //   final key = date.toIso8601String().substring(0, 10);
       //   dailyCounts[key] = (dailyCounts[key] ?? 0) + 1;
       // }
+      final key = date.toIso8601String().substring(0, 10);
+      dailyCounts[key] = (dailyCounts[key] ?? 0) + 1;
     }
 
     final sortedDates = dailyCounts.keys.toList()..sort();
@@ -280,50 +282,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   "${widget.centerDetail.centerName}, ${widget.centerDetail.address}",
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                //   children: [
-                //     TopActionsTab(
-                //       title: "Overview",
-                //       selectedColor: Color(0xFF020711),
-                //       tabIndex: 0,
-                //       selectedtabIndex: currentIndex,
-                //       onTap: () => setState(() {
-                //         currentIndex = 0;
-                //       }),
-                //     ),
-                //     SizedBox(width: smallWidthSpacing),
-                //     TopActionsTab(
-                //       title: "Bills",
-                //       selectedColor: Color(0xFF020711),
-                //       tabIndex: 1,
-                //       selectedtabIndex: currentIndex,
-                //       onTap: () => setState(() {
-                //         currentIndex = 1;
-                //       }),
-                //     ),
-                //     SizedBox(width: smallWidthSpacing),
-                //     TopActionsTab(
-                //       title: "Doctors",
-                //       selectedColor: Color(0xFF020711),
-                //       tabIndex: 2,
-                //       selectedtabIndex: currentIndex,
-                //       onTap: () => setState(() {
-                //         currentIndex = 2;
-                //       }),
-                //     ),
-                //     SizedBox(width: smallWidthSpacing),
-                //     TopActionsTab(
-                //       title: "Reports",
-                //       selectedColor: Color(0xFF020711),
-                //       tabIndex: 3,
-                //       selectedtabIndex: currentIndex,
-                //       onTap: () => setState(() {
-                //         currentIndex = 3;
-                //       }),
-                //     ),
-                //   ],
-                // ),
+
                 SizedBox(
                   width: bigWidthSpacing,
                 ), // Replaced Spacer with a fixed space
@@ -347,6 +306,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     GlassContainer(
                       height: 60,
                       width: 120,
+                      horizontalPadding: 0,
+                      verticalPadding: 0,
                       borderRadius: BorderRadius.circular(30),
                       backgroundColor: Theme.of(
                         context,
@@ -407,122 +368,122 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     height: containerHeight,
                                     width: containerWidth,
                                     borderRadius: BorderRadius.circular(20),
-                                    child: Padding(
-                                      padding: EdgeInsetsGeometry.symmetric(
-                                        vertical: defaultPadding / 2,
-                                        horizontal: defaultPadding,
-                                      ), // Larger internal padding
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        // spread evenly
-                                        children: [
-                                          Text(
-                                            "Database Overview",
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.headlineSmall,
-                                          ),
-                                          SizedBox(height: smallheightSpacing),
-                                          // SystemOverviewChips(
-                                          //   chipText: "100",
-                                          //   iconData:
-                                          //       HugeIcons.strokeRoundedDoctor01,
-                                          // ),
-                                          // SystemOverviewChips(
-                                          //   iconData:
-                                          //       HugeIcons.strokeRoundedInvoice,
-                                          //   chipText: "3000",
-                                          // ),
-                                          // SystemOverviewChips(
-                                          //   iconData: HugeIcons
-                                          //       .strokeRoundedSchoolReportCard,
-                                          //   chipText: "3000",
-                                          // ),
-
-                                          // SystemOverviewChips(
-                                          //   iconData: HugeIcons
-                                          //       .strokeRoundedSchoolReportCard,
-                                          //   chipText: "3000",
-                                          // ),
-                                        ],
-                                      ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      // spread evenly
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Top Referal Counter",
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.headlineSmall,
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                //
+                                              },
+                                              icon: Icon(
+                                                Icons.arrow_forward_ios,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ),
 
                                   SizedBox(width: smallWidthSpacing),
+
                                   GlassContainer(
                                     height: containerHeight,
                                     width: containerWidth,
                                     borderRadius: BorderRadius.circular(20),
-                                    child: Padding(
-                                      padding: EdgeInsetsGeometry.symmetric(
-                                        horizontal: defaultPadding,
-                                        vertical: defaultPadding / 2,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            "Bills Counter",
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.headlineSmall,
-                                          ),
-                                          Spacer(),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Bills Counter",
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.headlineSmall,
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                //
+                                              },
+                                              icon: Icon(
+                                                Icons.arrow_forward_ios,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Spacer(),
 
-                                          SizedBox(
-                                            height:
-                                                containerHeight -
-                                                defaultPadding -
-                                                94,
-                                            child: ref
-                                                .watch(billsProvider)
-                                                .when(
-                                                  data: (bills) {
-                                                    final filteredData =
-                                                        filterBillsByTimeFilter(
-                                                          bills,
-                                                          _selectedRange,
-                                                        );
-                                                    final chartData =
-                                                        prepareSpots(
-                                                          filteredData,
-                                                        );
-                                                    final dateLabels =
-                                                        extractDateLabels(
-                                                          filteredData,
-                                                        );
-                                                    return LineChart(
-                                                      _getChartData(
-                                                        chartData,
-                                                        dateLabels,
-                                                      ),
-                                                    );
-                                                  },
-                                                  loading: () => const Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
-                                                  ),
-                                                  error: (err, _) => Text(
-                                                    "Error loading chart: $err",
-                                                  ),
+                                        SizedBox(
+                                          height:
+                                              containerHeight -
+                                              defaultPadding -
+                                              102,
+                                          child: ref
+                                              .watch(billsProvider)
+                                              .when(
+                                                data: (bills) {
+                                                  final filteredData =
+                                                      filterBillsByTimeFilter(
+                                                        bills,
+                                                        _selectedRange,
+                                                      );
+                                                  final chartData =
+                                                      prepareSpots(
+                                                        filteredData,
+                                                      );
+                                                  final dateLabels =
+                                                      extractDateLabels(
+                                                        filteredData,
+                                                      );
+                                                  return LineChart(
+                                                    _getChartData(
+                                                      chartData,
+                                                      dateLabels,
+                                                    ),
+                                                  );
+                                                },
+                                                loading: () => const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
                                                 ),
-                                          ),
-                                          const SizedBox(height: 25),
-                                          _buildTimeFilterSelector(
-                                            _selectedRange,
-                                            (newFilter) {
-                                              setState(() {
-                                                _selectedRange = newFilter;
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      ),
+                                                error: (err, _) => Text(
+                                                  "Error loading chart: $err",
+                                                ),
+                                              ),
+                                        ),
+                                        const SizedBox(height: 25),
+                                        _buildTimeFilterSelector(
+                                          _selectedRange,
+                                          (newFilter) {
+                                            setState(() {
+                                              _selectedRange = newFilter;
+                                            });
+                                          },
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -531,63 +492,72 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               GlassContainer(
                                 height: longContainerHeight,
                                 width: wideContainerSize,
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: defaultPadding,
-                                    vertical: defaultPadding / 2,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Recent Bills",
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.headlineSmall,
-                                      ),
-                                      Consumer(
-                                        builder: (context, ref, _) {
-                                          final billsAsync = ref.watch(
-                                            billsProvider,
-                                          );
-                                          return billsAsync.when(
-                                            data: (bills) {
-                                              final latest = bills
-                                                  .take(5)
-                                                  .toList();
-                                              return Column(
-                                                children: latest.map((bill) {
-                                                  return ListTile(
-                                                    leading: Icon(
-                                                      Icons.receipt_long,
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).primaryColor,
-                                                    ),
-                                                    title: Text(
-                                                      "Bill #${bill.id}",
-                                                    ),
-                                                    subtitle: Text(
-                                                      "Date: ${bill.dateOfBill}",
-                                                    ),
-                                                    trailing: Text(
-                                                      "₹${bill.totalAmount}",
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              );
-                                            },
-                                            loading: () =>
-                                                const CircularProgressIndicator(),
-                                            error: (err, _) => Text(
-                                              "Error loading bills: $err",
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Recent Bills",
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.headlineSmall,
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            //
+                                          },
+                                          icon: Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Consumer(
+                                      builder: (context, ref, _) {
+                                        final billsAsync = ref.watch(
+                                          billsProvider,
+                                        );
+                                        return billsAsync.when(
+                                          data: (bills) {
+                                            final latest = bills
+                                                .take(5)
+                                                .toList();
+                                            return Column(
+                                              children: latest.map((bill) {
+                                                return ListTile(
+                                                  leading: Icon(
+                                                    Icons.receipt_long,
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).primaryColor,
+                                                  ),
+                                                  title: Text(
+                                                    "Bill #${bill.id}",
+                                                  ),
+                                                  subtitle: Text(
+                                                    "Date: ${bill.dateOfBill}",
+                                                  ),
+                                                  trailing: Text(
+                                                    "₹${bill.totalAmount}",
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            );
+                                          },
+                                          loading: () =>
+                                              const CircularProgressIndicator(),
+                                          error: (err, _) =>
+                                              Text("Error loading bills: $err"),
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -598,11 +568,65 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               GlassContainer(
                                 height: longContainerHeight,
                                 width: sideContainerWidth,
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "New Card",
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.headlineSmall,
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            //
+                                          },
+                                          icon: Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                               SizedBox(height: smallheightSpacing),
                               GlassContainer(
                                 height: containerHeight,
                                 width: sideContainerWidth,
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Database Overview",
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.headlineSmall,
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            //
+                                          },
+                                          icon: Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -620,59 +644,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-class SystemOverviewChips extends StatelessWidget {
-  const SystemOverviewChips({
-    super.key,
-    required this.iconData,
-    required this.chipText,
-  });
-  final IconData iconData;
-  final String chipText;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiary,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(15),
-              bottomLeft: Radius.circular(15),
-            ),
-          ),
-          height: 55,
-          width: 60,
-          child: Icon(
-            iconData,
-            color: Theme.of(context).scaffoldBackgroundColor,
-            size: 40,
-          ),
-        ),
-        Container(
-          height: 55,
-          width: 200,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondary,
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(15),
-              bottomRight: Radius.circular(15),
-            ),
-          ),
-          child: Text(
-            chipText,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge!.copyWith(color: Colors.white),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// Your existing TopActionsTab and NoThumbScrollBehavior classes remain unchanged.
 class TopActionsTab extends StatelessWidget {
   final String title;
   final Color selectedColor;
@@ -732,11 +703,15 @@ class GlassContainer extends StatelessWidget {
   final Widget? child;
   final BorderRadius borderRadius;
   final Color? backgroundColor;
+  final double? horizontalPadding;
+  final double? verticalPadding;
   const GlassContainer({
     super.key,
     this.width = 300,
     this.height = 200,
     this.child,
+    this.horizontalPadding = 24,
+    this.verticalPadding = 12,
     this.backgroundColor,
     this.borderRadius = const BorderRadius.all(Radius.circular(20)),
   });
@@ -774,7 +749,13 @@ class GlassContainer extends StatelessWidget {
               width: 1.5,
             ),
           ),
-          child: child,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding ?? defaultPadding,
+              vertical: verticalPadding ?? defaultPadding / 2,
+            ),
+            child: child,
+          ),
         ),
       ),
     );

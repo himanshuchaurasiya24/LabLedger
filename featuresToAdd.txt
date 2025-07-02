@@ -1,0 +1,4 @@
+top performer of the week month year all time
+automatic incentive generation page on the first day of the month with details like total bills,
+-->categorised by diagnosis types, incentive amount, top referer
+server status on database overview card
