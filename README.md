@@ -1,16 +1,53 @@
-# labledger
+# LabLedger
 
-A new Flutter project.
+![App Screenshot](https://github.com/himanshuchaurasiya24/LabLedger/raw/main/assets/images/app_image.png)
 
-## Getting Started
+**LabLedger** is a robust and modern lab management system built using Flutter and Django REST Framework. It streamlines the operational workflow of diagnostic centers, enabling efficient handling of patients, doctors, diagnosis records, billing, and reporting — all within a unified platform.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 🔑 Key Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Comprehensive Bill & Report Management**  
+  Create, view, and manage test reports and billing data with ease.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Integrated Doctor & Patient Database**  
+  Maintain accurate, searchable records of all medical personnel and patients.
+
+- **Dynamic Dashboard with Analytics**  
+  Visualize key metrics using interactive charts and data summaries.
+
+- **Secure Authentication**  
+  Powered by SimpleJWT for secure, token-based login and API access.
+
+- **Advanced Search & Filtering**  
+  Quickly locate records with built-in search and filter functionality.
+
+- **Modern UI Design**  
+  Clean, responsive interface using Material 3 design principles and a custom color palette.
+
+---
+
+## 🧰 Technology Stack
+
+### Frontend
+- **Flutter** — cross-platform development
+- **Riverpod** — scalable state management
+- **FL Chart** — interactive charts and data visualization
+- **Material Design 3** — elegant and consistent UI
+
+### Backend
+- **Django REST Framework** — API layer
+- **SimpleJWT** — authentication via access/refresh tokens
+- **PostgreSQL** (recommended) — robust database support
+
+---
+
+## 🚀 Getting Started
+
+### Flutter App
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/himanshuchaurasiya24/LabLedger.git
+   cd LabLedger
