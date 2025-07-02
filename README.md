@@ -52,7 +52,7 @@
 
 [![GitHub](https://img.shields.io/badge/GitHub-himanshuchaurasiya24-181717?style=for-the-badge&logo=github)](https://github.com/himanshuchaurasiya24)
 
-🔹 **Full-Stack Developer** | 🔹 **Flutter & Django Specialist**  
+🔹 **Full-Stack Developer** | 🔹 **Flutter & Django Rest Framework (DRF)**  
 🔹 Passionate about clean architecture, intuitive UI, and performance optimization  
 🔹 Focused on building scalable solutions for real-world applications  
 🔹 Enthusiastic about open source and continuous learning
@@ -63,8 +63,7 @@
 
 📫 **Let’s Connect**  
 - GitHub: [himanshuchaurasiya24](https://github.com/himanshuchaurasiya24)
-- Email: *[add your email if you wish]*  
-- Portfolio: *[link to portfolio if available]*  
+- Email: *[himanshuchaurasiya24@gmail.com]*  
 
 
 ## 🚀 Getting Started
