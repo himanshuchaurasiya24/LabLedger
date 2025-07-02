@@ -1,6 +1,4 @@
-<h1 align="center">
-  <span style="color:#00A87E;">Lab</span><span style="color:#0061A8;">Ledger</span>
-</h1>
+##LabLedger
 
 ![App Screenshot](https://github.com/himanshuchaurasiya24/LabLedger/raw/main/assets/images/app_image.png)
 
