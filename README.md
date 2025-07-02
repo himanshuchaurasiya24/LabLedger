@@ -2,6 +2,9 @@
 
 ![App Screenshot](https://github.com/himanshuchaurasiya24/LabLedger/raw/main/assets/images/app_image.png)
 
+Crafted with precision by [Himanshu Chaurasiya](https://github.com/himanshuchaurasiya24) — Full-Stack Developer specializing in Flutter and Django for scalable and elegant software solutions.
+
+
 **LabLedger** is a robust and modern lab management system built using Flutter and Django REST Framework. It streamlines the operational workflow of diagnostic centers, enabling efficient handling of patients, doctors, diagnosis records, billing, and reporting — all within a unified platform.
 
 ---
