@@ -1,4 +1,4 @@
-##LabLedger
+#LabLedger
 
 ![App Screenshot](https://github.com/himanshuchaurasiya24/LabLedger/raw/main/assets/images/app_image.png)
 
