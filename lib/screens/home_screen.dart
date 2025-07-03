@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:ui';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -5,14 +6,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
+
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/center_detail_model.dart';
+import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 
 enum TimeFilter { thisWeek, thisMonth, thisYear, allTime }
+
+class TopReferrerModel {
+  final Doctor doctor;
+  final int ultrasoundCount;
+  final int pathologyCount;
+  final int ecgCount;
+  final int xrayCount;
+  final int franchiseCount;
+  const TopReferrerModel(
+    this.doctor,
+    this.ultrasoundCount,
+    this.pathologyCount,
+    this.ecgCount,
+    this.xrayCount,
+    this.franchiseCount,
+  );
+}
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -37,7 +57,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   TimeFilter _selectedRangeForBills = TimeFilter.thisMonth;
-  TimeFilter _selectedRangeForTopReferals = TimeFilter.thisMonth;
+  TimeFilter _selectedRangeForTopReferrals = TimeFilter.thisMonth;
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
     secureStorage.delete(key: 'access_token');
@@ -235,6 +255,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
   }
 
+  TopReferrerModel topReferralFinder({required List<Bill> filteredData}) {
+    return TopReferrerModel(
+      Doctor(
+        id: 1,
+        firstName: "Dr. Sanjay",
+        lastName: "Chaurasiya",
+        hospitalName: "Chaurasiya Medical Store",
+        address: "Siyarampur",
+        phoneNumber: "9795015976",
+        ultrasoundPercentage: 50,
+        pathologyPercentage: 50,
+        ecgPercentage: 50,
+        xrayPercentage: 50,
+        franchiseLabPercentage: 50,
+        centerDetail: 1,
+      ),
+      1,
+      1,
+      1,
+      1,
+      1,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -361,14 +405,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              "Top Referal Counter",
+                                              "Top Referral Counter",
                                               style: Theme.of(
                                                 context,
                                               ).textTheme.headlineSmall,
@@ -391,13 +435,87 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                               containerHeight -
                                               defaultPadding -
                                               102,
+                                          child: ref
+                                              .watch(billsProvider)
+                                              .when(
+                                                data: (bills) {
+                                                  final filteredData =
+                                                      filterBillsByTimeFilter(
+                                                        bills,
+                                                        _selectedRangeForTopReferrals,
+                                                      );
+                                                  final topReferer =
+                                                      topReferralFinder(
+                                                        filteredData:
+                                                            filteredData,
+                                                      );
+                                                  return Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      CircleAvatar(
+                                                        backgroundColor:
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .secondary,
+                                                        radius: 50,
+                                                        child: Text(
+                                                          topReferer
+                                                              .doctor
+                                                              .firstName![0]
+                                                              .toUpperCase(),
+
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .headlineLarge!
+                                                              .copyWith(
+                                                                color: Theme.of(
+                                                                  context,
+                                                                ).scaffoldBackgroundColor,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        "${topReferer.doctor.firstName} ${topReferer.doctor.lastName}",
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .headlineLarge,
+                                                      ),
+                                                      Text(
+                                                        "${topReferer.doctor.hospitalName}, ${topReferer.doctor.address}",
+
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: Theme.of(
+                                                          context,
+                                                        ).textTheme.bodyLarge,
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                                loading: () => const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                ),
+                                                error: (err, _) => Text(
+                                                  "Error loading chart: $err",
+                                                ),
+                                              ),
                                         ),
                                         const SizedBox(height: 25),
                                         _buildTimeFilterSelector(
-                                          _selectedRangeForTopReferals,
+                                          _selectedRangeForTopReferrals,
                                           (newFilter) {
                                             setState(() {
-                                              _selectedRangeForTopReferals =
+                                              _selectedRangeForTopReferrals =
                                                   newFilter;
                                             });
                                           },
@@ -414,7 +532,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     borderRadius: BorderRadius.circular(20),
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                          CrossAxisAlignment.center,
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Row(
