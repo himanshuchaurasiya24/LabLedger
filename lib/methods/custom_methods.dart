@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/side_screens/dashboard.dart';
-import 'package:labledger/screens/side_screens/settings.dart';
 import 'package:window_manager/window_manager.dart';
 
 final containerLightColor = Color(0xFFEEEEEE);
@@ -496,17 +494,6 @@ class SummaryCard extends StatelessWidget {
   }
 }
 
-Widget mainScreenContentProvider({required int indexNumber}) {
-  switch (indexNumber) {
-    case 0:
-      return Dashboard();
-    case 5:
-      return Settings();
-
-    default:
-      return Text('Invalid index');
-  }
-}
 
 Widget appIconName({
   required BuildContext context,

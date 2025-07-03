@@ -36,8 +36,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  TimeFilter _selectedRange = TimeFilter.thisMonth;
-
+  TimeFilter _selectedRangeForBills = TimeFilter.thisMonth;
+  TimeFilter _selectedRangeForTopReferals = TimeFilter.thisMonth;
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
     secureStorage.delete(key: 'access_token');
@@ -105,11 +105,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     for (final bill in bills) {
       final date = DateTime.tryParse(bill.dateOfBill.toString())!.toLocal();
-
-      // if (date != null) {
-      //   final key = date.toIso8601String().substring(0, 10);
-      //   dailyCounts[key] = (dailyCounts[key] ?? 0) + 1;
-      // }
       final key = date.toIso8601String().substring(0, 10);
       dailyCounts[key] = (dailyCounts[key] ?? 0) + 1;
     }
@@ -215,10 +210,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final inRange =
           (localDate.isAtSameMomentAs(from) || localDate.isAfter(from)) &&
           localDate.isBefore(to);
-
-      // debugPrint(
-      //   "BILL DATE: $localDate | FROM: $from | TO: $to | SHOW: $inRange",
-      // );
       return inRange;
     }).toList();
   }
@@ -371,7 +362,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      // spread evenly
                                       children: [
                                         Row(
                                           mainAxisAlignment:
@@ -395,6 +385,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                               ),
                                             ),
                                           ],
+                                        ),
+                                        SizedBox(
+                                          height:
+                                              containerHeight -
+                                              defaultPadding -
+                                              102,
+                                        ),
+                                        const SizedBox(height: 25),
+                                        _buildTimeFilterSelector(
+                                          _selectedRangeForTopReferals,
+                                          (newFilter) {
+                                            setState(() {
+                                              _selectedRangeForTopReferals =
+                                                  newFilter;
+                                            });
+                                          },
                                         ),
                                       ],
                                     ),
@@ -434,7 +440,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             ),
                                           ],
                                         ),
-                                        Spacer(),
 
                                         SizedBox(
                                           height:
@@ -448,7 +453,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                   final filteredData =
                                                       filterBillsByTimeFilter(
                                                         bills,
-                                                        _selectedRange,
+                                                        _selectedRangeForBills,
                                                       );
                                                   final chartData =
                                                       prepareSpots(
@@ -476,10 +481,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         ),
                                         const SizedBox(height: 25),
                                         _buildTimeFilterSelector(
-                                          _selectedRange,
+                                          _selectedRangeForBills,
                                           (newFilter) {
                                             setState(() {
-                                              _selectedRange = newFilter;
+                                              _selectedRangeForBills =
+                                                  newFilter;
                                             });
                                           },
                                         ),
