@@ -11,28 +11,13 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/models/doctors_model.dart';
+// import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
+import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 
 enum TimeFilter { thisWeek, thisMonth, thisYear, allTime }
-
-class TopReferrerModel {
-  final Doctor doctor;
-  final int ultrasoundCount;
-  final int pathologyCount;
-  final int ecgCount;
-  final int xrayCount;
-  final int franchiseCount;
-  const TopReferrerModel(
-    this.doctor,
-    this.ultrasoundCount,
-    this.pathologyCount,
-    this.ecgCount,
-    this.xrayCount,
-    this.franchiseCount,
-  );
-}
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -255,32 +240,89 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
   }
 
-  TopReferrerModel topReferralFinder({required List<Bill> filteredData}) {
+  List<DoctorStats> getDoctorStats(List<Bill> bills, List<Doctor> allDoctors) {
+    final Map<int, DoctorStats> statsMap = {};
+
+    for (final bill in bills) {
+      int doctorId = bill.referredByDoctor;
+      final Doctor doctor = allDoctors.firstWhere((d) => d.id == doctorId);
+
+      statsMap.putIfAbsent(doctorId, () {
+        return DoctorStats(
+          doctor: doctor,
+          ultrasound: 0,
+          pathology: 0,
+          ecg: 0,
+          xray: 0,
+          franchiseLab: 0,
+          incentive: 0,
+        );
+      });
+
+      final category = bill.diagnosisTypeOutput?['category'];
+      final current = statsMap[doctorId]!;
+
+      statsMap[doctorId] = DoctorStats(
+        doctor: doctor,
+        ultrasound: current.ultrasound + (category == 'Ultrasound' ? 1 : 0),
+        pathology: current.pathology + (category == 'Pathology' ? 1 : 0),
+        ecg: current.ecg + (category == 'ECG' ? 1 : 0),
+        xray: current.xray + (category == 'XRay' ? 1 : 0),
+        franchiseLab:
+            current.franchiseLab + (category == 'Franchise Lab' ? 1 : 0),
+        incentive: current.incentive + (bill.incentiveAmount),
+      );
+    }
+
+    return statsMap.values.toList();
+  }
+
+  TopReferrerModel topReferralFinder({
+    required List<Bill> filteredData,
+    required List<Doctor> allDoctors,
+  }) {
+    DateTime now = DateTime.now();
+
+    List<Bill> weekBills = filteredData.where((bill) {
+      final billDate = bill.dateOfBill;
+      return billDate.isAfter(
+            now.subtract(Duration(days: 6)).subtract(Duration(seconds: 1)),
+          ) &&
+          billDate.isBefore(now.add(Duration(days: 1)));
+    }).toList();
+
+    List<Bill> monthBills = filteredData.where((bill) {
+      return bill.dateOfBill.month == now.month &&
+          bill.dateOfBill.year == now.year;
+    }).toList();
+
+    List<Bill> yearBills = filteredData.where((bill) {
+      return bill.dateOfBill.year == now.year;
+    }).toList();
+
+    List<Bill> allTimeBills = List.from(filteredData);
+
+    List<DoctorStats> sortedWeek = getDoctorStats(weekBills, allDoctors)
+      ..sort((a, b) => b.incentive.compareTo(a.incentive));
+    List<DoctorStats> sortedMonth = getDoctorStats(monthBills, allDoctors)
+      ..sort((a, b) => b.incentive.compareTo(a.incentive));
+    List<DoctorStats> sortedYear = getDoctorStats(yearBills, allDoctors)
+      ..sort((a, b) => b.incentive.compareTo(a.incentive));
+    List<DoctorStats> sortedAll = getDoctorStats(allTimeBills, allDoctors)
+      ..sort((a, b) => b.incentive.compareTo(a.incentive));
+
     return TopReferrerModel(
-      Doctor(
-        id: 1,
-        firstName: "Dr. Sanjay",
-        lastName: "Chaurasiya",
-        hospitalName: "Chaurasiya Medical Store",
-        address: "Siyarampur",
-        phoneNumber: "9795015976",
-        ultrasoundPercentage: 50,
-        pathologyPercentage: 50,
-        ecgPercentage: 50,
-        xrayPercentage: 50,
-        franchiseLabPercentage: 50,
-        centerDetail: 1,
-      ),
-      1,
-      1,
-      1,
-      1,
-      1,
+      week: sortedWeek,
+      month: sortedMonth,
+      year: sortedYear,
+      allTime: sortedAll,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final doctorsAsync = ref.watch(doctorsProvider);
+    final billsAsync = ref.watch(billsProvider);
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     containerWidth = width / 2.962963;
@@ -435,80 +477,169 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                               containerHeight -
                                               defaultPadding -
                                               102,
-                                          child: ref
-                                              .watch(billsProvider)
-                                              .when(
+                                          child: doctorsAsync.when(
+                                            data: (doctors) {
+                                              return billsAsync.when(
                                                 data: (bills) {
-                                                  final filteredData =
-                                                      filterBillsByTimeFilter(
-                                                        bills,
-                                                        _selectedRangeForTopReferrals,
-                                                      );
-                                                  final topReferer =
+                                                  final TopReferrerModel
+                                                  leaderboard =
                                                       topReferralFinder(
-                                                        filteredData:
-                                                            filteredData,
+                                                        filteredData: bills,
+                                                        allDoctors: doctors,
                                                       );
+
+                                                  // Example: top weekly doctor
+                                                  if (leaderboard
+                                                      .week
+                                                      .isEmpty) {
+                                                    return const Text(
+                                                      "No referrals this week.",
+                                                    );
+                                                  }
+
+                                                  if (_selectedRangeForTopReferrals ==
+                                                      TimeFilter.thisWeek) {
+                                                    return Column(
+                                                      children: [
+                                                        for (
+                                                          int i = 0;
+                                                          i <
+                                                              leaderboard
+                                                                  .week
+                                                                  .length;
+                                                          i++
+                                                        )
+                                                          ListTile(
+                                                            leading:
+                                                                CircleAvatar(
+                                                                  child: Text(
+                                                                    '${i + 1}',
+                                                                  ),
+                                                                ),
+                                                            title: Text(
+                                                              "${leaderboard.week[i].doctor.firstName} ${leaderboard.week[i].doctor.lastName}",
+                                                            ),
+                                                            subtitle: Text(
+                                                              "Incentive: ₹${leaderboard.week[i].incentive}",
+                                                            ),
+                                                            trailing: Text(
+                                                              "USG: ${leaderboard.week[i].ultrasound}",
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    );
+                                                  }
+
+                                                  if (_selectedRangeForTopReferrals ==
+                                                      TimeFilter.thisYear) {
+                                                    return Column(
+                                                      children: [
+                                                        for (
+                                                          int i = 0;
+                                                          i <
+                                                              leaderboard
+                                                                  .year
+                                                                  .length;
+                                                          i++
+                                                        )
+                                                          ListTile(
+                                                            leading:
+                                                                CircleAvatar(
+                                                                  child: Text(
+                                                                    '${i + 1}',
+                                                                  ),
+                                                                ),
+                                                            title: Text(
+                                                              "${leaderboard.year[i].doctor.firstName} ${leaderboard.year[i].doctor.lastName}",
+                                                            ),
+                                                            subtitle: Text(
+                                                              "Incentive: ₹${leaderboard.year[i].incentive}",
+                                                            ),
+                                                            trailing: Text(
+                                                              "USG: ${leaderboard.year[i].ultrasound}",
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    );
+                                                  }
+                                                  if (_selectedRangeForTopReferrals ==
+                                                      TimeFilter.allTime) {
+                                                    return Column(
+                                                      children: [
+                                                        for (
+                                                          int i = 0;
+                                                          i <
+                                                              leaderboard
+                                                                  .allTime
+                                                                  .length;
+                                                          i++
+                                                        )
+                                                          ListTile(
+                                                            leading:
+                                                                CircleAvatar(
+                                                                  child: Text(
+                                                                    '${i + 1}',
+                                                                  ),
+                                                                ),
+                                                            title: Text(
+                                                              "${leaderboard.allTime[i].doctor.firstName} ${leaderboard.allTime[i].doctor.lastName}",
+                                                            ),
+                                                            subtitle: Text(
+                                                              "Incentive: ₹${leaderboard.allTime[i].incentive}",
+                                                            ),
+                                                            trailing: Text(
+                                                              "USG: ${leaderboard.allTime[i].ultrasound}",
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    );
+                                                  }
                                                   return Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
                                                     children: [
-                                                      CircleAvatar(
-                                                        backgroundColor:
-                                                            Theme.of(context)
-                                                                .colorScheme
-                                                                .secondary,
-                                                        radius: 50,
-                                                        child: Text(
-                                                          topReferer
-                                                              .doctor
-                                                              .firstName![0]
-                                                              .toUpperCase(),
-
-                                                          style: Theme.of(context)
-                                                              .textTheme
-                                                              .headlineLarge!
-                                                              .copyWith(
-                                                                color: Theme.of(
-                                                                  context,
-                                                                ).scaffoldBackgroundColor,
-                                                              ),
+                                                      for (
+                                                        int i = 0;
+                                                        i <
+                                                            leaderboard
+                                                                .month
+                                                                .length;
+                                                        i++
+                                                      )
+                                                        ListTile(
+                                                          leading: CircleAvatar(
+                                                            child: Text(
+                                                              '${i + 1}',
+                                                            ),
+                                                          ),
+                                                          title: Text(
+                                                            "${leaderboard.month[i].doctor.firstName} ${leaderboard.month[i].doctor.lastName}",
+                                                          ),
+                                                          subtitle: Text(
+                                                            "Incentive: ₹${leaderboard.month[i].incentive}",
+                                                          ),
+                                                          trailing: Text(
+                                                            "USG: ${leaderboard.month[i].ultrasound}",
+                                                          ),
                                                         ),
-                                                      ),
-                                                      Text(
-                                                        "${topReferer.doctor.firstName} ${topReferer.doctor.lastName}",
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .headlineLarge,
-                                                      ),
-                                                      Text(
-                                                        "${topReferer.doctor.hospitalName}, ${topReferer.doctor.address}",
-
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: Theme.of(
-                                                          context,
-                                                        ).textTheme.bodyLarge,
-                                                      ),
                                                     ],
                                                   );
                                                 },
-                                                loading: () => const Center(
+                                                loading: () => Center(
                                                   child:
-                                                      CircularProgressIndicator(),
+                                                      const CircularProgressIndicator(),
                                                 ),
-                                                error: (err, _) => Text(
-                                                  "Error loading chart: $err",
+                                                error: (err, stack) => Text(
+                                                  "Error loading bills: $err",
                                                 ),
-                                              ),
+                                              );
+                                            },
+                                            loading: () => Center(
+                                              child:
+                                                  const CircularProgressIndicator(),
+                                            ),
+                                            error: (err, stack) => Text(
+                                              "Error loading doctors: $err",
+                                            ),
+                                          ),
                                         ),
                                         const SizedBox(height: 25),
                                         _buildTimeFilterSelector(
@@ -564,38 +695,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                               containerHeight -
                                               defaultPadding -
                                               102,
-                                          child: ref
-                                              .watch(billsProvider)
-                                              .when(
-                                                data: (bills) {
-                                                  final filteredData =
-                                                      filterBillsByTimeFilter(
-                                                        bills,
-                                                        _selectedRangeForBills,
-                                                      );
-                                                  final chartData =
-                                                      prepareSpots(
-                                                        filteredData,
-                                                      );
-                                                  final dateLabels =
-                                                      extractDateLabels(
-                                                        filteredData,
-                                                      );
-                                                  return LineChart(
-                                                    _getChartData(
-                                                      chartData,
-                                                      dateLabels,
-                                                    ),
+                                          child: billsAsync.when(
+                                            data: (bills) {
+                                              final filteredData =
+                                                  filterBillsByTimeFilter(
+                                                    bills,
+                                                    _selectedRangeForBills,
                                                   );
-                                                },
-                                                loading: () => const Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
+                                              final chartData = prepareSpots(
+                                                filteredData,
+                                              );
+                                              final dateLabels =
+                                                  extractDateLabels(
+                                                    filteredData,
+                                                  );
+                                              return LineChart(
+                                                _getChartData(
+                                                  chartData,
+                                                  dateLabels,
                                                 ),
-                                                error: (err, _) => Text(
-                                                  "Error loading chart: $err",
-                                                ),
-                                              ),
+                                              );
+                                            },
+                                            loading: () => const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                            error: (err, _) => Text(
+                                              "Error loading chart: $err",
+                                            ),
+                                          ),
                                         ),
                                         const SizedBox(height: 25),
                                         _buildTimeFilterSelector(

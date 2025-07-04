@@ -1,3 +1,39 @@
+class DoctorStats {
+  final Doctor doctor;
+  final int ultrasound;
+  final int pathology;
+  final int ecg;
+  final int xray;
+  final int franchiseLab;
+  final int incentive;
+
+  DoctorStats({
+    required this.doctor,
+    required this.ultrasound,
+    required this.pathology,
+    required this.ecg,
+    required this.xray,
+    required this.franchiseLab,
+    required this.incentive,
+  });
+}
+
+class TopReferrerModel {
+  final List<DoctorStats> week;
+  final List<DoctorStats> month;
+  final List<DoctorStats> year;
+  final List<DoctorStats> allTime;
+
+  TopReferrerModel({
+    required this.week,
+    required this.month,
+    required this.year,
+    required this.allTime,
+  });
+}
+
+
+
 class Doctor {
   Doctor({
     required this.id,
