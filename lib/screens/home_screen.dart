@@ -11,7 +11,6 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/models/doctors_model.dart';
-// import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/doctor_provider.dart';
@@ -752,7 +751,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          "Recent Bills",
+                                          "Recently Added Bills",
                                           style: Theme.of(
                                             context,
                                           ).textTheme.headlineSmall,
@@ -777,29 +776,112 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         );
                                         return billsAsync.when(
                                           data: (bills) {
-                                            final latest = bills
-                                                .take(5)
-                                                .toList();
-                                            return Column(
-                                              children: latest.map((bill) {
-                                                return ListTile(
-                                                  leading: Icon(
-                                                    Icons.receipt_long,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).primaryColor,
-                                                  ),
-                                                  title: Text(
-                                                    "Bill #${bill.id}",
-                                                  ),
-                                                  subtitle: Text(
-                                                    "Date: ${bill.dateOfBill}",
-                                                  ),
-                                                  trailing: Text(
-                                                    "₹${bill.totalAmount}",
-                                                  ),
-                                                );
-                                              }).toList(),
+                                            final fetchedBills = bills
+                                                .toList()
+                                                .reversed;
+                                            final latest = fetchedBills.take(
+                                              20,
+                                            );
+                                            return Expanded(
+                                              child: SingleChildScrollView(
+                                                scrollDirection: Axis.vertical,
+                                                child: Column(
+                                                  children: latest.map((bill) {
+                                                    return ListTile(
+                                                      leading: Icon(
+                                                        Icons.receipt_long,
+                                                        size: 35,
+                                                        color:
+                                                            bill.billStatus ==
+                                                                "Fully Paid"
+                                                            ? (Colors.green[300] ??
+                                                                  Colors.green)
+                                                            : (Colors.red[300] ??
+                                                                  Colors.red),
+                                                      ),
+                                                      title: Text(
+                                                        bill.patientName,
+                                                      ),
+                                                      subtitle: Text(
+                                                        "Date: ${bill.dateOfBill}",
+                                                        style: Theme.of(
+                                                          context,
+                                                        ).textTheme.bodyMedium,
+                                                      ),
+                                                      trailing: Container(
+                                                        height: 40,
+                                                        width:
+                                                            bill.billStatus ==
+                                                                "Fully Paid"
+                                                            ? 100
+                                                            : 170,
+                                                        decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                          border: Border.all(
+                                                            color:
+                                                                bill.billStatus ==
+                                                                    "Fully Paid"
+                                                                ? (Colors.green[300] ??
+                                                                      Colors
+                                                                          .green)
+                                                                : (Colors.red[300] ??
+                                                                      Colors
+                                                                          .red),
+                                                            width: 3,
+                                                          ),
+                                                          color:
+                                                              bill.billStatus ==
+                                                                  "Fully Paid"
+                                                              ? Colors
+                                                                    .green[200]
+                                                              : Colors.red[200],
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Visibility(
+                                                              visible:
+                                                                  bill.billStatus !=
+                                                                  "Fully Paid",
+                                                              child: Text(
+                                                                "Pending : ",
+                                                                style: TextStyle(
+                                                                  color: Colors
+                                                                      .black54,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 16,
+                                                                ),
+                                                              ),
+                                                            ),
+
+                                                            Text(
+                                                              bill.billStatus ==
+                                                                      "Fully Paid"
+                                                                  ? "₹${bill.totalAmount}"
+                                                                  : "₹${bill.totalAmount - bill.paidAmount}",
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .black54,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 16,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ),
                                             );
                                           },
                                           loading: () =>
