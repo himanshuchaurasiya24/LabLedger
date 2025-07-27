@@ -333,6 +333,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     containerHeight = height * 0.388888;
     longContainerHeight = height * 0.475;
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(defaultPadding),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        onPressed: () {
+          //
+        },
+        label: Text(
+          "Generate New Bill",
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium!.copyWith(color: Colors.white),
+        ),
+      ),
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: defaultPadding,
@@ -488,13 +503,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                       );
 
                                                   // Example: top weekly doctor
-                                                  if (leaderboard
-                                                      .week
-                                                      .isEmpty) {
-                                                    return const Text(
-                                                      "No referrals this week.",
-                                                    );
-                                                  }
+                                                  // if (leaderboard
+                                                  //     .week
+                                                  //     .isEmpty) {
+                                                  //   return const Text(
+                                                  //     "No referrals this week.",
+                                                  //   );
+                                                  // }
 
                                                   if (_selectedRangeForTopReferrals ==
                                                       TimeFilter.thisWeek) {
