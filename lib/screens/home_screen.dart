@@ -41,7 +41,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
     secureStorage.delete(key: 'access_token');
-    secureStorage.delete(key: 'access_tokenn');
     setWindowBehavior(isForLogin: true);
     Navigator.pushReplacement(
       context,
@@ -105,11 +104,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final dailyCounts = <String, int>{};
 
     for (final bill in bills) {
-      final date = DateTime.tryParse(bill.dateOfBill.toString());
-      if (date != null) {
-        final key = date.toIso8601String().substring(0, 10);
-        dailyCounts[key] = (dailyCounts[key] ?? 0) + 1;
-      }
+      final date = DateTime.tryParse(bill.dateOfBill.toString())!.toLocal();
+      debugPrint(date.toString());
+      // if (date == null) {
+      //   final key = date.toIso8601String().substring(0, 10);
+      //   dailyCounts[key] = (dailyCounts[key] ?? 0) + 1;
+      // }
     }
 
     final sortedDates = dailyCounts.keys.toList()..sort();
@@ -214,9 +214,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           (localDate.isAtSameMomentAs(from) || localDate.isAfter(from)) &&
           localDate.isBefore(to);
 
-      debugPrint(
-        "BILL DATE: $localDate | FROM: $from | TO: $to | SHOW: $inRange",
-      );
+      // debugPrint(
+      //   "BILL DATE: $localDate | FROM: $from | TO: $to | SHOW: $inRange",
+      // );
       return inRange;
     }).toList();
   }
