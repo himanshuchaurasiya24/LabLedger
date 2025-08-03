@@ -318,6 +318,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  void showAddNewBill() {
+    showAdaptiveDialog(
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 200,
+          width: 400,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(defaultPadding),
+            border: BoxBorder.all(
+              width: 2,
+              color: Colors.red,
+              style: BorderStyle.solid,
+            ),
+          ),
+          child: Text("Add New Bill"),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final doctorsAsync = ref.watch(doctorsProvider);
@@ -339,10 +360,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         backgroundColor: Theme.of(context).colorScheme.secondary,
         onPressed: () {
-          //
+          showAddNewBill();
         },
         label: Text(
-          "Generate New Bill",
+          "Add New Bill",
           style: Theme.of(
             context,
           ).textTheme.headlineMedium!.copyWith(color: Colors.white),
