@@ -84,9 +84,84 @@ class _AddBillScreenState extends State<AddBillScreen> {
                   Row(
                     children: [
                       Expanded(
+                        flex: 4,
                         child: customTextField(
+                          context: context,
                           label: "Patient Name",
                           controller: patientNameController,
+                        ),
+                      ),
+                      SizedBox(width: defaultPadding / 2),
+                      Expanded(
+                        flex: 1,
+                        child: Container(
+                          height: 55,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              defaultPadding / 2,
+                            ),
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? darkTextFieldFillColor
+                                : lightTextFieldFillColor,
+                          ),
+
+                          child: Center(
+                            child: DropdownButtonFormField<String>(
+                              borderRadius: BorderRadius.circular(
+                                defaultPadding / 2,
+                              ),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? darkTextFieldFillColor
+                                    : lightTextFieldFillColor,
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: defaultPadding / 2,
+                                  horizontal: defaultPadding / 2,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    defaultPadding / 2,
+                                  ),
+                                  borderSide: BorderSide
+                                      .none, // Remove default border line
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    defaultPadding / 2,
+                                  ),
+                                  borderSide: BorderSide
+                                      .none, // Remove default border line
+                                ),
+                              ),
+                              value: patientSexController.text.isEmpty
+                                  ? "Male"
+                                  : patientSexController.text,
+                              items: ["Male", "Female", "Others"].map((e) {
+                                return DropdownMenuItem<String>(
+                                  value: e,
+                                  child: Text(e),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  patientSexController.text = value!;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: defaultPadding / 2),
+                      Expanded(
+                        flex: 1,
+                        child: customTextField(
+                          label: "Age",
+                          context: context,
+                          controller: patientAgeController,
                         ),
                       ),
                     ],

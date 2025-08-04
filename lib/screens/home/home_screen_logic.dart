@@ -252,6 +252,7 @@ Widget _buildDatePickerField(
 
 Widget customTextField({
   required String label,
+  required BuildContext context,
   required TextEditingController controller,
 }) {
   return TextFormField(
@@ -259,9 +260,17 @@ Widget customTextField({
       controller.text = value;
     },
     decoration: InputDecoration(
-      labelText: label,
-
+      filled: true,
+      hintText: label,
+      fillColor: Theme.of(context).brightness == Brightness.dark
+          ? darkTextFieldFillColor
+          : lightTextFieldFillColor,
       border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(defaultPadding / 2),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide.none,
         borderRadius: BorderRadius.circular(defaultPadding / 2),
       ),
     ),

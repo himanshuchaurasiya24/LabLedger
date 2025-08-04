@@ -9,6 +9,8 @@ import 'package:labledger/models/user_model.dart';
 final String baseURL = 'http://127.0.0.1:8000/';
 final double defaultPadding = 24;
 final double minimalBorderRadius = 6;
+final Color lightTextFieldFillColor = Color.fromARGB(255, 240, 240, 240);
+final Color darkTextFieldFillColor = Color(0xFF020711);
 final titleBarStatusProvider = FutureProvider<String?>((ref) {
   final storage = FlutterSecureStorage();
   return storage.read(key: 'removeTitleBar');
