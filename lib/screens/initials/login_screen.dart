@@ -6,7 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/home_screen.dart';
+import 'package:labledger/screens/home/home_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

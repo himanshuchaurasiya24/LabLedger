@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/home_screen.dart';
+import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/initials/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 

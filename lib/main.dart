@@ -152,12 +152,12 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 primary: Color(0xFF0072B5),
                 secondary: Color(0xFF1AA260),
                 tertiary: Color(0xFFFFFFFF),
-                tertiaryFixed: Color(0xFF020711),
+                tertiaryFixed: Color(0xFF171717),
               ).copyWith(
                 surface: Color(0xFF1E1E1E),
                 surfaceContainerHighest: Color(0xFF2C2C2C),
               ),
-          scaffoldBackgroundColor: Color(0xFF171717),
+          scaffoldBackgroundColor: Color(0xFF020711),
           // ⬅️ Dark mode BG
           fontFamily: 'GoogleSans',
           textTheme: const TextTheme(
