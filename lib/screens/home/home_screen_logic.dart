@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/models/doctors_model.dart';
+import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 
@@ -246,5 +247,26 @@ Widget _buildDatePickerField(
           : '',
     ),
     validator: (_) => selectedDate == null ? 'Select $label' : null,
+  );
+}
+
+Widget customTextField({
+  required String label,
+  required TextEditingController controller,
+}) {
+  return TextFormField(
+    onFieldSubmitted: (value) {
+      controller.text = value;
+    },
+    decoration: InputDecoration(
+      labelText: label,
+
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(defaultPadding / 2),
+      ),
+    ),
+    onChanged: (value) {
+      controller.text = value;
+    },
   );
 }
