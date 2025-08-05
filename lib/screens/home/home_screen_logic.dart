@@ -282,13 +282,12 @@ Widget customTextField({
     },
   );
 }
-
-class CustomDropDown<T> extends StatelessWidget {
+class CustomDropDown<T> extends StatefulWidget {
   final BuildContext context;
   final List<T> dropDownList;
   final TextEditingController textController;
   final String Function(T) valueMapper; // For Display Text
-  final String Function(T) idMapper; // For Controller Value
+  final String Function(T) idMapper;    // For Controller Value
   final String hintText;
 
   const CustomDropDown({
@@ -302,22 +301,51 @@ class CustomDropDown<T> extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    if (dropDownList.isEmpty) {
-      return Container(
-        height: 55,
-        alignment: Alignment.centerLeft,
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.grey[800]
-              : Colors.grey[200],
-        ),
-        child: Text('No items available'),
-      );
-    }
+  CustomDropDownState<T> createState() => CustomDropDownState<T>();
+}
 
+class CustomDropDownState<T> extends State<CustomDropDown<T>> {
+  T? selectedValue;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeController();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomDropDown<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.dropDownList != widget.dropDownList) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _initializeController();
+      });
+    }
+  }
+
+  void _initializeController() {
+    if (widget.dropDownList.isEmpty) return;
+
+    final existing = widget.dropDownList.firstWhere(
+      (e) => widget.idMapper(e) == widget.textController.text,
+      orElse: () => widget.dropDownList[0],
+    );
+
+    if (mounted) {
+      setState(() {
+        selectedValue = existing;
+      });
+
+      if (widget.textController.text != widget.idMapper(existing)) {
+        widget.textController.text = widget.idMapper(existing);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       height: 55,
       decoration: BoxDecoration(
@@ -328,36 +356,43 @@ class CustomDropDown<T> extends StatelessWidget {
       ),
       child: DropdownButtonFormField<T>(
         isExpanded: true,
+        value: selectedValue,
         borderRadius: BorderRadius.circular(8),
         decoration: InputDecoration(
-          hintText: hintText,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          hintText: widget.hintText,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+          filled: true,
+          fillColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.grey[850]
+              : Colors.grey[100],
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide.none,
           ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
         ),
-        value: dropDownList.firstWhere(
-          (e) => idMapper(e) == textController.text,
-          orElse: () => dropDownList[0],
-        ),
-        items: dropDownList.map((e) {
+        items: widget.dropDownList.map((e) {
           return DropdownMenuItem<T>(
             value: e,
-            child: Text(valueMapper(e), overflow: TextOverflow.ellipsis),
-            // child: Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     // if (e is DiagnosisType) Text("${e.category} "),
-            //     Text(valueMapper(e), overflow: TextOverflow.ellipsis),
-            //     // if (e is DiagnosisType) Text('₹${e.price}'),
-            //   ],
-            // ),
+            child: Text(widget.valueMapper(e), overflow: TextOverflow.ellipsis),
           );
         }).toList(),
         onChanged: (T? selected) {
           if (selected != null) {
-            textController.text = idMapper(selected);
+            setState(() {
+              selectedValue = selected;
+            });
+            widget.textController.text = widget.idMapper(selected);
           }
         },
       ),

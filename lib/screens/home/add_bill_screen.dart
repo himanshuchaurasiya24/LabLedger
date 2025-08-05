@@ -19,6 +19,8 @@ class AddBillScreen extends ConsumerStatefulWidget {
 
 class _AddBillScreenState extends ConsumerState<AddBillScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  DiagnosisType? selectedDiagnosisType;
+
   final TextEditingController patientNameController = TextEditingController();
   final TextEditingController patientAgeController = TextEditingController();
   final TextEditingController patientSexController = TextEditingController();
@@ -31,21 +33,97 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
   final TextEditingController diagnosisTypeController = TextEditingController();
   final TextEditingController dateOfTestController = TextEditingController();
   final TextEditingController dateOfBillController = TextEditingController();
-
   final List<String> sexDropDownList = ["Male", "Female", "Others"];
+  final List<String> billStatusList = [
+    "Fully Paid",
+    "Partially Paid",
+    "Unpaid",
+  ];
+
+  void datePicker({required TextEditingController dateController}) async {
+    final rawDate = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2024),
+      lastDate: DateTime(2100),
+      initialDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF0061A8), // Deep Blue
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Color(0xFF0061A8), // Deep Blue
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (rawDate != null) {
+      // Combine rawDate with current time (HH:mm:ss)
+      final DateTime fullDateTime = DateTime(
+        rawDate.year,
+        rawDate.month,
+        rawDate.day,
+        DateTime.now().hour,
+        DateTime.now().minute,
+        DateTime.now().second,
+      );
+
+      final String isoString = fullDateTime.toIso8601String();
+
+      // Optional: If you want to ensure +05:30 offset is always there
+      final String formattedDateTime = isoString.endsWith('Z')
+          ? isoString.replaceFirst('Z', '+05:30')
+          : isoString;
+
+      setState(() {
+        dateController.text = formattedDateTime;
+      });
+    }
+  }
+
+  void onDiagnosisTypeChanged() {
+    // We'll handle this in the widget build with ref.watch, no need for lookup here
+    setState(() {}); // Simply trigger a rebuild
+  }
 
   @override
   void initState() {
     super.initState();
+    diagnosisTypeController.addListener(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    });
+    billStatusController.addListener(() {
+      setState(() {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) setState(() {});
+        });
+      }); 
+    });
+    // patientSexController.addListener(() {
+    //   //
+    // });
+    // refByDoctorController.addListener(() {
+    //   //
+    // });
     if (widget.billData != null) {
       // Prefill controllers if editing
       patientNameController.text = widget.billData!['patientName'] ?? '';
       patientAgeController.text = widget.billData!['patientAge'] ?? '';
-      patientSexController.text = widget.billData!['patientSex'] ?? '';
+      patientSexController.text = widget.billData!['patientSex'] ?? 'Male';
       paidAmountController.text = widget.billData!['paidAmount'] ?? '';
       discByCenterController.text = widget.billData!['discByCenter'] ?? '';
       discByDoctorController.text = widget.billData!['discByDoctor'] ?? '';
-      billStatusController.text = widget.billData!['billStatus'] ?? '';
+      billStatusController.text =
+          widget.billData!['billStatus'] ?? 'Fully Paid';
       franchiseNameController.text = widget.billData!['franchiseName'] ?? '';
       refByDoctorController.text = widget.billData!['refByDoctor'] ?? '';
       diagnosisTypeController.text =
@@ -56,14 +134,36 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
   }
 
   @override
+  void dispose() {
+    // Remove listeners
+    diagnosisTypeController.removeListener(onDiagnosisTypeChanged);
+    billStatusController.removeListener(() {});
+    // Dispose controllers
+    patientNameController.dispose();
+    patientAgeController.dispose();
+    patientSexController.dispose();
+    paidAmountController.dispose();
+    discByCenterController.dispose();
+    discByDoctorController.dispose();
+    billStatusController.dispose();
+    franchiseNameController.dispose();
+    refByDoctorController.dispose();
+    diagnosisTypeController.dispose();
+    dateOfTestController.dispose();
+    dateOfBillController.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final diagnosisTypeAsync = ref.watch(diagnosisTypeProvider);
     final doctorAsync = ref.watch(doctorsProvider);
     return Scaffold(
       body: Center(
         child: Container(
-          height: MediaQuery.of(context).size.height * 0.9,
-          width: MediaQuery.of(context).size.width * 0.4,
+          height: MediaQuery.of(context).size.height * 0.95,
+          width: MediaQuery.of(context).size.width * 0.5,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.tertiaryFixed,
             borderRadius: BorderRadius.circular(defaultPadding / 2),
@@ -73,7 +173,8 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
             child: Form(
               key: _formKey,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildHeader(context),
                   const SizedBox(height: 10),
@@ -106,28 +207,27 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  Text(
+                    "Select Diagnosis Type",
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   diagnosisTypeAsync.when(
                     data: (diagnosisTypes) {
                       if (diagnosisTypes.isEmpty) {
                         return Text("No Diagnosis Types Available");
                       }
-
                       diagnosisTypes.sort(
                         (a, b) => a.category.compareTo(b.category),
                       );
-
-                      if (diagnosisTypeController.text.isEmpty &&
-                          widget.billData != null) {
-                        final existingDiagnosisType = diagnosisTypes.firstWhere(
-                          (item) =>
-                              item.id.toString() ==
-                              widget.billData!['diagnosis_type']?.toString(),
-                          orElse: () => diagnosisTypes[0],
-                        );
-                        diagnosisTypeController.text = existingDiagnosisType.id
-                            .toString();
-                      }
+                      // Update selectedDiagnosisType based on controller's current value
+                      selectedDiagnosisType = diagnosisTypes.firstWhere(
+                        (item) =>
+                            item.id.toString() == diagnosisTypeController.text,
+                        orElse: () => diagnosisTypes[0],
+                      );
 
                       return CustomDropDown<DiagnosisType>(
                         context: context,
@@ -143,6 +243,35 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                     error: (err, stack) => Text('Error: $err'),
                   ),
                   const SizedBox(height: 10),
+                  Visibility(
+                    visible: selectedDiagnosisType?.category == 'Franchise Lab',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Franchise Name",
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        customTextField(
+                          label: "EnterFranchise Name",
+                          context: context,
+                          controller: franchiseNameController,
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    "Referred By Doctor",
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   doctorAsync.when(
                     data: (doctor) {
                       if (doctor.isEmpty) {
@@ -169,7 +298,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                       return CustomDropDown<Doctor>(
                         context: context,
                         dropDownList: doctor,
-                        textController: diagnosisTypeController,
+                        textController: refByDoctorController,
                         valueMapper: (item) =>
                             '${item.firstName!} ${item.lastName ?? ''}, ${item.address ?? ""}, ${item.phoneNumber ?? ""}',
                         idMapper: (item) => item.id.toString(),
@@ -179,18 +308,159 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                     loading: () => const CircularProgressIndicator(),
                     error: (err, stack) => Text('Error: $err'),
                   ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _saveBill,
-                    child: Text(
-                      widget.billData != null ? "Update Bill" : "Add Bill",
+                  const SizedBox(height: 10),
+                  Text(
+                    "Select Dates",
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: dateSelectorWiget(
+                          context: context,
+                          dateController: dateOfTestController,
+                          hintText: "Date of Test",
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: dateSelectorWiget(
+                          context: context,
+                          dateController: dateOfBillController,
+                          hintText: "Date of Bill",
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Bill Status",
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  CustomDropDown(
+                    context: context,
+                    dropDownList: billStatusList,
+                    textController: billStatusController,
+                    valueMapper: (p0) => p0,
+                    idMapper: (p0) => p0,
+                    hintText: "Select Bill Status",
+                  ),
+                  const SizedBox(height: 10),
+                  Visibility(
+                    visible: billStatusController.text != "Unpaid",
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Amount Details",
+                          style: Theme.of(context).textTheme.bodyLarge!
+                              .copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: customTextField(
+                                label: "Paid Amount",
+                                context: context,
+                                controller: paidAmountController,
+                                keyboardType: TextInputType.number,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: customTextField(
+                                label: "Doctor's Discount",
+                                context: context,
+                                controller: discByDoctorController,
+                                keyboardType: TextInputType.number,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: customTextField(
+                                label: "Center's Discount",
+                                context: context,
+                                controller: discByCenterController,
+                                keyboardType: TextInputType.number,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  InkWell(
+                    // autofocus: true,
+                    onTap: _saveBill,
+                    // focusColor: Theme.of(context).colorScheme.primary,
+                    // hoverColor: Theme.of(context).colorScheme.primary,
+                    // splashColor: Theme.of(context).colorScheme.primary,
+                    child: Container(
+                      height: 50,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(defaultPadding / 2),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Add Bill",
+                          style: Theme.of(context).textTheme.headlineMedium!
+                              .copyWith(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Container dateSelectorWiget({
+    required BuildContext context,
+    required TextEditingController dateController,
+    required String hintText,
+  }) {
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.light
+            ? lightTextFieldFillColor
+            : darkTextFieldFillColor,
+        borderRadius: BorderRadius.circular(defaultPadding / 2),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: customTextField(
+              label: hintText,
+              context: context,
+              controller: dateOfTestController,
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              datePicker(dateController: dateController);
+            },
+            icon: Icon(Icons.calendar_month_outlined),
+          ),
+        ],
       ),
     );
   }
