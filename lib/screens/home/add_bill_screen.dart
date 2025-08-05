@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
+import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
+import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 
 class AddBillScreen extends ConsumerStatefulWidget {
@@ -56,7 +58,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
   @override
   Widget build(BuildContext context) {
     final diagnosisTypeAsync = ref.watch(diagnosisTypeProvider);
-
+    final doctorAsync = ref.watch(doctorsProvider);
     return Scaffold(
       body: Center(
         child: Container(
@@ -111,18 +113,16 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                         return Text("No Diagnosis Types Available");
                       }
 
-                      // Sort Diagnosis Types by category (A-Z)
                       diagnosisTypes.sort(
                         (a, b) => a.category.compareTo(b.category),
                       );
 
-                      // Preselect DiagnosisTypeController Value if Empty
                       if (diagnosisTypeController.text.isEmpty &&
                           widget.billData != null) {
                         final existingDiagnosisType = diagnosisTypes.firstWhere(
                           (item) =>
                               item.id.toString() ==
-                              widget.billData!['diagnosisTypeId']?.toString(),
+                              widget.billData!['diagnosis_type']?.toString(),
                           orElse: () => diagnosisTypes[0],
                         );
                         diagnosisTypeController.text = existingDiagnosisType.id
@@ -133,7 +133,8 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                         context: context,
                         dropDownList: diagnosisTypes,
                         textController: diagnosisTypeController,
-                        valueMapper: (item) => item.name,
+                        valueMapper: (item) =>
+                            '${item.category} ${item.name}, ₹${item.price}',
                         idMapper: (item) => item.id.toString(),
                         hintText: "Select Diagnosis Type",
                       );
@@ -141,7 +142,43 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                     loading: () => const CircularProgressIndicator(),
                     error: (err, stack) => Text('Error: $err'),
                   ),
+                  const SizedBox(height: 10),
+                  doctorAsync.when(
+                    data: (doctor) {
+                      if (doctor.isEmpty) {
+                        return Text("No Doctor Available");
+                      }
 
+                      doctor.sort(
+                        (a, b) =>
+                            (a.firstName ?? '').compareTo(b.firstName ?? ''),
+                      );
+
+                      if (refByDoctorController.text.isEmpty &&
+                          widget.billData != null) {
+                        final existingDoctor = doctor.firstWhere(
+                          (item) =>
+                              item.id.toString() ==
+                              widget.billData!['ref_by_doctor']?.toString(),
+                          orElse: () => doctor[0],
+                        );
+                        diagnosisTypeController.text = existingDoctor.id
+                            .toString();
+                      }
+
+                      return CustomDropDown<Doctor>(
+                        context: context,
+                        dropDownList: doctor,
+                        textController: diagnosisTypeController,
+                        valueMapper: (item) =>
+                            '${item.firstName!} ${item.lastName ?? ''}, ${item.address ?? ""}, ${item.phoneNumber ?? ""}',
+                        idMapper: (item) => item.id.toString(),
+                        hintText: "Select Doctor",
+                      );
+                    },
+                    loading: () => const CircularProgressIndicator(),
+                    error: (err, stack) => Text('Error: $err'),
+                  ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _saveBill,

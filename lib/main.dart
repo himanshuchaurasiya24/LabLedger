@@ -96,7 +96,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
-        themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
         theme: ThemeData(
           brightness: Brightness.light,
           primarySwatch: MaterialColor(0xFF0072B5, <int, Color>{

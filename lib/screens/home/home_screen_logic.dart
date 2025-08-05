@@ -344,14 +344,15 @@ class CustomDropDown<T> extends StatelessWidget {
         items: dropDownList.map((e) {
           return DropdownMenuItem<T>(
             value: e,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (e is DiagnosisType) Text("${e.category} "),
-                Text(valueMapper(e), overflow: TextOverflow.ellipsis),
-                if (e is DiagnosisType) Text('₹${e.price}'),
-              ],
-            ),
+            child: Text(valueMapper(e), overflow: TextOverflow.ellipsis),
+            // child: Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     // if (e is DiagnosisType) Text("${e.category} "),
+            //     Text(valueMapper(e), overflow: TextOverflow.ellipsis),
+            //     // if (e is DiagnosisType) Text('₹${e.price}'),
+            //   ],
+            // ),
           );
         }).toList(),
         onChanged: (T? selected) {
