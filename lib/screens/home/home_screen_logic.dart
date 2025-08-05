@@ -254,14 +254,17 @@ Widget customTextField({
   required String label,
   required BuildContext context,
   required TextEditingController controller,
+  TextInputType keyboardType = TextInputType.text,
 }) {
   return TextFormField(
     onFieldSubmitted: (value) {
       controller.text = value;
     },
+    keyboardType: keyboardType,
     decoration: InputDecoration(
       filled: true,
       hintText: label,
+
       fillColor: Theme.of(context).brightness == Brightness.dark
           ? darkTextFieldFillColor
           : lightTextFieldFillColor,
@@ -278,4 +281,85 @@ Widget customTextField({
       controller.text = value;
     },
   );
+}
+
+class CustomDropDown<T> extends StatelessWidget {
+  final BuildContext context;
+  final List<T> dropDownList;
+  final TextEditingController textController;
+  final String Function(T) valueMapper; // For Display Text
+  final String Function(T) idMapper; // For Controller Value
+  final String hintText;
+
+  const CustomDropDown({
+    super.key,
+    required this.context,
+    required this.dropDownList,
+    required this.textController,
+    required this.valueMapper,
+    required this.idMapper,
+    required this.hintText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (dropDownList.isEmpty) {
+      return Container(
+        height: 55,
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.grey[800]
+              : Colors.grey[200],
+        ),
+        child: Text('No items available'),
+      );
+    }
+
+    return Container(
+      height: 55,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.grey[850]
+            : Colors.grey[100],
+      ),
+      child: DropdownButtonFormField<T>(
+        isExpanded: true,
+        borderRadius: BorderRadius.circular(8),
+        decoration: InputDecoration(
+          hintText: hintText,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        value: dropDownList.firstWhere(
+          (e) => idMapper(e) == textController.text,
+          orElse: () => dropDownList[0],
+        ),
+        items: dropDownList.map((e) {
+          return DropdownMenuItem<T>(
+            value: e,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (e is DiagnosisType) Text("${e.category} "),
+                Text(valueMapper(e), overflow: TextOverflow.ellipsis),
+                if (e is DiagnosisType) Text('₹${e.price}'),
+              ],
+            ),
+          );
+        }).toList(),
+        onChanged: (T? selected) {
+          if (selected != null) {
+            textController.text = idMapper(selected);
+          }
+        },
+      ),
+    );
+  }
 }
