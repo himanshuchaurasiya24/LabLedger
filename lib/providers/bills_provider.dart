@@ -86,3 +86,21 @@ final deleteBillProvider = FutureProvider.autoDispose.family<void, int>((ref, id
     throw Exception("Failed to delete bill: ${response.body}");
   }
 });
+
+/// ✅ Fetch franchise names
+final franchiseNamesProvider = FutureProvider<List<String>>((ref) async {
+  final token = await ref.read(tokenProvider.future);
+  final response = await http.get(
+    Uri.parse('${baseURL}diagnosis/bills/bill/franchise-names/'),
+    headers: {
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map((item) => item.toString()).toList();
+  } else {
+    throw Exception('Failed to load franchise names');
+  }
+});

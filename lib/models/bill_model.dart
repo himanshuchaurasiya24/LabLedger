@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-/// You may want to change this base URL according to your environment.
+/// Base URL for API calls (Adjust accordingly)
 const String baseUrl = 'https://your-api.com/api';
 
 class Bill {
-  final int id;
+  final int? id;  // <-- Nullable ID
   final int diagnosisType;
   final int referredByDoctor;
   final int centerDetail;
@@ -22,7 +22,7 @@ class Bill {
   final int discByDoctor;
   final int incentiveAmount;
 
-  // Optional nested outputs for GET
+  // Optional Nested Outputs (for GET responses)
   final Map<String, dynamic>? diagnosisTypeOutput;
   final Map<String, dynamic>? referredByDoctorOutput;
   final Map<String, dynamic>? testDoneBy;
@@ -30,7 +30,7 @@ class Bill {
   final String? billNumber;
 
   Bill({
-    required this.id,
+    this.id,
     required this.diagnosisType,
     required this.referredByDoctor,
     required this.centerDetail,
@@ -53,30 +53,33 @@ class Bill {
     this.billNumber,
   });
 
+  /// Factory Constructor to Parse JSON Safely
   factory Bill.fromJson(Map<String, dynamic> json) {
     return Bill(
       id: json['id'],
       diagnosisType:
           json['diagnosis_type'] ?? json['diagnosis_type_output']?['id'] ?? 0,
       referredByDoctor:
-          json['referred_by_doctor'] ??
-          json['referred_by_doctor_output']?['id'] ??
-          0,
+          json['referred_by_doctor'] ?? json['referred_by_doctor_output']?['id'] ?? 0,
       centerDetail: json['center_detail'] is int
           ? json['center_detail']
           : json['center_detail']?['id'] ?? 0,
-      dateOfTest: DateTime.parse(json['date_of_test']),
-      patientName: json['patient_name'],
-      patientAge: json['patient_age'],
-      patientSex: json['patient_sex'],
+      dateOfTest: json['date_of_test'] != null
+          ? DateTime.parse(json['date_of_test'])
+          : DateTime.now(),
+      patientName: json['patient_name'] ?? '',
+      patientAge: json['patient_age'] ?? 0,
+      patientSex: json['patient_sex'] ?? '',
       franchiseName: json['franchise_name'],
-      dateOfBill: DateTime.parse(json['date_of_bill']),
-      billStatus: json['bill_status'],
-      totalAmount: json['total_amount'],
-      paidAmount: json['paid_amount'],
-      discByCenter: json['disc_by_center'],
-      discByDoctor: json['disc_by_doctor'],
-      incentiveAmount: json['incentive_amount'],
+      dateOfBill: json['date_of_bill'] != null
+          ? DateTime.parse(json['date_of_bill'])
+          : DateTime.now(),
+      billStatus: json['bill_status'] ?? '',
+      totalAmount: json['total_amount'] ?? 0,
+      paidAmount: json['paid_amount'] ?? 0,
+      discByCenter: json['disc_by_center'] ?? 0,
+      discByDoctor: json['disc_by_doctor'] ?? 0,
+      incentiveAmount: json['incentive_amount'] ?? 0,
       diagnosisTypeOutput: json['diagnosis_type_output'],
       referredByDoctorOutput: json['referred_by_doctor_output'],
       testDoneBy: json['test_done_by'],
@@ -87,9 +90,9 @@ class Bill {
     );
   }
 
+  /// Convert Object to JSON Map (Skip ID if null)
   Map<String, dynamic> toJson() {
-    return {
-      "id": id,
+    final data = {
       "diagnosis_type": diagnosisType,
       "referred_by_doctor": referredByDoctor,
       "center_detail": centerDetail,
@@ -106,9 +109,15 @@ class Bill {
       "disc_by_doctor": discByDoctor,
       "incentive_amount": incentiveAmount,
     };
+
+    if (id != null) {
+      data["id"] = id;
+    }
+
+    return data;
   }
 
-  /// Static methods for API operations
+  /// API Operations (Optional Static Methods)
 
   static Future<List<Bill>> fetchAll(String token) async {
     final response = await http.get(
@@ -152,6 +161,9 @@ class Bill {
   }
 
   static Future<Bill> update(Bill bill, String token) async {
+    if (bill.id == null) {
+      throw Exception('Cannot update Bill without ID');
+    }
     final response = await http.put(
       Uri.parse('$baseUrl/bills/${bill.id}/'),
       headers: {

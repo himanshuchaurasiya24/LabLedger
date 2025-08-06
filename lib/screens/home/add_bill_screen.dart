@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/models/doctors_model.dart';
+import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
@@ -20,7 +22,6 @@ class AddBillScreen extends ConsumerStatefulWidget {
 class _AddBillScreenState extends ConsumerState<AddBillScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   DiagnosisType? selectedDiagnosisType;
-
   final TextEditingController patientNameController = TextEditingController();
   final TextEditingController patientAgeController = TextEditingController();
   final TextEditingController patientSexController = TextEditingController();
@@ -39,33 +40,22 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
     "Partially Paid",
     "Unpaid",
   ];
-
-  void datePicker({required TextEditingController dateController}) async {
+  String selectedTestDateISO = DateTime.now()
+      .toIso8601String(); // <-- for API submission
+  String selectedBillDateISO = DateTime.now()
+      .toIso8601String(); // <-- for API submission
+  void datePicker({
+    required TextEditingController dateController,
+    required ValueChanged<String> onDateSelected,
+  }) async {
     final rawDate = await showDatePicker(
       context: context,
       firstDate: DateTime(2024),
       lastDate: DateTime(2100),
       initialDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Color(0xFF0061A8), // Deep Blue
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Color(0xFF0061A8), // Deep Blue
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
+
     if (rawDate != null) {
-      // Combine rawDate with current time (HH:mm:ss)
       final DateTime fullDateTime = DateTime(
         rawDate.year,
         rawDate.month,
@@ -74,23 +64,16 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
         DateTime.now().minute,
         DateTime.now().second,
       );
-
-      final String isoString = fullDateTime.toIso8601String();
-
-      // Optional: If you want to ensure +05:30 offset is always there
-      final String formattedDateTime = isoString.endsWith('Z')
-          ? isoString.replaceFirst('Z', '+05:30')
-          : isoString;
+      final String displayDate =
+          "${rawDate.day.toString().padLeft(2, '0')}-"
+          "${rawDate.month.toString().padLeft(2, '0')}-"
+          "${rawDate.year}";
 
       setState(() {
-        dateController.text = formattedDateTime;
+        dateController.text = displayDate;
       });
+      onDateSelected(fullDateTime.toIso8601String()); // <-- Pass back to parent
     }
-  }
-
-  void onDiagnosisTypeChanged() {
-    // We'll handle this in the widget build with ref.watch, no need for lookup here
-    setState(() {}); // Simply trigger a rebuild
   }
 
   @override
@@ -106,16 +89,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) setState(() {});
         });
-      }); 
+      });
     });
-    // patientSexController.addListener(() {
-    //   //
-    // });
-    // refByDoctorController.addListener(() {
-    //   //
-    // });
+
     if (widget.billData != null) {
-      // Prefill controllers if editing
       patientNameController.text = widget.billData!['patientName'] ?? '';
       patientAgeController.text = widget.billData!['patientAge'] ?? '';
       patientSexController.text = widget.billData!['patientSex'] ?? 'Male';
@@ -136,7 +113,9 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
   @override
   void dispose() {
     // Remove listeners
-    diagnosisTypeController.removeListener(onDiagnosisTypeChanged);
+    diagnosisTypeController.removeListener(() {
+      //
+    });
     billStatusController.removeListener(() {});
     // Dispose controllers
     patientNameController.dispose();
@@ -158,6 +137,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
   @override
   Widget build(BuildContext context) {
     final diagnosisTypeAsync = ref.watch(diagnosisTypeProvider);
+    final franchiseNamesAsync = ref.watch(franchiseNamesProvider);
     final doctorAsync = ref.watch(doctorsProvider);
     return Scaffold(
       body: Center(
@@ -256,11 +236,21 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                         ),
-                        customTextField(
-                          label: "EnterFranchise Name",
-                          context: context,
-                          controller: franchiseNameController,
+
+                        franchiseNamesAsync.when(
+                          data: (franchises) => CustomDropDown<String>(
+                            context: context,
+                            dropDownList: franchises,
+                            textController: franchiseNameController,
+                            valueMapper: (item) => item,
+                            idMapper: (item) => item,
+                            hintText: "Select Franchise Name",
+                          ),
+                          loading: () => CircularProgressIndicator(),
+                          error: (err, stack) =>
+                              Text('Error loading franchises'),
                         ),
+
                         const SizedBox(height: 10),
                       ],
                     ),
@@ -291,7 +281,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                               widget.billData!['ref_by_doctor']?.toString(),
                           orElse: () => doctor[0],
                         );
-                        diagnosisTypeController.text = existingDoctor.id
+                        refByDoctorController.text = existingDoctor.id
                             .toString();
                       }
 
@@ -323,14 +313,23 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                           context: context,
                           dateController: dateOfTestController,
                           hintText: "Date of Test",
+                          onDateSelected: (isoDate) {
+                            selectedTestDateISO =
+                                isoDate; // <-- Correctly updates parent variable
+                          },
                         ),
                       ),
+
                       const SizedBox(width: 10),
                       Flexible(
                         child: dateSelectorWiget(
                           context: context,
                           dateController: dateOfBillController,
                           hintText: "Date of Bill",
+                          onDateSelected: (isoDate) {
+                            selectedBillDateISO =
+                                isoDate; // <-- Correctly updates parent variable
+                          },
                         ),
                       ),
                     ],
@@ -343,14 +342,15 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  CustomDropDown(
+                  CustomDropDown<String>(
                     context: context,
                     dropDownList: billStatusList,
                     textController: billStatusController,
-                    valueMapper: (p0) => p0,
-                    idMapper: (p0) => p0,
+                    valueMapper: (item) => item,
+                    idMapper: (item) => item, // <-- Ensure this is set properly
                     hintText: "Select Bill Status",
                   ),
+
                   const SizedBox(height: 10),
                   Visibility(
                     visible: billStatusController.text != "Unpaid",
@@ -400,11 +400,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                   ),
                   const SizedBox(height: 10),
                   InkWell(
-                    // autofocus: true,
                     onTap: _saveBill,
-                    // focusColor: Theme.of(context).colorScheme.primary,
-                    // hoverColor: Theme.of(context).colorScheme.primary,
-                    // splashColor: Theme.of(context).colorScheme.primary,
                     child: Container(
                       height: 50,
                       width: double.infinity,
@@ -421,7 +417,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 10),
                 ],
               ),
@@ -436,6 +431,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
     required BuildContext context,
     required TextEditingController dateController,
     required String hintText,
+    required ValueChanged<String> onDateSelected,
   }) {
     return Container(
       height: 50,
@@ -451,12 +447,15 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
             child: customTextField(
               label: hintText,
               context: context,
-              controller: dateOfTestController,
+              controller: dateController,
             ),
           ),
           IconButton(
             onPressed: () {
-              datePicker(dateController: dateController);
+              datePicker(
+                dateController: dateController,
+                onDateSelected: onDateSelected,
+              );
             },
             icon: Icon(Icons.calendar_month_outlined),
           ),
@@ -494,34 +493,81 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
     );
   }
 
-  void _saveBill() {
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _saveBill() async {
+    debugPrint("DateOfTestISO: $selectedTestDateISO");
+    debugPrint("DateOfBillISO: $selectedBillDateISO");
+    debugPrint("name : ${patientNameController.text}");
+    debugPrint("patientAgeController : ${patientAgeController.text}");
+    debugPrint("patientSexController : ${patientSexController.text}");
+    debugPrint("diagnosisTypeController : ${diagnosisTypeController.text}");
+    debugPrint("franchiseNameController : ${franchiseNameController.text}");
+    debugPrint("refByDoctorController : ${refByDoctorController.text}");
+    debugPrint("dateOfTestController : ${dateOfTestController.text}");
+    debugPrint("dateOfBillController : ${dateOfBillController.text}");
+    debugPrint("billStatusController : ${billStatusController.text}");
+    debugPrint("paidAmountController : ${paidAmountController.text}");
+    debugPrint("discByCenterController : ${discByCenterController.text}");
+    debugPrint("discByDoctorController : ${discByDoctorController.text}");
+
     if (_formKey.currentState!.validate()) {
       final billData = {
-        'patientName': patientNameController.text,
-        'patientAge': patientAgeController.text,
-        'patientSex': patientSexController.text,
-        'paidAmount': paidAmountController.text,
-        'discByCenter': discByCenterController.text,
-        'discByDoctor': discByDoctorController.text,
-        'billStatus': billStatusController.text,
-        'franchiseName': franchiseNameController.text,
-        'refByDoctor': refByDoctorController.text,
-        'diagnosisTypeId': diagnosisTypeController.text,
-        'dateOfTest': dateOfTestController.text,
-        'dateOfBill': dateOfBillController.text,
+        'patient_name': patientNameController.text,
+        'patient_age': int.parse(patientAgeController.text),
+        'patient_sex': patientSexController.text,
+        'diagnosis_type': int.parse(diagnosisTypeController.text),
+        'franchise_name': franchiseNameController.text,
+        'referred_by_doctor': int.parse(refByDoctorController.text),
+        'date_of_test': DateTime.parse(selectedTestDateISO).toString(),
+        'date_of_bill': DateTime.parse(selectedBillDateISO).toString(),
+        'bill_status': billStatusController.text,
+        'paid_amount': int.parse(paidAmountController.text),
+        'disc_by_center': int.parse(discByCenterController.text),
+        'disc_by_doctor': int.parse(discByDoctorController.text),
       };
+      final bill = Bill.fromJson(billData);
+      try {
+        if (widget.billData != null) {
+          final updatedBill = await ref.read(updateBillProvider(bill).future);
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Bill updated successfully: ${updatedBill.billNumber}',
+              ),
+            ),
+          );
 
-      if (widget.billData != null) {
-        // Update existing bill
-        print("Updating Bill: $billData");
-        // Call Update API here
-      } else {
-        // Add new bill
-        print("Adding New Bill: $billData");
-        // Call Add API here
+          Navigator.pop(context, updatedBill);
+        } else {
+          debugPrint("creating new");
+          final newBill = await ref.read(createBillProvider(bill).future);
+
+          if (!mounted) return;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Bill created successfully: ${newBill.billNumber}'),
+            ),
+          );
+
+          Navigator.pop(context, newBill);
+        }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed: $e')));
       }
-
-      Navigator.of(context).pop(); // Close the screen after save
     }
   }
 }
