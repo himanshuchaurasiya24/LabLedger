@@ -238,12 +238,14 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                         ),
 
                         franchiseNamesAsync.when(
-                          data: (franchises) => CustomDropDown<String>(
+                          data: (franchises) => CustomDropDown<FranchiseName>(
                             context: context,
                             dropDownList: franchises,
                             textController: franchiseNameController,
-                            valueMapper: (item) => item,
-                            idMapper: (item) => item,
+                            valueMapper: (item) =>
+                                item.franchiseName, // For display text
+                            idMapper: (item) => item
+                                .franchiseName, // For controller value (ID in your case is franchiseName string)
                             hintText: "Select Franchise Name",
                           ),
                           loading: () => CircularProgressIndicator(),
