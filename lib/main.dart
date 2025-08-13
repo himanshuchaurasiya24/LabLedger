@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Size get initialWindowSize => const Size(700, 350); // 🟩 Initial Size
 final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await windowManager.ensureInitialized();
 
   WindowOptions windowOptions = WindowOptions(
@@ -94,6 +94,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
         }
       },
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
         themeMode: ThemeMode.system,

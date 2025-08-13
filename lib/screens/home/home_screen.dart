@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:labledger/main.dart';
 
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
@@ -16,6 +17,7 @@ import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/home/add_bill_screen.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
+import 'package:labledger/screens/initials/window_loading_screen.dart';
 
 enum TimeFilter { thisWeek, thisMonth, thisYear, allTime }
 
@@ -388,59 +390,102 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryFixed,
-
-                      radius: 30,
-                      child: IconButton(
-                        onPressed: () {
-                          //
-                        },
-                        icon: Icon(Icons.notifications_outlined, size: 34),
+                    IconButton(
+                      onPressed: () {
+                        //
+                      },
+                      icon: CircleAvatar(
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.tertiaryFixed,
+                        radius: 30,
+                        child: IconButton(
+                          onPressed: () {
+                            //
+                          },
+                          icon: Icon(Icons.notifications_outlined, size: 34),
+                        ),
                       ),
                     ),
-                    SizedBox(width: smallWidthSpacing),
-                    GlassContainer(
-                      height: 60,
-                      width: 120,
-                      horizontalPadding: 0,
-                      verticalPadding: 0,
-                      borderRadius: BorderRadius.circular(30),
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryFixed,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.tertiary,
-                            radius: 30,
-                            child: Text(
-                              widget.firstName[0].toUpperCase(),
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.tertiaryFixed,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
+                    IconButton(
+                      onPressed: () async {
+                        final selected = await showMenu(
+                          context: context,
+                          position: RelativeRect.fromLTRB(
+                            100,
+                            90,
+                            10,
+                            0,
+                          ), // adjust as needed
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.tertiaryFixed.withValues(alpha: 0.9),
+                          shadowColor: Theme.of(
+                            context,
+                          ).scaffoldBackgroundColor,
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(defaultPadding),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 300, // make it wider
+                          ),
+                          items: [
+                            PopupMenuItem(
+                              value: 'profile',
+                              child: ListTile(
+                                leading: Icon(Icons.person),
+                                title: Text("Profile Settings"),
                               ),
                             ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              //
-                            },
-                            icon: Icon(
-                              Icons.menu,
-                              size: 38,
-                              color: Theme.of(context).colorScheme.tertiary,
+                            PopupMenuItem(
+                              value: 'settings',
+                              child: ListTile(
+                                leading: Icon(Icons.settings),
+                                title: Text("Settings"),
+                              ),
                             ),
+                            PopupMenuItem(
+                              value: 'logout',
+                              child: ListTile(
+                                leading: Icon(Icons.logout),
+                                title: Text("Logout"),
+                              ),
+                            ),
+                          ],
+                        );
+
+                        if (selected == null) return;
+
+                        if (selected == 'profile') {
+                          // Navigate to profile page
+                        } else if (selected == 'settings') {
+                          // Navigate to settings page
+                        } else if (selected == 'logout') {
+                          final storage = ref.read(secureStorageProvider);
+
+                          await storage.delete(key: 'access_token');
+
+                          navigatorKey.currentState?.pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => WindowLoadingScreen(
+                                onLoginScreen: isLoginScreen,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      icon: CircleAvatar(
+                        backgroundColor: Theme.of(context).colorScheme.tertiary,
+                        radius: 30,
+                        child: Text(
+                          widget.firstName[0].toUpperCase(),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.tertiaryFixed,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
@@ -990,7 +1035,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 }
-
 
 class NoThumbScrollBehavior extends ScrollBehavior {
   @override
