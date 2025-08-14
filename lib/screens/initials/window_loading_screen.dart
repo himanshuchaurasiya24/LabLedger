@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home/home_screen.dart';
@@ -59,6 +60,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   void initState() {
     super.initState();
     widget.onLoginScreen.value = true;
+    setWindowBehavior(isForLogin: true);
     _checkAuth();
   }
 

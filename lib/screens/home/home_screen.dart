@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -18,6 +19,7 @@ import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/home/add_bill_screen.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
+import 'package:labledger/screens/profile/profile_screen.dart';
 
 enum TimeFilter { thisWeek, thisMonth, thisYear, allTime }
 
@@ -327,6 +329,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final billsAsync = ref.watch(billsProvider);
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    final themeMode = ref.read(themeNotifierProvider);
     containerWidth = width / 2.962963;
     sideContainerWidth = width / 3.7037037;
     smallWidthSpacing = width / 80;
@@ -426,46 +429,116 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           elevation: 5,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(defaultPadding),
+                            side: BorderSide(
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? ThemeData.light().scaffoldBackgroundColor
+                                  : ThemeData.dark().scaffoldBackgroundColor,
+                              width: 2,
+                            ),
                           ),
                           constraints: BoxConstraints(
                             minWidth: 300, // make it wider
                           ),
+
                           items: [
                             PopupMenuItem(
-                              value: 'profile',
+                              value: 'userDetails',
                               child: ListTile(
-                                leading: Icon(Icons.person),
-                                title: Text("Profile Settings"),
+                                leading: Icon(
+                                  Icons.verified_user,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 40,
+                                ),
+                                title: Text(
+                                  "${widget.firstName.toUpperCase()} ${widget.lastName.toUpperCase()}",
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                                subtitle: widget.isAdmin
+                                    ? Text(
+                                        "Administrator",
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                          fontSize: 20,
+                                        ),
+                                      )
+                                    : null,
                               ),
                             ),
                             PopupMenuItem(
-                              value: 'settings',
+                              value: 'theme',
                               child: ListTile(
-                                leading: Icon(Icons.settings),
-                                title: Text("Settings"),
+                                leading: Icon(Icons.brightness_6),
+                                title: Text(switch (themeMode) {
+                                  ThemeMode.dark => "Current Theme : Dark",
+                                  ThemeMode.light => "Current Theme : Light",
+                                  ThemeMode.system => "Current Theme : System",
+                                }, style: TextStyle(fontSize: 20)),
                               ),
                             ),
                             PopupMenuItem(
                               value: 'logout',
                               child: ListTile(
                                 leading: Icon(Icons.logout),
-                                title: Text("Logout"),
+                                title: Text(
+                                  "Logout",
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: 'exit',
+                              child: ListTile(
+                                leading: Icon(
+                                  Icons.exit_to_app,
+                                  color: Colors.red,
+                                ),
+                                title: Text(
+                                  "Exit",
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 20,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
                         );
 
                         if (selected == null) return;
+                        if (selected == 'userDetails') {
+                          navigatorKey.currentState?.push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return ProfileScreen(userId: widget.id);
+                              },
+                            ),
+                          );
+                        } else if (selected == 'theme') {
+                          final current = ref.read(themeNotifierProvider);
+                          final notifier = ref.read(
+                            themeNotifierProvider.notifier,
+                          );
 
-                        if (selected == 'profile') {
-                          // Navigate to profile page
-                        } else if (selected == 'settings') {
-                          // Navigate to settings page
+                          final nextMode = switch (current) {
+                            ThemeMode.system => ThemeMode.light,
+                            ThemeMode.light => ThemeMode.dark,
+                            ThemeMode.dark => ThemeMode.system,
+                          };
+
+                          notifier.toggleTheme(nextMode);
                         } else if (selected == 'logout') {
                           final storage = ref.read(secureStorageProvider);
-
                           await storage.delete(key: 'access_token');
-
                           navigatorKey.currentState?.pushReplacement(
                             MaterialPageRoute(
                               builder: (_) => WindowLoadingScreen(
@@ -473,6 +546,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ),
                             ),
                           );
+                        }else if(selected=="exit"){
+                          
+                          exit(0);
                         }
                       },
                       icon: CircleAvatar(

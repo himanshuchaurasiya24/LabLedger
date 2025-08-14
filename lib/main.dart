@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-Size get initialWindowSize => const Size(700, 350); // 🟩 Initial Size
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+Size get initialWindowSize => const Size(700, 350);
 final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,7 +74,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    // final themeMode = ref.watch(themeNotifierProvider);
+    final themeMode = ref.watch(themeNotifierProvider);
     return KeyboardListener(
       focusNode: FocusNode()..requestFocus(),
       autofocus: true,
@@ -97,8 +98,10 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
-        themeMode: ThemeMode.system,
+        themeMode: themeMode,
         theme: ThemeData(
+          hoverColor: Colors.transparent,
+
           brightness: Brightness.light,
           primarySwatch: MaterialColor(0xFF0072B5, <int, Color>{
             50: Color(0xFFE1F0F9),

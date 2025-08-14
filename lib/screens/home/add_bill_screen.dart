@@ -243,7 +243,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                             dropDownList: franchises,
                             textController: franchiseNameController,
                             valueMapper: (item) =>
-                                item.franchiseName, // For display text
+                                "${item.franchiseName} , ${item.address}", // For display text
                             idMapper: (item) => item
                                 .franchiseName, // For controller value (ID in your case is franchiseName string)
                             hintText: "Select Franchise Name",
