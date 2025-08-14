@@ -172,13 +172,28 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
               ),
 
               SizedBox(height: defaultPadding),
-              customButton(
-                context: context,
-                ontap: () {
+              InkWell(
+                onTap: () {
                   if (_formKey.currentState!.validate()) {
                     _submitForm();
                   }
                 },
+                child: Container(
+                  height: 50,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(defaultPadding / 2),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Update",
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium!.copyWith(color: Colors.white),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

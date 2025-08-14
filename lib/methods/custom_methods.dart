@@ -269,27 +269,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 }
 
-Widget customButton({
-  required BuildContext context,
-  required VoidCallback ontap,
-}) {
-  return SizedBox(
-    height: 45,
-    width: double.infinity,
-    child: ElevatedButton(
-      onPressed: ontap,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 2,
-      ),
-      child: Text(
-        "Update Details",
-        style: Theme.of(context).textTheme.bodyLarge,
-      ),
-    ),
-  );
-}
 
 Widget customBar({
   required BuildContext context,

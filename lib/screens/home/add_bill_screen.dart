@@ -156,7 +156,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildHeader(context),
+                  buildHeader(context),
                   const SizedBox(height: 10),
                   customTextField(
                     context: context,
@@ -466,45 +466,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
     );
   }
 
-  Row _buildHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        appIconName(
-          context: context,
-          firstName: "Lab",
-          secondName: "Ledger",
-          fontSize: 45,
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.red[400],
-            borderRadius: BorderRadius.circular(defaultPadding / 2),
-          ),
-          child: IconButton(
-            icon: Icon(
-              Icons.close,
-              color: Theme.of(context).colorScheme.tertiaryFixed,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  void showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
   void _saveBill() async {
     debugPrint("DateOfTestISO: $selectedTestDateISO");
     debugPrint("DateOfBillISO: $selectedBillDateISO");
@@ -572,4 +533,43 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
       }
     }
   }
+}
+
+Row buildHeader(BuildContext context) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      appIconName(
+        context: context,
+        firstName: "Lab",
+        secondName: "Ledger",
+        fontSize: 45,
+      ),
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.red[400],
+          borderRadius: BorderRadius.circular(defaultPadding / 2),
+        ),
+        child: IconButton(
+          icon: Icon(
+            Icons.close,
+            color: Theme.of(context).colorScheme.tertiaryFixed,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    ],
+  );
+}
+
+void showError(BuildContext context, message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      backgroundColor: Colors.red,
+      duration: Duration(seconds: 2),
+    ),
+  );
 }
