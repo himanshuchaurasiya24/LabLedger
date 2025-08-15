@@ -19,6 +19,7 @@ import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/home/add_bill_screen.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
+import 'package:labledger/screens/profile/account_list_screen.dart';
 import 'package:labledger/screens/profile/profile_screen.dart';
 
 enum TimeFilter { thisWeek, thisMonth, thisYear, allTime }
@@ -474,6 +475,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     : null,
                               ),
                             ),
+                            if (widget.isAdmin)
+                              PopupMenuItem(
+                                value: 'accountControl',
+                                child: ListTile(
+                                  leading: Icon(Icons.lock),
+                                  title: Text(
+                                    "Account Control",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ),
+                              ),
                             PopupMenuItem(
                               value: 'theme',
                               child: ListTile(
@@ -523,6 +535,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               },
                             ),
                           );
+                        } else if (selected == "accountControl") {
+                          navigatorKey.currentState?.push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return AccountListScreen();
+                              },
+                            ),
+                          );
                         } else if (selected == 'theme') {
                           final current = ref.read(themeNotifierProvider);
                           final notifier = ref.read(
@@ -546,8 +566,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ),
                             ),
                           );
-                        }else if(selected=="exit"){
-                          
+                        } else if (selected == "exit") {
                           exit(0);
                         }
                       },

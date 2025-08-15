@@ -37,6 +37,28 @@ final appDescriptionProvider = Provider<String>((ref) {
 final baseUrlProvider = Provider<String>((ref) {
   return baseURL; // Replace with your actual base URL
 });
+final usersDetailsProvider =
+    FutureProvider.family.autoDispose<List<User>, void>((ref, _) async {
+  final token = await ref.watch(tokenProvider.future); // await token future
+  final baseUrl = ref.read(baseUrlProvider);
+
+  if (token == null) {
+    throw Exception("No access token found");
+  }
+
+  final response = await http.get(
+    Uri.parse("$baseUrl/auth/staffs/staff/"),
+    headers: {"Authorization": "Bearer $token"},
+  );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> jsonList = jsonDecode(response.body);
+    return jsonList.map((item) => User.fromJson(item)).toList();
+  } else {
+    throw Exception("Failed to fetch users: ${response.statusCode}");
+  }
+});
+
 final userDetailsProvider = FutureProvider.family.autoDispose<User?, int>((
   ref,
   id,
