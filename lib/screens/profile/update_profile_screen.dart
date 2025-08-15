@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/models/user_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home/add_bill_screen.dart';
-import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 
 class UpdateProfileScreen extends ConsumerStatefulWidget {
@@ -111,25 +111,8 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
         );
 
         if (success) {
-          ref.invalidate(
-            userDetailsProvider(widget.user.id),
-          ); // <--- Add this line
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return HomeScreen(
-                  id: widget.user.id,
-                  firstName: updatedUser.firstName,
-                  lastName: updatedUser.lastName,
-                  username: updatedUser.username,
-                  isAdmin: updatedUser.isAdmin,
-                  centerDetail: updatedUser.centerDetail,
-                );
-              },
-            ),
-          );
+          ref.invalidate(userDetailsProvider(widget.user.id));
+          navigatorKey.currentState?.pop();
         }
       }
     }

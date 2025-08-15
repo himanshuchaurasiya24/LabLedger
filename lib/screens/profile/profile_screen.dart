@@ -112,7 +112,7 @@ class ProfileScreen extends ConsumerWidget {
 
                       ProfileField(
                         label: "Account Type",
-                        value: user.isAdmin ? "Administrator" : "",
+                        value: user.isAdmin ? "Administrator" : "User",
                       ),
                       ProfileField(label: "Username", value: user.username),
                       ProfileField(label: "Phone", value: user.phoneNumber),
