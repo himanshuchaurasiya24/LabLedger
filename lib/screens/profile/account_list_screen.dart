@@ -11,156 +11,326 @@ class AccountListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final usersAsync = ref.watch(usersDetailsProvider(null));
+
     return Scaffold(
       body: Center(
         child: Container(
           height: MediaQuery.of(context).size.height * 0.95,
-          width: MediaQuery.of(context).size.width * 0.5,
+          width: MediaQuery.of(context).size.width * 0.7,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.tertiaryFixed,
             borderRadius: BorderRadius.circular(defaultPadding / 2),
           ),
           child: Padding(
-            padding: EdgeInsets.only(
-              left: defaultPadding / 2,
-              right: defaultPadding / 2,
-              bottom: defaultPadding / 2,
-            ),
+            padding: EdgeInsets.all(defaultPadding),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 buildHeader(context),
-                usersAsync.when(
-                  data: (users) => Expanded(
-                    child: ListView.builder(
-                      itemCount: users.length,
-                      physics: BouncingScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final user = users[index];
-                        return GestureDetector(
-                          onTap: () {
-                            navigatorKey.currentState?.push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ProfileScreen(userId: user.id),
-                              ),
-                            );
-                          },
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 180,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    defaultPadding / 2,
-                                  ),
-                                  border: Border.all(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "${user.firstName} ${user.lastName}",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineSmall!
-                                                .copyWith(
-                                                  color:
-                                                      Theme.of(
-                                                            context,
-                                                          ).brightness ==
-                                                          Brightness.dark
-                                                      ? ThemeData.light()
-                                                            .colorScheme
-                                                            .surface
-                                                      : ThemeData.dark()
-                                                            .colorScheme
-                                                            .surface,
-                                                ),
-                                          ),
-                                          Container(
-                                            height: 40,
-                                            width: 150,
-
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color: user.isAdmin
-                                                    ? Color(0xFF0072B5)
-                                                    : Colors.green,
-                                                width: 1.5,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                user.isAdmin
-                                                    ? "ADMINISTRATOR"
-                                                    : "USER",
-                                                style: TextStyle(
-                                                  color:
-                                                      Theme.of(
-                                                            context,
-                                                          ).brightness ==
-                                                          Brightness.dark
-                                                      ? ThemeData.light()
-                                                            .colorScheme
-                                                            .surface
-                                                      : ThemeData.dark()
-                                                            .colorScheme
-                                                            .surface,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        "Email: ${user.email}",
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                                      Text(
-                                        "Username: ${user.username}",
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                                      Text(
-                                        "Address: ${user.address}",
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                                      Text(
-                                        "Phone Number: ${user.phoneNumber}",
-                                        style: TextStyle(fontSize: 20),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                            ],
-                          ),
-                        );
-                      },
+                const SizedBox(height: 16),
+                Expanded(
+                  child: usersAsync.when(
+                    data: (users) => _buildUserGrid(context, users, ref),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (err, stack) => Center(
+                      child: Text(
+                        'Error: $err',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyLarge?.copyWith(color: Colors.red),
+                      ),
                     ),
                   ),
-                  loading: () => const CircularProgressIndicator(),
-                  error: (err, stack) => Text('Error: $err'),
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserGrid(
+    BuildContext context,
+    List<dynamic> users,
+    WidgetRef ref,
+  ) {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        childAspectRatio: 1.3,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      itemCount: users.length,
+      itemBuilder: (context, index) {
+        final user = users[index];
+        return UserCard(
+          user: user,
+          onTap: () async {
+            await navigatorKey.currentState
+                ?.push(
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(userId: user.id),
+                  ),
+                )
+                .then((_) {
+                  ref.invalidate(usersDetailsProvider(null));
+                });
+          },
+        );
+      },
+    );
+  }
+
+  // Widget _buildUserCard(BuildContext context, dynamic user, WidgetRef ref) {
+  //   return GestureDetector(
+  //     onTap: () async {
+  //       await navigatorKey.currentState
+  //           ?.push(
+  //             MaterialPageRoute(
+  //               builder: (context) => ProfileScreen(userId: user.id),
+  //             ),
+  //           )
+  //           .then((value) {
+  //             ref.invalidate(usersDetailsProvider(null));
+  //           });
+  //     },
+  //     child: Container(
+  //       decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(12),
+  //         border: Border.all(
+  //           color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
+  //           width: 2,
+  //         ),
+  //       ),
+  //       child: Padding(
+  //         padding: EdgeInsets.all(defaultPadding / 2),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //               children: [
+  //                 Container(
+  //                   width: 45,
+  //                   height: 45,
+  //                   decoration: BoxDecoration(
+  //                     color: user.isAdmin
+  //                         ? Theme.of(
+  //                             context,
+  //                           ).colorScheme.primary.withValues(alpha: 0.2)
+  //                         : Theme.of(
+  //                             context,
+  //                           ).colorScheme.secondary.withValues(alpha: 0.2),
+  //                     borderRadius: BorderRadius.circular(8),
+  //                   ),
+  //                   child: Icon(
+  //                     user.isAdmin ? Icons.admin_panel_settings : Icons.person,
+  //                     color: user.isAdmin
+  //                         ? Theme.of(context).colorScheme.primary
+  //                         : Theme.of(context).colorScheme.secondary,
+  //                     size: 24,
+  //                   ),
+  //                 ),
+  //                 Container(
+  //                   padding: const EdgeInsets.symmetric(
+  //                     horizontal: 6,
+  //                     vertical: 2,
+  //                   ),
+  //                   decoration: BoxDecoration(
+  //                     color: user.isAdmin
+  //                         ? Theme.of(context).colorScheme.primary
+  //                         : Theme.of(context).colorScheme.secondary,
+  //                     borderRadius: BorderRadius.circular(4),
+  //                   ),
+  //                   child: Text(
+  //                     user.isAdmin ? "ADMIN" : "USER",
+  //                     style: TextStyle(
+  //                       color: Colors.white,
+  //                       fontWeight: FontWeight.bold,
+  //                       fontSize: 16,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //             SizedBox(height: defaultPadding / 2),
+  //             Text(
+  //               "${user.firstName} ${user.lastName}",
+  //               style: Theme.of(context).textTheme.titleSmall?.copyWith(
+  //                 fontWeight: FontWeight.bold,
+  //                 fontSize: 24,
+  //                 // color: const Color(0xFF2B3674),
+  //               ),
+  //               maxLines: 1,
+  //               overflow: TextOverflow.ellipsis,
+  //             ),
+  //             const SizedBox(height: 2),
+  //             Text(
+  //               user.email,
+  //               style: Theme.of(
+  //                 context,
+  //               ).textTheme.bodySmall?.copyWith(fontSize: 16),
+  //               maxLines: 1,
+  //               overflow: TextOverflow.ellipsis,
+  //             ),
+  //             const SizedBox(height: 4),
+  //             Text(
+  //               user.address,
+  //               style: TextStyle(fontSize: 16),
+  //               maxLines: 1,
+  //               overflow: TextOverflow.ellipsis,
+  //             ),
+  //             const SizedBox(height: 4),
+
+  //             Row(
+  //               children: [
+  //                 Icon(Icons.phone, size: 16),
+  //                 const SizedBox(width: 2),
+  //                 Expanded(
+  //                   child: Text(
+  //                     user.phoneNumber,
+  //                     style: TextStyle(fontSize: 16),
+  //                     maxLines: 1,
+  //                     overflow: TextOverflow.ellipsis,
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+}
+
+class UserCard extends StatelessWidget {
+  final dynamic user;
+  final VoidCallback? onTap; // or ValueChanged<int> if you only want to pass id
+
+  const UserCard({super.key, required this.user, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap, // use the callback passed from outside
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
+            width: 2,
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(defaultPadding / 2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // --- Avatar + Role ---
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 45,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      color: user.isAdmin
+                          ? Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.2)
+                          : Theme.of(
+                              context,
+                            ).colorScheme.secondary.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      user.isAdmin ? Icons.admin_panel_settings : Icons.person,
+                      color: user.isAdmin
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.secondary,
+                      size: 24,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: user.isAdmin
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.secondary,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      user.isAdmin ? "ADMIN" : "USER",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: defaultPadding / 2),
+
+              // --- Name ---
+              Text(
+                "${user.firstName} ${user.lastName}",
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              const SizedBox(height: 2),
+
+              // --- Email ---
+              Text(
+                user.email,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontSize: 16),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              const SizedBox(height: 4),
+
+              // --- Address ---
+              Text(
+                user.address,
+                style: const TextStyle(fontSize: 16),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              const SizedBox(height: 4),
+
+              // --- Phone ---
+              Row(
+                children: [
+                  const Icon(Icons.phone, size: 16),
+                  const SizedBox(width: 2),
+                  Expanded(
+                    child: Text(
+                      user.phoneNumber,
+                      style: const TextStyle(fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
