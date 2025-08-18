@@ -4,7 +4,7 @@ import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/main_screens/doctors_screen.dart';
+import 'package:labledger/screens/doctor/doctors_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
 
 class OptionList {

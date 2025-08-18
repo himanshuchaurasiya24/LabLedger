@@ -60,7 +60,7 @@ class AccountListScreen extends ConsumerWidget {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        childAspectRatio: 1.5,
+        childAspectRatio: 2.0,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
       ),
@@ -82,106 +82,88 @@ class AccountListScreen extends ConsumerWidget {
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // --- Avatar + Role ---
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    width: 45,
-                    height: 45,
+                    height: 55,
+                    width: 55,
                     decoration: BoxDecoration(
-                      color: user.isAdmin
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.2)
-                          : Theme.of(
-                              context,
-                            ).colorScheme.secondary.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      user.isAdmin ? Icons.admin_panel_settings : Icons.person,
+                      borderRadius: BorderRadius.circular(10),
                       color: user.isAdmin
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.secondary,
-                      size: 24,
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: user.isAdmin
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.secondary,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      user.isAdmin ? "ADMIN" : "USER",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                    child: Center(
+                      child: Text(
+                        user.firstName[0].toUpperCase() +
+                            user.lastName[0].toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: ThemeData.light().scaffoldBackgroundColor,
+                        ),
                       ),
                     ),
                   ),
-                ],
-              ),
-
-              SizedBox(height: defaultPadding / 2),
-
-              // --- Name ---
-              Text(
-                "${user.firstName} ${user.lastName}",
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-              const SizedBox(height: 2),
-
-              // --- Email ---
-              Text(
-                user.email,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(fontSize: 16),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-              const SizedBox(height: 4),
-
-              // --- Address ---
-              Text(
-                user.address,
-                style: const TextStyle(fontSize: 16),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-              const SizedBox(height: 4),
-
-              // --- Phone ---
-              Row(
-                children: [
-                  const Icon(Icons.phone, size: 16),
-                  const SizedBox(width: 2),
-                  Expanded(
-                    child: Text(
-                      user.phoneNumber,
-                      style: const TextStyle(fontSize: 16),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${user.firstName} ${user.lastName}",
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: user.isAdmin
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.secondary,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          user.isAdmin ? "ADMIN" : "USER",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
+              ),
+
+              Text(
+                user.email,
+                style: TextStyle(fontSize: 20),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              Text(
+                user.address,
+                style: const TextStyle(fontSize: 20),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              Text(
+                user.phoneNumber,
+                style: const TextStyle(fontSize: 20),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

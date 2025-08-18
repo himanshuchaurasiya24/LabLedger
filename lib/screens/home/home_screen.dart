@@ -342,9 +342,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     longContainerHeight = height * 0.475;
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultPadding),
-        ),
         backgroundColor: Theme.of(context).colorScheme.secondary,
         onPressed: () {
           Navigator.push(
@@ -358,9 +355,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         },
         label: Text(
           "Add New Bill",
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium!.copyWith(color: Colors.white),
+          style: TextStyle(
+            color: ThemeData.light().scaffoldBackgroundColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 30,
+          ),
         ),
       ),
       body: Padding(

@@ -9,7 +9,6 @@ class ProfileScreen extends ConsumerWidget {
 
   const ProfileScreen({super.key, required this.userId});
 
-  // Outside your widget class (or as a method inside a StatefulWidget or HookWidget)
   Future<void> _handleUserTap(
     BuildContext context,
     WidgetRef ref,
@@ -69,8 +68,7 @@ class ProfileScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                                       pageHeader(context: context, centerWidget: null),
-
+                      pageHeader(context: context, centerWidget: null),
 
                       Row(
                         children: [
