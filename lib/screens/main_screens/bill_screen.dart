@@ -10,16 +10,16 @@ import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 
-class AddBillScreen extends ConsumerStatefulWidget {
+class BillScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic>? billData; // <-- Add this for Edit Mode
 
-  const AddBillScreen({super.key, this.billData});
+  const BillScreen({super.key, this.billData});
 
   @override
-  ConsumerState<AddBillScreen> createState() => _AddBillScreenState();
+  ConsumerState<BillScreen> createState() => _AddBillScreenState();
 }
 
-class _AddBillScreenState extends ConsumerState<AddBillScreen> {
+class _AddBillScreenState extends ConsumerState<BillScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   DiagnosisType? selectedDiagnosisType;
   final TextEditingController patientNameController = TextEditingController();
@@ -156,7 +156,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  buildHeader(context),
+                  pageHeader(context: context, centerWidget: null),
                   const SizedBox(height: 10),
                   customTextField(
                     context: context,
@@ -535,34 +535,34 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
   }
 }
 
-Row buildHeader(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      appIconName(
-        context: context,
-        firstName: "Lab",
-        secondName: "Ledger",
-        fontSize: 45,
-      ),
-      Container(
-        decoration: BoxDecoration(
-          color: Colors.red[400],
-          borderRadius: BorderRadius.circular(defaultPadding / 2),
-        ),
-        child: IconButton(
-          icon: Icon(
-            Icons.close,
-            color: Theme.of(context).colorScheme.tertiaryFixed,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-    ],
-  );
-}
+// Row buildHeader(BuildContext context) {
+//   return Row(
+//     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//     children: [
+//       appIconName(
+//         context: context,
+//         firstName: "Lab",
+//         secondName: "Ledger",
+//         fontSize: 45,
+//       ),
+//       Container(
+//         decoration: BoxDecoration(
+//           color: Colors.red[400],
+//           borderRadius: BorderRadius.circular(defaultPadding / 2),
+//         ),
+//         child: IconButton(
+//           icon: Icon(
+//             Icons.close,
+//             color: Theme.of(context).colorScheme.tertiaryFixed,
+//           ),
+//           onPressed: () {
+//             Navigator.of(context).pop();
+//           },
+//         ),
+//       ),
+//     ],
+//   );
+// }
 
 void showError(BuildContext context, message) {
   ScaffoldMessenger.of(context).showSnackBar(

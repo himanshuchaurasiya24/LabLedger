@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/main.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/home/add_bill_screen.dart';
 import 'package:labledger/screens/profile/profile_screen.dart';
 
 class AccountListScreen extends ConsumerWidget {
@@ -26,7 +26,8 @@ class AccountListScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildHeader(context),
+                pageHeader(context: context, centerWidget: null),
+
                 const SizedBox(height: 16),
                 Expanded(
                   child: usersAsync.when(
@@ -58,16 +59,16 @@ class AccountListScreen extends ConsumerWidget {
   ) {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 1.3,
+        crossAxisCount: 3,
+        childAspectRatio: 1.5,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
       ),
       itemCount: users.length,
       itemBuilder: (context, index) {
         final user = users[index];
-        return UserCard(
-          user: user,
+        return GridCard(
+          context: context,
           onTap: () async {
             await navigatorKey.currentState
                 ?.push(
@@ -79,32 +80,6 @@ class AccountListScreen extends ConsumerWidget {
                   ref.invalidate(usersDetailsProvider(null));
                 });
           },
-        );
-      },
-    );
-  }
-}
-
-class UserCard extends StatelessWidget {
-  final dynamic user;
-  final VoidCallback? onTap; // or ValueChanged<int> if you only want to pass id
-
-  const UserCard({super.key, required this.user, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap, // use the callback passed from outside
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
-            width: 2,
-          ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(defaultPadding / 2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -210,6 +185,46 @@ class UserCard extends StatelessWidget {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+}
+
+class GridCard extends StatelessWidget {
+  final VoidCallback? onTap;
+  final Widget child;
+  final Color borderColor; // make it non-nullable now
+  final BuildContext context;
+  final Color backgroundColor;
+
+  GridCard({
+    super.key,
+    this.onTap,
+    required this.child,
+    Color? borderColor,
+    required this.context,
+    Color? backgroundColor,
+  }) : borderColor =
+           borderColor ??
+           Theme.of(
+             context,
+           ).colorScheme.primary.withValues(alpha: 0.4), // fallback here
+       backgroundColor = backgroundColor ?? Colors.transparent; // fallback here
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor, width: 2),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(defaultPadding / 2),
+          child: child,
         ),
       ),
     );

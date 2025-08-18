@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/providers/custom_providers.dart';
@@ -6,7 +5,6 @@ import 'package:window_manager/window_manager.dart';
 
 final containerLightColor = Color(0xFFEEEEEE);
 final containerDarkColor = Color(0xFF212121);
-
 
 class CenterSearchBar extends StatelessWidget {
   final String hintText;
@@ -59,99 +57,41 @@ class CenterSearchBar extends StatelessWidget {
   }
 }
 
-Widget settingsPageTopBar({
+Widget pageHeader({
   required BuildContext context,
-  required Widget centerWidget,
-  required Color chipColor,
+  required Widget? centerWidget,
 }) {
   return Column(
     children: [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          appIconName(context: context, firstName: "Lab", secondName: "Ledger"),
-          centerWidget,
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: customChip(
-              chipColor: chipColor,
-              backgroundColor: Colors.red[100]!,
-              chipTitle: "Go Back ",
-              iconWidget: Icon(CupertinoIcons.back, color: chipColor),
-              iconVisible: true,
+          appIconName(
+            context: context,
+            firstName: "Lab",
+            secondName: "Ledger",
+            fontSize: 45,
+          ),
+          centerWidget ?? const SizedBox(),
+
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.red[400],
+              borderRadius: BorderRadius.circular(defaultPadding / 2),
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.close,
+                color: Theme.of(context).colorScheme.tertiaryFixed,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
           ),
         ],
       ),
     ],
-  );
-}
-
-Widget customChipButton({
-  required void Function() onTap,
-  required Color chipColor,
-  required Color backgroundColor,
-  required String chipTitle,
-  double? height,
-  double? width,
-  Widget? iconWidget,
-  bool? iconVisible,
-}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: customChip(
-      chipColor: chipColor,
-      backgroundColor: backgroundColor,
-      chipTitle: chipTitle,
-      height: height,
-      width: width,
-      iconVisible: iconVisible,
-      iconWidget: iconWidget,
-    ),
-  );
-}
-
-Widget customChip({
-  required Color chipColor,
-  required Color backgroundColor,
-  required String chipTitle,
-  double? height,
-  double? width,
-  Widget? iconWidget,
-  bool? iconVisible,
-}) {
-  return Container(
-    height: height ?? 40,
-    width: width ?? 92,
-    decoration: BoxDecoration(
-      color: backgroundColor,
-      border: BoxBorder.all(
-        color: backgroundColor,
-        style: BorderStyle.solid,
-        strokeAlign: BorderSide.strokeAlignCenter,
-        width: 2,
-      ),
-      borderRadius: BorderRadius.circular(minimalBorderRadius),
-    ),
-    child: Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Visibility(
-            visible: iconVisible ?? true,
-            child: iconWidget ?? const SizedBox(),
-          ),
-          Text(
-            chipTitle,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-              color: chipColor,
-            ),
-          ),
-        ],
-      ),
-    ),
   );
 }
 
@@ -268,7 +208,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
     );
   }
 }
-
 
 Widget customBar({
   required BuildContext context,
@@ -473,7 +412,6 @@ class SummaryCard extends StatelessWidget {
   }
 }
 
-
 Widget appIconName({
   required BuildContext context,
   double? fontSize,
@@ -559,9 +497,14 @@ Widget appIconNameWidget({
     ],
   );
 }
+
 class NoThumbScrollBehavior extends ScrollBehavior {
   @override
-  Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
+  Widget buildScrollbar(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
     // Return the child directly without a scrollbar
     return child;
   }

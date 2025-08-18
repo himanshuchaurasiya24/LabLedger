@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/main.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/user_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/home/add_bill_screen.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 
 class UpdateProfileScreen extends ConsumerStatefulWidget {
@@ -141,7 +141,8 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    buildHeader(context),
+                                     pageHeader(context: context, centerWidget: null),
+
 
                     Row(
                       children: [

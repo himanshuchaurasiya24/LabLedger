@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/home/add_bill_screen.dart';
 import 'package:labledger/screens/profile/update_profile_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -69,7 +69,8 @@ class ProfileScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildHeader(context),
+                                       pageHeader(context: context, centerWidget: null),
+
 
                       Row(
                         children: [

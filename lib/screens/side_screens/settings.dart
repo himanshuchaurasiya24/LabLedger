@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/main_screens/doctor_screen/doctors_screen.dart';
+import 'package:labledger/screens/main_screens/doctors_screen.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
