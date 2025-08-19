@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
+import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 
-class AddDoctorScreen extends StatelessWidget {
+class AddDoctorScreen extends ConsumerWidget {
   AddDoctorScreen({super.key, this.doctor});
   final Doctor? doctor;
   void updateDoctor() {
@@ -37,8 +40,105 @@ class AddDoctorScreen extends StatelessWidget {
   final TextEditingController franchiseLabController = TextEditingController();
   final TextEditingController hospitalNameController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey();
+
+  // ADD NEW DOCTOR
+  Future<void> addDoctor(
+    Doctor newDoctor,
+    WidgetRef ref,
+    BuildContext context,
+  ) async {
+    try {
+      final createdDoctor = await ref.read(
+        createDoctorProvider(newDoctor).future,
+      );
+      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+        const SnackBar(content: Text("Doctor created successfully")),
+      );
+      Navigator.pop(
+        navigatorKey.currentContext!,
+        createdDoctor,
+      ); // 👈 return created doctor if needed
+    } catch (e) {
+      ScaffoldMessenger.of(
+        navigatorKey.currentContext!,
+      ).showSnackBar(SnackBar(content: Text("Failed to create doctor: $e")));
+    }
+  }
+
+  // UPDATE EXISTING DOCTOR
+  Future<void> updateDoctorDetails(
+    int? id,
+    Doctor updatedDoctor,
+    WidgetRef ref,
+    BuildContext context,
+  ) async {
+    if (id == null) return;
+    try {
+      final updated = await ref.read(
+        updateDoctorProvider({
+          'id': id,
+          'data': updatedDoctor.toJson(), // 👈 send data
+        }).future,
+      );
+
+      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+        const SnackBar(content: Text("Doctor updated successfully")),
+      );
+      Navigator.pop(
+        navigatorKey.currentContext!,
+        updated,
+      ); // 👈 return updated doctor if needed
+    } catch (e) {
+      ScaffoldMessenger.of(
+        navigatorKey.currentContext!,
+      ).showSnackBar(SnackBar(content: Text("Failed to update doctor: $e")));
+    }
+  }
+
+  // DELETE DOCTOR
+  Future<void> deleteDoctor(int id, WidgetRef ref, BuildContext context) async {
+    try {
+      await ref.read(deleteDoctorProvider(id).future);
+      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+        const SnackBar(content: Text("Doctor deleted successfully")),
+      );
+      Navigator.pop(navigatorKey.currentContext!); // 👈 go back after deletion
+    } catch (e) {
+      ScaffoldMessenger.of(
+        navigatorKey.currentContext!,
+      ).showSnackBar(SnackBar(content: Text("Failed to delete doctor: $e")));
+    }
+  }
+
+  void _submitForm(WidgetRef ref) {
+    Doctor newDoctor = Doctor(
+      firstName: firstNameController.text,
+      lastName: lastNameController.text,
+      phoneNumber: phoneNumberController.text,
+      email: emailController.text,
+      address: addressController.text,
+      ultrasoundPercentage: int.parse(usgController.text),
+      pathologyPercentage: int.parse(pathController.text),
+      xrayPercentage: int.parse(xrayController.text),
+      ecgPercentage: int.parse(ecgController.text),
+      franchiseLabPercentage: int.parse(franchiseLabController.text),
+      hospitalName: hospitalNameController.text,
+    );
+
+    if (doctor == null) {
+      addDoctor(newDoctor, ref, navigatorKey.currentContext!);
+    } else {
+      updateDoctorDetails(
+        doctor!.id,
+        newDoctor,
+        ref,
+        navigatorKey.currentContext!,
+      );
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     updateDoctor();
     return Scaffold(
       body: Center(
@@ -97,7 +197,7 @@ class AddDoctorScreen extends StatelessWidget {
 
                         Expanded(
                           child: customTextField(
-                            label: "username",
+                            label: "Phone Number",
                             context: context,
                             controller: phoneNumberController,
                             keyboardType: TextInputType.number,
@@ -128,7 +228,6 @@ class AddDoctorScreen extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: defaultPadding / 2),
-
                     Row(
                       children: [
                         Expanded(
@@ -178,10 +277,43 @@ class AddDoctorScreen extends StatelessWidget {
                     ),
 
                     Spacer(),
+                    doctor == null
+                        ? const SizedBox()
+                        : Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    deleteDoctor(doctor!.id!, ref, context);
+                                  }
+                                },
+                                child: Container(
+                                  height: 50,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red[400],
+                                    borderRadius: BorderRadius.circular(
+                                      defaultPadding / 2,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Delete Doctor",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium!
+                                          .copyWith(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                            ],
+                          ),
                     InkWell(
                       onTap: () {
                         if (_formKey.currentState!.validate()) {
-                          // _submitForm();
+                          _submitForm(ref);
                         }
                       },
                       child: Container(

@@ -187,6 +187,15 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
 
                                           onTap: () {
                                             // Handle card tap (navigate or show details)
+                                            navigatorKey.currentState?.push(
+                                              MaterialPageRoute(
+                                                builder: (context) {
+                                                  return AddDoctorScreen(
+                                                    doctor: doctor,
+                                                  );
+                                                },
+                                              ),
+                                            );
                                           },
                                           child: Column(
                                             crossAxisAlignment:
@@ -322,7 +331,7 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                                                       .secondary
                                                       .withValues(alpha: 0.8),
                                                   borderRadius:
-                                                      BorderRadius.circular(10),
+                                                      BorderRadius.circular(6),
                                                 ),
                                                 child: Center(
                                                   child: Text(

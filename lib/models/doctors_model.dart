@@ -32,10 +32,9 @@ class TopReferrerModel {
   });
 }
 
-
 class Doctor {
   Doctor({
-    required this.id,
+    this.id, // 👈 make optional
     required this.firstName,
     required this.lastName,
     required this.hospitalName,
@@ -47,7 +46,7 @@ class Doctor {
     required this.ecgPercentage,
     required this.xrayPercentage,
     required this.franchiseLabPercentage,
-    required this.centerDetail,
+    this.centerDetail, // 👈 make optional
   });
 
   final int? id;
@@ -56,13 +55,13 @@ class Doctor {
   final String? hospitalName;
   final String? address;
   final String? phoneNumber;
-  final String? email; // <-- new field
+  final String? email;
   final int? ultrasoundPercentage;
   final int? pathologyPercentage;
   final int? ecgPercentage;
   final int? xrayPercentage;
   final int? franchiseLabPercentage;
-  final int? centerDetail;
+  final int? centerDetail; // backend auto-fills
 
   Doctor copyWith({
     int? id,
@@ -86,7 +85,7 @@ class Doctor {
       hospitalName: hospitalName ?? this.hospitalName,
       address: address ?? this.address,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      email: email ?? this.email, // <-- added here
+      email: email ?? this.email,
       ultrasoundPercentage: ultrasoundPercentage ?? this.ultrasoundPercentage,
       pathologyPercentage: pathologyPercentage ?? this.pathologyPercentage,
       ecgPercentage: ecgPercentage ?? this.ecgPercentage,
@@ -105,7 +104,7 @@ class Doctor {
       hospitalName: json["hospital_name"],
       address: json["address"],
       phoneNumber: json["phone_number"],
-      email: json["email"], // <-- mapped here
+      email: json["email"],
       ultrasoundPercentage: json["ultrasound_percentage"],
       pathologyPercentage: json["pathology_percentage"],
       ecgPercentage: json["ecg_percentage"],
@@ -115,21 +114,27 @@ class Doctor {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "first_name": firstName,
-        "last_name": lastName,
-        "hospital_name": hospitalName,
-        "address": address,
-        "phone_number": phoneNumber,
-        "email": email, // <-- included in json
-        "ultrasound_percentage": ultrasoundPercentage,
-        "pathology_percentage": pathologyPercentage,
-        "ecg_percentage": ecgPercentage,
-        "xray_percentage": xrayPercentage,
-        "franchise_lab_percentage": franchiseLabPercentage,
-        "center_detail": centerDetail,
-      };
+  Map<String, dynamic> toJson() {
+    final data = {
+      "first_name": firstName,
+      "last_name": lastName,
+      "hospital_name": hospitalName,
+      "address": address,
+      "phone_number": phoneNumber,
+      "email": email,
+      "ultrasound_percentage": ultrasoundPercentage,
+      "pathology_percentage": pathologyPercentage,
+      "ecg_percentage": ecgPercentage,
+      "xray_percentage": xrayPercentage,
+      "franchise_lab_percentage": franchiseLabPercentage,
+    };
+
+    // Only include id if updating
+    if (id != null) data["id"] = id;
+
+    // Don't send center_detail, backend will set it
+    return data;
+  }
 
   @override
   String toString() {
