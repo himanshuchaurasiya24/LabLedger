@@ -16,10 +16,10 @@ import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/doctor_provider.dart';
-import 'package:labledger/screens/main_screens/bill_screen.dart';
+import 'package:labledger/screens/bill/bill_screen.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
-import 'package:labledger/screens/main_screens/database_screen.dart';
+import 'package:labledger/screens/database_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
 import 'package:labledger/screens/profile/profile_screen.dart';
 

@@ -141,201 +141,195 @@ class AddDoctorScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     updateDoctor();
     return Scaffold(
-      body: Center(
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.5,
-          width: MediaQuery.of(context).size.width * 0.5,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiaryFixed,
-            borderRadius: BorderRadius.circular(defaultPadding / 2),
+      body: CustomCardContainer(
+        xHeight: 0.5,
+        xWidth: 0.5,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: defaultPadding / 2,
+            right: defaultPadding / 2,
+            bottom: defaultPadding / 2,
           ),
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: defaultPadding / 2,
-              right: defaultPadding / 2,
-              bottom: defaultPadding / 2,
-            ),
-            child: Form(
-              key: _formKey,
-              child: IntrinsicHeight(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    pageHeader(context: context, centerWidget: null),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: customTextField(
-                            label: "First Name",
-                            context: context,
-                            controller: firstNameController,
-                          ),
+          child: Form(
+            key: _formKey,
+            child: IntrinsicHeight(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  pageHeader(context: context, centerWidget: null),
+              
+                  Row(
+                    children: [
+                      Expanded(
+                        child: customTextField(
+                          label: "First Name",
+                          context: context,
+                          controller: firstNameController,
                         ),
-                        SizedBox(width: defaultPadding / 2),
-                        Expanded(
-                          child: customTextField(
-                            label: "Last Name",
-                            context: context,
-                            controller: lastNameController,
-                          ),
+                      ),
+                      SizedBox(width: defaultPadding / 2),
+                      Expanded(
+                        child: customTextField(
+                          label: "Last Name",
+                          context: context,
+                          controller: lastNameController,
                         ),
-                      ],
-                    ),
-                    SizedBox(height: defaultPadding / 2),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: customTextField(
-                            label: "Email",
-                            context: context,
-                            controller: emailController,
-                          ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: defaultPadding / 2),
+              
+                  Row(
+                    children: [
+                      Expanded(
+                        child: customTextField(
+                          label: "Email",
+                          context: context,
+                          controller: emailController,
                         ),
-                        SizedBox(width: defaultPadding / 2),
-
-                        Expanded(
-                          child: customTextField(
-                            label: "Phone Number",
-                            context: context,
-                            controller: phoneNumberController,
-                            keyboardType: TextInputType.number,
-                          ),
+                      ),
+                      SizedBox(width: defaultPadding / 2),
+              
+                      Expanded(
+                        child: customTextField(
+                          label: "Phone Number",
+                          context: context,
+                          controller: phoneNumberController,
+                          keyboardType: TextInputType.number,
                         ),
-                      ],
-                    ),
-                    SizedBox(height: defaultPadding / 2),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: customTextField(
-                            label: "Address",
-                            context: context,
-                            controller: addressController,
-                          ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: defaultPadding / 2),
+              
+                  Row(
+                    children: [
+                      Expanded(
+                        child: customTextField(
+                          label: "Address",
+                          context: context,
+                          controller: addressController,
                         ),
-                        SizedBox(width: defaultPadding / 2),
-
-                        Expanded(
-                          child: customTextField(
-                            label: "Hospital Name",
-                            context: context,
-                            controller: hospitalNameController,
-                          ),
+                      ),
+                      SizedBox(width: defaultPadding / 2),
+              
+                      Expanded(
+                        child: customTextField(
+                          label: "Hospital Name",
+                          context: context,
+                          controller: hospitalNameController,
                         ),
-                      ],
-                    ),
-                    SizedBox(height: defaultPadding / 2),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: customTextField(
-                            label: "USG %",
-                            context: context,
-                            controller: usgController,
-                          ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: defaultPadding / 2),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: customTextField(
+                          label: "USG %",
+                          context: context,
+                          controller: usgController,
                         ),
-                        SizedBox(width: defaultPadding / 2),
-
-                        Expanded(
-                          child: customTextField(
-                            label: "Pathology %",
-                            context: context,
-                            controller: pathController,
-                          ),
+                      ),
+                      SizedBox(width: defaultPadding / 2),
+              
+                      Expanded(
+                        child: customTextField(
+                          label: "Pathology %",
+                          context: context,
+                          controller: pathController,
                         ),
-                        SizedBox(width: defaultPadding / 2),
-
-                        Expanded(
-                          child: customTextField(
-                            label: "ECG %",
-                            context: context,
-                            controller: ecgController,
-                          ),
+                      ),
+                      SizedBox(width: defaultPadding / 2),
+              
+                      Expanded(
+                        child: customTextField(
+                          label: "ECG %",
+                          context: context,
+                          controller: ecgController,
                         ),
-                        SizedBox(width: defaultPadding / 2),
-
-                        Expanded(
-                          child: customTextField(
-                            label: "XRay %",
-                            context: context,
-                            controller: xrayController,
-                          ),
+                      ),
+                      SizedBox(width: defaultPadding / 2),
+              
+                      Expanded(
+                        child: customTextField(
+                          label: "XRay %",
+                          context: context,
+                          controller: xrayController,
                         ),
-                        SizedBox(width: defaultPadding / 2),
-
-                        Expanded(
-                          child: customTextField(
-                            label: "Franchise Lab %",
-                            context: context,
-                            controller: franchiseLabController,
-                          ),
+                      ),
+                      SizedBox(width: defaultPadding / 2),
+              
+                      Expanded(
+                        child: customTextField(
+                          label: "Franchise Lab %",
+                          context: context,
+                          controller: franchiseLabController,
                         ),
-                      ],
-                    ),
-
-                    Spacer(),
-                    doctor == null
-                        ? const SizedBox()
-                        : Column(
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    deleteDoctor(doctor!.id!, ref, context);
-                                  }
-                                },
-                                child: Container(
-                                  height: 50,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: Colors.red[400],
-                                    borderRadius: BorderRadius.circular(
-                                      defaultPadding / 2,
-                                    ),
+                      ),
+                    ],
+                  ),
+              
+                  Spacer(),
+                  doctor == null
+                      ? const SizedBox()
+                      : Column(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                if (_formKey.currentState!.validate()) {
+                                  deleteDoctor(doctor!.id!, ref, context);
+                                }
+                              },
+                              child: Container(
+                                height: 50,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.red[400],
+                                  borderRadius: BorderRadius.circular(
+                                    defaultPadding / 2,
                                   ),
-                                  child: Center(
-                                    child: Text(
-                                      "Delete Doctor",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineMedium!
-                                          .copyWith(color: Colors.white),
-                                    ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Delete Doctor",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium!
+                                        .copyWith(color: Colors.white),
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 10),
-                            ],
-                          ),
-                    InkWell(
-                      onTap: () {
-                        if (_formKey.currentState!.validate()) {
-                          _submitForm(ref);
-                        }
-                      },
-                      child: Container(
-                        height: 50,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(
-                            defaultPadding / 2,
-                          ),
+                            ),
+                            SizedBox(height: 10),
+                          ],
                         ),
-                        child: Center(
-                          child: Text(
-                            doctor == null ? "Add Doctor" : "Update",
-                            style: Theme.of(context).textTheme.headlineMedium!
-                                .copyWith(color: Colors.white),
-                          ),
+                  InkWell(
+                    onTap: () {
+                      if (_formKey.currentState!.validate()) {
+                        _submitForm(ref);
+                      }
+                    },
+                    child: Container(
+                      height: 50,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(
+                          defaultPadding / 2,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          doctor == null ? "Add Doctor" : "Update",
+                          style: Theme.of(context).textTheme.headlineMedium!
+                              .copyWith(color: Colors.white),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

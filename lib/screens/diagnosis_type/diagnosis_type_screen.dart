@@ -2,76 +2,68 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/models/doctors_model.dart';
+import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/providers/doctor_provider.dart';
-import 'package:labledger/screens/doctor/add_doctor_screen.dart';
+import 'package:labledger/providers/diagnosis_type_provider.dart';
+import 'package:labledger/screens/diagnosis_type/add_diagnosis_type_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
 
-class DoctorsScreen extends ConsumerStatefulWidget {
-  const DoctorsScreen({super.key});
+class DiagnosisTypeScreen extends ConsumerStatefulWidget {
+  const DiagnosisTypeScreen({super.key});
 
   @override
-  ConsumerState<DoctorsScreen> createState() => _DoctorsScreenState();
+  ConsumerState<DiagnosisTypeScreen> createState() =>
+      _DiagnosisTypeScreenState();
 }
 
-class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
+class _DiagnosisTypeScreenState extends ConsumerState<DiagnosisTypeScreen> {
   final TextEditingController searchController = TextEditingController();
-  final searhFocusNode = FocusNode();
+  final searchFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     setWindowBehavior(removeTitleBar: true);
-    searhFocusNode.requestFocus();
+    searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
     searchController.dispose();
-    searhFocusNode.dispose();
+    searchFocusNode.dispose();
     super.dispose();
   }
 
-  Future<Map<String, List<Doctor>>> fetchDoctors() async {
-    final doctorAsync = ref.watch(doctorsProvider);
+  Future<Map<String, List<DiagnosisType>>> fetchDiagnosisTypes() async {
+    final diagnosisTypesAsync = ref.watch(diagnosisTypeProvider);
     final query = searchController.text.trim().toLowerCase();
 
-    return doctorAsync.when(
+    return diagnosisTypesAsync.when(
       data: (data) {
         if (query.isEmpty) {
-          return {'All Doctors': data};
+          return {'All Diagnosis Types': data};
         }
 
-        final nameMatches = <Doctor>[];
-        final hospitalMatches = <Doctor>[];
-        final addressMatches = <Doctor>[];
-        final phoneNumberMatches = <Doctor>[];
-
-        for (var doctor in data) {
-          final fullName = "${doctor.firstName} ${doctor.lastName ?? ""}"
-              .toLowerCase();
-          final hospital = doctor.hospitalName?.toLowerCase() ?? "";
-          final address = doctor.address?.toLowerCase() ?? "";
-          final phoneNumber = doctor.phoneNumber?.toString();
-          if (fullName.contains(query) || query.contains(fullName)) {
-            nameMatches.add(doctor);
-          } else if (hospital.contains(query) || query.contains(hospital)) {
-            hospitalMatches.add(doctor);
-          } else if (address.contains(query) || query.contains(address)) {
-            addressMatches.add(doctor);
-          } else if (phoneNumber!.contains(query) ||
-              query.contains(phoneNumber)) {
-            phoneNumberMatches.add(doctor);
+        final nameMatches = <DiagnosisType>[];
+        final categoryMatches = <DiagnosisType>[];
+        final priceMatches = <DiagnosisType>[];
+        for (var diagnosis in data) {
+          final name = diagnosis.name.toLowerCase();
+          final category = diagnosis.category.toLowerCase();
+          final price = diagnosis.price.toString();
+          if (name.contains(query) || query.contains(name)) {
+            nameMatches.add(diagnosis);
+          } else if (category.contains(query) || query.contains(category)) {
+            categoryMatches.add(diagnosis);
+          } else if (price.contains(query) || query.contains(price)) {
+            priceMatches.add(diagnosis);
           }
         }
 
         return {
           if (nameMatches.isNotEmpty) 'Name Matches': nameMatches,
-          if (hospitalMatches.isNotEmpty) 'Hospital Matches': hospitalMatches,
-          if (addressMatches.isNotEmpty) 'Address Matches': addressMatches,
-          if (phoneNumberMatches.isNotEmpty)
-            'Phone Number Matches': phoneNumberMatches,
+          if (categoryMatches.isNotEmpty) 'Category Matches': categoryMatches,
+          if (priceMatches.isNotEmpty) 'Price Matches': priceMatches,
         };
       },
       error: (err, st) => {},
@@ -87,11 +79,11 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         onPressed: () {
           navigatorKey.currentState?.push(
-            MaterialPageRoute(builder: (context) => AddDoctorScreen()),
+            MaterialPageRoute(builder: (context) => AddDiagnosisTypeScreen()),
           );
         },
         label: Text(
-          "Add Doctor",
+          "Add Diagnosis Type",
           style: TextStyle(
             color: ThemeData.light().scaffoldBackgroundColor,
             fontWeight: FontWeight.bold,
@@ -101,7 +93,6 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-        //FocusTraversalGroup
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -111,10 +102,10 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                 children: [
                   CenterSearchBar(
                     controller: searchController,
-                    hintText: "Search Doctors...",
-                    searchFocusNode: searhFocusNode,
+                    hintText: "Search Diagnosis Types...",
+                    searchFocusNode: searchFocusNode,
                     onSearch: () {
-                      setState(() {}); // Trigger UI update for FutureBuilder
+                      setState(() {}); // Trigger UI update
                     },
                   ),
                   const SizedBox(width: 160),
@@ -122,8 +113,8 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
               ),
             ),
             Expanded(
-              child: FutureBuilder<Map<String, List<Doctor>>>(
-                future: fetchDoctors(),
+              child: FutureBuilder<Map<String, List<DiagnosisType>>>(
+                future: fetchDiagnosisTypes(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -137,7 +128,7 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(
                       child: Text(
-                        'No doctors found.',
+                        'No diagnosis types found.',
                         style: Theme.of(context).textTheme.headlineLarge,
                       ),
                     );
@@ -151,7 +142,7 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Group title (key)
+                            // Group title
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 6,
@@ -171,28 +162,26 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 4,
-                                    childAspectRatio: 1.64,
+                                    childAspectRatio: 2.5,
                                     crossAxisSpacing: 16,
                                     mainAxisSpacing: 16,
                                   ),
                               itemCount: e.value.length,
                               itemBuilder: (ctx, index) {
-                                final doctor = e.value[index];
+                                final diagnosis = e.value[index];
                                 return GridCard(
                                   context: context,
-
                                   onTap: () {
-                                    // Handle card tap (navigate or show details)
                                     navigatorKey.currentState?.push(
                                       MaterialPageRoute(
-                                        builder: (context) {
-                                          return AddDoctorScreen(
-                                            doctor: doctor,
-                                          );
-                                        },
+                                        builder: (context) =>
+                                            AddDiagnosisTypeScreen(
+                                              diagnosisType: diagnosis,
+                                            ),
                                       ),
                                     );
                                   },
+
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -207,23 +196,13 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                                             decoration: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              // color: index % 2 == 0
-                                              //     ? Theme.of(context)
-                                              //           .colorScheme
-                                              //           .primary
-                                              //     : Theme.of(context)
-                                              //           .colorScheme
-                                              //           .secondary,
                                               color: Theme.of(
                                                 context,
                                               ).colorScheme.primary,
                                             ),
                                             child: Center(
                                               child: Text(
-                                                doctor.firstName![0]
-                                                        .toUpperCase() +
-                                                    doctor.lastName![0]
-                                                        .toUpperCase(),
+                                                diagnosis.name[0].toUpperCase(),
                                                 style: TextStyle(
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold,
@@ -239,7 +218,7 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                "${doctor.firstName} ${doctor.lastName}",
+                                                diagnosis.name,
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .titleSmall
@@ -262,12 +241,11 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                                                       .colorScheme
                                                       .primary
                                                       .withValues(alpha: 0.8),
-
                                                   borderRadius:
                                                       BorderRadius.circular(4),
                                                 ),
                                                 child: Text(
-                                                  doctor.hospitalName ?? "",
+                                                  diagnosis.category,
                                                   style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.bold,
@@ -280,46 +258,10 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                                         ],
                                       ),
                                       Text(
-                                        doctor.address ?? "",
+                                        "Price: ₹${diagnosis.price}",
                                         style: const TextStyle(fontSize: 20),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        doctor.phoneNumber ?? "",
-                                        style: const TextStyle(fontSize: 20),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        doctor.email ?? "",
-                                        style: TextStyle(fontSize: 19),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Container(
-                                        height: 40,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary
-                                              .withValues(alpha: 0.8),
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "USG ${doctor.ultrasoundPercentage} Path ${doctor.pathologyPercentage} X-Ray ${doctor.xrayPercentage} ECG ${doctor.ecgPercentage} FLab ${doctor.franchiseLabPercentage} ",
-                                            style: TextStyle(
-                                              color: ThemeData.light()
-                                                  .scaffoldBackgroundColor,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                        ),
                                       ),
                                     ],
                                   ),

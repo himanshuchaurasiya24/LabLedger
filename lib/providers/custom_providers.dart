@@ -8,6 +8,8 @@ import 'package:labledger/models/user_model.dart';
 
 final String baseURL = 'http://127.0.0.1:8000/';
 final double defaultPadding = 24;
+final double defaultRadius = 12;
+final double defaultHeight = 10;
 final double minimalBorderRadius = 6;
 final Color lightTextFieldFillColor = Color.fromARGB(255, 240, 240, 240);
 final Color darkTextFieldFillColor = Color(0xFF020711);
@@ -37,27 +39,27 @@ final appDescriptionProvider = Provider<String>((ref) {
 final baseUrlProvider = Provider<String>((ref) {
   return baseURL; // Replace with your actual base URL
 });
-final usersDetailsProvider =
-    FutureProvider.family.autoDispose<List<User>, void>((ref, _) async {
-  final token = await ref.watch(tokenProvider.future); // await token future
-  final baseUrl = ref.read(baseUrlProvider);
+final usersDetailsProvider = FutureProvider.family
+    .autoDispose<List<User>, void>((ref, _) async {
+      final token = await ref.watch(tokenProvider.future); // await token future
+      final baseUrl = ref.read(baseUrlProvider);
 
-  if (token == null) {
-    throw Exception("No access token found");
-  }
+      if (token == null) {
+        throw Exception("No access token found");
+      }
 
-  final response = await http.get(
-    Uri.parse("$baseUrl/auth/staffs/staff/"),
-    headers: {"Authorization": "Bearer $token"},
-  );
+      final response = await http.get(
+        Uri.parse("$baseUrl/auth/staffs/staff/"),
+        headers: {"Authorization": "Bearer $token"},
+      );
 
-  if (response.statusCode == 200) {
-    final List<dynamic> jsonList = jsonDecode(response.body);
-    return jsonList.map((item) => User.fromJson(item)).toList();
-  } else {
-    throw Exception("Failed to fetch users: ${response.statusCode}");
-  }
-});
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        return jsonList.map((item) => User.fromJson(item)).toList();
+      } else {
+        throw Exception("Failed to fetch users: ${response.statusCode}");
+      }
+    });
 
 final userDetailsProvider = FutureProvider.family.autoDispose<User?, int>((
   ref,

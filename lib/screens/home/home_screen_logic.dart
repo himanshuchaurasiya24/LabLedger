@@ -38,14 +38,15 @@ Widget customTextField({
     ),
   );
 }
+
 class CustomDropDown<T> extends StatefulWidget {
   final BuildContext context;
   final List<T> dropDownList;
   final TextEditingController textController;
   final String Function(T) valueMapper; // For Display Text
-  final String Function(T) idMapper;    // For Controller Value
+  final String Function(T) idMapper; // For Controller Value
   final String hintText;
-
+  final TextStyle? textStyle;
   const CustomDropDown({
     super.key,
     required this.context,
@@ -54,6 +55,7 @@ class CustomDropDown<T> extends StatefulWidget {
     required this.valueMapper,
     required this.idMapper,
     required this.hintText,
+    this.textStyle,
   });
 
   @override
@@ -81,22 +83,22 @@ class CustomDropDownState<T> extends State<CustomDropDown<T>> {
       });
     }
   }
-void _syncControllerWithValue() {
-  if (widget.dropDownList.isEmpty) return;
 
-  final existing = widget.dropDownList.firstWhere(
-    (e) => widget.idMapper(e) == widget.textController.text,
-    orElse: () => widget.dropDownList.first,
-  );
+  void _syncControllerWithValue() {
+    if (widget.dropDownList.isEmpty) return;
 
-  if (mounted) {
-    setState(() {
-      selectedValue = existing;
-      widget.textController.text = widget.idMapper(existing);
-    });
+    final existing = widget.dropDownList.firstWhere(
+      (e) => widget.idMapper(e) == widget.textController.text,
+      orElse: () => widget.dropDownList.first,
+    );
+
+    if (mounted) {
+      setState(() {
+        selectedValue = existing;
+        widget.textController.text = widget.idMapper(existing);
+      });
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -105,20 +107,24 @@ void _syncControllerWithValue() {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: Theme.of(context).brightness == Brightness.dark
-            ? Colors.grey[850]
-            : Colors.grey[100],
+            ? darkTextFieldFillColor
+            : lightTextFieldFillColor,
       ),
       child: DropdownButtonFormField<T>(
         isExpanded: true,
         value: selectedValue,
+        style: widget.textStyle,
         borderRadius: BorderRadius.circular(8),
         decoration: InputDecoration(
           hintText: widget.hintText,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
           filled: true,
           fillColor: Theme.of(context).brightness == Brightness.dark
-              ? Colors.grey[850]
-              : Colors.grey[100],
+              ? darkTextFieldFillColor
+              : lightTextFieldFillColor,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide.none,
@@ -142,4 +148,3 @@ void _syncControllerWithValue() {
     );
   }
 }
-

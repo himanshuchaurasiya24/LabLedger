@@ -509,3 +509,35 @@ class NoThumbScrollBehavior extends ScrollBehavior {
     return child;
   }
 }
+
+class CustomCardContainer extends StatelessWidget {
+  const CustomCardContainer({
+    super.key,
+
+    required this.xWidth,
+    required this.xHeight,
+    required this.child,
+  });
+
+  final double xWidth;
+  final double xHeight;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        height: MediaQuery.of(context).size.height * xHeight,
+        width: MediaQuery.of(context).size.width * xWidth,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.tertiaryFixed,
+          borderRadius: BorderRadius.circular(defaultRadius),
+        ),
+        child: Padding(
+          padding: EdgeInsetsGeometry.symmetric(horizontal: defaultPadding / 2),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
