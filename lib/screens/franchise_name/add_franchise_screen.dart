@@ -2,114 +2,98 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/models/diagnosis_type_model.dart';
+import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/providers/diagnosis_type_provider.dart';
+import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 
-class AddDiagnosisTypeScreen extends ConsumerWidget {
-  AddDiagnosisTypeScreen({super.key, this.diagnosisType}) {
+class AddFranchiseScreen extends ConsumerWidget {
+  AddFranchiseScreen({super.key, this.franchise}) {
     // initialize controllers if editing
-    if (diagnosisType != null) {
-      nameController.text = diagnosisType!.name;
-      priceController.text = diagnosisType!.price.toString();
-      diagnosisTypeController.text = diagnosisType!.category;
+    if (franchise != null) {
+      nameController.text = franchise!.franchiseName;
+      addressController.text = franchise!.address;
+      phoneController.text = franchise!.phoneNumber;
     }
   }
 
-  final DiagnosisType? diagnosisType;
+  final Franchise? franchise;
 
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController priceController = TextEditingController();
-  final TextEditingController diagnosisTypeController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+
   final GlobalKey<FormState> _formKey = GlobalKey();
 
-  final List<String> diagnosisTypeCategories = [
-    "Ultrasound",
-    "Pathology",
-    "ECG",
-    "X-Ray",
-    "Franchise Lab",
-  ];
-
   // ADD NEW
-  Future<void> addDiagnosisType(
-    DiagnosisType newDiagnosisType,
-    WidgetRef ref,
-  ) async {
+  Future<void> addFranchise(Franchise newFranchise, WidgetRef ref) async {
     try {
       final created = await ref.read(
-        addDiagnosisTypeProvider(newDiagnosisType).future,
+        createFranchiseProvider(newFranchise).future,
       );
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        const SnackBar(content: Text("Diagnosis Type created successfully")),
+        const SnackBar(content: Text("Franchise created successfully")),
       );
       Navigator.pop(navigatorKey.currentContext!, created);
     } catch (e) {
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        SnackBar(content: Text("Failed to create Diagnosis Type: $e")),
-      );
+      ScaffoldMessenger.of(
+        navigatorKey.currentContext!,
+      ).showSnackBar(SnackBar(content: Text("Failed to create Franchise: $e")));
     }
   }
 
   // UPDATE
-  Future<void> updateDiagnosisTypeDetails(
-    int? id,
-    DiagnosisType updatedDiagnosisType,
-    WidgetRef ref,
-  ) async {
-    if (id == null) return;
-    try {
-      final updated = await ref.read(
-        updateDiagnosisTypeProvider({
-          'id': id,
-          'data': updatedDiagnosisType.toJson(),
-        }).future,
-      );
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        const SnackBar(content: Text("Diagnosis Type updated successfully")),
-      );
-      Navigator.pop(navigatorKey.currentContext!, updated);
-    } catch (e) {
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        SnackBar(content: Text("Failed to update Diagnosis Type: $e")),
-      );
-    }
+Future<void> updateFranchiseDetails(
+  int? id,
+  Franchise updatedFranchise,
+  WidgetRef ref,
+) async {
+  if (id == null) return;
+  try {
+    final updated = await ref.read(
+      updateFranchiseProvider({
+        'id': id,
+        'data': updatedFranchise.toJson(),
+      }).future,
+    );
+    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+      const SnackBar(content: Text("Franchise updated successfully")),
+    );
+    Navigator.pop(navigatorKey.currentContext!, updated);
+  } catch (e) {
+    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+      SnackBar(content: Text("Failed to update Franchise: $e")),
+    );
   }
+}
+
 
   // DELETE
-  Future<void> deleteDiagnosisType(int id, WidgetRef ref) async {
+  Future<void> deleteFranchise(int id, WidgetRef ref) async {
     try {
-      await ref.read(deleteDiagnosisTypeProvider(id).future);
+      await ref.read(deleteFranchiseProvider(id).future);
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        const SnackBar(content: Text("Diagnosis Type deleted successfully")),
+        const SnackBar(content: Text("Franchise deleted successfully")),
       );
       Navigator.pop(navigatorKey.currentContext!);
     } catch (e) {
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        SnackBar(content: Text("Failed to delete Diagnosis Type: $e")),
-      );
+      ScaffoldMessenger.of(
+        navigatorKey.currentContext!,
+      ).showSnackBar(SnackBar(content: Text("Failed to delete Franchise: $e")));
     }
   }
 
   void _submitForm(WidgetRef ref) {
-    if (diagnosisTypeController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        navigatorKey.currentContext!,
-      ).showSnackBar(const SnackBar(content: Text("Please select a category")));
-      return;
-    }
-
-    DiagnosisType newDiagnosisType = DiagnosisType(
-      name: nameController.text,
-      category: diagnosisTypeController.text,
-      price: int.parse(priceController.text),
+    Franchise newFranchise = Franchise(
+      franchiseName: nameController.text,
+      address: addressController.text,
+      phoneNumber: phoneController.text,
     );
 
-    if (diagnosisType == null) {
-      addDiagnosisType(newDiagnosisType, ref);
+    if (franchise == null) {
+      addFranchise(newFranchise, ref);
     } else {
-      updateDiagnosisTypeDetails(diagnosisType!.id, newDiagnosisType, ref);
+      updateFranchiseDetails(franchise!.id, newFranchise, ref);
     }
   }
 
@@ -117,7 +101,7 @@ class AddDiagnosisTypeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: CustomCardContainer(
-        xHeight: 0.5,
+        xHeight: 0.6,
         xWidth: 0.5,
         child: Padding(
           padding: EdgeInsets.all(defaultPadding / 2),
@@ -135,38 +119,28 @@ class AddDiagnosisTypeScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: defaultPadding / 2),
 
-                  // Category Dropdown (binded with controller)
-                  CustomDropDown<String>(
+                  customTextField(
+                    label: "Address",
                     context: context,
-                    dropDownList: diagnosisTypeCategories,
-                    textController: diagnosisTypeController,
-                    valueMapper: (e) => e,
-                    idMapper: (e) => e,
-                    textStyle: TextStyle(
-                      fontSize: 20,
-                      color: ThemeData.dark().scaffoldBackgroundColor,
-                      fontFamily: "GoogleSans",
-                    ),
-                    hintText: "Select Category",
+                    controller: addressController,
                   ),
                   SizedBox(height: defaultPadding / 2),
 
                   customTextField(
-                    label: "Amount",
+                    label: "Phone Number",
                     context: context,
-                    controller: priceController,
-                    keyboardType: TextInputType.number,
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
                   ),
-
                   const Spacer(),
 
-                  if (diagnosisType != null)
+                  if (franchise != null)
                     Column(
                       children: [
                         InkWell(
                           onTap: () {
                             if (_formKey.currentState!.validate()) {
-                              deleteDiagnosisType(diagnosisType!.id!, ref);
+                              deleteFranchise(franchise!.id!, ref);
                             }
                           },
                           child: Container(
@@ -208,7 +182,7 @@ class AddDiagnosisTypeScreen extends ConsumerWidget {
                       ),
                       child: Center(
                         child: Text(
-                          diagnosisType == null ? "Add" : "Update",
+                          franchise == null ? "Add" : "Update",
                           style: Theme.of(context).textTheme.headlineMedium!
                               .copyWith(color: Colors.white),
                         ),

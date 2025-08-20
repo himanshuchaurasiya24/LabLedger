@@ -6,6 +6,7 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/diagnosis_type/diagnosis_type_screen.dart';
 import 'package:labledger/screens/doctor/doctors_screen.dart';
+import 'package:labledger/screens/franchise_name/franchise_name_list_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
 
 class OptionList {
@@ -31,7 +32,7 @@ class DatabaseScreen extends StatelessWidget {
     OptionList(
       title: "Franchise Labs",
       icon: Icons.local_hospital_outlined,
-      goToPage: DoctorsScreen(),
+      goToPage: FranchiseNameListScreen(),
     ),
     OptionList(
       title: "Center Details",
