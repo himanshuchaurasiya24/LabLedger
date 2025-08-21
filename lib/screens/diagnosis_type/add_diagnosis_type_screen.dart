@@ -119,104 +119,97 @@ class AddDiagnosisTypeScreen extends ConsumerWidget {
       body: CustomCardContainer(
         xHeight: 0.5,
         xWidth: 0.5,
-        child: Padding(
-          padding: EdgeInsets.all(defaultPadding / 2),
-          child: Form(
-            key: _formKey,
-            child: IntrinsicHeight(
-              child: Column(
-                children: [
-                  pageHeader(context: context, centerWidget: null),
+        child: Form(
+          key: _formKey,
+          child: IntrinsicHeight(
+            child: Column(
+              children: [
+                pageHeader(context: context, centerWidget: null),
 
-                  customTextField(
-                    label: "Name",
-                    context: context,
-                    controller: nameController,
+                customTextField(
+                  label: "Name",
+                  context: context,
+                  controller: nameController,
+                ),
+                SizedBox(height: defaultHeight),
+
+                // Category Dropdown (binded with controller)
+                CustomDropDown<String>(
+                  context: context,
+                  dropDownList: diagnosisTypeCategories,
+                  textController: diagnosisTypeController,
+                  valueMapper: (e) => e,
+                  idMapper: (e) => e,
+                  textStyle: TextStyle(
+                    fontSize: 20,
+                    color: ThemeData.dark().scaffoldBackgroundColor,
+                    fontFamily: "GoogleSans",
                   ),
-                  SizedBox(height: defaultPadding / 2),
+                  hintText: "Select Category",
+                ),
+                SizedBox(height: defaultHeight),
 
-                  // Category Dropdown (binded with controller)
-                  CustomDropDown<String>(
-                    context: context,
-                    dropDownList: diagnosisTypeCategories,
-                    textController: diagnosisTypeController,
-                    valueMapper: (e) => e,
-                    idMapper: (e) => e,
-                    textStyle: TextStyle(
-                      fontSize: 20,
-                      color: ThemeData.dark().scaffoldBackgroundColor,
-                      fontFamily: "GoogleSans",
-                    ),
-                    hintText: "Select Category",
-                  ),
-                  SizedBox(height: defaultPadding / 2),
+                customTextField(
+                  label: "Amount",
+                  context: context,
+                  controller: priceController,
+                  keyboardType: TextInputType.number,
+                ),
 
-                  customTextField(
-                    label: "Amount",
-                    context: context,
-                    controller: priceController,
-                    keyboardType: TextInputType.number,
-                  ),
+                const Spacer(),
 
-                  const Spacer(),
-
-                  if (diagnosisType != null)
-                    Column(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            if (_formKey.currentState!.validate()) {
-                              deleteDiagnosisType(diagnosisType!.id!, ref);
-                            }
-                          },
-                          child: Container(
-                            height: 50,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.red[400],
-                              borderRadius: BorderRadius.circular(
-                                defaultPadding / 2,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Delete",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium!
-                                    .copyWith(color: Colors.white),
-                              ),
+                if (diagnosisType != null)
+                  Column(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          if (_formKey.currentState!.validate()) {
+                            deleteDiagnosisType(diagnosisType!.id!, ref);
+                          }
+                        },
+                        child: Container(
+                          height: 50,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.red[400],
+                            borderRadius: BorderRadius.circular(defaultRadius),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Delete",
+                              style: Theme.of(context).textTheme.headlineMedium!
+                                  .copyWith(color: Colors.white),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
-
-                  InkWell(
-                    onTap: () {
-                      if (_formKey.currentState!.validate()) {
-                        _submitForm(ref);
-                      }
-                    },
-                    child: Container(
-                      height: 50,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(defaultPadding / 2),
                       ),
-                      child: Center(
-                        child: Text(
-                          diagnosisType == null ? "Add" : "Update",
-                          style: Theme.of(context).textTheme.headlineMedium!
-                              .copyWith(color: Colors.white),
-                        ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+
+                InkWell(
+                  onTap: () {
+                    if (_formKey.currentState!.validate()) {
+                      _submitForm(ref);
+                    }
+                  },
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(defaultRadius),
+                    ),
+                    child: Center(
+                      child: Text(
+                        diagnosisType == null ? "Add" : "Update",
+                        style: Theme.of(context).textTheme.headlineMedium!
+                            .copyWith(color: Colors.white),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

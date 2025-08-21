@@ -6,17 +6,16 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:intl/intl.dart';
 import 'package:labledger/main.dart';
 
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/bill/bill_screen.dart';
+import 'package:labledger/screens/home/home_screen_logic.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:labledger/screens/database_screen.dart';
@@ -74,256 +73,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   double wideContainerSize = 0;
   double smallheightSpacing = 0;
   // int currentIndex = 0;
-  final Map<TimeFilter, String> timeFilterLabels = {
-    TimeFilter.thisWeek: 'This Week',
-    TimeFilter.thisMonth: 'This Month',
-    TimeFilter.thisYear: 'This Year',
-    TimeFilter.allTime: 'All Time',
-  };
-
-  Widget _buildTimeFilterSelector(
-    TimeFilter selected,
-    ValueChanged<TimeFilter> onChanged,
-  ) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: TimeFilter.values.map((filter) {
-          final label = timeFilterLabels[filter]!;
-          final isSelected = selected == filter;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: ChoiceChip(
-              label: Text(label),
-              checkmarkColor: Colors.white,
-              selected: isSelected,
-              onSelected: (_) => onChanged(filter),
-              selectedColor: Theme.of(context).colorScheme.secondary,
-              backgroundColor: Colors.grey.shade200,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  List<String> extractDateLabels(List<Bill> bills) {
-    final dailyCounts = <String, int>{};
-
-    for (final bill in bills) {
-      final date = DateTime.tryParse(bill.dateOfBill.toString())!.toLocal();
-      final key = date.toIso8601String().substring(0, 10);
-      dailyCounts[key] = (dailyCounts[key] ?? 0) + 1;
-    }
-
-    final sortedDates = dailyCounts.keys.toList()..sort();
-    return sortedDates.map((d) {
-      final dt = DateTime.parse(d);
-      return DateFormat('MMM d yyyy').format(dt);
-    }).toList();
-  }
-
-  LineChartData _getChartData(List<FlSpot> data, List<String> dates) {
-    return LineChartData(
-      lineBarsData: [
-        LineChartBarData(
-          spots: data,
-          isCurved: true,
-          barWidth: 3,
-          color: Theme.of(context).colorScheme.secondary,
-          belowBarData: BarAreaData(show: false),
-          dotData: FlDotData(show: true),
-        ),
-      ],
-      titlesData: FlTitlesData(show: false),
-      gridData: FlGridData(show: false),
-      borderData: FlBorderData(show: false),
-      lineTouchData: LineTouchData(
-        enabled: true,
-        getTouchedSpotIndicator: (barData, spotIndexes) {
-          return spotIndexes.map((i) {
-            return TouchedSpotIndicatorData(
-              FlLine(
-                color: Theme.of(context).colorScheme.secondary,
-                strokeWidth: 3,
-              ),
-              FlDotData(show: true),
-            );
-          }).toList();
-        },
-        touchTooltipData: LineTouchTooltipData(
-          fitInsideHorizontally: true,
-          fitInsideVertically: true,
-          tooltipPadding: const EdgeInsets.all(8),
-          getTooltipItems: (touchedSpots) {
-            return touchedSpots.map((touched) {
-              final index = touched.spotIndex;
-              final date = (index >= 0 && index < dates.length)
-                  ? dates[index]
-                  : 'Unknown';
-              final y = touched.y.toInt();
-
-              return LineTooltipItem(
-                "$y bills\non $date",
-
-                const TextStyle(color: Colors.white),
-              );
-            }).toList();
-          },
-        ),
-      ),
-    );
-  }
-
-  List<Bill> filterBillsByTimeFilter(List<Bill> bills, TimeFilter filter) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    late DateTime from;
-    late DateTime to;
-
-    switch (filter) {
-      case TimeFilter.thisWeek: // last 7 days
-        from = DateTime(
-          now.year,
-          now.month,
-          now.day,
-        ).subtract(const Duration(days: 6));
-        to = now.add(const Duration(days: 1));
-        break;
-
-      case TimeFilter.thisMonth:
-        from = DateTime(today.year, today.month, 1);
-        to = today.add(Duration(days: 1));
-        break;
-
-      case TimeFilter.thisYear:
-        from = DateTime(today.year, 1, 1);
-        to = today.add(Duration(days: 1));
-        break;
-
-      case TimeFilter.allTime:
-        return bills;
-    }
-
-    return bills.where((bill) {
-      final parsedUtc = DateTime.tryParse(bill.dateOfBill.toString());
-      final local = parsedUtc?.toLocal();
-
-      if (local == null) return false;
-
-      final localDate = DateTime(local.year, local.month, local.day);
-
-      final inRange =
-          (localDate.isAtSameMomentAs(from) || localDate.isAfter(from)) &&
-          localDate.isBefore(to);
-      return inRange;
-    }).toList();
-  }
-
-  List<FlSpot> prepareSpots(List<Bill> bills) {
-    final Map<String, int> dailyCounts = {};
-
-    for (final bill in bills) {
-      final rawDate = bill.dateOfBill;
-      final parsed = DateTime.tryParse(rawDate.toString());
-      if (parsed == null) continue;
-
-      final dateKey =
-          "${parsed.year}-${parsed.month.toString().padLeft(2, '0')}-${parsed.day.toString().padLeft(2, '0')}";
-      dailyCounts[dateKey] = (dailyCounts[dateKey] ?? 0) + 1;
-    }
-
-    final sortedDates = dailyCounts.keys.toList()..sort();
-
-    return List.generate(sortedDates.length, (i) {
-      final count = dailyCounts[sortedDates[i]]!;
-      return FlSpot(i.toDouble(), count.toDouble());
-    });
-  }
-
-  List<DoctorStats> getDoctorStats(List<Bill> bills, List<Doctor> allDoctors) {
-    final Map<int, DoctorStats> statsMap = {};
-
-    for (final bill in bills) {
-      int doctorId = bill.referredByDoctor;
-      final Doctor doctor = allDoctors.firstWhere((d) => d.id == doctorId);
-
-      statsMap.putIfAbsent(doctorId, () {
-        return DoctorStats(
-          doctor: doctor,
-          ultrasound: 0,
-          pathology: 0,
-          ecg: 0,
-          xray: 0,
-          franchiseLab: 0,
-          incentive: 0,
-        );
-      });
-
-      final category = bill.diagnosisTypeOutput?['category'];
-      final current = statsMap[doctorId]!;
-
-      statsMap[doctorId] = DoctorStats(
-        doctor: doctor,
-        ultrasound: current.ultrasound + (category == 'Ultrasound' ? 1 : 0),
-        pathology: current.pathology + (category == 'Pathology' ? 1 : 0),
-        ecg: current.ecg + (category == 'ECG' ? 1 : 0),
-        xray: current.xray + (category == 'XRay' ? 1 : 0),
-        franchiseLab:
-            current.franchiseLab + (category == 'Franchise Lab' ? 1 : 0),
-        incentive: current.incentive + (bill.incentiveAmount),
-      );
-    }
-
-    return statsMap.values.toList();
-  }
-
-  TopReferrerModel topReferralFinder({
-    required List<Bill> filteredData,
-    required List<Doctor> allDoctors,
-  }) {
-    DateTime now = DateTime.now();
-
-    List<Bill> weekBills = filteredData.where((bill) {
-      final billDate = bill.dateOfBill;
-      return billDate.isAfter(
-            now.subtract(Duration(days: 6)).subtract(Duration(seconds: 1)),
-          ) &&
-          billDate.isBefore(now.add(Duration(days: 1)));
-    }).toList();
-
-    List<Bill> monthBills = filteredData.where((bill) {
-      return bill.dateOfBill.month == now.month &&
-          bill.dateOfBill.year == now.year;
-    }).toList();
-
-    List<Bill> yearBills = filteredData.where((bill) {
-      return bill.dateOfBill.year == now.year;
-    }).toList();
-
-    List<Bill> allTimeBills = List.from(filteredData);
-
-    List<DoctorStats> sortedWeek = getDoctorStats(weekBills, allDoctors)
-      ..sort((a, b) => b.incentive.compareTo(a.incentive));
-    List<DoctorStats> sortedMonth = getDoctorStats(monthBills, allDoctors)
-      ..sort((a, b) => b.incentive.compareTo(a.incentive));
-    List<DoctorStats> sortedYear = getDoctorStats(yearBills, allDoctors)
-      ..sort((a, b) => b.incentive.compareTo(a.incentive));
-    List<DoctorStats> sortedAll = getDoctorStats(allTimeBills, allDoctors)
-      ..sort((a, b) => b.incentive.compareTo(a.incentive));
-
-    return TopReferrerModel(
-      week: sortedWeek,
-      month: sortedMonth,
-      year: sortedYear,
-      allTime: sortedAll,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -364,8 +113,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: defaultPadding,
-          vertical: defaultPadding / 2,
+          horizontal: defaultPadding * 2,
+          vertical: defaultPadding,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,7 +178,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ).scaffoldBackgroundColor,
                           elevation: 5,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(defaultPadding),
+                            borderRadius: BorderRadius.circular(defaultRadius),
                             side: BorderSide(
                               color:
                                   Theme.of(context).brightness ==
@@ -606,7 +355,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   GlassContainer(
                                     height: containerHeight,
                                     width: containerWidth,
-                                    borderRadius: BorderRadius.circular(20),
+                                    // borderRadius: BorderRadius.circular(
+                                    //   defaultRadius,
+                                    // ),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
@@ -637,7 +388,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         SizedBox(
                                           height:
                                               containerHeight -
-                                              defaultPadding -
+                                              defaultPadding * 2 -
                                               102,
                                           child: doctorsAsync.when(
                                             data: (doctors) {
@@ -794,7 +545,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 25),
-                                        _buildTimeFilterSelector(
+                                        buildTimeFilterSelector(
                                           _selectedRangeForTopReferrals,
                                           (newFilter) {
                                             setState(() {
@@ -802,6 +553,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                   newFilter;
                                             });
                                           },
+                                          context,
                                         ),
                                       ],
                                     ),
@@ -812,7 +564,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   GlassContainer(
                                     height: containerHeight,
                                     width: containerWidth,
-                                    borderRadius: BorderRadius.circular(20),
+                                    // borderRadius: BorderRadius.circular(20),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
@@ -845,7 +597,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         SizedBox(
                                           height:
                                               containerHeight -
-                                              defaultPadding -
+                                              defaultPadding * 2 -
                                               102,
                                           child: billsAsync.when(
                                             data: (bills) {
@@ -862,9 +614,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                     filteredData,
                                                   );
                                               return LineChart(
-                                                _getChartData(
+                                                getChartData(
                                                   chartData,
                                                   dateLabels,
+                                                  context,
                                                 ),
                                               );
                                             },
@@ -878,7 +631,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 25),
-                                        _buildTimeFilterSelector(
+                                        buildTimeFilterSelector(
                                           _selectedRangeForBills,
                                           (newFilter) {
                                             setState(() {
@@ -886,6 +639,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                   newFilter;
                                             });
                                           },
+                                          context,
                                         ),
                                       ],
                                     ),
@@ -1164,7 +918,7 @@ class GlassContainer extends StatelessWidget {
     this.horizontalPadding = 24,
     this.verticalPadding = 12,
     this.backgroundColor,
-    this.borderRadius = const BorderRadius.all(Radius.circular(20)),
+    this.borderRadius =   const BorderRadius.all(Radius.circular(12)),
   });
 
   @override
@@ -1195,46 +949,11 @@ class GlassContainer extends StatelessWidget {
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: horizontalPadding ?? defaultPadding,
-              vertical: verticalPadding ?? defaultPadding / 2,
+              horizontal: horizontalPadding!,
+              vertical: verticalPadding!,
             ),
             child: child,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class ActionBarGlassContainer extends StatelessWidget {
-  final double height;
-  final double width;
-  final BorderRadius borderRadius;
-  final Color backgroundColor;
-  final Widget? child;
-  const ActionBarGlassContainer({
-    super.key,
-    this.height = 60,
-    this.width = 180,
-    this.borderRadius = const BorderRadius.all(Radius.circular(20)),
-    this.backgroundColor = Colors.white60,
-    this.child,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
-        child: Container(
-          height: height,
-          width: width,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: borderRadius,
-            border: Border.all(color: backgroundColor, width: 1.5),
-          ),
-          child: child,
         ),
       ),
     );

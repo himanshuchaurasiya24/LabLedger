@@ -74,19 +74,24 @@ Widget pageHeader({
           ),
           centerWidget ?? const SizedBox(),
 
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.red[400],
-              borderRadius: BorderRadius.circular(defaultPadding / 2),
-            ),
-            child: IconButton(
-              icon: Icon(
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            hoverColor: Colors.transparent,
+            color: Colors.red[100],
+            icon: Container(
+              height: 35,
+              width: 35,
+              decoration: BoxDecoration(
+                color: Colors.red[400],
+                borderRadius: BorderRadius.circular(defaultPadding / 2),
+              ),
+              child: Icon(
                 Icons.close,
+                size: 35,
                 color: Theme.of(context).colorScheme.tertiaryFixed,
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
             ),
           ),
         ],
@@ -534,7 +539,11 @@ class CustomCardContainer extends StatelessWidget {
           borderRadius: BorderRadius.circular(defaultRadius),
         ),
         child: Padding(
-          padding: EdgeInsetsGeometry.symmetric(horizontal: defaultPadding / 2),
+          padding: EdgeInsetsGeometry.only(
+            left: defaultPadding / 2,
+            right: defaultPadding / 2,
+            bottom: defaultPadding / 2,
+          ),
           child: child,
         ),
       ),

@@ -157,7 +157,7 @@ class AddDoctorScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   pageHeader(context: context, centerWidget: null),
-              
+
                   Row(
                     children: [
                       Expanded(
@@ -167,7 +167,7 @@ class AddDoctorScreen extends ConsumerWidget {
                           controller: firstNameController,
                         ),
                       ),
-                      SizedBox(width: defaultPadding / 2),
+                      SizedBox(width: defaultWidth),
                       Expanded(
                         child: customTextField(
                           label: "Last Name",
@@ -177,8 +177,8 @@ class AddDoctorScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: defaultPadding / 2),
-              
+                  SizedBox(height: defaultHeight),
+
                   Row(
                     children: [
                       Expanded(
@@ -188,8 +188,8 @@ class AddDoctorScreen extends ConsumerWidget {
                           controller: emailController,
                         ),
                       ),
-                      SizedBox(width: defaultPadding / 2),
-              
+                      SizedBox(width: defaultWidth),
+
                       Expanded(
                         child: customTextField(
                           label: "Phone Number",
@@ -200,8 +200,8 @@ class AddDoctorScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: defaultPadding / 2),
-              
+                  SizedBox(height: defaultHeight),
+
                   Row(
                     children: [
                       Expanded(
@@ -211,8 +211,8 @@ class AddDoctorScreen extends ConsumerWidget {
                           controller: addressController,
                         ),
                       ),
-                      SizedBox(width: defaultPadding / 2),
-              
+                      SizedBox(width: defaultWidth),
+
                       Expanded(
                         child: customTextField(
                           label: "Hospital Name",
@@ -222,7 +222,7 @@ class AddDoctorScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: defaultPadding / 2),
+                  SizedBox(height: defaultHeight),
                   Row(
                     children: [
                       Expanded(
@@ -232,8 +232,8 @@ class AddDoctorScreen extends ConsumerWidget {
                           controller: usgController,
                         ),
                       ),
-                      SizedBox(width: defaultPadding / 2),
-              
+                      SizedBox(width: defaultWidth),
+
                       Expanded(
                         child: customTextField(
                           label: "Pathology %",
@@ -241,8 +241,8 @@ class AddDoctorScreen extends ConsumerWidget {
                           controller: pathController,
                         ),
                       ),
-                      SizedBox(width: defaultPadding / 2),
-              
+                      SizedBox(width: defaultWidth),
+
                       Expanded(
                         child: customTextField(
                           label: "ECG %",
@@ -250,8 +250,8 @@ class AddDoctorScreen extends ConsumerWidget {
                           controller: ecgController,
                         ),
                       ),
-                      SizedBox(width: defaultPadding / 2),
-              
+                      SizedBox(width: defaultWidth),
+
                       Expanded(
                         child: customTextField(
                           label: "XRay %",
@@ -259,8 +259,8 @@ class AddDoctorScreen extends ConsumerWidget {
                           controller: xrayController,
                         ),
                       ),
-                      SizedBox(width: defaultPadding / 2),
-              
+                      SizedBox(width: defaultWidth),
+
                       Expanded(
                         child: customTextField(
                           label: "Franchise Lab %",
@@ -270,7 +270,7 @@ class AddDoctorScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-              
+
                   Spacer(),
                   doctor == null
                       ? const SizedBox()
@@ -288,7 +288,7 @@ class AddDoctorScreen extends ConsumerWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.red[400],
                                   borderRadius: BorderRadius.circular(
-                                    defaultPadding / 2,
+                                    defaultRadius,
                                   ),
                                 ),
                                 child: Center(
@@ -316,9 +316,7 @@ class AddDoctorScreen extends ConsumerWidget {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(
-                          defaultPadding / 2,
-                        ),
+                        borderRadius: BorderRadius.circular(defaultRadius),
                       ),
                       child: Center(
                         child: Text(

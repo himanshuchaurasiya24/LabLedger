@@ -140,289 +140,275 @@ class _AddBillScreenState extends ConsumerState<BillScreen> {
     final franchiseNamesAsync = ref.watch(franchiseNamesProvider);
     final doctorAsync = ref.watch(doctorsProvider);
     return Scaffold(
-      body: Center(
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.95,
-          width: MediaQuery.of(context).size.width * 0.5,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiaryFixed,
-            borderRadius: BorderRadius.circular(defaultPadding / 2),
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: CustomCardContainer(
+        xHeight: 0.95,
+        xWidth: 0.5,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              pageHeader(context: context, centerWidget: null),
+              const SizedBox(height: 10),
+              customTextField(
+                context: context,
+                label: "Patient Name",
+                controller: patientNameController,
+              ),
+              const SizedBox(height: 10),
+              Row(
                 children: [
-                  pageHeader(context: context, centerWidget: null),
-                  const SizedBox(height: 10),
-                  customTextField(
-                    context: context,
-                    label: "Patient Name",
-                    controller: patientNameController,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomDropDown<String>(
-                          context: context,
-                          dropDownList: sexDropDownList,
-                          textController: patientSexController,
-                          valueMapper: (item) => item,
-                          idMapper: (item) => item,
-                          hintText: "Select Sex",
-                        ),
-                      ),
-                      SizedBox(width: defaultPadding / 2),
-                      Expanded(
-                        child: customTextField(
-                          label: "Age",
-                          context: context,
-                          keyboardType: TextInputType.number,
-                          controller: patientAgeController,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    "Select Diagnosis Type",
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: CustomDropDown<String>(
+                      context: context,
+                      dropDownList: sexDropDownList,
+                      textController: patientSexController,
+                      valueMapper: (item) => item,
+                      idMapper: (item) => item,
+                      hintText: "Select Sex",
                     ),
                   ),
-                  diagnosisTypeAsync.when(
-                    data: (diagnosisTypes) {
-                      if (diagnosisTypes.isEmpty) {
-                        return Text("No Diagnosis Types Available");
-                      }
-                      diagnosisTypes.sort(
-                        (a, b) => a.category.compareTo(b.category),
-                      );
-                      // Update selectedDiagnosisType based on controller's current value
-                      selectedDiagnosisType = diagnosisTypes.firstWhere(
-                        (item) =>
-                            item.id.toString() == diagnosisTypeController.text,
-                        orElse: () => diagnosisTypes[0],
-                      );
-
-                      return CustomDropDown<DiagnosisType>(
-                        context: context,
-                        dropDownList: diagnosisTypes,
-                        textController: diagnosisTypeController,
-                        valueMapper: (item) =>
-                            '${item.category} ${item.name}, ₹${item.price}',
-                        idMapper: (item) => item.id.toString(),
-                        hintText: "Select Diagnosis Type",
-                      );
-                    },
-                    loading: () => const CircularProgressIndicator(),
-                    error: (err, stack) => Text('Error: $err'),
-                  ),
-                  const SizedBox(height: 10),
-                  Visibility(
-                    visible: selectedDiagnosisType?.category == 'Franchise Lab',
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Franchise Name",
-                          style: Theme.of(context).textTheme.bodyLarge!
-                              .copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-
-                        franchiseNamesAsync.when(
-                          data: (franchises) => CustomDropDown<FranchiseName>(
-                            context: context,
-                            dropDownList: franchises,
-                            textController: franchiseNameController,
-                            valueMapper: (item) =>
-                                "${item.franchiseName} , ${item.address}", // For display text
-                            idMapper: (item) => item
-                                .franchiseName, // For controller value (ID in your case is franchiseName string)
-                            hintText: "Select Franchise Name",
-                          ),
-                          loading: () => CircularProgressIndicator(),
-                          error: (err, stack) =>
-                              Text('Error loading franchises'),
-                        ),
-
-                        const SizedBox(height: 10),
-                      ],
+                  SizedBox(width: defaultWidth),
+                  Expanded(
+                    child: customTextField(
+                      label: "Age",
+                      context: context,
+                      keyboardType: TextInputType.number,
+                      controller: patientAgeController,
                     ),
                   ),
-                  Text(
-                    "Referred By Doctor",
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  doctorAsync.when(
-                    data: (doctor) {
-                      if (doctor.isEmpty) {
-                        return Text("No Doctor Available");
-                      }
-
-                      doctor.sort(
-                        (a, b) =>
-                            (a.firstName ?? '').compareTo(b.firstName ?? ''),
-                      );
-
-                      if (refByDoctorController.text.isEmpty &&
-                          widget.billData != null) {
-                        final existingDoctor = doctor.firstWhere(
-                          (item) =>
-                              item.id.toString() ==
-                              widget.billData!['ref_by_doctor']?.toString(),
-                          orElse: () => doctor[0],
-                        );
-                        refByDoctorController.text = existingDoctor.id
-                            .toString();
-                      }
-
-                      return CustomDropDown<Doctor>(
-                        context: context,
-                        dropDownList: doctor,
-                        textController: refByDoctorController,
-                        valueMapper: (item) =>
-                            '${item.firstName!} ${item.lastName ?? ''}, ${item.address ?? ""}, ${item.phoneNumber ?? ""}',
-                        idMapper: (item) => item.id.toString(),
-                        hintText: "Select Doctor",
-                      );
-                    },
-                    loading: () => const CircularProgressIndicator(),
-                    error: (err, stack) => Text('Error: $err'),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Select Dates",
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Flexible(
-                        child: dateSelectorWiget(
-                          context: context,
-                          dateController: dateOfTestController,
-                          hintText: "Date of Test",
-                          onDateSelected: (isoDate) {
-                            selectedTestDateISO =
-                                isoDate; // <-- Correctly updates parent variable
-                          },
-                        ),
-                      ),
-
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: dateSelectorWiget(
-                          context: context,
-                          dateController: dateOfBillController,
-                          hintText: "Date of Bill",
-                          onDateSelected: (isoDate) {
-                            selectedBillDateISO =
-                                isoDate; // <-- Correctly updates parent variable
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Bill Status",
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  CustomDropDown<String>(
-                    context: context,
-                    dropDownList: billStatusList,
-                    textController: billStatusController,
-                    valueMapper: (item) => item,
-                    idMapper: (item) => item, // <-- Ensure this is set properly
-                    hintText: "Select Bill Status",
-                  ),
-
-                  const SizedBox(height: 10),
-                  Visibility(
-                    visible: billStatusController.text != "Unpaid",
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Amount Details",
-                          style: Theme.of(context).textTheme.bodyLarge!
-                              .copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                        Row(
-                          children: [
-                            Flexible(
-                              child: customTextField(
-                                label: "Paid Amount",
-                                context: context,
-                                controller: paidAmountController,
-                                keyboardType: TextInputType.number,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              child: customTextField(
-                                label: "Doctor's Discount",
-                                context: context,
-                                controller: discByDoctorController,
-                                keyboardType: TextInputType.number,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Flexible(
-                              child: customTextField(
-                                label: "Center's Discount",
-                                context: context,
-                                controller: discByCenterController,
-                                keyboardType: TextInputType.number,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  InkWell(
-                    onTap: _saveBill,
-                    child: Container(
-                      height: 50,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(defaultPadding / 2),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Add Bill",
-                          style: Theme.of(context).textTheme.headlineMedium!
-                              .copyWith(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
                 ],
               ),
-            ),
+              Text(
+                "Select Diagnosis Type",
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              diagnosisTypeAsync.when(
+                data: (diagnosisTypes) {
+                  if (diagnosisTypes.isEmpty) {
+                    return Text("No Diagnosis Types Available");
+                  }
+                  diagnosisTypes.sort(
+                    (a, b) => a.category.compareTo(b.category),
+                  );
+                  // Update selectedDiagnosisType based on controller's current value
+                  selectedDiagnosisType = diagnosisTypes.firstWhere(
+                    (item) =>
+                        item.id.toString() == diagnosisTypeController.text,
+                    orElse: () => diagnosisTypes[0],
+                  );
+
+                  return CustomDropDown<DiagnosisType>(
+                    context: context,
+                    dropDownList: diagnosisTypes,
+                    textController: diagnosisTypeController,
+                    valueMapper: (item) =>
+                        '${item.category} ${item.name}, ₹${item.price}',
+                    idMapper: (item) => item.id.toString(),
+                    hintText: "Select Diagnosis Type",
+                  );
+                },
+                loading: () => const CircularProgressIndicator(),
+                error: (err, stack) => Text('Error: $err'),
+              ),
+              const SizedBox(height: 10),
+              Visibility(
+                visible: selectedDiagnosisType?.category == 'Franchise Lab',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Franchise Name",
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+
+                    franchiseNamesAsync.when(
+                      data: (franchises) => CustomDropDown<FranchiseName>(
+                        context: context,
+                        dropDownList: franchises,
+                        textController: franchiseNameController,
+                        valueMapper: (item) =>
+                            "${item.franchiseName} , ${item.address}", // For display text
+                        idMapper: (item) => item
+                            .franchiseName, // For controller value (ID in your case is franchiseName string)
+                        hintText: "Select Franchise Name",
+                      ),
+                      loading: () => CircularProgressIndicator(),
+                      error: (err, stack) => Text('Error loading franchises'),
+                    ),
+
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+              Text(
+                "Referred By Doctor",
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              doctorAsync.when(
+                data: (doctor) {
+                  if (doctor.isEmpty) {
+                    return Text("No Doctor Available");
+                  }
+
+                  doctor.sort(
+                    (a, b) => (a.firstName ?? '').compareTo(b.firstName ?? ''),
+                  );
+
+                  if (refByDoctorController.text.isEmpty &&
+                      widget.billData != null) {
+                    final existingDoctor = doctor.firstWhere(
+                      (item) =>
+                          item.id.toString() ==
+                          widget.billData!['ref_by_doctor']?.toString(),
+                      orElse: () => doctor[0],
+                    );
+                    refByDoctorController.text = existingDoctor.id.toString();
+                  }
+
+                  return CustomDropDown<Doctor>(
+                    context: context,
+                    dropDownList: doctor,
+                    textController: refByDoctorController,
+                    valueMapper: (item) =>
+                        '${item.firstName!} ${item.lastName ?? ''}, ${item.address ?? ""}, ${item.phoneNumber ?? ""}',
+                    idMapper: (item) => item.id.toString(),
+                    hintText: "Select Doctor",
+                  );
+                },
+                loading: () => const CircularProgressIndicator(),
+                error: (err, stack) => Text('Error: $err'),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Select Dates",
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Row(
+                children: [
+                  Flexible(
+                    child: dateSelectorWiget(
+                      context: context,
+                      dateController: dateOfTestController,
+                      hintText: "Date of Test",
+                      onDateSelected: (isoDate) {
+                        selectedTestDateISO =
+                            isoDate; // <-- Correctly updates parent variable
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: dateSelectorWiget(
+                      context: context,
+                      dateController: dateOfBillController,
+                      hintText: "Date of Bill",
+                      onDateSelected: (isoDate) {
+                        selectedBillDateISO =
+                            isoDate; // <-- Correctly updates parent variable
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Bill Status",
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              CustomDropDown<String>(
+                context: context,
+                dropDownList: billStatusList,
+                textController: billStatusController,
+                valueMapper: (item) => item,
+                idMapper: (item) => item, // <-- Ensure this is set properly
+                hintText: "Select Bill Status",
+              ),
+
+              const SizedBox(height: 10),
+              Visibility(
+                visible: billStatusController.text != "Unpaid",
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Amount Details",
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: customTextField(
+                            label: "Paid Amount",
+                            context: context,
+                            controller: paidAmountController,
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: customTextField(
+                            label: "Doctor's Discount",
+                            context: context,
+                            controller: discByDoctorController,
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: customTextField(
+                            label: "Center's Discount",
+                            context: context,
+                            controller: discByCenterController,
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              InkWell(
+                onTap: _saveBill,
+                child: Container(
+                  height: 50,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(defaultRadius),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Add Bill",
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium!.copyWith(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -441,7 +427,7 @@ class _AddBillScreenState extends ConsumerState<BillScreen> {
         color: Theme.of(context).brightness == Brightness.light
             ? lightTextFieldFillColor
             : darkTextFieldFillColor,
-        borderRadius: BorderRadius.circular(defaultPadding / 2),
+        borderRadius: BorderRadius.circular(defaultRadius),
       ),
       child: Row(
         children: [
@@ -534,35 +520,6 @@ class _AddBillScreenState extends ConsumerState<BillScreen> {
     }
   }
 }
-
-// Row buildHeader(BuildContext context) {
-//   return Row(
-//     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//     children: [
-//       appIconName(
-//         context: context,
-//         firstName: "Lab",
-//         secondName: "Ledger",
-//         fontSize: 45,
-//       ),
-//       Container(
-//         decoration: BoxDecoration(
-//           color: Colors.red[400],
-//           borderRadius: BorderRadius.circular(defaultPadding / 2),
-//         ),
-//         child: IconButton(
-//           icon: Icon(
-//             Icons.close,
-//             color: Theme.of(context).colorScheme.tertiaryFixed,
-//           ),
-//           onPressed: () {
-//             Navigator.of(context).pop();
-//           },
-//         ),
-//       ),
-//     ],
-//   );
-// }
 
 void showError(BuildContext context, message) {
   ScaffoldMessenger.of(context).showSnackBar(

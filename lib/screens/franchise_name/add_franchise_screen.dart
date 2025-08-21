@@ -43,30 +43,29 @@ class AddFranchiseScreen extends ConsumerWidget {
   }
 
   // UPDATE
-Future<void> updateFranchiseDetails(
-  int? id,
-  Franchise updatedFranchise,
-  WidgetRef ref,
-) async {
-  if (id == null) return;
-  try {
-    final updated = await ref.read(
-      updateFranchiseProvider({
-        'id': id,
-        'data': updatedFranchise.toJson(),
-      }).future,
-    );
-    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-      const SnackBar(content: Text("Franchise updated successfully")),
-    );
-    Navigator.pop(navigatorKey.currentContext!, updated);
-  } catch (e) {
-    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-      SnackBar(content: Text("Failed to update Franchise: $e")),
-    );
+  Future<void> updateFranchiseDetails(
+    int? id,
+    Franchise updatedFranchise,
+    WidgetRef ref,
+  ) async {
+    if (id == null) return;
+    try {
+      final updated = await ref.read(
+        updateFranchiseProvider({
+          'id': id,
+          'data': updatedFranchise.toJson(),
+        }).future,
+      );
+      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+        const SnackBar(content: Text("Franchise updated successfully")),
+      );
+      Navigator.pop(navigatorKey.currentContext!, updated);
+    } catch (e) {
+      ScaffoldMessenger.of(
+        navigatorKey.currentContext!,
+      ).showSnackBar(SnackBar(content: Text("Failed to update Franchise: $e")));
+    }
   }
-}
-
 
   // DELETE
   Future<void> deleteFranchise(int id, WidgetRef ref) async {
@@ -103,94 +102,87 @@ Future<void> updateFranchiseDetails(
       body: CustomCardContainer(
         xHeight: 0.6,
         xWidth: 0.5,
-        child: Padding(
-          padding: EdgeInsets.all(defaultPadding / 2),
-          child: Form(
-            key: _formKey,
-            child: IntrinsicHeight(
-              child: Column(
-                children: [
-                  pageHeader(context: context, centerWidget: null),
+        child: Form(
+          key: _formKey,
+          child: IntrinsicHeight(
+            child: Column(
+              children: [
+                pageHeader(context: context, centerWidget: null),
 
-                  customTextField(
-                    label: "Name",
-                    context: context,
-                    controller: nameController,
-                  ),
-                  SizedBox(height: defaultPadding / 2),
+                customTextField(
+                  label: "Name",
+                  context: context,
+                  controller: nameController,
+                ),
+                SizedBox(height: defaultHeight),
 
-                  customTextField(
-                    label: "Address",
-                    context: context,
-                    controller: addressController,
-                  ),
-                  SizedBox(height: defaultPadding / 2),
+                customTextField(
+                  label: "Address",
+                  context: context,
+                  controller: addressController,
+                ),
+                SizedBox(height: defaultHeight),
 
-                  customTextField(
-                    label: "Phone Number",
-                    context: context,
-                    controller: phoneController,
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const Spacer(),
+                customTextField(
+                  label: "Phone Number",
+                  context: context,
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                ),
+                const Spacer(),
 
-                  if (franchise != null)
-                    Column(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            if (_formKey.currentState!.validate()) {
-                              deleteFranchise(franchise!.id!, ref);
-                            }
-                          },
-                          child: Container(
-                            height: 50,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.red[400],
-                              borderRadius: BorderRadius.circular(
-                                defaultPadding / 2,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Delete",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium!
-                                    .copyWith(color: Colors.white),
-                              ),
+                if (franchise != null)
+                  Column(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          if (_formKey.currentState!.validate()) {
+                            deleteFranchise(franchise!.id!, ref);
+                          }
+                        },
+                        child: Container(
+                          height: 50,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.red[400],
+                            borderRadius: BorderRadius.circular(defaultRadius),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Delete",
+                              style: Theme.of(context).textTheme.headlineMedium!
+                                  .copyWith(color: Colors.white),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
-
-                  InkWell(
-                    onTap: () {
-                      if (_formKey.currentState!.validate()) {
-                        _submitForm(ref);
-                      }
-                    },
-                    child: Container(
-                      height: 50,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(defaultPadding / 2),
                       ),
-                      child: Center(
-                        child: Text(
-                          franchise == null ? "Add" : "Update",
-                          style: Theme.of(context).textTheme.headlineMedium!
-                              .copyWith(color: Colors.white),
-                        ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+
+                InkWell(
+                  onTap: () {
+                    if (_formKey.currentState!.validate()) {
+                      _submitForm(ref);
+                    }
+                  },
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(defaultRadius),
+                    ),
+                    child: Center(
+                      child: Text(
+                        franchise == null ? "Add" : "Update",
+                        style: Theme.of(context).textTheme.headlineMedium!
+                            .copyWith(color: Colors.white),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

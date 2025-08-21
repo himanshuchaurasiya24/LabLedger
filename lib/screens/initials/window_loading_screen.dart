@@ -60,7 +60,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   void initState() {
     super.initState();
     widget.onLoginScreen.value = true;
-    setWindowBehavior(isForLogin: true);
+    setWindowBehavior(isForLogin: true, );
     _checkAuth();
   }
 

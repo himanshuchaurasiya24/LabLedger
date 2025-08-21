@@ -121,122 +121,106 @@ class _UpdateProfileScreenState extends ConsumerState<UpdateProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.5,
-          width: MediaQuery.of(context).size.width * 0.5,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiaryFixed,
-            borderRadius: BorderRadius.circular(defaultPadding / 2),
-          ),
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: defaultPadding / 2,
-              right: defaultPadding / 2,
-              bottom: defaultPadding / 2,
-            ),
-            child: Form(
-              key: _formKey,
-              child: IntrinsicHeight(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+      body: CustomCardContainer(
+        xHeight: 0.5,
+        xWidth: 0.5,
+        child: Form(
+          key: _formKey,
+          child: IntrinsicHeight(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                pageHeader(context: context, centerWidget: null),
+
+                Row(
                   children: [
-                                     pageHeader(context: context, centerWidget: null),
-
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: customTextField(
-                            label: "First Name",
-                            context: context,
-                            controller: firstNameController,
-                          ),
-                        ),
-                        SizedBox(width: defaultPadding / 2),
-                        Expanded(
-                          child: customTextField(
-                            label: "Last Name",
-                            context: context,
-                            controller: lastNameController,
-                          ),
-                        ),
-                      ],
+                    Expanded(
+                      child: customTextField(
+                        label: "First Name",
+                        context: context,
+                        controller: firstNameController,
+                      ),
                     ),
-                    SizedBox(height: defaultPadding / 2),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: customTextField(
-                            label: "Email",
-                            context: context,
-                            controller: emailController,
-                          ),
-                        ),
-                        SizedBox(width: defaultPadding / 2),
-
-                        Expanded(
-                          child: customTextField(
-                            label: "username",
-                            context: context,
-                            controller: usernameController,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: defaultPadding / 2),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: customTextField(
-                            label: "Phone Number",
-                            context: context,
-                            controller: phoneController,
-                            keyboardType: TextInputType.phone,
-                          ),
-                        ),
-                        SizedBox(width: defaultPadding / 2),
-
-                        Expanded(
-                          child: customTextField(
-                            label: "Address",
-                            context: context,
-                            controller: addressController,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    Spacer(),
-                    InkWell(
-                      onTap: () {
-                        if (_formKey.currentState!.validate()) {
-                          _submitForm();
-                        }
-                      },
-                      child: Container(
-                        height: 50,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          borderRadius: BorderRadius.circular(
-                            defaultPadding / 2,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Update",
-                            style: Theme.of(context).textTheme.headlineMedium!
-                                .copyWith(color: Colors.white),
-                          ),
-                        ),
+                    SizedBox(width: defaultPadding / 2),
+                    Expanded(
+                      child: customTextField(
+                        label: "Last Name",
+                        context: context,
+                        controller: lastNameController,
                       ),
                     ),
                   ],
                 ),
-              ),
+                SizedBox(height: defaultPadding / 2),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: customTextField(
+                        label: "Email",
+                        context: context,
+                        controller: emailController,
+                      ),
+                    ),
+                    SizedBox(width: defaultPadding / 2),
+
+                    Expanded(
+                      child: customTextField(
+                        label: "username",
+                        context: context,
+                        controller: usernameController,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: defaultPadding / 2),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: customTextField(
+                        label: "Phone Number",
+                        context: context,
+                        controller: phoneController,
+                        keyboardType: TextInputType.phone,
+                      ),
+                    ),
+                    SizedBox(width: defaultPadding / 2),
+
+                    Expanded(
+                      child: customTextField(
+                        label: "Address",
+                        context: context,
+                        controller: addressController,
+                      ),
+                    ),
+                  ],
+                ),
+
+                Spacer(),
+                InkWell(
+                  onTap: () {
+                    if (_formKey.currentState!.validate()) {
+                      _submitForm();
+                    }
+                  },
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(defaultPadding / 2),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Update",
+                        style: Theme.of(context).textTheme.headlineMedium!
+                            .copyWith(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

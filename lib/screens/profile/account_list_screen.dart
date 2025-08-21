@@ -13,40 +13,31 @@ class AccountListScreen extends ConsumerWidget {
     final usersAsync = ref.watch(usersDetailsProvider(null));
 
     return Scaffold(
-      body: Center(
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.95,
-          width: MediaQuery.of(context).size.width * 0.7,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiaryFixed,
-            borderRadius: BorderRadius.circular(defaultPadding / 2),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(defaultPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                pageHeader(context: context, centerWidget: null),
+      body: CustomCardContainer(
+        xHeight: 0.95,
+        xWidth: 0.7,
 
-                const SizedBox(height: 16),
-                Expanded(
-                  child: usersAsync.when(
-                    data: (users) => _buildUserGrid(context, users, ref),
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (err, stack) => Center(
-                      child: Text(
-                        'Error: $err',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodyLarge?.copyWith(color: Colors.red),
-                      ),
-                    ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            pageHeader(context: context, centerWidget: null),
+
+            const SizedBox(height: 16),
+            Expanded(
+              child: usersAsync.when(
+                data: (users) => _buildUserGrid(context, users, ref),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => Center(
+                  child: Text(
+                    'Error: $err',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.red),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -201,13 +192,10 @@ class GridCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: backgroundColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(defaultRadius),
           border: Border.all(color: borderColor, width: 2),
         ),
-        child: Padding(
-          padding: EdgeInsets.all(defaultPadding / 2),
-          child: child,
-        ),
+        child: Padding(padding: EdgeInsets.all(defaultPadding), child: child),
       ),
     );
   }

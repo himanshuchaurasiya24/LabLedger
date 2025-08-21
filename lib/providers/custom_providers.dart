@@ -10,6 +10,7 @@ final String baseURL = 'http://127.0.0.1:8000/';
 final double defaultPadding = 12;
 final double defaultRadius = 12;
 final double defaultHeight = 10;
+final double defaultWidth = 10;
 final double minimalBorderRadius = 6;
 final Color lightTextFieldFillColor = Color.fromARGB(255, 240, 240, 240);
 final Color darkTextFieldFillColor = Color(0xFF020711);

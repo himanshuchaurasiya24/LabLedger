@@ -100,8 +100,7 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-        //FocusTraversalGroup
+        padding: EdgeInsets.symmetric(horizontal: defaultPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -207,13 +206,7 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                                             decoration: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(10),
-                                              // color: index % 2 == 0
-                                              //     ? Theme.of(context)
-                                              //           .colorScheme
-                                              //           .primary
-                                              //     : Theme.of(context)
-                                              //           .colorScheme
-                                              //           .secondary,
+
                                               color: Theme.of(
                                                 context,
                                               ).colorScheme.primary,
@@ -234,48 +227,54 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                                             ),
                                           ),
                                           const SizedBox(width: 10),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "${doctor.firstName} ${doctor.lastName}",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleSmall
-                                                    ?.copyWith(
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "${doctor.firstName} ${doctor.lastName}",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleSmall
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 24,
+                                                      ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 2,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary
+                                                        .withValues(alpha: 0.8),
+
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    doctor.hospitalName ?? "",
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
                                                       fontWeight:
                                                           FontWeight.bold,
-                                                      fontSize: 24,
+                                                      fontSize: 14,
                                                     ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 2,
-                                                    ),
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary
-                                                      .withValues(alpha: 0.8),
-
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
-                                                ),
-                                                child: Text(
-                                                  doctor.hospitalName ?? "",
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -307,7 +306,7 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                                               .secondary
                                               .withValues(alpha: 0.8),
                                           borderRadius: BorderRadius.circular(
-                                            6,
+                                            defaultRadius / 2,
                                           ),
                                         ),
                                         child: Center(
