@@ -4,9 +4,10 @@ import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/diagnosis_type/diagnosis_type_screen.dart';
-import 'package:labledger/screens/doctor/doctors_screen.dart';
-import 'package:labledger/screens/franchise_name/franchise_name_list_screen.dart';
+import 'package:labledger/screens/database_overview/center_details/center_details_screen.dart';
+import 'package:labledger/screens/database_overview/diagnosis_type/diagnosis_type_screen.dart';
+import 'package:labledger/screens/database_overview/doctor/doctors_screen.dart';
+import 'package:labledger/screens/database_overview/franchise_name/franchise_name_list_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
 
 class OptionList {
@@ -17,8 +18,12 @@ class OptionList {
 }
 
 class DatabaseScreen extends StatelessWidget {
-  DatabaseScreen({super.key});
-  final List<OptionList> optionList = [
+  const DatabaseScreen({super.key, required this.userId});
+  final int userId;
+  
+  @override
+  Widget build(BuildContext context) {
+    final List<OptionList> optionList = [
     OptionList(
       title: "Doctor's List",
       icon: Icons.medical_services,
@@ -37,11 +42,9 @@ class DatabaseScreen extends StatelessWidget {
     OptionList(
       title: "Center Details",
       icon: Icons.business_center_outlined,
-      goToPage: DoctorsScreen(),
+      goToPage: CenterDetailsScreen(userId: userId),
     ),
   ];
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Container(

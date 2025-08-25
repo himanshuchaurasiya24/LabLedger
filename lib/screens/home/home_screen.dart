@@ -18,7 +18,7 @@ import 'package:labledger/screens/bill/bill_screen.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
-import 'package:labledger/screens/database_screen.dart';
+import 'package:labledger/screens/database_overview/database_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
 import 'package:labledger/screens/profile/profile_screen.dart';
 
@@ -290,7 +290,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             navigatorKey.currentState?.pushReplacement(
                               MaterialPageRoute(
                                 builder: (_) => WindowLoadingScreen(
-                                  onLoginScreen: isLoginScreen,
+                                  onLoginScreen: ValueNotifier(true),
                                 ),
                               ),
                             );
@@ -447,12 +447,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                                 TextOverflow
                                                                     .ellipsis,
                                                             maxLines: 1,
-                                                            style:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .textTheme
-                                                                    .titleMedium,
+                                                            style: Theme.of(context)
+                                                                .textTheme
+                                                                .titleMedium!
+                                                                .copyWith(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w100,
+                                                                ),
                                                           ),
                                                           trailing: Text(
                                                             "USG: ${currentList[i].ultrasound} "
@@ -464,12 +466,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                                 TextOverflow
                                                                     .ellipsis,
                                                             maxLines: 1,
-                                                            style:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .textTheme
-                                                                    .bodyMedium,
+                                                            style: Theme.of(context)
+                                                                .textTheme
+                                                                .titleMedium!
+                                                                .copyWith(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w100,
+                                                                ),
                                                           ),
                                                         );
                                                       },
@@ -809,7 +813,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             navigatorKey.currentState?.push(
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    DatabaseScreen(),
+                                                    DatabaseScreen(userId: widget.id,),
                                               ),
                                             );
                                           },

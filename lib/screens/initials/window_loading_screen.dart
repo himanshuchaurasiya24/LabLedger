@@ -23,7 +23,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   String tileText = "";
 
   void _goToLogin() {
-    widget.onLoginScreen.value = true;
+    // widget.onLoginScreen.value = true;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -60,7 +60,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   void initState() {
     super.initState();
     widget.onLoginScreen.value = true;
-    setWindowBehavior(isForLogin: true, );
+    setWindowBehavior(isForLogin: true);
     _checkAuth();
   }
 
@@ -122,6 +122,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,

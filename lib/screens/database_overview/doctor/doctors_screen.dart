@@ -5,7 +5,7 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/doctor_provider.dart';
-import 'package:labledger/screens/doctor/add_doctor_screen.dart';
+import 'package:labledger/screens/database_overview/doctor/add_doctor_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
 
 class DoctorsScreen extends ConsumerStatefulWidget {

@@ -2,22 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/models/franchise_model.dart';
+import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/providers/franchise_provider.dart';
-import 'package:labledger/screens/franchise_name/add_franchise_screen.dart';
+import 'package:labledger/providers/diagnosis_type_provider.dart';
+import 'package:labledger/screens/database_overview/diagnosis_type/add_diagnosis_type_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
 
-class FranchiseNameListScreen extends ConsumerStatefulWidget {
-  const FranchiseNameListScreen({super.key});
+class DiagnosisTypeScreen extends ConsumerStatefulWidget {
+  const DiagnosisTypeScreen({super.key});
 
   @override
-  ConsumerState<FranchiseNameListScreen> createState() =>
-      _FranchiseNameListScreenState();
+  ConsumerState<DiagnosisTypeScreen> createState() =>
+      _DiagnosisTypeScreenState();
 }
 
-class _FranchiseNameListScreenState
-    extends ConsumerState<FranchiseNameListScreen> {
+class _DiagnosisTypeScreenState extends ConsumerState<DiagnosisTypeScreen> {
   final TextEditingController searchController = TextEditingController();
   final searchFocusNode = FocusNode();
 
@@ -35,38 +34,36 @@ class _FranchiseNameListScreenState
     super.dispose();
   }
 
-  Future<Map<String, List<Franchise>>> fetchFranchises() async {
-    final franchisesAsync = ref.watch(franchiseProvider);
+  Future<Map<String, List<DiagnosisType>>> fetchDiagnosisTypes() async {
+    final diagnosisTypesAsync = ref.watch(diagnosisTypeProvider);
     final query = searchController.text.trim().toLowerCase();
 
-    return franchisesAsync.when(
+    return diagnosisTypesAsync.when(
       data: (data) {
         if (query.isEmpty) {
-          return {'All Franchises': data};
+          return {'All Diagnosis Types': data};
         }
 
-        final nameMatches = <Franchise>[];
-        final addressMatches = <Franchise>[];
-        final phoneMatches = <Franchise>[];
-
-        for (var franchise in data) {
-          final name = franchise.franchiseName.toLowerCase();
-          final address = franchise.address.toLowerCase();
-          final phone = franchise.phoneNumber.toLowerCase();
-
+        final nameMatches = <DiagnosisType>[];
+        final categoryMatches = <DiagnosisType>[];
+        final priceMatches = <DiagnosisType>[];
+        for (var diagnosis in data) {
+          final name = diagnosis.name.toLowerCase();
+          final category = diagnosis.category.toLowerCase();
+          final price = diagnosis.price.toString();
           if (name.contains(query) || query.contains(name)) {
-            nameMatches.add(franchise);
-          } else if (address.contains(query) || query.contains(address)) {
-            addressMatches.add(franchise);
-          } else if (phone.contains(query) || query.contains(phone)) {
-            phoneMatches.add(franchise);
+            nameMatches.add(diagnosis);
+          } else if (category.contains(query) || query.contains(category)) {
+            categoryMatches.add(diagnosis);
+          } else if (price.contains(query) || query.contains(price)) {
+            priceMatches.add(diagnosis);
           }
         }
 
         return {
           if (nameMatches.isNotEmpty) 'Name Matches': nameMatches,
-          if (addressMatches.isNotEmpty) 'Address Matches': addressMatches,
-          if (phoneMatches.isNotEmpty) 'Phone Matches': phoneMatches,
+          if (categoryMatches.isNotEmpty) 'Category Matches': categoryMatches,
+          if (priceMatches.isNotEmpty) 'Amount Matches': priceMatches,
         };
       },
       error: (err, st) => {},
@@ -82,11 +79,11 @@ class _FranchiseNameListScreenState
         backgroundColor: Theme.of(context).colorScheme.primary,
         onPressed: () {
           navigatorKey.currentState?.push(
-            MaterialPageRoute(builder: (context) => AddFranchiseScreen()),
+            MaterialPageRoute(builder: (context) => AddDiagnosisTypeScreen()),
           );
         },
         label: Text(
-          "Add Franchise",
+          "Add Diagnosis Type",
           style: TextStyle(
             color: ThemeData.light().scaffoldBackgroundColor,
             fontWeight: FontWeight.bold,
@@ -95,7 +92,7 @@ class _FranchiseNameListScreenState
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+        padding: EdgeInsets.symmetric(horizontal: defaultPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -105,7 +102,7 @@ class _FranchiseNameListScreenState
                 children: [
                   CenterSearchBar(
                     controller: searchController,
-                    hintText: "Search Franchises...",
+                    hintText: "Search Diagnosis Types...",
                     searchFocusNode: searchFocusNode,
                     onSearch: () {
                       setState(() {}); // Trigger UI update
@@ -116,8 +113,8 @@ class _FranchiseNameListScreenState
               ),
             ),
             Expanded(
-              child: FutureBuilder<Map<String, List<Franchise>>>(
-                future: fetchFranchises(),
+              child: FutureBuilder<Map<String, List<DiagnosisType>>>(
+                future: fetchDiagnosisTypes(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -131,7 +128,7 @@ class _FranchiseNameListScreenState
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(
                       child: Text(
-                        'No franchises found.',
+                        'No diagnosis types found.',
                         style: Theme.of(context).textTheme.headlineLarge,
                       ),
                     );
@@ -171,19 +168,20 @@ class _FranchiseNameListScreenState
                                   ),
                               itemCount: e.value.length,
                               itemBuilder: (ctx, index) {
-                                final franchise = e.value[index];
+                                final diagnosis = e.value[index];
                                 return GridCard(
                                   context: context,
                                   onTap: () {
                                     navigatorKey.currentState?.push(
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            AddFranchiseScreen(
-                                              franchise: franchise,
+                                            AddDiagnosisTypeScreen(
+                                              diagnosisType: diagnosis,
                                             ),
                                       ),
                                     );
                                   },
+
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -204,8 +202,7 @@ class _FranchiseNameListScreenState
                                             ),
                                             child: Center(
                                               child: Text(
-                                                franchise.franchiseName[0]
-                                                    .toUpperCase(),
+                                                diagnosis.name[0].toUpperCase(),
                                                 style: TextStyle(
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold,
@@ -215,14 +212,14 @@ class _FranchiseNameListScreenState
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 10),
+                                          SizedBox(width: defaultWidth),
                                           Expanded(
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  franchise.franchiseName,
+                                                  diagnosis.name,
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .titleSmall
@@ -235,15 +232,31 @@ class _FranchiseNameListScreenState
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
-                                                Text(
-                                                  franchise.address,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyMedium
-                                                      ?.copyWith(fontSize: 16),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 2,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary
+                                                        .withValues(alpha: 0.8),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    diagnosis.category,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -251,8 +264,14 @@ class _FranchiseNameListScreenState
                                         ],
                                       ),
                                       Text(
-                                        "Phone: ${franchise.phoneNumber}",
-                                        style: const TextStyle(fontSize: 20),
+                                        "₹${diagnosis.price}",
+                                        style: TextStyle(
+                                          fontSize: 30,
+                                          // fontWeight: FontWeight.bold,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
