@@ -62,6 +62,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    isLoginScreen.value = false;
     setWindowBehavior();
   }
 
@@ -289,9 +290,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             await storage.delete(key: 'access_token');
                             navigatorKey.currentState?.pushReplacement(
                               MaterialPageRoute(
-                                builder: (_) => WindowLoadingScreen(
-                                  onLoginScreen: ValueNotifier(true),
-                                ),
+                                builder: (context) {
+                                  return WindowLoadingScreen();
+                                },
                               ),
                             );
                           } else if (selected == "exit") {
@@ -406,7 +407,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                     return ListView.builder(
                                                       shrinkWrap: true,
                                                       itemCount:
-                                                          currentList.length,
+                                                          currentList.length < 4
+                                                          ? currentList.length
+                                                          : 3,
                                                       itemBuilder: (context, i) {
                                                         return ListTile(
                                                           dense: true,
@@ -810,12 +813,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         ),
                                         IconButton(
                                           onPressed: () {
-                                            navigatorKey.currentState?.push(
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    DatabaseScreen(userId: widget.id,),
-                                              ),
-                                            );
+                                            if (widget.isAdmin) {
+                                              navigatorKey.currentState?.push(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DatabaseScreen(
+                                                        userId: widget.id,
+                                                      ),
+                                                ),
+                                              );
+                                            } else {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) => AlertDialog(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          defaultRadius,
+                                                        ), // ⬅ Rounded corners
+                                                  ),
+                                                  title: const Text(
+                                                    "Access Denied",
+                                                  ),
+                                                  content: Text(
+                                                    "You need to be an administrator to access this section.",
+                                                    style: Theme.of(
+                                                      context,
+                                                    ).textTheme.titleMedium,
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.of(
+                                                            context,
+                                                          ).pop(),
+                                                      child: const Text("OK"),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }
                                           },
                                           icon: Icon(
                                             Icons.arrow_forward_ios,

@@ -216,7 +216,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           ),
         ),
 
-        home: WindowLoadingScreen(onLoginScreen: isLoginScreen),
+        home: WindowLoadingScreen(),
         // home: Settings(),
       ),
     );

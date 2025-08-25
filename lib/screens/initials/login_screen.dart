@@ -3,6 +3,7 @@ import "package:http/http.dart" as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
@@ -80,14 +81,16 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomeScreen(
-            isAdmin: value["is_admin"]!,
-            firstName: value['first_name']!,
-            lastName: value['last_name']!,
-            username: value['username']!,
-            id: value['id'],
-            centerDetail: CenterDetail.fromJson(value['center_detail']),
-          ),
+          builder: (context) {
+            return HomeScreen(
+              isAdmin: value["is_admin"]!,
+              firstName: value['first_name']!,
+              lastName: value['last_name']!,
+              username: value['username']!,
+              id: value['id'],
+              centerDetail: CenterDetail.fromJson(value['center_detail']),
+            );
+          },
         ),
       );
     }
@@ -96,6 +99,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    isLoginScreen.value = true;
     setWindowBehavior(isForLogin: true);
   }
 

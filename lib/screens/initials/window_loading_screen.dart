@@ -11,8 +11,7 @@ import 'package:labledger/screens/initials/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 
 class WindowLoadingScreen extends ConsumerStatefulWidget {
-  const WindowLoadingScreen({super.key, required this.onLoginScreen});
-  final ValueNotifier<bool> onLoginScreen;
+  const WindowLoadingScreen({super.key});
 
   @override
   ConsumerState<WindowLoadingScreen> createState() =>
@@ -23,7 +22,6 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   String tileText = "";
 
   void _goToLogin() {
-    // widget.onLoginScreen.value = true;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -38,7 +36,6 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     required String username,
     required CenterDetail centerDetail,
   }) {
-    widget.onLoginScreen.value = false;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -59,7 +56,6 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   @override
   void initState() {
     super.initState();
-    widget.onLoginScreen.value = true;
     setWindowBehavior(isForLogin: true);
     _checkAuth();
   }

@@ -93,7 +93,7 @@ class _UpdateCenterDetailsScreenState
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
             builder: (context) {
-              return WindowLoadingScreen(onLoginScreen: ValueNotifier(false));
+              return WindowLoadingScreen();
             },
           ),
         );
