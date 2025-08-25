@@ -1,7 +1,6 @@
 # LabLedger
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)
-![Django](https://img.shields.io/badge/Django-092E20?logo=django&logoColor=white)
 ![Riverpod](https://img.shields.io/badge/Riverpod-40C4FF?logo=flutter&logoColor=white)
 
 ![App Screenshot](https://github.com/himanshuchaurasiya24/LabLedger/raw/main/assets/images/app_image.png)
