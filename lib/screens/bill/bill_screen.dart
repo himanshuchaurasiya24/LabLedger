@@ -11,7 +11,7 @@ import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 
 class BillScreen extends ConsumerStatefulWidget {
-  final Map<String, dynamic>? billData; // <-- Add this for Edit Mode
+  final Bill? billData; // <-- Add this for Edit Mode
 
   const BillScreen({super.key, this.billData});
 
@@ -93,20 +93,18 @@ class _AddBillScreenState extends ConsumerState<BillScreen> {
     });
 
     if (widget.billData != null) {
-      patientNameController.text = widget.billData!['patientName'] ?? '';
-      patientAgeController.text = widget.billData!['patientAge'] ?? '';
-      patientSexController.text = widget.billData!['patientSex'] ?? 'Male';
-      paidAmountController.text = widget.billData!['paidAmount'] ?? '';
-      discByCenterController.text = widget.billData!['discByCenter'] ?? '';
-      discByDoctorController.text = widget.billData!['discByDoctor'] ?? '';
-      billStatusController.text =
-          widget.billData!['billStatus'] ?? 'Fully Paid';
-      franchiseNameController.text = widget.billData!['franchiseName'] ?? '';
-      refByDoctorController.text = widget.billData!['refByDoctor'] ?? '';
-      diagnosisTypeController.text =
-          widget.billData!['diagnosisTypeId']?.toString() ?? '';
-      dateOfTestController.text = widget.billData!['dateOfTest'] ?? '';
-      dateOfBillController.text = widget.billData!['dateOfBill'] ?? '';
+      patientNameController.text = widget.billData!.patientName;
+      patientAgeController.text = widget.billData!.patientAge.toString();
+      patientSexController.text = widget.billData!.patientSex;
+      paidAmountController.text = widget.billData!.paidAmount.toString();
+      discByCenterController.text = widget.billData!.discByCenter.toString();
+      discByDoctorController.text = widget.billData!.discByDoctor.toString();
+      billStatusController.text = widget.billData!.billStatus;
+      franchiseNameController.text = widget.billData!.franchiseName!;
+      refByDoctorController.text = widget.billData!.referredByDoctor.toString();
+      diagnosisTypeController.text = widget.billData!.diagnosisType.toString();
+      dateOfTestController.text = widget.billData!.dateOfTest.toString();
+      dateOfBillController.text = widget.billData!.dateOfBill.toString();
     }
   }
 
@@ -270,7 +268,7 @@ class _AddBillScreenState extends ConsumerState<BillScreen> {
                     final existingDoctor = doctor.firstWhere(
                       (item) =>
                           item.id.toString() ==
-                          widget.billData!['ref_by_doctor']?.toString(),
+                          widget.billData!.referredByDoctor.toString(),
                       orElse: () => doctor[0],
                     );
                     refByDoctorController.text = existingDoctor.id.toString();
@@ -453,21 +451,6 @@ class _AddBillScreenState extends ConsumerState<BillScreen> {
   }
 
   void _saveBill() async {
-    debugPrint("DateOfTestISO: $selectedTestDateISO");
-    debugPrint("DateOfBillISO: $selectedBillDateISO");
-    debugPrint("name : ${patientNameController.text}");
-    debugPrint("patientAgeController : ${patientAgeController.text}");
-    debugPrint("patientSexController : ${patientSexController.text}");
-    debugPrint("diagnosisTypeController : ${diagnosisTypeController.text}");
-    debugPrint("franchiseNameController : ${franchiseNameController.text}");
-    debugPrint("refByDoctorController : ${refByDoctorController.text}");
-    debugPrint("dateOfTestController : ${dateOfTestController.text}");
-    debugPrint("dateOfBillController : ${dateOfBillController.text}");
-    debugPrint("billStatusController : ${billStatusController.text}");
-    debugPrint("paidAmountController : ${paidAmountController.text}");
-    debugPrint("discByCenterController : ${discByCenterController.text}");
-    debugPrint("discByDoctorController : ${discByDoctorController.text}");
-
     if (_formKey.currentState!.validate()) {
       final billData = {
         'patient_name': patientNameController.text,
@@ -483,13 +466,18 @@ class _AddBillScreenState extends ConsumerState<BillScreen> {
         'disc_by_center': int.parse(discByCenterController.text),
         'disc_by_doctor': int.parse(discByDoctorController.text),
       };
-      final bill = Bill.fromJson(billData);
+      final bill = Bill.fromJson({
+        ...billData,
+        'id': widget.billData?.id, // ensure the existing id is preserved
+      });
+
       try {
         if (widget.billData != null) {
           final updatedBill = await ref.read(updateBillProvider(bill).future);
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               content: Text(
                 'Bill updated successfully: ${updatedBill.billNumber}',
               ),
@@ -498,13 +486,14 @@ class _AddBillScreenState extends ConsumerState<BillScreen> {
 
           Navigator.pop(context, updatedBill);
         } else {
-          debugPrint("creating new");
           final newBill = await ref.read(createBillProvider(bill).future);
 
           if (!mounted) return;
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+
               content: Text('Bill created successfully: ${newBill.billNumber}'),
             ),
           );
@@ -513,9 +502,13 @@ class _AddBillScreenState extends ConsumerState<BillScreen> {
         }
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Theme.of(context).colorScheme.error,
+
+            content: Text('Failed: $e'),
+          ),
+        );
       }
     }
   }

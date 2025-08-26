@@ -74,6 +74,7 @@ final updateBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
     },
     body: jsonEncode(updatedBill.toJson()),
   );
+
   if (response.statusCode == 200) {
     ref.invalidate(billsProvider);
     return Bill.fromJson(jsonDecode(response.body));

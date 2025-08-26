@@ -633,9 +633,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     Expanded(
                                       child: billsAsync.when(
                                         data: (bills) {
-                                          final fetchedBills = bills
-                                              .toList()
-                                              .reversed;
+                                          final fetchedBills = bills.toList();
+
                                           final latest = fetchedBills.take(20);
                                           return ListView.builder(
                                             itemCount: latest.length,
@@ -644,6 +643,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                 index,
                                               );
                                               return ListTile(
+                                                onTap: () {
+                                                  navigatorKey.currentState
+                                                      ?.push(
+                                                        MaterialPageRoute(
+                                                          builder: (context) {
+                                                            return BillScreen(
+                                                              billData: bill,
+                                                            );
+                                                          },
+                                                        ),
+                                                      );
+                                                },
                                                 leading: Icon(
                                                   Icons.receipt_long,
                                                   size: 35,
