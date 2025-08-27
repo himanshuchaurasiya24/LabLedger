@@ -35,6 +35,7 @@ class CenterSearchBar extends StatelessWidget {
                 : containerDarkColor,
             filled: true,
             border: OutlineInputBorder(
+              borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(minimalBorderRadius),
             ),
             hintText: hintText,
@@ -45,7 +46,6 @@ class CenterSearchBar extends StatelessWidget {
     );
   }
 }
-
 
 Widget pageHeader({
   required BuildContext context,
