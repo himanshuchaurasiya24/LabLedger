@@ -14,6 +14,7 @@ import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/doctor_provider.dart';
+import 'package:labledger/screens/bill/add_bill_update_screen.dart';
 import 'package:labledger/screens/bill/bill_screen.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
@@ -82,7 +83,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             context,
             MaterialPageRoute(
               builder: (context) {
-                return BillScreen();
+                return AddBillScreen();
               },
             ),
           );
@@ -620,7 +621,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           ),
                                         ),
                                         IconButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            navigatorKey.currentState?.push(
+                                              MaterialPageRoute(
+                                                builder: (context) {
+                                                  return BillsScreen();
+                                                },
+                                              ),
+                                            );
+                                          },
                                           icon: Icon(
                                             Icons.arrow_forward_ios,
                                             color: Theme.of(
@@ -648,7 +657,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                       ?.push(
                                                         MaterialPageRoute(
                                                           builder: (context) {
-                                                            return BillScreen(
+                                                            return AddBillScreen(
                                                               billData: bill,
                                                             );
                                                           },

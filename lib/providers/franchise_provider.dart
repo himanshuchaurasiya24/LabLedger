@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
 
@@ -96,5 +97,24 @@ final deleteFranchiseProvider =
     ref.invalidate(franchiseProvider);
   } else {
     throw Exception("Failed to delete franchise: ${response.body}");
+  }
+});
+/// ✅ Fetch FranchiseName Models (with center_detail)
+final franchiseNamesProvider = FutureProvider<List<FranchiseName>>((ref) async {
+  final token = await ref.read(tokenProvider.future);
+
+  final response = await http.get(
+    Uri.parse('${baseURL}diagnosis/franchise-names/franchise-name/'),
+    headers: {'Authorization': 'Bearer $token'},
+  );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+
+    // Map the JSON into List<FranchiseName>
+    // debugPrint(data.toString());
+    return data.map((item) => FranchiseName.fromJson(item)).toList();
+  } else {
+    throw Exception('Failed to load franchise names');
   }
 });

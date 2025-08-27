@@ -104,7 +104,7 @@ class _DiagnosisTypeScreenState extends ConsumerState<DiagnosisTypeScreen> {
                     controller: searchController,
                     hintText: "Search Diagnosis Types...",
                     searchFocusNode: searchFocusNode,
-                    onSearch: () {
+                    onSearch: (e) {
                       setState(() {}); // Trigger UI update
                     },
                   ),

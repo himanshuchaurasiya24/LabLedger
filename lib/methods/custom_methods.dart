@@ -8,7 +8,7 @@ final containerDarkColor = Color(0xFF212121);
 
 class CenterSearchBar extends StatelessWidget {
   final String hintText;
-  final Function() onSearch;
+  final Function(String) onSearch; // <-- take value
   final TextEditingController controller;
   final FocusNode searchFocusNode;
 
@@ -37,25 +37,15 @@ class CenterSearchBar extends StatelessWidget {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(minimalBorderRadius),
             ),
-            hoverColor: Theme.of(context).brightness == Brightness.light
-                ? containerLightColor
-                : containerDarkColor,
-            focusColor: Theme.of(context).brightness == Brightness.light
-                ? containerLightColor
-                : containerDarkColor,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(minimalBorderRadius),
-            ),
             hintText: hintText,
           ),
-          onChanged: (value) {
-            onSearch();
-          },
+          onChanged: onSearch, // <-- pass directly
         ),
       ),
     );
   }
 }
+
 
 Widget pageHeader({
   required BuildContext context,

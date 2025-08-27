@@ -62,9 +62,8 @@ class FranchiseName {
   }
 }
 
-
 class Bill {
-  final int? id;  // <-- Nullable ID
+  final int? id; // Nullable for new bills
   final int diagnosisType;
   final int referredByDoctor;
   final int centerDetail;
@@ -80,13 +79,14 @@ class Bill {
   final int discByCenter;
   final int discByDoctor;
   final int incentiveAmount;
+  final String? billNumber;
 
   // Optional Nested Outputs (for GET responses)
   final Map<String, dynamic>? diagnosisTypeOutput;
   final Map<String, dynamic>? referredByDoctorOutput;
   final Map<String, dynamic>? testDoneBy;
   final Map<String, dynamic>? centerDetailOutput;
-  final String? billNumber;
+  final List<String>? matchReason;
 
   Bill({
     this.id,
@@ -97,7 +97,7 @@ class Bill {
     required this.patientName,
     required this.patientAge,
     required this.patientSex,
-    required this.franchiseName,
+    this.franchiseName,
     required this.dateOfBill,
     required this.billStatus,
     required this.totalAmount,
@@ -105,24 +105,28 @@ class Bill {
     required this.discByCenter,
     required this.discByDoctor,
     required this.incentiveAmount,
+    this.billNumber,
     this.diagnosisTypeOutput,
     this.referredByDoctorOutput,
     this.testDoneBy,
     this.centerDetailOutput,
-    this.billNumber,
+    this.matchReason,
   });
 
-  /// Factory Constructor to Parse JSON Safely
+  /// Factory Constructor to Parse JSON
   factory Bill.fromJson(Map<String, dynamic> json) {
     return Bill(
       id: json['id'],
-      diagnosisType:
-          json['diagnosis_type'] ?? json['diagnosis_type_output']?['id'] ?? 0,
-      referredByDoctor:
-          json['referred_by_doctor'] ?? json['referred_by_doctor_output']?['id'] ?? 0,
+      diagnosisType: json['diagnosis_type'] ??
+          json['diagnosis_type_output']?['id'] ??
+          0,
+      referredByDoctor: json['referred_by_doctor'] ??
+          json['referred_by_doctor_output']?['id'] ??
+          0,
       centerDetail: json['center_detail'] is int
           ? json['center_detail']
-          : json['center_detail']?['id'] ?? 0,
+          : json['center_detail']?['id'] ??
+              0, // Handles both int and object
       dateOfTest: json['date_of_test'] != null
           ? DateTime.parse(json['date_of_test'])
           : DateTime.now(),
@@ -139,17 +143,18 @@ class Bill {
       discByCenter: json['disc_by_center'] ?? 0,
       discByDoctor: json['disc_by_doctor'] ?? 0,
       incentiveAmount: json['incentive_amount'] ?? 0,
+      billNumber: json['bill_number'],
       diagnosisTypeOutput: json['diagnosis_type_output'],
       referredByDoctorOutput: json['referred_by_doctor_output'],
       testDoneBy: json['test_done_by'],
       centerDetailOutput: json['center_detail'] is Map
           ? json['center_detail']
           : null,
-      billNumber: json['bill_number'],
+      matchReason: (json['match_reason'] as List?)?.cast<String>(),
     );
   }
 
-  /// Convert Object to JSON Map (Skip ID if null)
+  /// Convert Object to JSON Map (for POST/PUT)
   Map<String, dynamic> toJson() {
     final data = {
       "diagnosis_type": diagnosisType,
@@ -175,77 +180,4 @@ class Bill {
 
     return data;
   }
-
-  /// API Operations (Optional Static Methods)
-
-  // static Future<List<Bill>> fetchAll(String token) async {
-  //   final response = await http.get(
-  //     Uri.parse('$baseURL/bills/'),
-  //     headers: {'Authorization': 'Bearer $token'},
-  //   );
-  //   if (response.statusCode == 200) {
-  //     List jsonList = json.decode(response.body);
-  //     return jsonList.map((json) => Bill.fromJson(json)).toList();
-  //   } else {
-  //     throw Exception('Failed to fetch bills');
-  //   }
-  // }
-
-  // static Future<Bill> fetchById(int id, String token) async {
-  //   final response = await http.get(
-  //     Uri.parse('$baseURL/bills/$id/'),
-  //     headers: {'Authorization': 'Bearer $token'},
-  //   );
-  //   if (response.statusCode == 200) {
-  //     return Bill.fromJson(json.decode(response.body));
-  //   } else {
-  //     throw Exception('Bill not found');
-  //   }
-  // }
-
-  // static Future<Bill> create(Bill bill, String token) async {
-  //   final response = await http.post(
-  //     Uri.parse('$baseURL/bills/'),
-  //     headers: {
-  //       'Authorization': 'Bearer $token',
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: json.encode(bill.toJson()),
-  //   );
-  //   if (response.statusCode == 201 || response.statusCode == 200) {
-  //     return Bill.fromJson(json.decode(response.body));
-  //   } else {
-  //     throw Exception('Failed to create bill');
-  //   }
-  // }
-
-  // static Future<Bill> update(Bill bill, String token) async {
-  //   if (bill.id == null) {
-  //     throw Exception('Cannot update Bill without ID');
-  //   }
-  //   final response = await http.put(
-  //     Uri.parse('$baseURL/bills/${bill.id}/'),
-  //     headers: {
-  //       'Authorization': 'Bearer $token',
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: json.encode(bill.toJson()),
-  //   );
-  //   if (response.statusCode == 200) {
-  //     return Bill.fromJson(json.decode(response.body));
-  //   } else {
-  //     throw Exception('Failed to update bill');
-  //   }
-  // }
-
-  // static Future<void> delete(int id, String token) async {
-  //   final response = await http.delete(
-  //     Uri.parse('$baseURL/bills/$id/'),
-  //     headers: {'Authorization': 'Bearer $token'},
-  //   );
-  //   if (response.statusCode != 204) {
-  //     throw Exception('Failed to delete bill');
-  //   }
-  // }
 }
-

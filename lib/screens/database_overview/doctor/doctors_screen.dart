@@ -112,7 +112,7 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
                     controller: searchController,
                     hintText: "Search Doctors...",
                     searchFocusNode: searhFocusNode,
-                    onSearch: () {
+                    onSearch: (e) {
                       setState(() {}); // Trigger UI update for FutureBuilder
                     },
                   ),

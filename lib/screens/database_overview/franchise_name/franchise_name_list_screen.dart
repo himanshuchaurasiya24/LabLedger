@@ -107,7 +107,7 @@ class _FranchiseNameListScreenState
                     controller: searchController,
                     hintText: "Search Franchises...",
                     searchFocusNode: searchFocusNode,
-                    onSearch: () {
+                    onSearch: (e) {
                       setState(() {}); // Trigger UI update
                     },
                   ),
