@@ -9,7 +9,8 @@ import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/bill/add_bill_update_screen.dart';
-import 'package:labledger/screens/profile/account_list_screen.dart';
+import 'package:labledger/screens/bill/ui_components/bill_card.dart';
+import 'package:labledger/screens/bill/ui_components/bill_stats_card.dart';
 
 class BillsScreen extends ConsumerStatefulWidget {
   const BillsScreen({super.key});
@@ -154,7 +155,9 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Theme.of(
+          context,
+        ).colorScheme.primary.withValues(alpha: 0.7),
         onPressed: () async {
           await navigatorKey.currentState
               ?.push(
@@ -203,464 +206,182 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
               child: SizedBox(
                 width: double.infinity,
                 height: double.infinity,
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      Visibility(
-                        visible: searchController.text.trim().isEmpty,
-                        child: Container(
-                          height: 270,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(defaultRadius),
-                          ),
-                          child: ref
-                              .watch(billStatsProvider)
-                              .when(
-                                data: (stats) {
-                                  return Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      BillStatsCard(
-                                        title: "Monthly Growth",
-                                        currentPeriod: stats.currentMonth,
-                                        previousPeriod: stats.previousMonth,
-                                      ),
-                                      SizedBox(width: defaultWidth),
-                                      BillStatsCard(
-                                        title: "Quarterly Growth",
-                                        currentPeriod: stats.currentQuarter,
-                                        previousPeriod: stats.previousQuarter,
-                                      ),
-                                      SizedBox(width: defaultWidth),
-                                      BillStatsCard(
-                                        title: "Yearly Growth",
-                                        currentPeriod: stats.currentYear,
-                                        previousPeriod: stats.previousYear,
-                                      ),
-                                    ],
-                                  );
-                                },
-                                loading: () => const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                                error: (err, stack) =>
-                                    Center(child: Text("Error: $err")),
+                child: ScrollConfiguration(
+                  behavior: NoThumbScrollBehavior(),
+                  child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        Visibility(
+                          visible: searchController.text.trim().isEmpty,
+                          child: Container(
+                            height: 310,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                defaultRadius,
                               ),
-                        ),
-                      ),
-                      Builder(
-                        builder: (context) {
-                          if (groupedBills == null) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          if (groupedBills.isEmpty) {
-                            return Center(
-                              child: Text(
-                                'No bills found.',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineLarge,
-                              ),
-                            );
-                          }
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: groupedBills.entries.map((entry) {
-                              final category = entry.key;
-                              final bills = entry.value;
-
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        category,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.headlineMedium,
-                                      ),
-                                      IconButton(
-                                        onPressed: () {
-                                          _showViewMenu();
-                                        },
-                                        icon: Icon(
-                                          _selectedView == "grid"
-                                              ? Icons.grid_on_rounded
-                                              : Icons.list,
-                                          size: 40,
+                            ),
+                            child: ref
+                                .watch(billStatsProvider)
+                                .when(
+                                  data: (stats) {
+                                    return Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        BillStatsCard(
+                                          title: "Monthly Growth",
+                                          currentPeriod: stats.currentMonth,
+                                          previousPeriod: stats.previousMonth,
                                         ),
-                                      ),
-                                    ],
+                                        SizedBox(width: defaultWidth),
+                                        BillStatsCard(
+                                          title: "Quarterly Growth",
+                                          currentPeriod: stats.currentQuarter,
+                                          previousPeriod: stats.previousQuarter,
+                                        ),
+                                        SizedBox(width: defaultWidth),
+                                        BillStatsCard(
+                                          title: "Yearly Growth",
+                                          currentPeriod: stats.currentYear,
+                                          previousPeriod: stats.previousYear,
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                  loading: () => const Center(
+                                    child: CircularProgressIndicator(),
                                   ),
-                                  if (_selectedView == "grid")
-                                    GridView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 4,
-                                            childAspectRatio: 1.64,
-                                            crossAxisSpacing: 16,
-                                            mainAxisSpacing: 16,
-                                          ),
-                                      itemCount: bills.length,
-                                      itemBuilder: (ctx, index) {
-                                        final bill = bills[index];
-                                        return GridCard(
-                                          context: context,
-                                          onTap: () {
-                                            navigatorKey.currentState?.push(
-                                              MaterialPageRoute(
-                                                builder: (_) => AddBillScreen(
-                                                  billData: bill,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Container(
-                                                    height: 55,
-                                                    width: 55,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            10,
-                                                          ),
-                                                      color: Theme.of(
-                                                        context,
-                                                      ).colorScheme.primary,
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        bill
-                                                                .patientName
-                                                                .isNotEmpty
-                                                            ? bill.patientName[0]
-                                                                  .toUpperCase()
-                                                            : "?",
-                                                        style: TextStyle(
-                                                          fontSize: 20,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: ThemeData.light()
-                                                              .scaffoldBackgroundColor,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  Expanded(
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          bill.patientName,
-                                                          style: Theme.of(context)
-                                                              .textTheme
-                                                              .titleSmall
-                                                              ?.copyWith(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontSize: 22,
-                                                              ),
-                                                          maxLines: 1,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 6,
-                                                                vertical: 2,
-                                                              ),
-                                                          decoration: BoxDecoration(
-                                                            color:
-                                                                Theme.of(
-                                                                      context,
-                                                                    )
-                                                                    .colorScheme
-                                                                    .primary
-                                                                    .withAlpha(
-                                                                      204,
-                                                                    ),
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  4,
-                                                                ),
-                                                          ),
-                                                          child: Text(
-                                                            "Dr. ${bill.referredByDoctorOutput?["first_name"] ?? ""} ${bill.referredByDoctorOutput?["last_name"] ?? ""}",
-                                                            style:
-                                                                const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 14,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Text(
-                                                "Bill#: ${bill.billNumber ?? "N/A"}",
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              Text(
-                                                "Franchise: ${bill.franchiseName ?? "N/A"}",
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              Text(
-                                                "₹ ${bill.totalAmount} | Paid: ₹ ${bill.paidAmount}",
-                                                style: const TextStyle(
-                                                  fontSize: 18,
-                                                ),
-                                              ),
-                                              Text(
-                                                "Status: ${bill.billStatus}",
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  color:
-                                                      bill.billStatus ==
-                                                          "Fully Paid"
-                                                      ? Colors.green
-                                                      : Colors.red,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 5),
-                                              Container(
-                                                height: 40,
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary
-                                                      .withAlpha(204),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                        defaultRadius / 2,
-                                                      ),
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    "${bill.diagnosisTypeOutput?["name"] ?? "Unknown Test"} | Incentive: ₹${bill.incentiveAmount}",
-                                                    style: TextStyle(
-                                                      color: ThemeData.light()
-                                                          .scaffoldBackgroundColor,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  if (_selectedView == "list")
-                                    ListView.separated(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount: bills.length,
-                                      separatorBuilder: (_, __) =>
-                                          SizedBox(height: defaultHeight),
-                                      itemBuilder: (ctx, index) {
-                                        final bill = bills[index];
-                                        return GestureDetector(
-                                          onTap: () async {
-                                            navigatorKey.currentState
-                                                ?.push(
-                                                  MaterialPageRoute(
-                                                    builder: (_) =>
-                                                        AddBillScreen(
-                                                          billData: bill,
-                                                        ),
-                                                  ),
-                                                )
-                                                .then((value) {
-                                                  _fetchBills("");
-                                                });
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.all(
-                                              defaultPadding,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                    .withValues(alpha: 0.4),
-                                                width: 2,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                    defaultRadius,
-                                                  ),
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      bill.patientName,
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .titleSmall
-                                                          ?.copyWith(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 24,
-                                                          ),
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-
-                                                    Text(
-                                                      "${bill.diagnosisTypeOutput!['category']} ${bill.diagnosisTypeOutput!['name']}",
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                      ),
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                    Text(
-                                                      "Paid: ${bill.paidAmount.toString()}",
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                      ),
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                    Container(
-                                                      height: 30,
-                                                      width:
-                                                          bill.billStatus ==
-                                                              "Fully Paid"
-                                                          ? 120
-                                                          : 150,
-                                                      padding: EdgeInsets.all(
-                                                        2,
-                                                      ),
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              defaultRadius / 2,
-                                                            ),
-                                                        color:
-                                                            bill.billStatus ==
-                                                                "Fully Paid"
-                                                            ? Colors.green
-                                                            : Colors.red,
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          bill.billStatus ==
-                                                                  "Fully Paid"
-                                                              ? bill.billStatus
-                                                              : "Pending ${(bill.totalAmount - bill.paidAmount - bill.discByCenter - bill.discByDoctor)}",
-                                                          style: TextStyle(
-                                                            fontSize: 14,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.end,
-                                                  children: [
-                                                    Text(
-                                                      "Bill#: ${bill.billNumber}",
-                                                      style: Theme.of(
-                                                        context,
-                                                      ).textTheme.titleLarge,
-                                                    ),
-                                                    Container(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 6,
-                                                            vertical: 2,
-                                                          ),
-                                                      decoration: BoxDecoration(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .primary
-                                                            .withAlpha(204),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              4,
-                                                            ),
-                                                      ),
-                                                      child: Text(
-                                                        "Dr. ${bill.referredByDoctorOutput?["first_name"] ?? ""} ${bill.referredByDoctorOutput?["last_name"] ?? ""}",
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                ],
+                                  error: (err, stack) =>
+                                      Center(child: Text("Error: $err")),
+                                ),
+                          ),
+                        ),
+                        Builder(
+                          builder: (context) {
+                            if (groupedBills == null) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
                               );
-                            }).toList(),
-                          );
-                        },
-                      ),
-                    ],
+                            }
+
+                            if (groupedBills.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'No bills found.',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.headlineLarge,
+                                ),
+                              );
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: groupedBills.entries.map((entry) {
+                                final category = entry.key;
+                                final bills = entry.value;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          category,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.headlineMedium,
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            _showViewMenu();
+                                          },
+                                          icon: Icon(
+                                            _selectedView == "grid"
+                                                ? Icons.grid_on_rounded
+                                                : Icons.list,
+                                            size: 40,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (_selectedView == "grid")
+                                      GridView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+
+                                        gridDelegate:
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount: 4,
+                                              childAspectRatio: 1.45,
+                                              crossAxisSpacing: 16,
+                                              mainAxisSpacing: 16,
+                                            ),
+                                        itemCount: bills.length,
+
+                                        itemBuilder: (ctx, index) {
+                                          final bill = bills[index];
+                                          return GestureDetector(
+                                            onTap: () async {
+                                              navigatorKey.currentState
+                                                  ?.push(
+                                                    MaterialPageRoute(
+                                                      builder: (_) =>
+                                                          AddBillScreen(
+                                                            billData: bill,
+                                                          ),
+                                                    ),
+                                                  )
+                                                  .then((value) {
+                                                    _fetchBills("");
+                                                  });
+                                            },
+                                            child: BillCard(bill: bill),
+                                          );
+                                        },
+                                      ),
+                                    if (_selectedView == "list")
+                                      ListView.separated(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: bills.length,
+                                        separatorBuilder: (_, __) =>
+                                            SizedBox(height: defaultHeight),
+                                        itemBuilder: (ctx, index) {
+                                          final bill = bills[index];
+                                          return GestureDetector(
+                                            onTap: () async {
+                                              navigatorKey.currentState
+                                                  ?.push(
+                                                    MaterialPageRoute(
+                                                      builder: (_) =>
+                                                          AddBillScreen(
+                                                            billData: bill,
+                                                          ),
+                                                    ),
+                                                  )
+                                                  .then((value) {
+                                                    _fetchBills("");
+                                                  });
+                                            },
+                                            child: BillCard(bill: bill),
+                                          );
+                                        },
+                                      ),
+                                  ],
+                                );
+                              }).toList(),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

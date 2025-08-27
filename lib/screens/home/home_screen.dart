@@ -902,16 +902,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-class NoThumbScrollBehavior extends ScrollBehavior {
-  @override
-  Widget buildScrollbar(
-    BuildContext context,
-    Widget child,
-    ScrollableDetails details,
-  ) {
-    return child;
-  }
-}
+
 
 class GlassContainer extends StatelessWidget {
   final Widget? child;
