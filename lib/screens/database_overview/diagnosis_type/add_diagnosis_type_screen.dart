@@ -42,12 +42,23 @@ class AddDiagnosisTypeScreen extends ConsumerWidget {
         addDiagnosisTypeProvider(newDiagnosisType).future,
       );
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        const SnackBar(content: Text("Diagnosis Type created successfully")),
+        SnackBar(
+          backgroundColor: Theme.of(
+            navigatorKey.currentContext!,
+          ).colorScheme.secondary,
+
+          content: Text("Diagnosis Type created successfully"),
+        ),
       );
       Navigator.pop(navigatorKey.currentContext!, created);
     } catch (e) {
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        SnackBar(content: Text("Failed to create Diagnosis Type: $e")),
+        SnackBar(
+          backgroundColor: Theme.of(
+            navigatorKey.currentContext!,
+          ).colorScheme.error,
+          content: Text("Failed to create Diagnosis Type: $e"),
+        ),
       );
     }
   }
@@ -67,12 +78,23 @@ class AddDiagnosisTypeScreen extends ConsumerWidget {
         }).future,
       );
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        const SnackBar(content: Text("Diagnosis Type updated successfully")),
+        SnackBar(
+          backgroundColor: Theme.of(
+            navigatorKey.currentContext!,
+          ).colorScheme.secondary,
+          content: Text("Diagnosis Type updated successfully"),
+        ),
       );
       Navigator.pop(navigatorKey.currentContext!, updated);
     } catch (e) {
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        SnackBar(content: Text("Failed to update Diagnosis Type: $e")),
+        SnackBar(
+          backgroundColor: Theme.of(
+            navigatorKey.currentContext!,
+          ).colorScheme.error,
+
+          content: Text("Failed to update Diagnosis Type: $e"),
+        ),
       );
     }
   }
@@ -82,21 +104,39 @@ class AddDiagnosisTypeScreen extends ConsumerWidget {
     try {
       await ref.read(deleteDiagnosisTypeProvider(id).future);
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        const SnackBar(content: Text("Diagnosis Type deleted successfully")),
+        SnackBar(
+          backgroundColor: Theme.of(
+            navigatorKey.currentContext!,
+          ).colorScheme.error,
+
+          content: Text("Diagnosis Type deleted successfully"),
+        ),
       );
       Navigator.pop(navigatorKey.currentContext!);
     } catch (e) {
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        SnackBar(content: Text("Failed to delete Diagnosis Type: $e")),
+        SnackBar(
+          backgroundColor: Theme.of(
+            navigatorKey.currentContext!,
+          ).colorScheme.error,
+
+          content: Text("Failed to delete Diagnosis Type: $e"),
+        ),
       );
     }
   }
 
   void _submitForm(WidgetRef ref) {
     if (diagnosisTypeController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        navigatorKey.currentContext!,
-      ).showSnackBar(const SnackBar(content: Text("Please select a category")));
+      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+        SnackBar(
+          backgroundColor: Theme.of(
+            navigatorKey.currentContext!,
+          ).colorScheme.error,
+
+          content: Text("Please select a category"),
+        ),
+      );
       return;
     }
 

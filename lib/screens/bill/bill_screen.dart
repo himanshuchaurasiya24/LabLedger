@@ -5,11 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
+import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/bill/add_bill_update_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
-
-
 
 class BillsScreen extends ConsumerStatefulWidget {
   const BillsScreen({super.key});
@@ -21,10 +20,10 @@ class BillsScreen extends ConsumerStatefulWidget {
 class _BillsScreenState extends ConsumerState<BillsScreen> {
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
-// Global state provider for bills
-final billsStateProvider = StateProvider<Map<String, List<Bill>>?>(
-  (ref) => null, // null = loading
-);
+  // Global state provider for bills
+  final billsStateProvider = StateProvider<Map<String, List<Bill>>?>(
+    (ref) => null, // null = loading
+  );
   final Dio dio = Dio();
   CancelToken? _cancelToken;
   Timer? _debounce;
@@ -88,14 +87,12 @@ final billsStateProvider = StateProvider<Map<String, List<Bill>>?>(
     searchController.dispose();
     searchFocusNode.dispose();
     _cancelToken?.cancel();
-    // ref.read(billsStateProvider.notifier).state = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final groupedBills = ref.watch(billsStateProvider);
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
       floatingActionButton: FloatingActionButton.extended(
@@ -131,215 +128,289 @@ final billsStateProvider = StateProvider<Map<String, List<Bill>>?>(
                       _fetchBills(e);
                     },
                   ),
-                  const SizedBox(width: 160),
+                  const SizedBox(width: 180),
                 ],
               ),
             ),
             Expanded(
-              child: Builder(
-                builder: (context) {
-                  if (groupedBills == null) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (groupedBills.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No bills found.',
-                        style: Theme.of(context).textTheme.headlineLarge,
-                      ),
-                    );
-                  }
-
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: groupedBills.entries.map((entry) {
-                        final category = entry.key;
-                        final bills = entry.value;
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 6,
-                                horizontal: 6,
+              child: SizedBox(
+                width: double.infinity,
+                height: double.infinity,
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      Visibility(
+                        visible: searchController.text.trim().isEmpty,
+                        child: Container(
+                          height: 270,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(defaultRadius),
+                          ),
+                          child: ref
+                              .watch(billStatsProvider)
+                              .when(
+                                data: (stats) {
+                                  return Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      BillStatsCard(
+                                        title: "Monthly Growth",
+                                        currentPeriod: stats.currentMonth,
+                                        previousPeriod: stats.previousMonth,
+                                      ),
+                                      SizedBox(width: defaultWidth),
+                                      BillStatsCard(
+                                        title: "Quarterly Growth",
+                                        currentPeriod: stats.currentQuarter,
+                                        previousPeriod: stats.previousQuarter,
+                                      ),
+                                      SizedBox(width: defaultWidth),
+                                      BillStatsCard(
+                                        title: "Yearly Growth",
+                                        currentPeriod: stats.currentYear,
+                                        previousPeriod: stats.previousYear,
+                                      ),
+                                    ],
+                                  );
+                                },
+                                loading: () => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                error: (err, stack) =>
+                                    Center(child: Text("Error: $err")),
                               ),
+                        ),
+                      ),
+                      Builder(
+                        builder: (context) {
+                          if (groupedBills == null) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          if (groupedBills.isEmpty) {
+                            return Center(
                               child: Text(
-                                category,
+                                'No bills found.',
                                 style: Theme.of(
                                   context,
-                                ).textTheme.headlineMedium,
+                                ).textTheme.headlineLarge,
                               ),
-                            ),
-                            GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    childAspectRatio: 1.64,
-                                    crossAxisSpacing: 16,
-                                    mainAxisSpacing: 16,
+                            );
+                          }
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: groupedBills.entries.map((entry) {
+                              final category = entry.key;
+                              final bills = entry.value;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    category,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.headlineMedium,
                                   ),
-                              itemCount: bills.length,
-                              itemBuilder: (ctx, index) {
-                                final bill = bills[index];
-                                return GridCard(
-                                  context: context,
-                                  onTap: () {
-                                    navigatorKey.currentState?.push(
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            AddBillScreen(billData: bill),
-                                      ),
-                                    );
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Container(
-                                            height: 55,
-                                            width: 55,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              color: Theme.of(
-                                                context,
-                                              ).colorScheme.primary,
+                                  GridView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 4,
+                                          childAspectRatio: 1.64,
+                                          crossAxisSpacing: 16,
+                                          mainAxisSpacing: 16,
+                                        ),
+                                    itemCount: bills.length,
+                                    itemBuilder: (ctx, index) {
+                                      final bill = bills[index];
+                                      return GridCard(
+                                        context: context,
+                                        onTap: () {
+                                          navigatorKey.currentState?.push(
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  AddBillScreen(billData: bill),
                                             ),
-                                            child: Center(
-                                              child: Text(
-                                                bill.patientName.isNotEmpty
-                                                    ? bill.patientName[0]
-                                                          .toUpperCase()
-                                                    : "?",
-                                                style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: ThemeData.light()
-                                                      .scaffoldBackgroundColor,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                          );
+                                        },
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
                                               children: [
-                                                Text(
-                                                  bill.patientName,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .titleSmall
-                                                      ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 22,
-                                                      ),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
                                                 Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 6,
-                                                        vertical: 2,
-                                                      ),
+                                                  height: 55,
+                                                  width: 55,
                                                   decoration: BoxDecoration(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primary
-                                                        .withValues(alpha: 0.8),
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                          4,
+                                                          10,
                                                         ),
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
                                                   ),
-                                                  child: Text(
-                                                    "Dr. ${bill.referredByDoctorOutput?["first_name"] ?? ""} ${bill.referredByDoctorOutput?["last_name"] ?? ""}",
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 14,
+                                                  child: Center(
+                                                    child: Text(
+                                                      bill
+                                                              .patientName
+                                                              .isNotEmpty
+                                                          ? bill.patientName[0]
+                                                                .toUpperCase()
+                                                          : "?",
+                                                      style: TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: ThemeData.light()
+                                                            .scaffoldBackgroundColor,
+                                                      ),
                                                     ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        bill.patientName,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .titleSmall
+                                                            ?.copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 22,
+                                                            ),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                      Container(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 6,
+                                                              vertical: 2,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .primary
+                                                                  .withValues(
+                                                                    alpha: 0.8,
+                                                                  ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                        child: Text(
+                                                          "Dr. ${bill.referredByDoctorOutput?["first_name"] ?? ""} ${bill.referredByDoctorOutput?["last_name"] ?? ""}",
+                                                          style:
+                                                              const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 14,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        "Bill#: ${bill.billNumber ?? "N/A"}",
-                                        style: const TextStyle(fontSize: 18),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        "Franchise: ${bill.franchiseName ?? "N/A"}",
-                                        style: const TextStyle(fontSize: 18),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        "₹ ${bill.totalAmount} | Paid: ₹ ${bill.paidAmount}",
-                                        style: const TextStyle(fontSize: 18),
-                                      ),
-                                      Text(
-                                        "Status: ${bill.billStatus}",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: bill.billStatus == "Fully Paid"
-                                              ? Colors.green
-                                              : Colors.red,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Container(
-                                        height: 40,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary
-                                              .withValues(alpha: 0.8),
-                                          borderRadius: BorderRadius.circular(
-                                            defaultRadius / 2,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "${bill.diagnosisTypeOutput?["name"] ?? "Unknown Test"} | Incentive: ₹${bill.incentiveAmount}",
-                                            style: TextStyle(
-                                              color: ThemeData.light()
-                                                  .scaffoldBackgroundColor,
-                                              fontSize: 16,
+                                            Text(
+                                              "Bill#: ${bill.billNumber ?? "N/A"}",
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                          ),
+                                            Text(
+                                              "Franchise: ${bill.franchiseName ?? "N/A"}",
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            Text(
+                                              "₹ ${bill.totalAmount} | Paid: ₹ ${bill.paidAmount}",
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                            Text(
+                                              "Status: ${bill.billStatus}",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color:
+                                                    bill.billStatus ==
+                                                        "Fully Paid"
+                                                    ? Colors.green
+                                                    : Colors.red,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Container(
+                                              height: 40,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary
+                                                    .withValues(alpha: 0.8),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                      defaultRadius / 2,
+                                                    ),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  "${bill.diagnosisTypeOutput?["name"] ?? "Unknown Test"} | Incentive: ₹${bill.incentiveAmount}",
+                                                  style: TextStyle(
+                                                    color: ThemeData.light()
+                                                        .scaffoldBackgroundColor,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    ],
+                                      );
+                                    },
                                   ),
-                                );
-                              },
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  );
-                },
+                                ],
+                              );
+                            }).toList(),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],

@@ -1,10 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/models/bill_stats_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:window_manager/window_manager.dart';
 
 final containerLightColor = Color(0xFFEEEEEE);
 final containerDarkColor = Color(0xFF212121);
+
+class BillStatsCard extends StatelessWidget {
+  final String title;
+  final BillPeriodStats currentPeriod;
+  final BillPeriodStats previousPeriod;
+
+  const BillStatsCard({
+    super.key,
+    required this.title,
+    required this.currentPeriod,
+    required this.previousPeriod,
+  });
+  Color getBackgroundColors(BuildContext context, bool isPositive) {
+    if (isPositive) {
+      return Colors.green[400]!;
+    } else {
+      return Colors.red[400]!;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final current = currentPeriod.totalBills;
+    final previous = previousPeriod.totalBills;
+
+    final growth = previous == 0 ? 0 : ((current - previous) / previous) * 100;
+    final isPositive = growth >= 0;
+    final headingStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    );
+    return Expanded(
+      child: Container(
+        decoration: BoxDecoration(
+          color: getBackgroundColors(context, isPositive),
+          borderRadius: BorderRadius.circular(defaultRadius / 2),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Total $current", style: headingStyle),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: defaultHeight,
+                    runSpacing: 8,
+                    direction: Axis.vertical,
+                    children: currentPeriod.diagnosisCounts.entries.map((e) {
+                      return Text(
+                        "${e.key.toUpperCase()}: ${e.value}",
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+              Spacer(),
+              Column(
+                children: [
+                  Text(title, style: headingStyle),
+                  SizedBox(height: defaultHeight),
+                  Chip(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(color: Colors.transparent),
+                      borderRadius: BorderRadiusGeometry.circular(
+                        defaultRadius,
+                      ),
+                    ),
+
+                    backgroundColor: ThemeData.light().scaffoldBackgroundColor,
+                    label: Text(
+                      "${isPositive ? '+' : ''}${growth.toStringAsFixed(1)}%",
+                      style: TextStyle(
+                        fontSize: 40,
+                        color: isPositive ? Colors.green : Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class CenterSearchBar extends StatelessWidget {
   final String hintText;
