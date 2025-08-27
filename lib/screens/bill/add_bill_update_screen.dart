@@ -101,7 +101,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
       discByCenterController.text = widget.billData!.discByCenter.toString();
       discByDoctorController.text = widget.billData!.discByDoctor.toString();
       billStatusController.text = widget.billData!.billStatus;
-      franchiseNameController.text = widget.billData!.franchiseName??"";
+      franchiseNameController.text = widget.billData!.franchiseName ?? "";
       refByDoctorController.text = widget.billData!.referredByDoctor.toString();
       diagnosisTypeController.text = widget.billData!.diagnosisType.toString();
       dateOfTestController.text = widget.billData!.dateOfTest.toString();
@@ -452,6 +452,11 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen> {
   }
 
   void _saveBill() async {
+    if (billStatusController.text == "Unpaid") {
+      paidAmountController.text = "0";
+      discByCenterController.text = "0";
+      discByDoctorController.text = "0";
+    }
     if (_formKey.currentState!.validate()) {
       final billData = {
         'patient_name': patientNameController.text,

@@ -41,7 +41,7 @@ class BillStatsCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: getBackgroundColors(context, isPositive),
-          borderRadius: BorderRadius.circular(defaultRadius / 2),
+          borderRadius: BorderRadius.circular(defaultRadius),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -105,20 +105,20 @@ class CenterSearchBar extends StatelessWidget {
   final Function(String) onSearch; // <-- take value
   final TextEditingController controller;
   final FocusNode searchFocusNode;
-
+  final double? width;
   const CenterSearchBar({
     super.key,
     required this.hintText,
     required this.onSearch,
     required this.controller,
-    required this.searchFocusNode,
+    required this.searchFocusNode, this.width=200,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 45,
-      width: 200,
+      width: width,
       child: Center(
         child: TextField(
           focusNode: searchFocusNode,

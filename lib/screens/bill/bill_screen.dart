@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
@@ -20,20 +21,22 @@ class BillsScreen extends ConsumerStatefulWidget {
 class _BillsScreenState extends ConsumerState<BillsScreen> {
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
+  final FlutterSecureStorage storage = const FlutterSecureStorage();
+  String _selectedView = 'list'; // default view
+
+  final Dio dio = Dio();
+  CancelToken? _cancelToken;
+  Timer? _debounce;
   // Global state provider for bills
   final billsStateProvider = StateProvider<Map<String, List<Bill>>?>(
     (ref) => null, // null = loading
   );
-  final Dio dio = Dio();
-  CancelToken? _cancelToken;
-  Timer? _debounce;
-
   @override
   void initState() {
     super.initState();
     setWindowBehavior(removeTitleBar: true);
     searchFocusNode.requestFocus();
-
+    _loadSavedView();
     // Initial fetch
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchBills(""); // fetch all bills on screen load
@@ -81,6 +84,61 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
     });
   }
 
+  Future<void> _loadSavedView() async {
+    final savedView = await storage.read(key: 'bill_view');
+    if (savedView != null) {
+      setState(() {
+        _selectedView = savedView;
+      });
+    }
+  }
+
+  Future<void> _saveView(String view) async {
+    await storage.write(key: 'bill_view', value: view);
+  }
+
+  void _showViewMenu() async {
+    final selected = await showMenu<String>(
+      context: context,
+      position: const RelativeRect.fromLTRB(
+        200,
+        385,
+        0,
+        100,
+      ), // adjust if needed
+      color: Theme.of(context).colorScheme.tertiaryFixed,
+      shadowColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadiusGeometry.circular(defaultRadius),
+        side: BorderSide(color: Theme.of(context).scaffoldBackgroundColor),
+      ),
+      items: [
+        const PopupMenuItem(
+          value: 'list',
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [Icon(Icons.list_rounded), Text("List View")],
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'grid',
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+
+            children: [Icon(Icons.grid_on_rounded), Text("Grid View")],
+          ),
+        ),
+      ],
+    );
+
+    if (selected != null) {
+      setState(() {
+        _selectedView = selected;
+      });
+      _saveView(selected);
+    }
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -97,10 +155,18 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
       backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Theme.of(context).colorScheme.primary,
-        onPressed: () {
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(builder: (_) => AddBillScreen()),
-          );
+        onPressed: () async {
+          await navigatorKey.currentState
+              ?.push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return AddBillScreen();
+                  },
+                ),
+              )
+              .then((value) {
+                _fetchBills("");
+              });
         },
         label: Text(
           "Add Bill",
@@ -112,7 +178,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+        padding: EdgeInsets.symmetric(horizontal: defaultPadding * 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -124,6 +190,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                     controller: searchController,
                     searchFocusNode: searchFocusNode,
                     hintText: "Search Bills...",
+                    width: 400,
                     onSearch: (e) {
                       _fetchBills(e);
                     },
@@ -212,196 +279,381 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    category,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.headlineMedium,
-                                  ),
-                                  GridView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 4,
-                                          childAspectRatio: 1.64,
-                                          crossAxisSpacing: 16,
-                                          mainAxisSpacing: 16,
-                                        ),
-                                    itemCount: bills.length,
-                                    itemBuilder: (ctx, index) {
-                                      final bill = bills[index];
-                                      return GridCard(
-                                        context: context,
-                                        onTap: () {
-                                          navigatorKey.currentState?.push(
-                                            MaterialPageRoute(
-                                              builder: (_) =>
-                                                  AddBillScreen(billData: bill),
-                                            ),
-                                          );
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        category,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.headlineMedium,
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          _showViewMenu();
                                         },
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  height: 55,
-                                                  width: 55,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          10,
+                                        icon: Icon(
+                                          _selectedView == "grid"
+                                              ? Icons.grid_on_rounded
+                                              : Icons.list,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (_selectedView == "grid")
+                                    GridView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 4,
+                                            childAspectRatio: 1.64,
+                                            crossAxisSpacing: 16,
+                                            mainAxisSpacing: 16,
+                                          ),
+                                      itemCount: bills.length,
+                                      itemBuilder: (ctx, index) {
+                                        final bill = bills[index];
+                                        return GridCard(
+                                          context: context,
+                                          onTap: () {
+                                            navigatorKey.currentState?.push(
+                                              MaterialPageRoute(
+                                                builder: (_) => AddBillScreen(
+                                                  billData: bill,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    height: 55,
+                                                    width: 55,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10,
+                                                          ),
+                                                      color: Theme.of(
+                                                        context,
+                                                      ).colorScheme.primary,
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        bill
+                                                                .patientName
+                                                                .isNotEmpty
+                                                            ? bill.patientName[0]
+                                                                  .toUpperCase()
+                                                            : "?",
+                                                        style: TextStyle(
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: ThemeData.light()
+                                                              .scaffoldBackgroundColor,
                                                         ),
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.primary,
-                                                  ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      bill
-                                                              .patientName
-                                                              .isNotEmpty
-                                                          ? bill.patientName[0]
-                                                                .toUpperCase()
-                                                          : "?",
-                                                      style: TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: ThemeData.light()
-                                                            .scaffoldBackgroundColor,
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        bill.patientName,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .titleSmall
-                                                            ?.copyWith(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 22,
-                                                            ),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                      Container(
-                                                        padding:
-                                                            const EdgeInsets.symmetric(
-                                                              horizontal: 6,
-                                                              vertical: 2,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .colorScheme
-                                                                  .primary
-                                                                  .withValues(
-                                                                    alpha: 0.8,
-                                                                  ),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                4,
-                                                              ),
-                                                        ),
-                                                        child: Text(
-                                                          "Dr. ${bill.referredByDoctorOutput?["first_name"] ?? ""} ${bill.referredByDoctorOutput?["last_name"] ?? ""}",
-                                                          style:
-                                                              const TextStyle(
-                                                                color: Colors
-                                                                    .white,
+                                                  const SizedBox(width: 10),
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          bill.patientName,
+                                                          style: Theme.of(context)
+                                                              .textTheme
+                                                              .titleSmall
+                                                              ?.copyWith(
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,
-                                                                fontSize: 14,
+                                                                fontSize: 22,
                                                               ),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                        Container(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 6,
+                                                                vertical: 2,
+                                                              ),
+                                                          decoration: BoxDecoration(
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .primary
+                                                                    .withAlpha(
+                                                                      204,
+                                                                    ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  4,
+                                                                ),
+                                                          ),
+                                                          child: Text(
+                                                            "Dr. ${bill.referredByDoctorOutput?["first_name"] ?? ""} ${bill.referredByDoctorOutput?["last_name"] ?? ""}",
+                                                            style:
+                                                                const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 14,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Text(
+                                                "Bill#: ${bill.billNumber ?? "N/A"}",
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Text(
+                                                "Franchise: ${bill.franchiseName ?? "N/A"}",
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Text(
+                                                "₹ ${bill.totalAmount} | Paid: ₹ ${bill.paidAmount}",
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                ),
+                                              ),
+                                              Text(
+                                                "Status: ${bill.billStatus}",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color:
+                                                      bill.billStatus ==
+                                                          "Fully Paid"
+                                                      ? Colors.green
+                                                      : Colors.red,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Container(
+                                                height: 40,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .secondary
+                                                      .withAlpha(204),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        defaultRadius / 2,
+                                                      ),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    "${bill.diagnosisTypeOutput?["name"] ?? "Unknown Test"} | Incentive: ₹${bill.incentiveAmount}",
+                                                    style: TextStyle(
+                                                      color: ThemeData.light()
+                                                          .scaffoldBackgroundColor,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  if (_selectedView == "list")
+                                    ListView.separated(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: bills.length,
+                                      separatorBuilder: (_, __) =>
+                                          SizedBox(height: defaultHeight),
+                                      itemBuilder: (ctx, index) {
+                                        final bill = bills[index];
+                                        return GestureDetector(
+                                          onTap: () async {
+                                            navigatorKey.currentState
+                                                ?.push(
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        AddBillScreen(
+                                                          billData: bill,
+                                                        ),
+                                                  ),
+                                                )
+                                                .then((value) {
+                                                  _fetchBills("");
+                                                });
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.all(
+                                              defaultPadding,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withValues(alpha: 0.4),
+                                                width: 2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                    defaultRadius,
+                                                  ),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      bill.patientName,
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .titleSmall
+                                                          ?.copyWith(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 24,
+                                                          ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+
+                                                    Text(
+                                                      "${bill.diagnosisTypeOutput!['category']} ${bill.diagnosisTypeOutput!['name']}",
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    Text(
+                                                      "Paid: ${bill.paidAmount.toString()}",
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    Container(
+                                                      height: 30,
+                                                      width:
+                                                          bill.billStatus ==
+                                                              "Fully Paid"
+                                                          ? 120
+                                                          : 150,
+                                                      padding: EdgeInsets.all(
+                                                        2,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              defaultRadius / 2,
+                                                            ),
+                                                        color:
+                                                            bill.billStatus ==
+                                                                "Fully Paid"
+                                                            ? Colors.green
+                                                            : Colors.red,
+                                                      ),
+                                                      child: Center(
+                                                        child: Text(
+                                                          bill.billStatus ==
+                                                                  "Fully Paid"
+                                                              ? bill.billStatus
+                                                              : "Pending ${(bill.totalAmount - bill.paidAmount - bill.discByCenter - bill.discByDoctor)}",
+                                                          style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: Colors.white,
+                                                          ),
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.end,
+                                                  children: [
+                                                    Text(
+                                                      "Bill#: ${bill.billNumber}",
+                                                      style: Theme.of(
+                                                        context,
+                                                      ).textTheme.titleLarge,
+                                                    ),
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 6,
+                                                            vertical: 2,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .primary
+                                                            .withAlpha(204),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                      ),
+                                                      child: Text(
+                                                        "Dr. ${bill.referredByDoctorOutput?["first_name"] ?? ""} ${bill.referredByDoctorOutput?["last_name"] ?? ""}",
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ],
                                             ),
-                                            Text(
-                                              "Bill#: ${bill.billNumber ?? "N/A"}",
-                                              style: const TextStyle(
-                                                fontSize: 18,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            Text(
-                                              "Franchise: ${bill.franchiseName ?? "N/A"}",
-                                              style: const TextStyle(
-                                                fontSize: 18,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            Text(
-                                              "₹ ${bill.totalAmount} | Paid: ₹ ${bill.paidAmount}",
-                                              style: const TextStyle(
-                                                fontSize: 18,
-                                              ),
-                                            ),
-                                            Text(
-                                              "Status: ${bill.billStatus}",
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color:
-                                                    bill.billStatus ==
-                                                        "Fully Paid"
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Container(
-                                              height: 40,
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary
-                                                    .withValues(alpha: 0.8),
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                      defaultRadius / 2,
-                                                    ),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  "${bill.diagnosisTypeOutput?["name"] ?? "Unknown Test"} | Incentive: ₹${bill.incentiveAmount}",
-                                                  style: TextStyle(
-                                                    color: ThemeData.light()
-                                                        .scaffoldBackgroundColor,
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                 ],
                               );
                             }).toList(),

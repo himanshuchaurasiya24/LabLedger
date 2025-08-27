@@ -21,8 +21,6 @@ final billsProvider = FutureProvider.autoDispose<List<Bill>>((ref) async {
   }
 });
 
-
-
 /// ✅ Search all bills
 final searchBillsProvider = FutureProvider.autoDispose
     .family<List<Bill>, String>((ref, query) async {
@@ -74,6 +72,7 @@ final createBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
   if (response.statusCode == 201 || response.statusCode == 200) {
     ref.invalidate(billsProvider);
     ref.invalidate(searchBillsProvider);
+
     return Bill.fromJson(jsonDecode(response.body));
   } else {
     throw Exception("Failed to create a new bill: ${response.body}");
@@ -98,7 +97,6 @@ final updateBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
   if (response.statusCode == 200) {
     ref.invalidate(billsProvider);
     ref.invalidate(searchBillsProvider);
-
     return Bill.fromJson(jsonDecode(response.body));
   } else {
     throw Exception("Failed to update bill: ${response.body}");
