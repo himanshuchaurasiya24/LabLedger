@@ -9,6 +9,7 @@ import 'dart:async';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Size get initialWindowSize => const Size(700, 350);
 final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
@@ -38,6 +39,7 @@ class MyApp extends ConsumerStatefulWidget {
 
 class _MyAppState extends ConsumerState<MyApp> with WindowListener {
   bool isFullScreen = false;
+
   @override
   void initState() {
     super.initState();
@@ -99,9 +101,10 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
         themeMode: themeMode,
+
+        // 🌞 LIGHT THEME
         theme: ThemeData(
           hoverColor: Colors.transparent,
-
           brightness: Brightness.light,
           primarySwatch: MaterialColor(0xFF0072B5, <int, Color>{
             50: Color(0xFFE1F0F9),
@@ -115,73 +118,77 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
             800: Color(0xFF004E7F),
             900: Color(0xFF00375F),
           }),
-          colorScheme:
-              ColorScheme.fromSeed(
-                seedColor: Color(0xFF0072B5),
-                primary: Color(0xFF0072B5),
-                secondary: Color(0xFF1AA260),
-                brightness: Brightness.light,
-                tertiary: Color(0xFF020711),
-                tertiaryFixed: Color(0xFFFFFFFF),
-              ).copyWith(
-                surface: Color(0xFFFAFAF6), // ✅ Replace deprecated background
-                surfaceContainerHighest: Color(0xFFE8F0F9),
-              ),
-          scaffoldBackgroundColor: Color(
-            0xFFE5E5E5,
-          ), // ✅ Replace deprecated background
-          appBarTheme: AppBarTheme(backgroundColor: Color(0xFFE5E5E5)),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF0072B5),
+            primary: const Color(0xFF0072B5), // Deep Blue
+            secondary: const Color(0xFF1AA260), // Teal Green
+            brightness: Brightness.light,
+            tertiary: const Color(0xFF2D2D2D), // Neutral dark text
+            tertiaryFixed: const Color(0xFFFFFFFF), // White
+          ).copyWith(
+            surface: const Color(0xFFFDFDFD), // modern neutral bg
+            surfaceContainerHighest: const Color(0xFFF0F4F8), // subtle cards
+          ),
+          scaffoldBackgroundColor: const Color(0xFFF9FAFB),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFFF9FAFB),
+            foregroundColor: Color(0xFF0072B5),
+            elevation: 0,
+          ),
           fontFamily: 'GoogleSans',
           textTheme: const TextTheme(
             headlineSmall: TextStyle(
               color: Color(0xFF0072B5),
               fontWeight: FontWeight.bold,
             ),
-            bodyLarge: TextStyle(fontSize: 20),
-            bodyMedium: TextStyle(color: Colors.black87),
+            bodyLarge: TextStyle(fontSize: 20, color: Color(0xFF2D2D2D)),
+            bodyMedium: TextStyle(color: Color(0xFF4B5563)),
             headlineLarge: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
             headlineMedium: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 35,
             ),
           ),
+          useMaterial3: true,
         ),
 
+        // 🌙 DARK THEME
         darkTheme: ThemeData(
           brightness: Brightness.dark,
-          colorScheme:
-              ColorScheme.fromSeed(
-                seedColor: Color(0xFF0072B5),
-                brightness: Brightness.dark,
-                primary: Color(0xFF0072B5),
-                secondary: Color(0xFF1AA260),
-                tertiary: Color(0xFFFFFFFF),
-                tertiaryFixed: Color(0xFF171717),
-              ).copyWith(
-                surface: Color(0xFF1E1E1E),
-                surfaceContainerHighest: Color(0xFF2C2C2C),
-              ),
-          scaffoldBackgroundColor: Color(0xFF020711),
-          // ⬅️ Dark mode BG
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF0072B5),
+            brightness: Brightness.dark,
+            primary: const Color(0xFF0072B5),
+            secondary: const Color(0xFF1AA260),
+            tertiary: const Color(0xFFFFFFFF),
+            tertiaryFixed: const Color(0xFF121212),
+          ).copyWith(
+            surface: const Color(0xFF1C1C1E),
+            surfaceContainerHighest: const Color(0xFF2A2A2C),
+          ),
+          scaffoldBackgroundColor: const Color(0xFF0F0F10),
           fontFamily: 'GoogleSans',
           textTheme: const TextTheme(
             headlineSmall: TextStyle(
-              color: Color(0xFF0072B5),
+              color: Color(0xFF1AA260),
               fontWeight: FontWeight.bold,
             ),
-            bodyLarge: TextStyle(fontSize: 20),
-
-            bodyMedium: TextStyle(color: Colors.white70),
+            bodyLarge: TextStyle(fontSize: 20, color: Colors.white),
+            bodyMedium: TextStyle(color: Color(0xFFB0B0B0)),
             headlineLarge: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
             headlineMedium: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 35,
             ),
           ),
-          appBarTheme: AppBarTheme(backgroundColor: Color(0xFF23272F)),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFF1C1C1E),
+            foregroundColor: Colors.white,
+            elevation: 0,
+          ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF1AA260),
+              backgroundColor: const Color(0xFF1AA260),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -217,7 +224,6 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
         ),
 
         home: WindowLoadingScreen(),
-        // home: Settings(),
       ),
     );
   }

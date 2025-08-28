@@ -6,6 +6,7 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
+import 'package:labledger/screens/bill/bill_screen.dart';
 import 'package:labledger/screens/home/ui_components/chart_stats_card.dart';
 import 'package:labledger/screens/home/ui_components/referral_card.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
@@ -54,6 +55,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final referralStatsAsync = ref.watch(referralStatsProvider);
     final chartStatsAsync = ref.watch(chartStatsProvider);
+    final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: Padding(
@@ -64,7 +66,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               context: context,
               firstName: "Lab",
               secondName: "Ledger",
-              fontSize: 50,
+              fontSize: 45,
             ),
 
             Row(
@@ -80,27 +82,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       if (data.isEmpty) {
                         return const Text("No referral data available");
                       }
-                      final width = MediaQuery.of(context).size.width;
                       return Stack(
                         children: [
                           ReferralCard(
                             referrals: data,
                             selectedPeriod: selectedPeriod,
-                            accentColor: Color(0xFF0072B5),
-                            darkAccentColor: Color.fromARGB(214, 0, 115, 181),
-                            darkModeTextColor: Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.9),
-                            liteAccentColor: Color.fromARGB(16, 0, 115, 181),
-                            // darkModeTextColor: Color.fromARGB(214, 0, 115, 181),
-                            liteModeTextColor: Colors.white10,
+
+                            baseColor: Theme.of(context).colorScheme.primary,
                           ),
                           Positioned(
                             bottom: 12,
                             left: (width - defaultWidth) / 8.5,
                             right: 0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
                               children: [
                                 buildFilterChipCustom("This Week"),
                                 buildFilterChipCustom("This Month"),
@@ -127,14 +123,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         selectedPeriod,
                       );
 
-                      return ChartStatsCard(
-                        title: selectedPeriod,
-                        data: chartData,
-                        accentColor: Color(0xFF0072B5),
-                        darkAccentColor: Color.fromARGB(214, 0, 115, 181),
-                        liteAccentColor: Color.fromARGB(16, 0, 115, 181),
-                        darkModeTextColor: Color.fromARGB(214, 0, 115, 181),
-                        liteModeTextColor: Colors.white,
+                      return GestureDetector(
+                        onTap: () {
+                          navigatorKey.currentState?.push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return BillsScreen();
+                              },
+                            ),
+                          );
+                        },
+                        child: ChartStatsCard(
+                          title: selectedPeriod,
+                          accentColor: Theme.of(context).colorScheme.primary,
+                          data: chartData,
+                        ),
                       );
                     },
                     loading: () =>
@@ -186,7 +189,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF2E86AB).withOpacity(0.3),
+                      color: const Color(0xFF2E86AB).withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -212,9 +215,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     Color? primaryColor,
     Color? secondaryColor,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = selectedPeriod == label;
     final primary = primaryColor ?? Theme.of(context).colorScheme.primary;
-    final secondary = secondaryColor ?? Theme.of(context).colorScheme.secondary;
+    // final secondary = secondaryColor ?? Theme.of(context).colorScheme.secondary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -229,15 +233,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
-            color: isSelected
-                ? secondary.withValues(alpha: 0.8)
-                : primary.withValues(alpha: 0.8),
+            color: isDark
+                ? isSelected
+                      ? Colors.white
+                      : primary.withValues(alpha: 0.8)
+                : isSelected
+                ? primary.withValues(alpha: 0.8)
+                : Colors.transparent,
+            border: Border.all(
+              color: isDark
+                  ? Colors.transparent
+                  : primary.withValues(alpha: 0.8),
+            ),
           ),
           child: AnimatedDefaultTextStyle(
             duration: const Duration(milliseconds: 200),
             style: TextStyle(
-              color: Colors.white,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              color: isDark
+                  ? isSelected
+                        ? Colors.black
+                        : Colors.white
+                  : isSelected
+                  ? Colors.white
+                  : Colors.black,
+              fontWeight: FontWeight.w600,
               fontSize: 14,
               letterSpacing: 0.5,
             ),
@@ -280,19 +299,4 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
-
-  // /// --- FILTER CHIP WIDGET ---
-  // Widget buildFilterChip(String label) {
-  //   final isSelected = selectedPeriod == label;
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(horizontal: 4),
-  //     child: ChoiceChip(
-  //       label: Text(label),
-  //       selected: isSelected,
-  //       onSelected: (_) {
-  //         setState(() => selectedPeriod = label);
-  //       },
-  //     ),
-  //   );
-  // }
 }

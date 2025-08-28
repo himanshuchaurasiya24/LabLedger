@@ -1,8 +1,8 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
-import 'dart:async';
 
 class ReferralCard extends StatefulWidget {
   const ReferralCard({
@@ -11,23 +11,14 @@ class ReferralCard extends StatefulWidget {
     required this.selectedPeriod,
     this.width,
     this.height,
-    required this.accentColor,
-    required this.liteModeTextColor,
-    required this.darkModeTextColor,
-    required this.liteAccentColor,
-    required this.darkAccentColor,
+    required this.baseColor, // 👈 only one color
   });
 
   final List<ReferralStat> referrals;
   final String selectedPeriod;
   final double? width;
   final double? height;
-  final Color accentColor;
-
-  final Color liteModeTextColor;
-  final Color darkModeTextColor;
-  final Color liteAccentColor;
-  final Color darkAccentColor;
+  final Color baseColor; // 👈 single source of truth
 
   @override
   State<ReferralCard> createState() => _ReferralCardState();
@@ -47,7 +38,7 @@ class _ReferralCardState extends State<ReferralCard> {
 
   void _startAutoSwipe() {
     if (widget.referrals.length > 1) {
-      _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
         if (_currentIndex < widget.referrals.take(3).length - 1) {
           _currentIndex++;
         } else {
@@ -56,38 +47,37 @@ class _ReferralCardState extends State<ReferralCard> {
         if (_pageController.hasClients) {
           _pageController.animateToPage(
             _currentIndex,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
+            duration: const Duration(milliseconds: 2500),
+            curve: Curves.fastOutSlowIn,
           );
         }
       });
     }
   }
 
-  Color getBackgroundColor(BuildContext context) {
+  /// ----- 🎨 Derived Colors from baseColor -----
+  Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (isDark) {
-      return widget.darkAccentColor;
-    }
-    return widget.liteAccentColor;
+    return isDark
+        ? widget.baseColor.withValues(alpha: 0.8) // darker bg in dark mode
+        : widget.baseColor.withValues(alpha: 0.1); // lighter bg in light mode
   }
 
-  Color getTextColor(BuildContext context) {
+  Color get importantTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    if (isDark) {
-      return Colors.white;
-    } else {
-      return widget.darkModeTextColor;
-    }
+    return isDark ? Colors.white : widget.baseColor; // info color
   }
 
-  Color getAccentColor(BuildContext context) {
+  Color get normalTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (isDark) {
-      return widget.darkAccentColor;
-    }
-    return widget.liteAccentColor;
+    return isDark ? Colors.white70 : Colors.black87; // readable neutral text
+  }
+
+  Color get accentFillColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark
+        ? widget.baseColor.withValues(alpha: 0.6)
+        : widget.baseColor.withValues(alpha: 0.15);
   }
 
   @override
@@ -99,7 +89,16 @@ class _ReferralCardState extends State<ReferralCard> {
 
   @override
   Widget build(BuildContext context) {
-    final topReferrers = widget.referrals.take(3).toList();
+    // Make a copy so original list is not mutated
+    final sortedReferrers = List<ReferralStat>.from(widget.referrals);
+
+    // Sort by incentiveAmount descending
+    sortedReferrers.sort(
+      (a, b) => b.incentiveAmount.compareTo(a.incentiveAmount),
+    );
+
+    // Take top 3 after sorting
+    final topReferrers = sortedReferrers.take(3).toList();
 
     return SizedBox(
       height: widget.height ?? 300,
@@ -124,59 +123,24 @@ class _ReferralCardState extends State<ReferralCard> {
 
   Widget _buildEmptyState() {
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            widget.accentColor.withOpacity(0.1),
-            widget.accentColor.withOpacity(0.05),
-          ],
-        ),
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: widget.accentColor.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: widget.baseColor.withValues(alpha: 0.2)),
       ),
       child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.people_outline, size: 48, color: Colors.grey[400]),
-            const SizedBox(height: 8),
-            Text(
-              "No referrals found",
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge?.copyWith(color: Colors.grey[500]),
-            ),
-          ],
+        child: Text(
+          "No referrals found",
+          style: TextStyle(color: normalTextColor),
         ),
       ),
     );
   }
 
   Widget _buildReferrerCard(ReferralStat referrer, int index) {
-    final backgroundColor = getBackgroundColor(context);
-    final textColor = getTextColor(context);
     final theme = Theme.of(context);
 
-    final titleStyle = theme.textTheme.titleLarge?.copyWith(
-      fontWeight: FontWeight.bold,
-      color: textColor,
-    );
-
-    final totalStyle = theme.textTheme.headlineMedium?.copyWith(
-      fontWeight: FontWeight.w800,
-      color: textColor,
-    );
-
-    final diagnosisStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: textColor.withValues(alpha: 0.8),
-      fontWeight: FontWeight.w500,
-    );
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: defaultPadding,
@@ -185,124 +149,74 @@ class _ReferralCardState extends State<ReferralCard> {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(defaultRadius),
-        border: Border.all(
-          color: widget.accentColor.withValues(alpha: 0.3),
-          width: 1,
-        ),
+        border: Border.all(color: widget.baseColor.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with period and rank
+          /// Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                height: 40,
-                width: 200,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(defaultRadius * 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
                 ),
-                child: Center(
-                  child: Text(
-                    "Top Incentive #${index + 1}",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
+                decoration: BoxDecoration(
+                  color: widget.baseColor,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  "Top Incentive #${index + 1}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              // Doctor name
               Text(
                 referrer.doctorFullName.isNotEmpty
                     ? referrer.doctorFullName
                     : "Unknown Doctor",
-                style: titleStyle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: importantTextColor,
+                ),
               ),
             ],
           ),
-          SizedBox(height: defaultHeight),
+          const SizedBox(height: 16),
 
+          /// Totals
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    height: 55,
-                    width: 55,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: getAccentColor(context),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.receipt_long,
-                      color: getTextColor(context),
-                      size: 30,
-                    ),
-                  ),
-                  SizedBox(width: defaultWidth),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Total Bills",
-                        style: diagnosisStyle?.copyWith(fontSize: 12),
-                      ),
-                      Text("${referrer.total}", style: totalStyle),
-                    ],
-                  ),
-                ],
+              _buildInfoTile(
+                Icons.receipt_long,
+                "Total Bills",
+                referrer.total.toString(),
               ),
-              Row(
-                children: [
-                  Container(
-                    height: 55,
-                    width: 55,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: getAccentColor(context).withValues(alpha: 0.1),
-
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.currency_rupee,
-                      color: getTextColor(context),
-                      size: 40,
-                    ),
-                  ),
-                  SizedBox(width: defaultWidth),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Total Incentives",
-                        style: diagnosisStyle?.copyWith(fontSize: 12),
-                      ),
-                      Text("${referrer.incentiveAmount}", style: totalStyle),
-                    ],
-                  ),
-                ],
+              _buildInfoTile(
+                Icons.currency_rupee,
+                "Total Incentives",
+                referrer.incentiveAmount.toString(),
               ),
             ],
           ),
 
           SizedBox(height: defaultHeight),
-          // Breakdown
-          Text("Breakdown", style: titleStyle?.copyWith(fontSize: 16)),
 
+          /// Breakdown
+          Text(
+            "Breakdown",
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: importantTextColor,
+            ),
+          ),
           SizedBox(height: defaultHeight),
+
           Expanded(
             child: Column(
               children: _getServiceBreakdown(referrer).entries.map((entry) {
@@ -319,16 +233,13 @@ class _ReferralCardState extends State<ReferralCard> {
                         flex: 3,
                         child: Text(
                           entry.key.toUpperCase(),
-                          style: diagnosisStyle?.copyWith(fontSize: 14),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+
+                          style: TextStyle(color: importantTextColor),
                         ),
                       ),
-                      // Spacer(),
                       Expanded(
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-
                           children: [
                             Expanded(
                               child: Stack(
@@ -337,7 +248,7 @@ class _ReferralCardState extends State<ReferralCard> {
                                     height: 8,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(4),
-                                      color: widget.accentColor.withValues(
+                                      color: widget.baseColor.withValues(
                                         alpha: 0.2,
                                       ),
                                     ),
@@ -349,25 +260,23 @@ class _ReferralCardState extends State<ReferralCard> {
                                       height: 8,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(4),
-
-                                        color: getTextColor(
-                                          context,
-                                        ).withValues(alpha: 0.8),
+                                        color:
+                                            importantTextColor, // 👈 highlight
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
+                            const SizedBox(width: 8),
+                            Text(
+                              entry.value.toString(),
+                              style: TextStyle(
+                                color: importantTextColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
-                        ),
-                      ),
-                      SizedBox(width: defaultWidth),
-                      Text(
-                        entry.value.toString(),
-                        style: diagnosisStyle!.copyWith(
-                          color: getTextColor(context).withValues(alpha: 0.8),
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -381,6 +290,45 @@ class _ReferralCardState extends State<ReferralCard> {
     );
   }
 
+  Widget _buildInfoTile(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Container(
+          height: 55,
+          width: 55,
+          decoration: BoxDecoration(
+            color: accentFillColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: importantTextColor, size: 40),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: importantTextColor,
+                fontSize: 12,
+                // fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              value,
+              style: TextStyle(
+                color: importantTextColor,
+                fontSize: 30,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Map<String, int> _getServiceBreakdown(ReferralStat referrer) {
     final allServices = {
       'ECG': referrer.ecg,
@@ -389,8 +337,6 @@ class _ReferralCardState extends State<ReferralCard> {
       'ULTRASOUND': referrer.ultrasound,
       'X-RAY': referrer.xray,
     };
-
-    // Filter out services with 0 values
     return Map.fromEntries(
       allServices.entries.where((entry) => entry.value > 0),
     );

@@ -3,16 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
 import 'package:labledger/providers/custom_providers.dart';
 
-class ChartStatsCard extends StatelessWidget {
+class ChartStatsCard extends StatefulWidget {
   final String title;
   final List<ChartData> data;
   final Color accentColor;
   final double? height;
   final double? width;
-  final Color liteModeTextColor;
-  final Color darkModeTextColor;
-  final Color liteAccentColor;
-  final Color darkAccentColor;
 
   const ChartStatsCard({
     super.key,
@@ -21,14 +17,17 @@ class ChartStatsCard extends StatelessWidget {
     required this.accentColor,
     this.height,
     this.width,
-    required this.liteModeTextColor,
-    required this.darkModeTextColor,
-    required this.liteAccentColor,
-    required this.darkAccentColor,
   });
 
-  int get totalBills => data.fold<int>(0, (sum, e) => sum + (e.total));
+  @override
+  State<ChartStatsCard> createState() => _ChartStatsCardState();
+}
 
+class _ChartStatsCardState extends State<ChartStatsCard> {
+  /// Total bills across all data
+  int get totalBills => widget.data.fold<int>(0, (sum, e) => sum + e.total);
+
+  /// Breakdown aggregation
   Map<String, int> get breakdown {
     final Map<String, int> agg = {
       'ECG': 0,
@@ -37,7 +36,8 @@ class ChartStatsCard extends StatelessWidget {
       'ULTRASOUND': 0,
       'X-RAY': 0,
     };
-    for (final e in data) {
+
+    for (final e in widget.data) {
       agg['ECG'] = agg['ECG']! + e.ecg;
       agg['FRANCHISE LAB'] = agg['FRANCHISE LAB']! + e.franchiseLab;
       agg['PATHOLOGY'] = agg['PATHOLOGY']! + e.pathology;
@@ -47,59 +47,58 @@ class ChartStatsCard extends StatelessWidget {
     return agg;
   }
 
+  /// Background adjusts with theme
   Color getBackgroundColor(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (isDark) {
-      return darkAccentColor;
-    }
-    return liteAccentColor;
+    return isDark
+        ? widget.accentColor.withValues(alpha: 0.8) // darker bg in dark mode
+        : widget.accentColor.withValues(alpha: 0.1); // lighter bg in light mode
   }
 
+  /// Text adjusts with theme
   Color getTextColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    if (isDark) {
-      return Colors.white;
-    } else {
-      return darkModeTextColor;
-    }
+    return Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : widget.accentColor.withValues(alpha: 0.7);
   }
 
-  Color getAccentColor(BuildContext context) {
+  /// ----- 🎨 Derived Colors from baseColor -----
+  Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (isDark) {
-      return darkAccentColor;
-    }
-    return liteAccentColor;
+    return isDark
+        ? widget.accentColor.withValues(alpha: 0.8) // darker bg in dark mode
+        : widget.accentColor.withValues(alpha: 0.1); // lighter bg in light mode
+  }
+
+  Color get importantTextColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? Colors.white : widget.accentColor; // info color
+  }
+
+  Color get normalTextColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? Colors.white70 : Colors.black87; // readable neutral text
+  }
+
+  Color get accentFillColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark
+        ? widget.accentColor.withValues(alpha: 0.6)
+        : widget.accentColor.withValues(alpha: 0.15);
   }
 
   @override
   Widget build(BuildContext context) {
     final backgroundColor = getBackgroundColor(context);
-    final textColor = getTextColor(context);
     final theme = Theme.of(context);
-
-    final titleStyle = theme.textTheme.titleLarge?.copyWith(
-      fontWeight: FontWeight.bold,
-      color: textColor,
-    );
-
-    final totalStyle = theme.textTheme.headlineMedium?.copyWith(
-      fontWeight: FontWeight.w800,
-      color: textColor,
-    );
-
-    final diagnosisStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: textColor.withValues(alpha: 0.8),
-      fontWeight: FontWeight.w500,
-    );
 
     final maxValue = (breakdown.values.isNotEmpty)
         ? breakdown.values.reduce((a, b) => a > b ? a : b)
         : 1;
+
     return Container(
-      height: height ?? 300,
-      width: width ?? double.infinity,
+      height: widget.height ?? 300,
+      width: widget.width ?? double.infinity,
       padding: EdgeInsets.symmetric(
         horizontal: defaultPadding,
         vertical: defaultPadding / 2,
@@ -107,39 +106,25 @@ class ChartStatsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(defaultRadius),
-        border: Border.all(color: accentColor.withValues(alpha: 0.3), width: 1),
+        border: Border.all(
+          color: widget.accentColor.withValues(alpha: 0.3),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                height: 40,
-                width: 200,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(defaultRadius * 3),
-                ),
-                child: Center(
-                  child: Text(
-                    "Growth Bar",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-              // Doctor name
+              _buildBadge(context),
               Text(
-                title,
-                style: titleStyle,
+                widget.title,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: importantTextColor,
+                ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -148,40 +133,21 @@ class ChartStatsCard extends StatelessWidget {
           SizedBox(height: defaultHeight),
 
           // Total Bills
-          Row(
-            children: [
-              Container(
-                height: 55,
-                width: 55,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: getAccentColor(context),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.receipt_long,
-                  color: getTextColor(context),
-                  size: 30,
-                ),
-              ),
-              SizedBox(width: defaultWidth),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Total Bills",
-                    style: diagnosisStyle?.copyWith(fontSize: 12),
-                  ),
-                  Text("$totalBills", style: totalStyle),
-                ],
-              ),
-            ],
+          _buildInfoTile(
+            Icons.receipt_long,
+            "Total Bills",
+            totalBills.toString(),
           ),
           SizedBox(height: defaultHeight),
 
           // Breakdown
-          Text("Breakdown", style: titleStyle?.copyWith(fontSize: 16)),
+          Text(
+            "Breakdown",
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: importantTextColor,
+            ),
+          ),
           SizedBox(height: defaultHeight),
 
           Column(
@@ -193,20 +159,18 @@ class ChartStatsCard extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       flex: 3,
                       child: Text(
                         label.toUpperCase(),
-                        style: diagnosisStyle?.copyWith(fontSize: 14),
-                        maxLines: 2,
+                        style: TextStyle(color: importantTextColor),
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Expanded(
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Stack(
@@ -215,7 +179,9 @@ class ChartStatsCard extends StatelessWidget {
                                   height: 8,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(4),
-                                    color: accentColor.withValues(alpha: 0.2),
+                                    color: widget.accentColor.withValues(
+                                      alpha: 0.2,
+                                    ),
                                   ),
                                 ),
                                 FractionallySizedBox(
@@ -224,9 +190,7 @@ class ChartStatsCard extends StatelessWidget {
                                     height: 8,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(4),
-                                      color: getTextColor(
-                                        context,
-                                      ).withValues(alpha: 0.8),
+                                      color: importantTextColor,
                                     ),
                                   ),
                                 ),
@@ -236,11 +200,9 @@ class ChartStatsCard extends StatelessWidget {
                           SizedBox(width: defaultWidth),
                           Text(
                             "$value",
-                            style: diagnosisStyle!.copyWith(
-                              color: getTextColor(
-                                context,
-                              ).withValues(alpha: 0.8),
-                              fontWeight: FontWeight.w600,
+                            style: TextStyle(
+                              color: importantTextColor,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -252,6 +214,68 @@ class ChartStatsCard extends StatelessWidget {
             }).toList(),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildInfoTile(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Container(
+          height: 55,
+          width: 55,
+          decoration: BoxDecoration(
+            color: accentFillColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: importantTextColor, size: 40),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: importantTextColor,
+                fontSize: 12,
+                // fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              value,
+              style: TextStyle(
+                color: importantTextColor,
+                fontSize: 30,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Badge widget
+  Widget _buildBadge(BuildContext context) {
+    return Container(
+      height: 40,
+      width: 200,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: widget.accentColor,
+        borderRadius: BorderRadius.circular(defaultRadius * 3),
+      ),
+      child: const Center(
+        child: Text(
+          "Growth Bar",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
       ),
     );
   }
