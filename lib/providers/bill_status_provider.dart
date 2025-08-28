@@ -8,7 +8,7 @@ import "package:http/http.dart" as http;
 final billStatsProvider = FutureProvider.autoDispose((ref) async {
   final token = await ref.read(tokenProvider.future);
   final response = await http.get(
-    Uri.parse("${baseURL}diagnosis/bills/stats/"),
+    Uri.parse("${baseURL}diagnosis/bills/growth-stats/"),
     headers: {"Authorization": "Bearer $token"},
   );
   if (response.statusCode == 200) {
