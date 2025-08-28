@@ -115,6 +115,13 @@ class ChartData {
       franchiseLab: json['franchise_lab'] ?? 0,
     );
   }
+  Map<String, int> get breakdownMap => {
+    'ECG': ecg,
+    'FRANCHISE LAB': franchiseLab,
+    'PATHOLOGY': pathology,
+    'ULTRASOUND': ultrasound,
+    'X-RAY': xray,
+  };
 }
 
 // models/chart_stats_response.dart
