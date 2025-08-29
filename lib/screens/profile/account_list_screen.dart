@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/providers/custom_providers.dart';
+import 'package:labledger/providers/user_provider.dart';
 import 'package:labledger/screens/profile/profile_screen.dart';
 
 class AccountListScreen extends ConsumerWidget {

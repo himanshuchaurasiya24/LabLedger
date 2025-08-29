@@ -1,14 +1,14 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bill_status_provider.dart';
-import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/screens/bill/add_bill_update_screen.dart';
+import 'package:labledger/providers/bills_provider.dart'; // Import your bills provider
+import 'package:labledger/screens/bill/add_update_screen2.dart';
 import 'package:labledger/screens/bill/ui_components/bill_card.dart';
 import 'package:labledger/screens/bill/ui_components/bill_stats_card.dart';
 
@@ -24,65 +24,15 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
   final FocusNode searchFocusNode = FocusNode();
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   String _selectedView = 'list'; // default view
-
-  final Dio dio = Dio();
-  CancelToken? _cancelToken;
   Timer? _debounce;
-  // Global state provider for bills
-  final billsStateProvider = StateProvider<Map<String, List<Bill>>?>(
-    (ref) => null, // null = loading
-  );
+  String _currentSearchQuery = '';
+
   @override
   void initState() {
     super.initState();
     setWindowBehavior(removeTitleBar: true);
     searchFocusNode.requestFocus();
     _loadSavedView();
-    // Initial fetch
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchBills(""); // fetch all bills on screen load
-    });
-  }
-
-  void _fetchBills(String query) async {
-    _debounce?.cancel();
-    _cancelToken?.cancel();
-    _cancelToken = CancelToken();
-
-    _debounce = Timer(const Duration(milliseconds: 300), () async {
-      // Set loading state
-      ref.read(billsStateProvider.notifier).state = null;
-
-      try {
-        final token = await ref.read(tokenProvider.future);
-        final response = await dio.get(
-          "$baseURL/diagnosis/bills/bill/",
-          queryParameters: {"search": query},
-          options: Options(headers: {"Authorization": "Bearer $token"}),
-          cancelToken: _cancelToken,
-        );
-
-        final List data = response.data;
-        final bills = data.map((json) => Bill.fromJson(json)).toList();
-        final Map<String, List<Bill>> grouped = {};
-        for (var bill in bills) {
-          final reasons = (bill.matchReason?.isNotEmpty ?? false)
-              ? bill.matchReason!
-              : ["Bills List"];
-          for (var reason in reasons) {
-            grouped.putIfAbsent(reason, () => []);
-            grouped[reason]!.add(bill);
-          }
-        }
-
-        // Update provider
-        ref.read(billsStateProvider.notifier).state = grouped;
-      } catch (e) {
-        // Error: show empty
-        debugPrint(e.toString());
-        ref.read(billsStateProvider.notifier).state = {};
-      }
-    });
   }
 
   Future<void> _loadSavedView() async {
@@ -98,15 +48,48 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
     await storage.write(key: 'bill_view', value: view);
   }
 
+  void _onSearchChanged(String query) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      setState(() {
+        _currentSearchQuery = query.trim();
+      });
+    });
+  }
+
+  void _refreshBillsData() {
+    // Invalidate all bill-related providers to refresh data
+    ref.invalidate(billsProvider);
+    ref.invalidate(searchBillsProvider);
+    ref.invalidate(billStatsProvider);
+    
+    // If there's a current search, invalidate that specific search
+    if (_currentSearchQuery.isNotEmpty) {
+      ref.invalidate(searchBillsProvider(_currentSearchQuery));
+    }
+  }
+
+  Map<String, List<Bill>> _groupBillsByReason(List<Bill> bills) {
+    final Map<String, List<Bill>> grouped = {};
+    
+    for (var bill in bills) {
+      final reasons = (bill.matchReason?.isNotEmpty ?? false)
+          ? bill.matchReason!
+          : ["Bills List"];
+      
+      for (var reason in reasons) {
+        grouped.putIfAbsent(reason, () => []);
+        grouped[reason]!.add(bill);
+      }
+    }
+    
+    return grouped;
+  }
+
   void _showViewMenu() async {
     final selected = await showMenu<String>(
       context: context,
-      position: const RelativeRect.fromLTRB(
-        200,
-        385,
-        0,
-        100,
-      ), // adjust if needed
+      position: const RelativeRect.fromLTRB(200, 385, 0, 100),
       color: Theme.of(context).colorScheme.tertiaryFixed,
       shadowColor: Colors.transparent,
       shape: RoundedRectangleBorder(
@@ -125,7 +108,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
           value: 'grid',
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-
             children: [Icon(Icons.grid_on_rounded), Text("Grid View")],
           ),
         ),
@@ -145,30 +127,30 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
     _debounce?.cancel();
     searchController.dispose();
     searchFocusNode.dispose();
-    _cancelToken?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final groupedBills = ref.watch(billsStateProvider);
+    // Use the appropriate provider based on search query
+    final billsAsyncValue = _currentSearchQuery.isEmpty
+        ? ref.watch(billsProvider)
+        : ref.watch(searchBillsProvider(_currentSearchQuery));
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Theme.of(
-          context,
-        ).colorScheme.primary.withValues(alpha: 0.7),
+        backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
         onPressed: () async {
           await navigatorKey.currentState
               ?.push(
                 MaterialPageRoute(
-                  builder: (context) {
-                    return AddBillScreen();
-                  },
+                  builder: (context) => AddBillScreen2(),
                 ),
               )
               .then((value) {
-                _fetchBills("");
+                // Refresh bills data when returning from add bill screen
+                _refreshBillsData();
               });
         },
         label: Text(
@@ -194,9 +176,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                     searchFocusNode: searchFocusNode,
                     hintText: "Search Bills...",
                     width: 400,
-                    onSearch: (e) {
-                      _fetchBills(e);
-                    },
+                    onSearch: _onSearchChanged,
                   ),
                   const SizedBox(width: 180),
                 ],
@@ -209,97 +189,117 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                 child: ScrollConfiguration(
                   behavior: NoThumbScrollBehavior(),
                   child: SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
+                    physics: const BouncingScrollPhysics(),
                     child: Column(
                       children: [
+                        // Stats section - only show when not searching
                         Visibility(
-                          visible: searchController.text.trim().isEmpty,
+                          visible: _currentSearchQuery.isEmpty,
                           child: Container(
                             height: 310,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                defaultRadius,
+                              borderRadius: BorderRadius.circular(defaultRadius),
+                            ),
+                            child: ref.watch(billStatsProvider).when(
+                              data: (stats) {
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    BillStatsCard(
+                                      title: "Monthly Growth",
+                                      currentPeriod: stats.currentMonth,
+                                      previousPeriod: stats.previousMonth,
+                                    ),
+                                    SizedBox(width: defaultWidth),
+                                    BillStatsCard(
+                                      title: "Quarterly Growth",
+                                      currentPeriod: stats.currentQuarter,
+                                      previousPeriod: stats.previousQuarter,
+                                    ),
+                                    SizedBox(width: defaultWidth),
+                                    BillStatsCard(
+                                      title: "Yearly Growth",
+                                      currentPeriod: stats.currentYear,
+                                      previousPeriod: stats.previousYear,
+                                    ),
+                                  ],
+                                );
+                              },
+                              loading: () => const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                              error: (err, stack) => Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("Error loading stats: $err"),
+                                    const SizedBox(height: 10),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        ref.invalidate(billStatsProvider);
+                                      },
+                                      child: const Text("Retry"),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            child: ref
-                                .watch(billStatsProvider)
-                                .when(
-                                  data: (stats) {
-                                    return Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        BillStatsCard(
-                                          title: "Monthly Growth",
-                                          currentPeriod: stats.currentMonth,
-                                          previousPeriod: stats.previousMonth,
-                                        ),
-                                        SizedBox(width: defaultWidth),
-                                        BillStatsCard(
-                                          title: "Quarterly Growth",
-                                          currentPeriod: stats.currentQuarter,
-                                          previousPeriod: stats.previousQuarter,
-                                        ),
-                                        SizedBox(width: defaultWidth),
-                                        BillStatsCard(
-                                          title: "Yearly Growth",
-                                          currentPeriod: stats.currentYear,
-                                          previousPeriod: stats.previousYear,
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                  loading: () => const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                  error: (err, stack) =>
-                                      Center(child: Text("Error: $err")),
-                                ),
                           ),
                         ),
-                        Builder(
-                          builder: (context) {
-                            if (groupedBills == null) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-
-                            if (groupedBills.isEmpty) {
+                        
+                        // Bills list section
+                        billsAsyncValue.when(
+                          data: (bills) {
+                            if (bills.isEmpty) {
                               return Center(
-                                child: Text(
-                                  'No bills found.',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.headlineLarge,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(height: 50),
+                                    Text(
+                                      _currentSearchQuery.isEmpty 
+                                          ? 'No bills found.' 
+                                          : 'No bills found for "$_currentSearchQuery"',
+                                      style: Theme.of(context).textTheme.headlineLarge,
+                                    ),
+                                    if (_currentSearchQuery.isNotEmpty) ...[
+                                      const SizedBox(height: 20),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          searchController.clear();
+                                          setState(() {
+                                            _currentSearchQuery = '';
+                                          });
+                                        },
+                                        child: const Text("Clear Search"),
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               );
                             }
 
+                            final groupedBills = _groupBillsByReason(bills);
+                            
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: groupedBills.entries.map((entry) {
                                 final category = entry.key;
-                                final bills = entry.value;
+                                final categoryBills = entry.value;
 
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           category,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.headlineMedium,
+                                          style: Theme.of(context).textTheme.headlineMedium,
                                         ),
                                         IconButton(
-                                          onPressed: () {
-                                            _showViewMenu();
-                                          },
+                                          onPressed: _showViewMenu,
                                           icon: Icon(
                                             _selectedView == "grid"
                                                 ? Icons.grid_on_rounded
@@ -309,74 +309,111 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                                         ),
                                       ],
                                     ),
+                                    
+                                    // Grid View
                                     if (_selectedView == "grid")
                                       GridView.builder(
                                         shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-
-                                        gridDelegate:
-                                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 4,
-                                              childAspectRatio: 1.45,
-                                              crossAxisSpacing: 16,
-                                              mainAxisSpacing: 16,
-                                            ),
-                                        itemCount: bills.length,
-
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 4,
+                                          childAspectRatio: 1.45,
+                                          crossAxisSpacing: 16,
+                                          mainAxisSpacing: 16,
+                                        ),
+                                        itemCount: categoryBills.length,
                                         itemBuilder: (ctx, index) {
-                                          final bill = bills[index];
+                                          final bill = categoryBills[index];
                                           return GestureDetector(
                                             onTap: () async {
-                                              navigatorKey.currentState
-                                                  ?.push(
-                                                    MaterialPageRoute(
-                                                      builder: (_) =>
-                                                          AddBillScreen(
-                                                            billData: bill,
-                                                          ),
-                                                    ),
-                                                  )
-                                                  .then((value) {
-                                                    _fetchBills("");
-                                                  });
+                                              await navigatorKey.currentState?.push(
+                                                MaterialPageRoute(
+                                                  builder: (_) => AddBillScreen2(billData: bill),
+                                                ),
+                                              ).then((result) {
+                                                // Refresh data if bill was modified
+                                                if (result == true) {
+                                                  _refreshBillsData();
+                                                }
+                                              });
                                             },
                                             child: BillCard(bill: bill),
                                           );
                                         },
                                       ),
+                                    
+                                    // List View
                                     if (_selectedView == "list")
                                       ListView.separated(
                                         shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: bills.length,
-                                        separatorBuilder: (_, __) =>
-                                            SizedBox(height: defaultHeight),
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        itemCount: categoryBills.length,
+                                        separatorBuilder: (_, __) => SizedBox(height: defaultHeight),
                                         itemBuilder: (ctx, index) {
-                                          final bill = bills[index];
+                                          final bill = categoryBills[index];
                                           return GestureDetector(
                                             onTap: () async {
-                                              navigatorKey.currentState
-                                                  ?.push(
-                                                    MaterialPageRoute(
-                                                      builder: (_) =>
-                                                          AddBillScreen(
-                                                            billData: bill,
-                                                          ),
-                                                    ),
-                                                  )
-                                                  .then((value) {
-                                                    _fetchBills("");
-                                                  });
+                                              await navigatorKey.currentState?.push(
+                                                MaterialPageRoute(
+                                                  builder: (_) => AddBillScreen2(billData: bill),
+                                                ),
+                                              ).then((result) {
+                                                // Refresh data if bill was modified
+                                                if (result == true) {
+                                                  _refreshBillsData();
+                                                }
+                                              });
                                             },
                                             child: BillCard(bill: bill),
                                           );
                                         },
                                       ),
+                                    
+                                    const SizedBox(height: 20),
                                   ],
                                 );
                               }).toList(),
+                            );
+                          },
+                          loading: () => const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(50.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                          error: (err, stack) {
+                            debugPrint("Bills fetch error: $err");
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(height: 50),
+                                  Icon(
+                                    Icons.error_outline,
+                                    size: 64,
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    "Failed to load bills",
+                                    style: Theme.of(context).textTheme.headlineMedium,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    err.toString().contains("Authentication")
+                                        ? "Please check your internet connection and try again"
+                                        : "Please try again",
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  ElevatedButton.icon(
+                                    onPressed: _refreshBillsData,
+                                    icon: const Icon(Icons.refresh),
+                                    label: const Text("Retry"),
+                                  ),
+                                ],
+                              ),
                             );
                           },
                         ),

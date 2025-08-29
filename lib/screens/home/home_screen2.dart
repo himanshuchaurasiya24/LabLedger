@@ -1,20 +1,19 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
-
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
-import 'package:labledger/providers/custom_providers.dart';
+import 'package:labledger/providers/secure_storage_provider.dart';
+import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/providers/doctor_provider.dart';
-import 'package:labledger/screens/bill/add_bill_update_screen.dart';
+import 'package:labledger/screens/bill/add_update_screen2.dart';
 import 'package:labledger/screens/bill/bill_screen.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
@@ -83,7 +82,7 @@ class _HomeScreen2State extends ConsumerState<HomeScreen2> {
             context,
             MaterialPageRoute(
               builder: (context) {
-                return AddBillScreen();
+                return AddBillScreen2();
               },
             ),
           );
@@ -657,7 +656,7 @@ class _HomeScreen2State extends ConsumerState<HomeScreen2> {
                                                       ?.push(
                                                         MaterialPageRoute(
                                                           builder: (context) {
-                                                            return AddBillScreen(
+                                                            return AddBillScreen2(
                                                               billData: bill,
                                                             );
                                                           },

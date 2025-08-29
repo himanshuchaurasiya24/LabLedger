@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/providers/custom_providers.dart';
+import 'package:labledger/authentication/config.dart';
+import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
@@ -13,7 +14,8 @@ final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-
+  // --- fetch base url before runApp ---
+   await initializeBaseUrl();
   WindowOptions windowOptions = WindowOptions(
     size: initialWindowSize,
     center: true,
@@ -27,11 +29,13 @@ void main() async {
     await windowManager.focus();
   });
 
-  runApp(ProviderScope(child: const MyApp()));
+  runApp(ProviderScope(
+     
+    child:  MyApp()));
 }
 
 class MyApp extends ConsumerStatefulWidget {
-  const MyApp({super.key});
+  const MyApp( {super.key});
 
   @override
   ConsumerState<MyApp> createState() => _MyAppState();

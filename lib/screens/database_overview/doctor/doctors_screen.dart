@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/doctors_model.dart';
-import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/database_overview/doctor/add_doctor_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';

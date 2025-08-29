@@ -1,22 +1,20 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'package:labledger/providers/custom_providers.dart';
-import 'package:labledger/models/center_detail_model.dart'; // make sure path is correct
+import 'package:labledger/authentication/auth_http_client.dart';
+import 'package:labledger/authentication/config.dart';
+import 'package:labledger/models/center_detail_model.dart';
+import 'package:labledger/providers/user_provider.dart'; // ✅ Make sure path is correct
 
-/// ✅ API Endpoint (separate for easy change)
-String centerDetailsEndpoint =
-    "${baseURL}center-details/center-details/center-detail/";
+/// ✅ Base API Endpoint
+final String centerDetailsEndpoint =
+    "${globalBaseUrl}center-details/center-details/center-detail/";
 
 /// ✅ Fetch all center details
 final centerDetailsProvider = FutureProvider.autoDispose<List<CenterDetail>>((
   ref,
 ) async {
-  final token = await ref.read(tokenProvider.future);
-  final response = await http.get(
-    Uri.parse(centerDetailsEndpoint),
-    headers: {"Authorization": "Bearer $token"},
-  );
+  final response = await AuthHttpClient.get(ref, centerDetailsEndpoint);
+
   if (response.statusCode == 200) {
     final List data = jsonDecode(response.body);
     return data.map((json) => CenterDetail.fromJson(json)).toList();
@@ -28,11 +26,11 @@ final centerDetailsProvider = FutureProvider.autoDispose<List<CenterDetail>>((
 /// ✅ Fetch a single center detail by ID
 final singleCenterDetailProvider = FutureProvider.autoDispose
     .family<CenterDetail, int>((ref, id) async {
-      final token = await ref.read(tokenProvider.future);
-      final response = await http.get(
-        Uri.parse("$centerDetailsEndpoint$id/"),
-        headers: {"Authorization": "Bearer $token"},
+      final response = await AuthHttpClient.get(
+        ref,
+        "$centerDetailsEndpoint$id/",
       );
+
       if (response.statusCode == 200) {
         return CenterDetail.fromJson(jsonDecode(response.body));
       } else {
@@ -43,19 +41,19 @@ final singleCenterDetailProvider = FutureProvider.autoDispose
 /// ✅ Create a new center detail
 final createCenterDetailProvider = FutureProvider.autoDispose
     .family<CenterDetail, CenterDetail>((ref, newDetail) async {
-      final token = await ref.read(tokenProvider.future);
-      final response = await http.post(
-        Uri.parse(centerDetailsEndpoint),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
+      final response = await AuthHttpClient.post(
+        ref,
+        centerDetailsEndpoint,
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode(newDetail.toJson()),
       );
+
       if (response.statusCode == 201 || response.statusCode == 200) {
+        // Invalidate caches after mutation
         ref.invalidate(centerDetailsProvider);
         ref.invalidate(userDetailsProvider);
         ref.invalidate(usersDetailsProvider);
+
         return CenterDetail.fromJson(jsonDecode(response.body));
       } else {
         throw Exception("Failed to create center detail: ${response.body}");
@@ -65,19 +63,18 @@ final createCenterDetailProvider = FutureProvider.autoDispose
 /// ✅ Update an existing center detail
 final updateCenterDetailProvider = FutureProvider.autoDispose
     .family<CenterDetail, CenterDetail>((ref, updatedDetail) async {
-      final token = await ref.read(tokenProvider.future);
-      final response = await http.put(
-        Uri.parse("$centerDetailsEndpoint${updatedDetail.id}/"),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
+      final response = await AuthHttpClient.put(
+        ref,
+        "$centerDetailsEndpoint${updatedDetail.id}/",
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode(updatedDetail.toJson()),
       );
+
       if (response.statusCode == 200) {
         ref.invalidate(centerDetailsProvider);
         ref.invalidate(userDetailsProvider);
         ref.invalidate(usersDetailsProvider);
+
         return CenterDetail.fromJson(jsonDecode(response.body));
       } else {
         throw Exception("Failed to update center detail: ${response.body}");
@@ -87,11 +84,11 @@ final updateCenterDetailProvider = FutureProvider.autoDispose
 /// ✅ Delete a center detail
 final deleteCenterDetailProvider = FutureProvider.autoDispose.family<void, int>(
   (ref, id) async {
-    final token = await ref.read(tokenProvider.future);
-    final response = await http.delete(
-      Uri.parse("$centerDetailsEndpoint$id/"),
-      headers: {"Authorization": "Bearer $token"},
+    final response = await AuthHttpClient.delete(
+      ref,
+      "$centerDetailsEndpoint$id/",
     );
+
     if (response.statusCode == 204) {
       ref.invalidate(centerDetailsProvider);
       ref.invalidate(userDetailsProvider);

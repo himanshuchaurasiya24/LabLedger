@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/models/doctors_model.dart';
-import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home/home_screen2.dart';
 
 final selectedDiagnosisType = StateProvider<DiagnosisType?>((ref) => null);

@@ -1,16 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/authentication/auth_http_client.dart';
+import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/bill_stats_model.dart';
-import 'package:labledger/providers/custom_providers.dart';
-import "package:http/http.dart" as http;
 
+String billStatsEndpoint = "${globalBaseUrl}diagnosis/bills/growth-stats/";
 final billStatsProvider = FutureProvider.autoDispose((ref) async {
-  final token = await ref.read(tokenProvider.future);
-  final response = await http.get(
-    Uri.parse("${baseURL}diagnosis/bills/growth-stats/"),
-    headers: {"Authorization": "Bearer $token"},
-  );
+  final response = await AuthHttpClient.get(ref, billStatsEndpoint);
+
   if (response.statusCode == 200) {
     return BillStats.fromJson(jsonDecode(response.body));
   } else {

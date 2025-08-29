@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/center_detail_model.dart';
 import 'package:labledger/providers/center_detail_provider.dart';
-import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 

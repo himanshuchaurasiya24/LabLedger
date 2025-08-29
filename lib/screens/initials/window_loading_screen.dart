@@ -1,16 +1,11 @@
-// ignore_for_file: unused_import
-
-import 'dart:convert';
-
+// Updated splash screen - window_loading_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-
+import 'package:labledger/authentication/auth_exceptions.dart';
+import 'package:labledger/authentication/auth_repository.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/models/center_detail_model.dart';
-import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home/home_screen.dart';
-import 'package:labledger/screens/home/home_screen2.dart';
 import 'package:labledger/screens/initials/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 
@@ -23,39 +18,7 @@ class WindowLoadingScreen extends ConsumerStatefulWidget {
 }
 
 class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
-  String tileText = "";
-
-  void _goToLogin() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-    );
-  }
-
-  void _goToHome({
-    required bool isAdmin,
-    required int id,
-    required String firstName,
-    required String lastName,
-    required String username,
-    required CenterDetail centerDetail,
-  }) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return HomeScreen(
-            isAdmin: isAdmin,
-            id: id,
-            firstName: firstName,
-            lastName: lastName,
-            username: username,
-            centerDetail: centerDetail,
-          );
-        },
-      ),
-    );
-  }
+  String tileText = "Checking authentication...";
 
   @override
   void initState() {
@@ -65,60 +28,90 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   }
 
   Future<void> _checkAuth() async {
-    final storage = ref.read(secureStorageProvider);
-    final token = await storage.read(key: 'access_token');
-    if (token == null) {
-      await Future.delayed(ref.read(splashScreenTimeProvider));
-      _goToLogin();
-      return;
-    }
-
+    // Use singleton instance instead of creating new one
+    final authRepo = AuthRepository.instance;
     try {
-      final response = await http
-          .get(
-            Uri.parse('${ref.read(baseUrlProvider)}verify-auth/'),
-            headers: {'Authorization': 'Bearer $token'},
-          )
-          .timeout(const Duration(seconds: 5));
-
-      bool? isAdmin;
-      String? username;
-      String? firstName;
-      String? lastName;
-      int? id;
-      CenterDetail? centerDetail;
-
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body);
-        isAdmin = body['is_admin'];
-        username = body['username'];
-        firstName = body['first_name'];
-        lastName = body['last_name'];
-        centerDetail = CenterDetail.fromJson(body['center_detail']);
-
-        id = body['id'];
-        await Future.delayed(ref.read(splashScreenTimeProvider));
-        _goToHome(
-          isAdmin: isAdmin!,
-          firstName: firstName!,
-          id: id!,
-          lastName: lastName!,
-          username: username!,
-          centerDetail: centerDetail,
-        );
-      } else {
-        await Future.delayed(ref.read(splashScreenTimeProvider));
-        _goToLogin();
-      }
-    } catch (e) {
       setState(() {
-        // tileText = "Oops! Server is not responding yet, retrying...";
-        tileText = e.toString();
+        tileText = "Verifying credentials...";
       });
-      _checkAuth();
+
+      final userData = await authRepo.verifyAuth();
+
+      setState(() {
+        tileText = "Authentication successful!";
+      });
+
+      // Small delay to show success message
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // ✅ Auth valid → go to HomeScreen with validated data
+      if (mounted) {
+        navigatorKey.currentState?.pushReplacement(
+          MaterialPageRoute(
+            builder: (context) {
+              return HomeScreen(
+                id: userData['id'],
+                firstName: userData['firstName'],
+                lastName: userData['lastName'],
+                username: userData['username'],
+                isAdmin: userData['isAdmin'],
+                centerDetail: userData['centerDetail'],
+              );
+            },
+          ),
+        );
+      }
+    } on TokenExpiredException {
+      _navigateToLogin("Session expired - please login again");
+    } on InvalidCredentialsException {
+      _navigateToLogin("Invalid credentials");
+    } on NetworkException {
+      _navigateToLogin("Network error - check connection");
+    } on ServerException catch (e) {
+      _navigateToLogin("Server error: ${e.message}");
+    } catch (e) {
+      _navigateToLogin("Unexpected error occurred");
     }
   }
 
+  void _navigateToLogin(String reason) {
+    if (mounted) {
+      setState(() {
+        tileText = reason;
+      });
+
+      // Show error briefly before navigating
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        if (mounted) {
+          navigatorKey.currentState?.pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
+      });
+    }
+  }
+
+  final splashAppNameWidget = Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        "Lab",
+        style: TextStyle(
+          fontSize: 90,
+          fontWeight: FontWeight.bold,
+          color: Color.fromARGB(255, 0, 110, 164),
+        ),
+      ),
+      Text(
+        "Ledger",
+        style: TextStyle(
+          fontSize: 90,
+          fontWeight: FontWeight.bold,
+          color: Color.fromARGB(255, 2, 166, 36),
+        ),
+      ),
+    ],
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,13 +119,10 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ref.read(splashAppNameProvider),
-            // SizedBox(height: 30),
-            SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
-            SizedBox(height: 10),
+            splashAppNameWidget,
+            const SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
+            const SizedBox(height: 10),
             Text(
               tileText,
               style: TextStyle(

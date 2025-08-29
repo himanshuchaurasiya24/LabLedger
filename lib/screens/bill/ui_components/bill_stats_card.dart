@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_stats_model.dart';
-import 'package:labledger/providers/custom_providers.dart';
 
 class BillStatsCard extends StatelessWidget {
   final String title;

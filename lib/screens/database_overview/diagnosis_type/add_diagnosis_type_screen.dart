@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
-import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 

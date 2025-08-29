@@ -1,7 +1,7 @@
 // widgets/chart_stats_card.dart
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
-import 'package:labledger/providers/custom_providers.dart';
 
 class ChartStatsCard extends StatefulWidget {
   final String title;

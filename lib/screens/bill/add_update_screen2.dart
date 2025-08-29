@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
-import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 
-class AddBillScreen extends ConsumerStatefulWidget {
+class AddBillScreen2 extends ConsumerStatefulWidget {
   final Bill? billData; // <-- Add this for Edit Mode
 
-  const AddBillScreen({super.key, this.billData});
+  const AddBillScreen2({super.key, this.billData});
 
   @override
-  ConsumerState<AddBillScreen> createState() => _AddBillScreenState();
+  ConsumerState<AddBillScreen2> createState() => _AddBillScreen2State();
 }
 
-class _AddBillScreenState extends ConsumerState<AddBillScreen> {
+class _AddBillScreen2State extends ConsumerState<AddBillScreen2> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   DiagnosisType? selectedDiagnosisType;
   final TextEditingController patientNameController = TextEditingController();

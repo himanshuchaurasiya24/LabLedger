@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/bill_model.dart';
-import 'package:labledger/providers/custom_providers.dart';
 
 class BillCard extends StatelessWidget {
   final Bill bill;
@@ -292,7 +292,7 @@ class BillCard extends StatelessWidget {
                       ),
                     ],
                   ),
-
+                  Spacer(),
                   // Pending Amount (if not fully paid)
                   Visibility(
                     visible: (bill.billStatus == "Partially Paid"),
@@ -301,6 +301,8 @@ class BillCard extends StatelessWidget {
                       children: [
                         Text(
                           'Pending',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: bodyStyle?.copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -313,51 +315,41 @@ class BillCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  Spacer(),
 
                   Visibility(
-                    visible: bill.discByDoctor > 0,
+                    visible: bill.discByCenter > 0 || bill.discByDoctor > 0,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Doctor\'s Discount',
+                          'Discount',
                           style: bodyStyle?.copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          _formatCurrency(bill.discByDoctor),
+                          "${bill.discByDoctor > 0 ? "${_formatCurrency(bill.discByDoctor)} Doc" : ""}"
+                          " "
+                          "${(bill.discByCenter > 0 ? "${_formatCurrency(bill.discByCenter)} Center" : "")}",
                           style: amountStyle.copyWith(fontSize: 16),
                         ),
                       ],
                     ),
                   ),
-                  Visibility(
-                    visible: bill.discByCenter > 0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Center Discount',
-                          style: bodyStyle?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          _formatCurrency(bill.discByCenter),
-                          style: amountStyle.copyWith(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
+                  Spacer(),
+
                   // Total Amount
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
                         'Total',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: bodyStyle?.copyWith(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

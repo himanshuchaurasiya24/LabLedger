@@ -1,18 +1,18 @@
 // PROVIDERS & MODEL HANDLING - franchise_provider.dart
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
+import 'package:labledger/authentication/auth_http_client.dart';
+import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/franchise_model.dart';
-import 'package:labledger/providers/custom_providers.dart';
 
-/// Fetch all franchises
+/// ✅ Base API Endpoint
+final String franchiseEndpoint =
+    "${globalBaseUrl}diagnosis/franchise-names/franchise-name/";
+
+/// ✅ Fetch all franchises
 final franchiseProvider = FutureProvider.autoDispose<List<Franchise>>((ref) async {
-  final token = await ref.read(tokenProvider.future);
-  final response = await http.get(
-    Uri.parse("${baseURL}diagnosis/franchise-names/franchise-name/"),
-    headers: {"Authorization": "Bearer $token"},
-  );
+  final response = await AuthHttpClient.get(ref, franchiseEndpoint);
 
   if (response.statusCode == 200) {
     final List data = jsonDecode(response.body);
@@ -22,13 +22,12 @@ final franchiseProvider = FutureProvider.autoDispose<List<Franchise>>((ref) asyn
   }
 });
 
-/// Fetch single franchise
+/// ✅ Fetch single franchise by ID
 final singleFranchiseProvider =
     FutureProvider.autoDispose.family<Franchise, int>((ref, id) async {
-  final token = await ref.read(tokenProvider.future);
-  final response = await http.get(
-    Uri.parse("${baseURL}diagnosis/franchise-names/franchise-name/$id/"),
-    headers: {"Authorization": "Bearer $token"},
+  final response = await AuthHttpClient.get(
+    ref,
+    "$franchiseEndpoint$id/",
   );
 
   if (response.statusCode == 200) {
@@ -38,16 +37,13 @@ final singleFranchiseProvider =
   }
 });
 
-/// Create franchise
+/// ✅ Create franchise
 final createFranchiseProvider =
     FutureProvider.autoDispose.family<Franchise, Franchise>((ref, newFranchise) async {
-  final token = await ref.read(tokenProvider.future);
-  final response = await http.post(
-    Uri.parse("${baseURL}diagnosis/franchise-names/franchise-name/"),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    },
+  final response = await AuthHttpClient.post(
+    ref,
+    franchiseEndpoint,
+    headers: {"Content-Type": "application/json"},
     body: jsonEncode(newFranchise.toCreateJson()), // exclude id, center_detail
   );
 
@@ -59,38 +55,33 @@ final createFranchiseProvider =
   }
 });
 
-/// Update franchise
+/// ✅ Update franchise (using PUT instead of PATCH)
 final updateFranchiseProvider =
     FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, input) async {
-  final token = await ref.read(tokenProvider.future);
   final int id = input['id']; // Franchise ID
   final Map<String, dynamic> updatedData = input['data']; // Updated fields
 
-  final response = await http.patch(
-    Uri.parse("${baseURL}diagnosis/franchise-names/franchise-name/$id/"), // Adjust endpoint if needed
-    headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    },
+  final response = await AuthHttpClient.put(
+    ref,
+    "$franchiseEndpoint$id/",
+    headers: {"Content-Type": "application/json"},
     body: jsonEncode(updatedData),
   );
 
   if (response.statusCode == 200) {
-    ref.invalidate(franchiseProvider); // refresh the franchise list provider
+    ref.invalidate(franchiseProvider); // refresh franchise list
     return jsonDecode(response.body);
   } else {
     throw Exception("Failed to update Franchise: ${response.body}");
   }
 });
 
-
-/// Delete franchise
+/// ✅ Delete franchise
 final deleteFranchiseProvider =
     FutureProvider.autoDispose.family<void, int>((ref, id) async {
-  final token = await ref.read(tokenProvider.future);
-  final response = await http.delete(
-    Uri.parse("${baseURL}diagnosis/franchise-names/franchise-name/$id/"),
-    headers: {'Authorization': 'Bearer $token'},
+  final response = await AuthHttpClient.delete(
+    ref,
+    "$franchiseEndpoint$id/",
   );
 
   if (response.statusCode == 204) {
@@ -99,22 +90,19 @@ final deleteFranchiseProvider =
     throw Exception("Failed to delete franchise: ${response.body}");
   }
 });
-/// ✅ Fetch FranchiseName Models (with center_detail)
-final franchiseNamesProvider = FutureProvider<List<FranchiseName>>((ref) async {
-  final token = await ref.read(tokenProvider.future);
 
-  final response = await http.get(
-    Uri.parse('${baseURL}diagnosis/franchise-names/franchise-name/'),
-    headers: {'Authorization': 'Bearer $token'},
+/// ✅ Fetch FranchiseName Models (with center_detail)
+final franchiseNamesProvider =
+    FutureProvider.autoDispose<List<FranchiseName>>((ref) async {
+  final response = await AuthHttpClient.get(
+    ref,
+    franchiseEndpoint,
   );
 
   if (response.statusCode == 200) {
     final List<dynamic> data = jsonDecode(response.body);
-
-    // Map the JSON into List<FranchiseName>
-    // debugPrint(data.toString());
     return data.map((item) => FranchiseName.fromJson(item)).toList();
   } else {
-    throw Exception('Failed to load franchise names');
+    throw Exception('Failed to load franchise names: ${response.body}');
   }
 });

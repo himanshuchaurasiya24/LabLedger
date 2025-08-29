@@ -3,10 +3,10 @@ import "package:http/http.dart" as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:labledger/authentication/config.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/models/center_detail_model.dart';
-import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -31,7 +31,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse("$baseURL/api/token/"),
+            Uri.parse("$globalBaseUrl/api/token/"),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'username': username, 'password': password}),
           )
@@ -39,8 +39,10 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
       String statusNumber = response.statusCode.toString();
       final body = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        String token = body['access'];
-        await storage.write(key: 'access_token', value: token);
+        String accessToken = body['access'];
+        String refreshToken = body['refresh'];
+        await storage.write(key: 'access_token', value: accessToken);
+        await storage.write(key: 'refresh_token', value: refreshToken);
         return {
           'success': true,
           'is_admin': body['is_admin'],
@@ -88,7 +90,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
               lastName: value['last_name']!,
               username: value['username']!,
               id: value['id'],
-              centerDetail: CenterDetail.fromJson(value['center_detail']),
+              centerDetail: value['center_detail'],
             );
           },
         ),
@@ -120,7 +122,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                   appIconNameWidget(context: context, forLogInScreen: true),
                   const SizedBox(height: 5),
                   Text(
-                    "Medical Records Made Simple",
+                    appDescription,
                     style: TextStyle(
                       fontSize: 18,
                       color:
@@ -147,7 +149,7 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Welcome to ${ref.watch(appNameProvider)}",
+                          "Welcome to $appName",
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,

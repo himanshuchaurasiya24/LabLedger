@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/providers/custom_providers.dart';
+import 'package:labledger/providers/user_provider.dart';
 import 'package:labledger/screens/profile/update_profile_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -20,20 +21,14 @@ class ProfileScreen extends ConsumerWidget {
     try {
       final user = await ref.read(userDetailsProvider(userId).future);
 
-      if (user != null) {
-        final result = await navigator.push(
-          MaterialPageRoute(builder: (_) => UpdateProfileScreen(user: user)),
-        );
+      final result = await navigator.push(
+        MaterialPageRoute(builder: (_) => UpdateProfileScreen(user: user)),
+      );
 
-        if (result == true) {
-          ref.invalidate(userDetailsProvider(userId));
-        }
-      } else {
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text("Unable to load user data")),
-        );
+      if (result == true) {
+        ref.invalidate(userDetailsProvider(userId));
       }
-    } catch (e) {
+        } catch (e) {
       scaffoldMessenger.showSnackBar(SnackBar(content: Text("Errorrrr: $e")));
     }
   }
@@ -50,9 +45,6 @@ class ProfileScreen extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Error: $error')),
           data: (user) {
-            if (user == null) {
-              return const Center(child: Text("User not found"));
-            }
             return IntrinsicHeight(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

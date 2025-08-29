@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/providers/custom_providers.dart';
+import 'package:labledger/providers/user_provider.dart';
 import 'package:labledger/screens/database_overview/center_details/update_center_details_screen.dart';
 import 'package:labledger/screens/profile/profile_screen.dart';
 
@@ -21,9 +22,6 @@ class CenterDetailsScreen extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Error: $error')),
           data: (user) {
-            if (user == null) {
-              return const Center(child: Text("User not found"));
-            }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

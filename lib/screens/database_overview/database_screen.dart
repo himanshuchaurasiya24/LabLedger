@@ -1,9 +1,7 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-
-import 'package:labledger/providers/custom_providers.dart';
 import 'package:labledger/screens/database_overview/center_details/center_details_screen.dart';
 import 'package:labledger/screens/database_overview/diagnosis_type/diagnosis_type_screen.dart';
 import 'package:labledger/screens/database_overview/doctor/doctors_screen.dart';
