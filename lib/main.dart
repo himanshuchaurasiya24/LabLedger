@@ -10,7 +10,6 @@ import 'dart:async';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Size get initialWindowSize => const Size(700, 350);
 final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();

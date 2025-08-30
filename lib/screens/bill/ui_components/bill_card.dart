@@ -111,7 +111,6 @@ class BillCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
@@ -128,273 +127,276 @@ class BillCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Row - Patient Name and Payment Status
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      bill.patientName.isNotEmpty
-                          ? bill.patientName
-                          : 'Unknown Patient',
-                      style: titleStyle?.copyWith(fontSize: 24),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _paymentStatus == PaymentStatus.fullPaid
-                            ? Icons.check_circle
-                            : _paymentStatus == PaymentStatus.partiallyPaid
-                            ? Icons.access_time_filled
-                            : Icons.error,
-                        color: _getTextColor(context),
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _paymentStatus == PaymentStatus.fullPaid
-                            ? 'PAID'
-                            : _paymentStatus == PaymentStatus.partiallyPaid
-                            ? 'PARTIAL'
-                            : 'UNPAID',
-                        style: amountStyle!.copyWith(
-                          fontSize: 14,
-                          // fontWeight: FontWeight.b,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              SizedBox(height: defaultHeight),
-
-              // Patient Details Row
-              Row(
-                children: [
-                  // Age and Sex
-                  Row(
-                    children: [
-                      Icon(
-                        bill.patientSex.toLowerCase() == 'male'
-                            ? Icons.male
-                            : bill.patientSex.toLowerCase() == 'female'
-                            ? Icons.female
-                            : Icons.person,
-                        size: 18,
-                        color: textColor.withValues(alpha: 0.7),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${bill.patientAge}y, ${bill.patientSex.toUpperCase()}',
-                        style: bodyStyle?.copyWith(fontSize: 14),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(width: 16),
-
-                  // Date
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 16,
-                        color: textColor.withValues(alpha: 0.7),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _formatDate(bill.dateOfBill),
-                        style: bodyStyle?.copyWith(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              // Doctor Name Row
-              Row(
-                children: [
-                  Icon(
-                    Icons.local_hospital,
-                    size: 16,
-                    color: textColor.withValues(alpha: 0.7),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      bill.referredByDoctorOutput?['name'] ??
-                          'Dr. ${bill.referredByDoctorOutput!["first_name"]} ${bill.referredByDoctorOutput!["last_name"]}',
-                      style: bodyStyle?.copyWith(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              // Diagnosis and Franchise Row
-              Row(
-                children: [
-                  Icon(
-                    Icons.medical_services,
-                    size: 16,
-                    color: textColor.withValues(alpha: 0.7),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      "${bill.diagnosisTypeOutput?['category']} ${bill.diagnosisTypeOutput?['name']}",
-                      style: bodyStyle?.copyWith(fontSize: 14),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: defaultHeight),
-
-              // Amount Information Row
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Paid Amount
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Paid',
-                        style: bodyStyle?.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        _formatCurrency(bill.paidAmount),
-                        style: amountStyle.copyWith(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  // Pending Amount (if not fully paid)
-                  Visibility(
-                    visible: (bill.billStatus == "Partially Paid"),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Pending',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: bodyStyle?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          _formatCurrency(_pendingAmount),
-                          style: amountStyle.copyWith(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Spacer(),
-
-                  Visibility(
-                    visible: bill.discByCenter > 0 || bill.discByDoctor > 0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Discount',
-                          style: bodyStyle?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          "${bill.discByDoctor > 0 ? "${_formatCurrency(bill.discByDoctor)} Doc" : ""}"
-                          " "
-                          "${(bill.discByCenter > 0 ? "${_formatCurrency(bill.discByCenter)} Center" : "")}",
-                          style: amountStyle.copyWith(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Spacer(),
-
-                  // Total Amount
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Total',
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: defaultPadding,
+              vertical: defaultPadding / 2,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Row - Patient Name and Payment Status
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        bill.patientName.isNotEmpty
+                            ? bill.patientName
+                            : 'Unknown Patient',
+                        style: titleStyle?.copyWith(fontSize: 24),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: bodyStyle?.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
                       ),
-                      Text(
-                        _formatCurrency(bill.totalAmount),
-                        style: amountStyle.copyWith(fontSize: 16),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _paymentStatus == PaymentStatus.fullPaid
+                              ? Icons.check_circle
+                              : _paymentStatus == PaymentStatus.partiallyPaid
+                              ? Icons.access_time_filled
+                              : Icons.error,
+                          color: _getTextColor(context),
+                          size: 16,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _paymentStatus == PaymentStatus.fullPaid
+                              ? 'PAID'
+                              : _paymentStatus == PaymentStatus.partiallyPaid
+                              ? 'PARTIAL'
+                              : 'UNPAID',
+                          style: amountStyle!.copyWith(
+                            fontSize: 14,
+                            // fontWeight: FontWeight.b,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: defaultHeight),
+                // Patient Details Row
+                Row(
+                  children: [
+                    // Age and Sex
+                    Row(
+                      children: [
+                        Icon(
+                          bill.patientSex.toLowerCase() == 'male'
+                              ? Icons.male
+                              : bill.patientSex.toLowerCase() == 'female'
+                              ? Icons.female
+                              : Icons.person,
+                          size: 18,
+                          color: textColor.withValues(alpha: 0.7),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${bill.patientAge}y, ${bill.patientSex.toUpperCase()}',
+                          style: bodyStyle?.copyWith(fontSize: 14),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(width: 16),
+
+                    // Date
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          size: 16,
+                          color: textColor.withValues(alpha: 0.7),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _formatDate(bill.dateOfBill),
+                          style: bodyStyle?.copyWith(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: defaultHeight),
+
+                // Doctor Name Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                  children: [
+                    Icon(
+                      Icons.local_hospital,
+                      size: 16,
+                      color: textColor.withValues(alpha: 0.7),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        bill.referredByDoctorOutput?['name'] ??
+                            'Dr. ${bill.referredByDoctorOutput!["first_name"]} ${bill.referredByDoctorOutput!["last_name"]}',
+                        style: bodyStyle?.copyWith(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    // Incentive Amount (if available)
+                    if (bill.incentiveAmount > 0) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.card_giftcard,
+                            size: 16,
+                            color: _getTextColor(context),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Incentive: ',
+                            style: bodyStyle?.copyWith(
+                              fontSize: 12,
+                              color: _getTextColor(context),
+                            ),
+                          ),
+                          Text(
+                            _formatCurrency(bill.incentiveAmount),
+                            style: bodyStyle?.copyWith(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              // color: Colors.teal[700],
+                              color: _getTextColor(context),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              // Incentive Amount (if available)
-              if (bill.incentiveAmount > 0) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: defaultHeight),
+
+                // Diagnosis and Franchise Row
                 Row(
                   children: [
                     Icon(
-                      Icons.card_giftcard,
+                      Icons.medical_services,
                       size: 16,
-                      color: _getTextColor(context),
+                      color: textColor.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      'Incentive: ',
-                      style: bodyStyle?.copyWith(
-                        fontSize: 12,
-                        color: _getTextColor(context),
-                      ),
-                    ),
-                    Text(
-                      _formatCurrency(bill.incentiveAmount),
-                      style: bodyStyle?.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        // color: Colors.teal[700],
-                        color: _getTextColor(context),
+                    Expanded(
+                      child: Text(
+                        "${bill.diagnosisTypeOutput?['category']} ${bill.diagnosisTypeOutput?['name']}",
+                        style: bodyStyle?.copyWith(fontSize: 14),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
+                SizedBox(height: defaultHeight * 1.5),
+
+                // Amount Information Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Paid Amount
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Paid',
+                          style: bodyStyle?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          _formatCurrency(bill.paidAmount),
+                          style: amountStyle.copyWith(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    Spacer(),
+                    // Pending Amount (if not fully paid)
+                    Visibility(
+                      visible: (bill.billStatus == "Partially Paid"),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Pending',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: bodyStyle?.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Text(
+                            _formatCurrency(_pendingAmount),
+                            style: amountStyle.copyWith(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Spacer(),
+
+                    Visibility(
+                      visible: bill.discByCenter > 0 || bill.discByDoctor > 0,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Discount',
+                            style: bodyStyle?.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            "${bill.discByDoctor > 0 ? "${_formatCurrency(bill.discByDoctor)} Doc" : ""}"
+                            " "
+                            "${(bill.discByCenter > 0 ? "${_formatCurrency(bill.discByCenter)} Center" : "")}",
+                            style: amountStyle.copyWith(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Spacer(),
+
+                    // Total Amount
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Total',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: bodyStyle?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          _formatCurrency(bill.totalAmount),
+                          style: amountStyle.copyWith(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
-            ],
+            ),
           ),
         ),
       ),

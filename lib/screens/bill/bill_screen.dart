@@ -27,7 +27,8 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   String _selectedView = 'list'; // default view
   Timer? _debounce;
   String _currentSearchQuery = '';
-  double _aspectRatio = 1.44;
+  double _aspectRatio = 2.0;
+  double fullMaxRatio = 2.2;
   @override
   void initState() {
     super.initState();
@@ -43,11 +44,11 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
 
     setState(() {
       if (isFullScreen) {
-        _aspectRatio = 1.75;
+        _aspectRatio = fullMaxRatio;
       } else if (isMaximized) {
-        _aspectRatio = 1.7;
+        _aspectRatio = fullMaxRatio;
       } else {
-        _aspectRatio = 1.44;
+        _aspectRatio = 2.0;
       }
     });
   }
@@ -55,7 +56,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   // --- WindowListener overrides ---
   @override
   void onWindowEnterFullScreen() {
-    setState(() => _aspectRatio = 1.75);
+    setState(() => _aspectRatio = fullMaxRatio);
   }
 
   @override
@@ -65,7 +66,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
 
   @override
   void onWindowMaximize() {
-    setState(() => _aspectRatio = 1.7);
+    setState(() => _aspectRatio = fullMaxRatio);
   }
 
   @override
@@ -206,7 +207,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: defaultPadding * 2),
+        padding: EdgeInsets.symmetric(horizontal: defaultPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -370,12 +371,14 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                                         builder: (context, constraints) {
                                           // For example, 4 columns → calculate height dynamically
                                           final crossAxisCount = 4;
-                                          final itemWidth =
-                                              constraints.maxWidth /
-                                              crossAxisCount;
-                                          final itemHeight =
-                                              itemWidth *
-                                              0.7; // tweak ratio as needed
+                                          // final itemWidth =
+                                          //     (constraints.maxWidth -
+                                          //         defaultPadding * 2 -
+                                          //         defaultWidth * 3) /
+                                          //     crossAxisCount;
+                                          // final itemHeight =
+                                          // itemWidth * (3 / 2);
+                                          // tweak ratio as needed
 
                                           return GridView.builder(
                                             shrinkWrap: true,
