@@ -11,6 +11,7 @@ import 'package:labledger/providers/bills_provider.dart'; // Import your bills p
 import 'package:labledger/screens/bill/add_update_screen2.dart';
 import 'package:labledger/screens/bill/ui_components/bill_card.dart';
 import 'package:labledger/screens/bill/ui_components/bill_stats_card.dart';
+import 'package:window_manager/window_manager.dart';
 
 class BillsScreen extends ConsumerStatefulWidget {
   const BillsScreen({super.key});
@@ -19,20 +20,72 @@ class BillsScreen extends ConsumerStatefulWidget {
   ConsumerState<BillsScreen> createState() => _BillsScreenState();
 }
 
-class _BillsScreenState extends ConsumerState<BillsScreen> {
+class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   String _selectedView = 'list'; // default view
   Timer? _debounce;
   String _currentSearchQuery = '';
-
+  double _aspectRatio = 1.44;
   @override
   void initState() {
     super.initState();
-    setWindowBehavior(removeTitleBar: true);
+    windowManager.addListener(this);
+    _checkWindowState();
     searchFocusNode.requestFocus();
     _loadSavedView();
+  }
+
+  Future<void> _checkWindowState() async {
+    final isFullScreen = await windowManager.isFullScreen();
+    final isMaximized = await windowManager.isMaximized();
+
+    setState(() {
+      if (isFullScreen) {
+        _aspectRatio = 1.75;
+      } else if (isMaximized) {
+        _aspectRatio = 1.7;
+      } else {
+        _aspectRatio = 1.44;
+      }
+    });
+  }
+
+  // --- WindowListener overrides ---
+  @override
+  void onWindowEnterFullScreen() {
+    setState(() => _aspectRatio = 1.75);
+  }
+
+  @override
+  void onWindowLeaveFullScreen() {
+    _checkWindowState();
+  }
+
+  @override
+  void onWindowMaximize() {
+    setState(() => _aspectRatio = 1.7);
+  }
+
+  @override
+  void onWindowUnmaximize() {
+    _checkWindowState();
+  }
+
+  @override
+  void onWindowResize() {
+    _checkWindowState();
+  }
+
+  @override
+  void dispose() {
+    // ✅ remove listener to avoid leaks
+    windowManager.removeListener(this);
+    _debounce?.cancel();
+    searchController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSavedView() async {
@@ -62,7 +115,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
     ref.invalidate(billsProvider);
     ref.invalidate(searchBillsProvider);
     ref.invalidate(billStatsProvider);
-    
+
     // If there's a current search, invalidate that specific search
     if (_currentSearchQuery.isNotEmpty) {
       ref.invalidate(searchBillsProvider(_currentSearchQuery));
@@ -71,18 +124,18 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
 
   Map<String, List<Bill>> _groupBillsByReason(List<Bill> bills) {
     final Map<String, List<Bill>> grouped = {};
-    
+
     for (var bill in bills) {
       final reasons = (bill.matchReason?.isNotEmpty ?? false)
           ? bill.matchReason!
           : ["Bills List"];
-      
+
       for (var reason in reasons) {
         grouped.putIfAbsent(reason, () => []);
         grouped[reason]!.add(bill);
       }
     }
-    
+
     return grouped;
   }
 
@@ -123,14 +176,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
   }
 
   @override
-  void dispose() {
-    _debounce?.cancel();
-    searchController.dispose();
-    searchFocusNode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     // Use the appropriate provider based on search query
     final billsAsyncValue = _currentSearchQuery.isEmpty
@@ -140,14 +185,12 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
+        backgroundColor: Theme.of(
+          context,
+        ).colorScheme.primary.withValues(alpha: 0.7),
         onPressed: () async {
           await navigatorKey.currentState
-              ?.push(
-                MaterialPageRoute(
-                  builder: (context) => AddBillScreen2(),
-                ),
-              )
+              ?.push(MaterialPageRoute(builder: (context) => AddBillScreen2()))
               .then((value) {
                 // Refresh bills data when returning from add bill screen
                 _refreshBillsData();
@@ -199,55 +242,61 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                             height: 310,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(defaultRadius),
-                            ),
-                            child: ref.watch(billStatsProvider).when(
-                              data: (stats) {
-                                return Row(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    BillStatsCard(
-                                      title: "Monthly Growth",
-                                      currentPeriod: stats.currentMonth,
-                                      previousPeriod: stats.previousMonth,
-                                    ),
-                                    SizedBox(width: defaultWidth),
-                                    BillStatsCard(
-                                      title: "Quarterly Growth",
-                                      currentPeriod: stats.currentQuarter,
-                                      previousPeriod: stats.previousQuarter,
-                                    ),
-                                    SizedBox(width: defaultWidth),
-                                    BillStatsCard(
-                                      title: "Yearly Growth",
-                                      currentPeriod: stats.currentYear,
-                                      previousPeriod: stats.previousYear,
-                                    ),
-                                  ],
-                                );
-                              },
-                              loading: () => const Center(
-                                child: CircularProgressIndicator(),
+                              borderRadius: BorderRadius.circular(
+                                defaultRadius,
                               ),
-                              error: (err, stack) => Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text("Error loading stats: $err"),
-                                    const SizedBox(height: 10),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        ref.invalidate(billStatsProvider);
-                                      },
-                                      child: const Text("Retry"),
+                            ),
+                            child: ref
+                                .watch(billStatsProvider)
+                                .when(
+                                  data: (stats) {
+                                    return Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        BillStatsCard(
+                                          title: "Monthly Growth",
+                                          currentPeriod: stats.currentMonth,
+                                          previousPeriod: stats.previousMonth,
+                                        ),
+                                        SizedBox(width: defaultWidth),
+                                        BillStatsCard(
+                                          title: "Quarterly Growth",
+                                          currentPeriod: stats.currentQuarter,
+                                          previousPeriod: stats.previousQuarter,
+                                        ),
+                                        SizedBox(width: defaultWidth),
+                                        BillStatsCard(
+                                          title: "Yearly Growth",
+                                          currentPeriod: stats.currentYear,
+                                          previousPeriod: stats.previousYear,
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                  loading: () => const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                  error: (err, stack) => Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text("Error loading stats: $err"),
+                                        const SizedBox(height: 10),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            ref.invalidate(billStatsProvider);
+                                          },
+                                          child: const Text("Retry"),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
                           ),
                         ),
-                        
+
                         // Bills list section
                         billsAsyncValue.when(
                           data: (bills) {
@@ -258,10 +307,12 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                                   children: [
                                     const SizedBox(height: 50),
                                     Text(
-                                      _currentSearchQuery.isEmpty 
-                                          ? 'No bills found.' 
+                                      _currentSearchQuery.isEmpty
+                                          ? 'No bills found.'
                                           : 'No bills found for "$_currentSearchQuery"',
-                                      style: Theme.of(context).textTheme.headlineLarge,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.headlineLarge,
                                     ),
                                     if (_currentSearchQuery.isNotEmpty) ...[
                                       const SizedBox(height: 20),
@@ -281,7 +332,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                             }
 
                             final groupedBills = _groupBillsByReason(bills);
-                            
+
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: groupedBills.entries.map((entry) {
@@ -292,11 +343,14 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           category,
-                                          style: Theme.of(context).textTheme.headlineMedium,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.headlineMedium,
                                         ),
                                         IconButton(
                                           onPressed: _showViewMenu,
@@ -309,66 +363,98 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                                         ),
                                       ],
                                     ),
-                                    
+
                                     // Grid View
                                     if (_selectedView == "grid")
-                                      GridView.builder(
-                                        shrinkWrap: true,
-                                        physics: const NeverScrollableScrollPhysics(),
-                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 4,
-                                          childAspectRatio: 1.45,
-                                          crossAxisSpacing: 16,
-                                          mainAxisSpacing: 16,
-                                        ),
-                                        itemCount: categoryBills.length,
-                                        itemBuilder: (ctx, index) {
-                                          final bill = categoryBills[index];
-                                          return GestureDetector(
-                                            onTap: () async {
-                                              await navigatorKey.currentState?.push(
-                                                MaterialPageRoute(
-                                                  builder: (_) => AddBillScreen2(billData: bill),
+                                      LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          // For example, 4 columns → calculate height dynamically
+                                          final crossAxisCount = 4;
+                                          final itemWidth =
+                                              constraints.maxWidth /
+                                              crossAxisCount;
+                                          final itemHeight =
+                                              itemWidth *
+                                              0.7; // tweak ratio as needed
+
+                                          return GridView.builder(
+                                            shrinkWrap: true,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            gridDelegate:
+                                                SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount:
+                                                      crossAxisCount,
+                                                  childAspectRatio:
+                                                      _aspectRatio,
+                                                  crossAxisSpacing:
+                                                      defaultWidth,
+                                                  mainAxisSpacing:
+                                                      defaultHeight,
                                                 ),
-                                              ).then((result) {
-                                                // Refresh data if bill was modified
-                                                if (result == true) {
-                                                  _refreshBillsData();
-                                                }
-                                              });
+                                            itemCount: categoryBills.length,
+                                            itemBuilder: (ctx, index) {
+                                              final bill = categoryBills[index];
+                                              return GestureDetector(
+                                                onTap: () async {
+                                                  await navigatorKey
+                                                      .currentState
+                                                      ?.push(
+                                                        MaterialPageRoute(
+                                                          builder: (_) =>
+                                                              AddBillScreen2(
+                                                                billData: bill,
+                                                              ),
+                                                        ),
+                                                      )
+                                                      .then((result) {
+                                                        // Refresh data if bill was modified
+                                                        if (result == true) {
+                                                          _refreshBillsData();
+                                                        }
+                                                      });
+                                                },
+                                                child: BillCard(bill: bill),
+                                              );
                                             },
-                                            child: BillCard(bill: bill),
                                           );
                                         },
                                       ),
-                                    
+
                                     // List View
                                     if (_selectedView == "list")
                                       ListView.separated(
                                         shrinkWrap: true,
-                                        physics: const NeverScrollableScrollPhysics(),
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
                                         itemCount: categoryBills.length,
-                                        separatorBuilder: (_, __) => SizedBox(height: defaultHeight),
+                                        separatorBuilder: (_, __) =>
+                                            SizedBox(height: defaultHeight),
                                         itemBuilder: (ctx, index) {
                                           final bill = categoryBills[index];
                                           return GestureDetector(
                                             onTap: () async {
-                                              await navigatorKey.currentState?.push(
-                                                MaterialPageRoute(
-                                                  builder: (_) => AddBillScreen2(billData: bill),
-                                                ),
-                                              ).then((result) {
-                                                // Refresh data if bill was modified
-                                                if (result == true) {
-                                                  _refreshBillsData();
-                                                }
-                                              });
+                                              await navigatorKey.currentState
+                                                  ?.push(
+                                                    MaterialPageRoute(
+                                                      builder: (_) =>
+                                                          AddBillScreen2(
+                                                            billData: bill,
+                                                          ),
+                                                    ),
+                                                  )
+                                                  .then((result) {
+                                                    // Refresh data if bill was modified
+                                                    if (result == true) {
+                                                      _refreshBillsData();
+                                                    }
+                                                  });
                                             },
                                             child: BillCard(bill: bill),
                                           );
                                         },
                                       ),
-                                    
+
                                     const SizedBox(height: 20),
                                   ],
                                 );
@@ -396,14 +482,18 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                                   const SizedBox(height: 20),
                                   Text(
                                     "Failed to load bills",
-                                    style: Theme.of(context).textTheme.headlineMedium,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.headlineMedium,
                                   ),
                                   const SizedBox(height: 10),
                                   Text(
                                     err.toString().contains("Authentication")
                                         ? "Please check your internet connection and try again"
                                         : "Please try again",
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
                                     textAlign: TextAlign.center,
                                   ),
                                   const SizedBox(height: 20),

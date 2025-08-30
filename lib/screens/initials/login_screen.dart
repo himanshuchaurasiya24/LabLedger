@@ -80,6 +80,8 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (!mounted) return; // ✅ Prevent using context if the widget is disposed
     if (value['success'] == true) {
+      isLoginScreen.value = false;
+      setWindowBehavior(isForLogin: false);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

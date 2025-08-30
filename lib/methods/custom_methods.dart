@@ -17,6 +17,7 @@ class NoThumbScrollBehavior extends ScrollBehavior {
     return child;
   }
 }
+
 class CenterSearchBar extends StatelessWidget {
   final String hintText;
   final Function(String) onSearch; // <-- take value
@@ -102,22 +103,19 @@ Widget pageHeader({
   );
 }
 
-void setWindowBehavior({bool? isForLogin, bool? removeTitleBar}) async {
+void setWindowBehavior({bool? isForLogin}) async {
   bool isLogin = isForLogin ?? false;
-  bool removeTitle = removeTitleBar ?? true;
-
+  await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
   if (!isLogin) {
+
     await windowManager.setSize(const Size(1600, 900), animate: true);
     await windowManager.center();
     await windowManager.setSkipTaskbar(false);
-    await windowManager.setTitleBarStyle(
-      removeTitle == false ? TitleBarStyle.normal : TitleBarStyle.hidden,
-    );
   } else {
+
     await windowManager.setSize(const Size(700, 350), animate: true);
     await windowManager.center();
     await windowManager.setSkipTaskbar(true);
-    await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
   }
 }
 
@@ -504,7 +502,6 @@ Widget appIconNameWidget({
     ],
   );
 }
-
 
 class CustomCardContainer extends StatelessWidget {
   const CustomCardContainer({

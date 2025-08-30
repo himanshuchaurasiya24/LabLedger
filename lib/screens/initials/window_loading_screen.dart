@@ -46,6 +46,8 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
 
       // ✅ Auth valid → go to HomeScreen with validated data
       if (mounted) {
+        isLoginScreen.value = false;
+        setWindowBehavior(isForLogin: false);
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
             builder: (context) {
@@ -83,6 +85,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       // Show error briefly before navigating
       Future.delayed(const Duration(milliseconds: 1000), () {
         if (mounted) {
+          setWindowBehavior(isForLogin: true);
           navigatorKey.currentState?.pushReplacement(
             MaterialPageRoute(builder: (context) => const LoginScreen()),
           );

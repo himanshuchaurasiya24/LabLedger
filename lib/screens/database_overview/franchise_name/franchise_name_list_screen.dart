@@ -24,7 +24,6 @@ class _FranchiseNameListScreenState
   @override
   void initState() {
     super.initState();
-    setWindowBehavior(removeTitleBar: true);
     searchFocusNode.requestFocus();
   }
 

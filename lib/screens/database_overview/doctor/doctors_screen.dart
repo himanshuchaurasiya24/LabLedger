@@ -22,7 +22,6 @@ class _DoctorsScreenState extends ConsumerState<DoctorsScreen> {
   @override
   void initState() {
     super.initState();
-    setWindowBehavior(removeTitleBar: true);
     searhFocusNode.requestFocus();
   }
 

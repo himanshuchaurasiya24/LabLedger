@@ -221,7 +221,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
             },
           ),
           scrollbarTheme: ScrollbarThemeData(
-            thumbVisibility: WidgetStateProperty.all(true),
+            thumbVisibility: WidgetStateProperty.all(false),
             thickness: WidgetStateProperty.all(8),
             radius: const Radius.circular(4),
           ),

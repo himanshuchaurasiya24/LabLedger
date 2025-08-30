@@ -23,7 +23,6 @@ class _DiagnosisTypeScreenState extends ConsumerState<DiagnosisTypeScreen> {
   @override
   void initState() {
     super.initState();
-    setWindowBehavior(removeTitleBar: true);
     searchFocusNode.requestFocus();
   }
 

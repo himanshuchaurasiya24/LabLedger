@@ -123,7 +123,7 @@ class CustomDropDownState<T> extends State<CustomDropDown<T>> {
       ),
       child: DropdownButtonFormField<T>(
         isExpanded: true,
-        value: selectedValue,
+        initialValue: selectedValue,
         style: widget.textStyle,
         borderRadius: BorderRadius.circular(8),
         decoration: InputDecoration(

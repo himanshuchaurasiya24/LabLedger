@@ -63,7 +63,6 @@ class _HomeScreen2State extends ConsumerState<HomeScreen2> {
   void initState() {
     super.initState();
     isLoginScreen.value = false;
-    setWindowBehavior();
   }
 
   @override
