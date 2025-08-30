@@ -4,35 +4,62 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
+import 'package:labledger/screens/window_scaffold.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Size get initialWindowSize => const Size(700, 350);
-final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-  // --- fetch base url before runApp ---
-   await initializeBaseUrl();
-  WindowOptions windowOptions = WindowOptions(
-    size: initialWindowSize,
-    center: true,
-    title: 'LabLedger',
+  
+  await initializeBaseUrl();
+  
+  // Minimal initial setup
+  WindowOptions windowOptions = const WindowOptions(
     backgroundColor: Colors.transparent,
-    skipTaskbar: true,
     titleBarStyle: TitleBarStyle.hidden,
   );
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.show();
-    await windowManager.focus();
-  });
 
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    // Comprehensive window setup
+    await _setupInitialWindow();
+  });
   runApp(ProviderScope(
      
     child:  MyApp()));
 }
 
+Future<void> _setupInitialWindow() async {
+  try {
+    // Step 1: Basic setup
+    await windowManager.setSkipTaskbar(false);
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    // Step 2: Set constraints
+    await windowManager.setMinimumSize(const Size(700, 350));
+    await windowManager.setMaximumSize(const Size(700, 350));
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    // Step 3: Set size
+    await windowManager.setSize(const Size(700, 350));
+    await Future.delayed(const Duration(milliseconds: 200));
+    
+    // Step 4: Multiple centering attempts
+    for (int i = 0; i < 5; i++) {
+      await windowManager.center();
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    
+    // Step 5: Final operations
+    await windowManager.show();
+    await windowManager.focus();
+    
+  } catch (e) {
+    await windowManager.show();
+  }
+}
 class MyApp extends ConsumerStatefulWidget {
   const MyApp( {super.key});
 

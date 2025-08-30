@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/providers/theme_providers.dart';
+import 'package:labledger/screens/window_scaffold.dart';
 import 'package:window_manager/window_manager.dart';
 
 final containerLightColor = Color(0xFFEEEEEE);
@@ -103,21 +104,55 @@ Widget pageHeader({
   );
 }
 
+// // Updated setWindowBehavior method
+// void setWindowBehavior({bool? isForLogin}) async {
+//   bool isLogin = isForLogin ?? false;
+//   await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+//     // await windowManager.center();
+  
+//   if (!isLogin) {
+//     await windowManager.center();
+//     await windowManager.setMinimumSize(const Size(800, 600)); // Reasonable minimum
+//     await windowManager.setMaximumSize(const Size(4000, 3000)); // Allow maximize
+//     await windowManager.setSkipTaskbar(false);
+//     // Set constraints to prevent manual resizing but allow maximize
+//     await windowManager.setSize(const Size(1600, 900), animate: true);
+//     isLoginScreen.value = false; // Enable F11 for main screens
+//   } else {
+//     await windowManager.center();
+//     await windowManager.setMinimumSize(const Size(700, 350));
+//     await windowManager.setMaximumSize(const Size(700, 350));
+//     await windowManager.setSize(const Size(700, 350), animate: true);
+//     await windowManager.setSkipTaskbar(true);
+//     isLoginScreen.value = true; // Block F11 for login screens
+//   }
+// }
+// Simplified setWindowBehavior - only for login/loading screens
 void setWindowBehavior({bool? isForLogin}) async {
   bool isLogin = isForLogin ?? false;
   await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-  if (!isLogin) {
-
-    await windowManager.setSize(const Size(1600, 900), animate: true);
-    await windowManager.center();
-    await windowManager.setSkipTaskbar(false);
-  } else {
-
-    await windowManager.setSize(const Size(700, 350), animate: true);
-    await windowManager.center();
+  
+  if (isLogin) {
+    // Only handle login/loading screens here
     await windowManager.setSkipTaskbar(true);
+    await windowManager.setMinimumSize(const Size(700, 350));
+    await windowManager.setMaximumSize(const Size(700, 350));
+    
+    await Future.delayed(const Duration(milliseconds: 100));
+    await windowManager.setSize(const Size(700, 350));
+    await Future.delayed(const Duration(milliseconds: 200));
+    
+    // Aggressive centering for login screen
+    for (int i = 0; i < 3; i++) {
+      await windowManager.center();
+      await Future.delayed(const Duration(milliseconds: 150));
+    }
+    
+    isLoginScreen.value = true;
   }
+  // Remove the else block - let WindowScaffold handle main app setup
 }
+
 
 class CustomTextField extends StatefulWidget {
   const CustomTextField({

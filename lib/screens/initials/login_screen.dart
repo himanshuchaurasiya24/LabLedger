@@ -1,28 +1,39 @@
 import 'dart:convert';
-import "package:http/http.dart" as http;
+
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/authentication/config.dart';
-import 'package:labledger/constants/constants.dart';
-import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/home/home_screen.dart';
+import 'package:labledger/screens/window_scaffold.dart';
+import 'package:http/http.dart' as http;
 
-class LoginScreen extends ConsumerStatefulWidget {
+
+// 2. LOGIN SCREEN
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  String errorMessage = "";
-  final _formkey = GlobalKey<FormState>();
+String errorMessage = "";
+  @override
+  void initState() {
+    super.initState();
+    setWindowBehavior(isForLogin: true); // Block F11 and window controls
+  }
 
-  Future<Map<String, dynamic>> attemptLogin({
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+Future<Map<String, dynamic>> attemptLogin({
     required String username,
     required String password,
   }) async {
@@ -71,28 +82,30 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
     }
     return {"success": false, "is_admin": false};
   }
-
   void login() async {
     final value = await attemptLogin(
       username: usernameController.text,
       password: passwordController.text,
     );
 
-    if (!mounted) return; // ✅ Prevent using context if the widget is disposed
+    if (!mounted) return;
+    
     if (value['success'] == true) {
-      isLoginScreen.value = false;
-      setWindowBehavior(isForLogin: false);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) {
-            return HomeScreen(
-              isAdmin: value["is_admin"]!,
-              firstName: value['first_name']!,
-              lastName: value['last_name']!,
-              username: value['username']!,
-              id: value['id'],
-              centerDetail: value['center_detail'],
+            return WindowScaffold(
+              allowFullScreen: true, // Enable F11 for home screen
+              isInitialScreen: true,
+              child: HomeScreen(
+                isAdmin: value["is_admin"]!,
+                firstName: value['first_name']!,
+                lastName: value['last_name']!,
+                username: value['username']!,
+                id: value['id'],
+                centerDetail: value['center_detail'],
+              ),
             );
           },
         ),
@@ -101,122 +114,62 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    isLoginScreen.value = true;
-    setWindowBehavior(isForLogin: true);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
-      body: SizedBox(
-        width: 700,
-        height: 350,
-        child: Row(
-          children: [
-            // Left side
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  appIconNameWidget(context: context, forLogInScreen: true),
-                  const SizedBox(height: 5),
-                  Text(
-                    appDescription,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color:
-                          Theme.of(context).colorScheme.brightness ==
-                              Brightness.light
-                          ? Colors.black54
-                          : Colors.white70,
-                    ),
-                  ),
-                ],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Center(
+        child: Container(
+          width: 400,
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha:  0.1),
+                blurRadius: 10,
+                spreadRadius: 2,
               ),
-            ),
-            const VerticalDivider(width: 1, thickness: 1, color: Colors.grey),
-
-            // Right side
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Form(
-                    key: _formkey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Welcome to $appName",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color:
-                                Theme.of(context).colorScheme.brightness ==
-                                    Brightness.light
-                                ? Colors.black87
-                                : Colors.white70,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        CustomTextField(
-                          labelText: "username",
-                          controller: usernameController,
-                        ),
-                        const SizedBox(height: 16),
-                        CustomTextField(
-                          labelText: "Password",
-                          controller: passwordController,
-                          isObscure: true,
-                        ),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 45,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (_formkey.currentState!.validate()) {
-                                login();
-                              } else {
-                                setState(() {
-                                  errorMessage =
-                                      "Enter details in the required field";
-                                });
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 2,
-                            ),
-                            child: Text(
-                              "Log In",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        if (errorMessage.isNotEmpty)
-                          Text(
-                            errorMessage,
-                            style: TextStyle(color: Colors.red, fontSize: 14),
-                          ),
-                      ],
-                    ),
-                  ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // App logo
+              appIconName(
+                context: context,
+                firstName: " Lab",
+                secondName: "Ledger",
+                fontSize: 32,
+              ),
+              const SizedBox(height: 32),
+              // Login form
+              TextField(
+                controller: usernameController,
+                decoration: const InputDecoration(
+                  labelText: 'Username',
+                  border: OutlineInputBorder(),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: login,
+                  child: const Text('Login'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

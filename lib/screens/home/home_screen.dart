@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
-import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/secure_storage_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 import 'package:labledger/screens/bill/bill_screen.dart';
 import 'package:labledger/screens/home/ui_components/chart_stats_card.dart';
 import 'package:labledger/screens/home/ui_components/referral_card.dart';
-import 'package:labledger/screens/initials/login_screen.dart';
+import 'package:labledger/screens/initials/window_loading_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -26,7 +25,7 @@ class HomeScreen extends ConsumerStatefulWidget {
   final String firstName;
   final String lastName;
   final String username;
-  final Map<String , dynamic> centerDetail;
+  final Map<String, dynamic> centerDetail;
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
@@ -37,18 +36,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void logout() {
     FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
     secureStorage.delete(key: 'access_token');
-    setWindowBehavior(isForLogin: true);
+    secureStorage.delete(key: 'refresh_token');
+
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
+      MaterialPageRoute(builder: (context) => WindowLoadingScreen()),
     );
   }
 
   @override
   void initState() {
     super.initState();
-    isLoginScreen.value = false;
-  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -61,13 +60,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         padding: EdgeInsets.symmetric(horizontal: defaultPadding),
         child: Column(
           children: [
-            appIconName(
-              context: context,
-              firstName: "Lab",
-              secondName: "Ledger",
-              fontSize: 45,
-            ),
-
             Row(
               children: [
                 // / --- REFERRAL STATS SECTION ---

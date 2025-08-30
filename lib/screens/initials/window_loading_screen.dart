@@ -1,34 +1,34 @@
-// Updated splash screen - window_loading_screen.dart
+// =============================================================================
+// INDIVIDUAL SCREEN IMPLEMENTATIONS
+// =============================================================================
+
+// 1. WINDOW LOADING SCREEN
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:labledger/authentication/auth_repository.dart';
-import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/home/home_screen.dart';
-import 'package:labledger/screens/initials/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
+import 'package:labledger/screens/window_scaffold.dart';
 
-class WindowLoadingScreen extends ConsumerStatefulWidget {
+class WindowLoadingScreen extends StatefulWidget {
   const WindowLoadingScreen({super.key});
 
   @override
-  ConsumerState<WindowLoadingScreen> createState() =>
-      _WindowLoadingScreenState();
+  State<WindowLoadingScreen> createState() => _WindowLoadingScreenState();
 }
 
-class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
-  String tileText = "Checking authentication...";
+class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
+  String tileText = "Loading...";
 
   @override
   void initState() {
     super.initState();
-    setWindowBehavior(isForLogin: true);
+    setWindowBehavior(isForLogin: true); // Block F11 on loading screen
     _checkAuth();
   }
 
   Future<void> _checkAuth() async {
-    // Use singleton instance instead of creating new one
     final authRepo = AuthRepository.instance;
     try {
       setState(() {
@@ -41,23 +41,24 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
         tileText = "Authentication successful!";
       });
 
-      // Small delay to show success message
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // ✅ Auth valid → go to HomeScreen with validated data
       if (mounted) {
-        isLoginScreen.value = false;
-        setWindowBehavior(isForLogin: false);
-        navigatorKey.currentState?.pushReplacement(
+        Navigator.pushReplacement(
+          context,
           MaterialPageRoute(
             builder: (context) {
-              return HomeScreen(
-                id: userData['id'],
-                firstName: userData['firstName'],
-                lastName: userData['lastName'],
-                username: userData['username'],
-                isAdmin: userData['isAdmin'],
-                centerDetail: userData['centerDetail'],
+              return WindowScaffold(
+                allowFullScreen: true, // Enable F11 for home screen
+                isInitialScreen: true,
+                child: HomeScreen(
+                  id: userData['id'],
+                  firstName: userData['firstName'],
+                  lastName: userData['lastName'],
+                  username: userData['username'],
+                  isAdmin: userData['isAdmin'],
+                  centerDetail: userData['centerDetail'],
+                ),
               );
             },
           ),
@@ -82,11 +83,10 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
         tileText = reason;
       });
 
-      // Show error briefly before navigating
       Future.delayed(const Duration(milliseconds: 1000), () {
         if (mounted) {
-          setWindowBehavior(isForLogin: true);
-          navigatorKey.currentState?.pushReplacement(
+          Navigator.pushReplacement(
+            context,
             MaterialPageRoute(builder: (context) => const LoginScreen()),
           );
         }
@@ -94,44 +94,19 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     }
   }
 
-  final splashAppNameWidget = Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Text(
-        "Lab",
-        style: TextStyle(
-          fontSize: 90,
-          fontWeight: FontWeight.bold,
-          color: Color.fromARGB(255, 0, 110, 164),
-        ),
-      ),
-      Text(
-        "Ledger",
-        style: TextStyle(
-          fontSize: 90,
-          fontWeight: FontWeight.bold,
-          color: Color.fromARGB(255, 2, 166, 36),
-        ),
-      ),
-    ],
-  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            splashAppNameWidget,
-            const SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
-            const SizedBox(height: 10),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 20),
             Text(
               tileText,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 16,
-              ),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ],
         ),

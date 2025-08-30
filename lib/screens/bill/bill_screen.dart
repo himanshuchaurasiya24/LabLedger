@@ -11,6 +11,7 @@ import 'package:labledger/providers/bills_provider.dart'; // Import your bills p
 import 'package:labledger/screens/bill/add_update_screen2.dart';
 import 'package:labledger/screens/bill/ui_components/bill_card.dart';
 import 'package:labledger/screens/bill/ui_components/bill_stats_card.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 
 class BillsScreen extends ConsumerStatefulWidget {
@@ -24,7 +25,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
   final FlutterSecureStorage storage = const FlutterSecureStorage();
-  String _selectedView = 'list'; // default view
+  String _selectedView = 'grid'; // default view
   Timer? _debounce;
   String _currentSearchQuery = '';
   double _aspectRatio = 2.0;
@@ -186,9 +187,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Theme.of(
-          context,
-        ).colorScheme.primary.withValues(alpha: 0.7),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         onPressed: () async {
           await navigatorKey.currentState
               ?.push(MaterialPageRoute(builder: (context) => AddBillScreen2()))
@@ -349,16 +348,23 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                                       children: [
                                         Text(
                                           category,
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.headlineMedium,
+                                          style: TextStyle(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.w800,
+                                          ),
                                         ),
                                         IconButton(
                                           onPressed: _showViewMenu,
                                           icon: Icon(
                                             _selectedView == "grid"
-                                                ? Icons.grid_on_rounded
-                                                : Icons.list,
+                                                ? LucideIcons.home
+                                                : LucideIcons.list,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
                                             size: 40,
                                           ),
                                         ),
@@ -371,15 +377,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                                         builder: (context, constraints) {
                                           // For example, 4 columns → calculate height dynamically
                                           final crossAxisCount = 4;
-                                          // final itemWidth =
-                                          //     (constraints.maxWidth -
-                                          //         defaultPadding * 2 -
-                                          //         defaultWidth * 3) /
-                                          //     crossAxisCount;
-                                          // final itemHeight =
-                                          // itemWidth * (3 / 2);
-                                          // tweak ratio as needed
-
                                           return GridView.builder(
                                             shrinkWrap: true,
                                             physics:
@@ -471,7 +468,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                             ),
                           ),
                           error: (err, stack) {
-                            debugPrint("Bills fetch error: $err");
                             return Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,

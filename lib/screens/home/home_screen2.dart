@@ -21,6 +21,7 @@ import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:labledger/screens/database_overview/database_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
 import 'package:labledger/screens/profile/profile_screen.dart';
+import 'package:labledger/screens/window_scaffold.dart';
 
 enum TimeFilter { thisWeek, thisMonth, thisYear, allTime }
 
