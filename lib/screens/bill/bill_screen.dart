@@ -11,6 +11,7 @@ import 'package:labledger/providers/bills_provider.dart'; // Import your bills p
 import 'package:labledger/screens/bill/add_update_screen2.dart';
 import 'package:labledger/screens/bill/ui_components/bill_card.dart';
 import 'package:labledger/screens/bill/ui_components/bill_stats_card.dart';
+import 'package:labledger/screens/window_scaffold.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -28,56 +29,14 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   String _selectedView = 'grid'; // default view
   Timer? _debounce;
   String _currentSearchQuery = '';
-  double _aspectRatio = 2.0;
+  double aspectRatio = 2.0;
   double fullMaxRatio = 2.2;
   @override
   void initState() {
     super.initState();
     windowManager.addListener(this);
-    _checkWindowState();
     searchFocusNode.requestFocus();
     _loadSavedView();
-  }
-
-  Future<void> _checkWindowState() async {
-    final isFullScreen = await windowManager.isFullScreen();
-    final isMaximized = await windowManager.isMaximized();
-
-    setState(() {
-      if (isFullScreen) {
-        _aspectRatio = fullMaxRatio;
-      } else if (isMaximized) {
-        _aspectRatio = fullMaxRatio;
-      } else {
-        _aspectRatio = 2.0;
-      }
-    });
-  }
-
-  // --- WindowListener overrides ---
-  @override
-  void onWindowEnterFullScreen() {
-    setState(() => _aspectRatio = fullMaxRatio);
-  }
-
-  @override
-  void onWindowLeaveFullScreen() {
-    _checkWindowState();
-  }
-
-  @override
-  void onWindowMaximize() {
-    setState(() => _aspectRatio = fullMaxRatio);
-  }
-
-  @override
-  void onWindowUnmaximize() {
-    _checkWindowState();
-  }
-
-  @override
-  void onWindowResize() {
-    _checkWindowState();
   }
 
   @override
@@ -184,335 +143,316 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
         ? ref.watch(billsProvider)
         : ref.watch(searchBillsProvider(_currentSearchQuery));
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        onPressed: () async {
-          await navigatorKey.currentState
-              ?.push(MaterialPageRoute(builder: (context) => AddBillScreen2()))
-              .then((value) {
-                // Refresh bills data when returning from add bill screen
-                _refreshBillsData();
-              });
-        },
-        label: Text(
-          "Add Bill",
-          style: TextStyle(
-            color: ThemeData.light().scaffoldBackgroundColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 30,
+    return WindowScaffold(
+      centerWidget: CenterSearchBar(
+        controller: searchController,
+        searchFocusNode: searchFocusNode,
+        hintText: "Search Bills...",
+        width: 400,
+        onSearch: _onSearchChanged,
+      ),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
+        floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          onPressed: () async {
+            await navigatorKey.currentState
+                ?.push(
+                  MaterialPageRoute(builder: (context) => AddBillScreen2()),
+                )
+                .then((value) {
+                  // Refresh bills data when returning from add bill screen
+                  _refreshBillsData();
+                });
+          },
+          label: Text(
+            "Add Bill",
+            style: TextStyle(
+              color: ThemeData.light().scaffoldBackgroundColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 30,
+            ),
           ),
         ),
-      ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            pageHeader(
-              context: context,
-              centerWidget: Row(
-                children: [
-                  CenterSearchBar(
-                    controller: searchController,
-                    searchFocusNode: searchFocusNode,
-                    hintText: "Search Bills...",
-                    width: 400,
-                    onSearch: _onSearchChanged,
-                  ),
-                  const SizedBox(width: 180),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SizedBox(
-                width: double.infinity,
-                height: double.infinity,
-                child: ScrollConfiguration(
-                  behavior: NoThumbScrollBehavior(),
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      children: [
-                        // Stats section - only show when not searching
-                        Visibility(
-                          visible: _currentSearchQuery.isEmpty,
-                          child: Container(
-                            height: 310,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                defaultRadius,
-                              ),
-                            ),
-                            child: ref
-                                .watch(billStatsProvider)
-                                .when(
-                                  data: (stats) {
-                                    return Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        BillStatsCard(
-                                          title: "Monthly Growth",
-                                          currentPeriod: stats.currentMonth,
-                                          previousPeriod: stats.previousMonth,
-                                        ),
-                                        SizedBox(width: defaultWidth),
-                                        BillStatsCard(
-                                          title: "Quarterly Growth",
-                                          currentPeriod: stats.currentQuarter,
-                                          previousPeriod: stats.previousQuarter,
-                                        ),
-                                        SizedBox(width: defaultWidth),
-                                        BillStatsCard(
-                                          title: "Yearly Growth",
-                                          currentPeriod: stats.currentYear,
-                                          previousPeriod: stats.previousYear,
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                  loading: () => const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                  error: (err, stack) => Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text("Error loading stats: $err"),
-                                        const SizedBox(height: 10),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            ref.invalidate(billStatsProvider);
-                                          },
-                                          child: const Text("Retry"),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+          child: Expanded(
+            child: SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: ScrollConfiguration(
+                behavior: NoThumbScrollBehavior(),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    children: [
+                      // Stats section - only show when not searching
+                      Visibility(
+                        visible: _currentSearchQuery.isEmpty,
+                        child: Container(
+                          height: 310,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(defaultRadius),
                           ),
-                        ),
-
-                        // Bills list section
-                        billsAsyncValue.when(
-                          data: (bills) {
-                            if (bills.isEmpty) {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(height: 50),
-                                    Text(
-                                      _currentSearchQuery.isEmpty
-                                          ? 'No bills found.'
-                                          : 'No bills found for "$_currentSearchQuery"',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.headlineLarge,
-                                    ),
-                                    if (_currentSearchQuery.isNotEmpty) ...[
-                                      const SizedBox(height: 20),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          searchController.clear();
-                                          setState(() {
-                                            _currentSearchQuery = '';
-                                          });
-                                        },
-                                        child: const Text("Clear Search"),
+                          child: ref
+                              .watch(billStatsProvider)
+                              .when(
+                                data: (stats) {
+                                  return Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      BillStatsCard(
+                                        title: "Monthly Growth",
+                                        currentPeriod: stats.currentMonth,
+                                        previousPeriod: stats.previousMonth,
+                                      ),
+                                      SizedBox(width: defaultWidth),
+                                      BillStatsCard(
+                                        title: "Quarterly Growth",
+                                        currentPeriod: stats.currentQuarter,
+                                        previousPeriod: stats.previousQuarter,
+                                      ),
+                                      SizedBox(width: defaultWidth),
+                                      BillStatsCard(
+                                        title: "Yearly Growth",
+                                        currentPeriod: stats.currentYear,
+                                        previousPeriod: stats.previousYear,
                                       ),
                                     ],
-                                  ],
+                                  );
+                                },
+                                loading: () => const Center(
+                                  child: CircularProgressIndicator(),
                                 ),
-                              );
-                            }
-
-                            final groupedBills = _groupBillsByReason(bills);
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: groupedBills.entries.map((entry) {
-                                final category = entry.key;
-                                final categoryBills = entry.value;
-
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          category,
-                                          style: TextStyle(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.secondary,
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                        ),
-                                        IconButton(
-                                          onPressed: _showViewMenu,
-                                          icon: Icon(
-                                            _selectedView == "grid"
-                                                ? LucideIcons.home
-                                                : LucideIcons.list,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.secondary,
-                                            size: 40,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-
-                                    // Grid View
-                                    if (_selectedView == "grid")
-                                      LayoutBuilder(
-                                        builder: (context, constraints) {
-                                          // For example, 4 columns → calculate height dynamically
-                                          final crossAxisCount = 4;
-                                          return GridView.builder(
-                                            shrinkWrap: true,
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            gridDelegate:
-                                                SliverGridDelegateWithFixedCrossAxisCount(
-                                                  crossAxisCount:
-                                                      crossAxisCount,
-                                                  childAspectRatio:
-                                                      _aspectRatio,
-                                                  crossAxisSpacing:
-                                                      defaultWidth,
-                                                  mainAxisSpacing:
-                                                      defaultHeight,
-                                                ),
-                                            itemCount: categoryBills.length,
-                                            itemBuilder: (ctx, index) {
-                                              final bill = categoryBills[index];
-                                              return GestureDetector(
-                                                onTap: () async {
-                                                  await navigatorKey
-                                                      .currentState
-                                                      ?.push(
-                                                        MaterialPageRoute(
-                                                          builder: (_) =>
-                                                              AddBillScreen2(
-                                                                billData: bill,
-                                                              ),
-                                                        ),
-                                                      )
-                                                      .then((result) {
-                                                        // Refresh data if bill was modified
-                                                        if (result == true) {
-                                                          _refreshBillsData();
-                                                        }
-                                                      });
-                                                },
-                                                child: BillCard(bill: bill),
-                                              );
-                                            },
-                                          );
+                                error: (err, stack) => Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text("Error loading stats: $err"),
+                                      const SizedBox(height: 10),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          ref.invalidate(billStatsProvider);
                                         },
+                                        child: const Text("Retry"),
                                       ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                        ),
+                      ),
 
-                                    // List View
-                                    if (_selectedView == "list")
-                                      ListView.separated(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemCount: categoryBills.length,
-                                        separatorBuilder: (_, __) =>
-                                            SizedBox(height: defaultHeight),
-                                        itemBuilder: (ctx, index) {
-                                          final bill = categoryBills[index];
-                                          return GestureDetector(
-                                            onTap: () async {
-                                              await navigatorKey.currentState
-                                                  ?.push(
-                                                    MaterialPageRoute(
-                                                      builder: (_) =>
-                                                          AddBillScreen2(
-                                                            billData: bill,
-                                                          ),
-                                                    ),
-                                                  )
-                                                  .then((result) {
-                                                    // Refresh data if bill was modified
-                                                    if (result == true) {
-                                                      _refreshBillsData();
-                                                    }
-                                                  });
-                                            },
-                                            child: BillCard(bill: bill),
-                                          );
-                                        },
-                                      ),
-
-                                    const SizedBox(height: 20),
-                                  ],
-                                );
-                              }).toList(),
-                            );
-                          },
-                          loading: () => const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(50.0),
-                              child: CircularProgressIndicator(),
-                            ),
-                          ),
-                          error: (err, stack) {
+                      // Bills list section
+                      billsAsyncValue.when(
+                        data: (bills) {
+                          if (bills.isEmpty) {
                             return Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const SizedBox(height: 50),
-                                  Icon(
-                                    Icons.error_outline,
-                                    size: 64,
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
-                                  const SizedBox(height: 20),
                                   Text(
-                                    "Failed to load bills",
+                                    _currentSearchQuery.isEmpty
+                                        ? 'No bills found.'
+                                        : 'No bills found for "$_currentSearchQuery"',
                                     style: Theme.of(
                                       context,
-                                    ).textTheme.headlineMedium,
+                                    ).textTheme.headlineLarge,
                                   ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    err.toString().contains("Authentication")
-                                        ? "Please check your internet connection and try again"
-                                        : "Please try again",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodyMedium,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 20),
-                                  ElevatedButton.icon(
-                                    onPressed: _refreshBillsData,
-                                    icon: const Icon(Icons.refresh),
-                                    label: const Text("Retry"),
-                                  ),
+                                  if (_currentSearchQuery.isNotEmpty) ...[
+                                    const SizedBox(height: 20),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        searchController.clear();
+                                        setState(() {
+                                          _currentSearchQuery = '';
+                                        });
+                                      },
+                                      child: const Text("Clear Search"),
+                                    ),
+                                  ],
                                 ],
                               ),
                             );
-                          },
+                          }
+
+                          final groupedBills = _groupBillsByReason(bills);
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: groupedBills.entries.map((entry) {
+                              final category = entry.key;
+                              final categoryBills = entry.value;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        category,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: _showViewMenu,
+                                        icon: Icon(
+                                          _selectedView == "grid"
+                                              ? LucideIcons.home
+                                              : LucideIcons.list,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  // Grid View
+                                  if (_selectedView == "grid")
+                                    LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        // For example, 4 columns → calculate height dynamically
+                                        final crossAxisCount = 4;
+                                        return GridView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: crossAxisCount,
+                                                childAspectRatio: aspectRatio,
+                                                crossAxisSpacing: defaultWidth,
+                                                mainAxisSpacing: defaultHeight,
+                                              ),
+                                          itemCount: categoryBills.length,
+                                          itemBuilder: (ctx, index) {
+                                            final bill = categoryBills[index];
+                                            return GestureDetector(
+                                              onTap: () async {
+                                                await navigatorKey.currentState
+                                                    ?.push(
+                                                      MaterialPageRoute(
+                                                        builder: (_) =>
+                                                            AddBillScreen2(
+                                                              billData: bill,
+                                                            ),
+                                                      ),
+                                                    )
+                                                    .then((result) {
+                                                      // Refresh data if bill was modified
+                                                      if (result == true) {
+                                                        _refreshBillsData();
+                                                      }
+                                                    });
+                                              },
+                                              child: BillCard(bill: bill),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+
+                                  // List View
+                                  if (_selectedView == "list")
+                                    ListView.separated(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: categoryBills.length,
+                                      separatorBuilder: (_, __) =>
+                                          SizedBox(height: defaultHeight),
+                                      itemBuilder: (ctx, index) {
+                                        final bill = categoryBills[index];
+                                        return GestureDetector(
+                                          onTap: () async {
+                                            await navigatorKey.currentState
+                                                ?.push(
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        AddBillScreen2(
+                                                          billData: bill,
+                                                        ),
+                                                  ),
+                                                )
+                                                .then((result) {
+                                                  // Refresh data if bill was modified
+                                                  if (result == true) {
+                                                    _refreshBillsData();
+                                                  }
+                                                });
+                                          },
+                                          child: BillCard(bill: bill),
+                                        );
+                                      },
+                                    ),
+
+                                  const SizedBox(height: 20),
+                                ],
+                              );
+                            }).toList(),
+                          );
+                        },
+                        loading: () => const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(50.0),
+                            child: CircularProgressIndicator(),
+                          ),
                         ),
-                      ],
-                    ),
+                        error: (err, stack) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 50),
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 64,
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  "Failed to load bills",
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.headlineMedium,
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  err.toString().contains("Authentication")
+                                      ? "Please check your internet connection and try again"
+                                      : "Please try again",
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 20),
+                                ElevatedButton.icon(
+                                  onPressed: _refreshBillsData,
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text("Retry"),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
