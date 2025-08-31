@@ -47,22 +47,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     return agg;
   }
 
-  /// Background adjusts with theme
-  Color getBackgroundColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark
-        ? widget.accentColor.withValues(alpha: 0.8) // darker bg in dark mode
-        : widget.accentColor.withValues(alpha: 0.1); // lighter bg in light mode
-  }
-
-  /// Text adjusts with theme
-  Color getTextColor(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : widget.accentColor.withValues(alpha: 0.7);
-  }
-
-  /// ----- 🎨 Derived Colors from baseColor -----
+  /// Background color
   Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark
@@ -70,14 +55,20 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
         : widget.accentColor.withValues(alpha: 0.1); // lighter bg in light mode
   }
 
-  Color get importantTextColor {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? Colors.white : widget.accentColor; // info color
+  /// Text color - Use accent color at full opacity in light mode
+Color get importantTextColor {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  if (isDark) {
+    return Colors.white; // Keep white for dark mode
+  } else {
+    // Use accent color with guaranteed full opacity.
+    return widget.accentColor.withValues(alpha:  1.0);
   }
+}
 
   Color get normalTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? Colors.white70 : Colors.black87; // readable neutral text
+    return isDark ? Colors.white70 : Colors.black87;
   }
 
   Color get accentFillColor {
@@ -87,11 +78,18 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
         : widget.accentColor.withValues(alpha: 0.15);
   }
 
+  /// Bar color for the breakdown charts
+  Color get barColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark
+        ? Colors.white.withValues(alpha: 0.9)
+        : widget.accentColor; // Use accent color for bars in light mode
+  }
+
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = getBackgroundColor(context);
     final theme = Theme.of(context);
-
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final maxValue = (breakdown.values.isNotEmpty)
         ? breakdown.values.reduce((a, b) => a > b ? a : b)
         : 1;
@@ -118,7 +116,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildBadge(context),
+              _buildBadge(context, isDark),
               Text(
                 widget.title,
                 style: theme.textTheme.titleLarge?.copyWith(
@@ -179,9 +177,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
                                   height: 8,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(4),
-                                    color: widget.accentColor.withValues(
-                                      alpha: 0.2,
-                                    ),
+                                    color: accentFillColor,
                                   ),
                                 ),
                                 FractionallySizedBox(
@@ -237,11 +233,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
           children: [
             Text(
               label,
-              style: TextStyle(
-                color: importantTextColor,
-                fontSize: 12,
-                // fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: importantTextColor, fontSize: 12),
             ),
             Text(
               value,
@@ -258,13 +250,13 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
   }
 
   /// Badge widget
-  Widget _buildBadge(BuildContext context) {
+  Widget _buildBadge(BuildContext context, bool isDark) {
     return Container(
       height: 40,
       width: 200,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: widget.accentColor,
+        color: isDark ? accentFillColor : importantTextColor,
         borderRadius: BorderRadius.circular(defaultRadius * 3),
       ),
       child: const Center(

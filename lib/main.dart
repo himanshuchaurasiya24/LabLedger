@@ -112,7 +112,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
               ColorScheme.fromSeed(
                 seedColor: const Color(0xFF0072B5),
                 primary: const Color(0xFF0072B5), // Deep Blue
-                secondary: const Color(0xFF1AA260), // Teal Green
+                secondary: Colors.teal, // Teal Green
                 brightness: Brightness.light,
                 tertiary: const Color(0xFF2D2D2D), // Neutral dark text
                 tertiaryFixed: const Color(0xFFFFFFFF), // White
@@ -144,15 +144,15 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           ),
           useMaterial3: true,
           pageTransitionsTheme: const PageTransitionsTheme(
-          builders: {
-            TargetPlatform.android: IOSPageTransitionsBuilder(),
-            TargetPlatform.iOS: IOSPageTransitionsBuilder(),
-            TargetPlatform.linux: IOSPageTransitionsBuilder(),
-            TargetPlatform.macOS: IOSPageTransitionsBuilder(),
-            TargetPlatform.windows: IOSPageTransitionsBuilder(),
-            TargetPlatform.fuchsia: IOSPageTransitionsBuilder(),
-          },
-        ),
+            builders: {
+              TargetPlatform.android: IOSPageTransitionsBuilder(),
+              TargetPlatform.iOS: IOSPageTransitionsBuilder(),
+              TargetPlatform.linux: IOSPageTransitionsBuilder(),
+              TargetPlatform.macOS: IOSPageTransitionsBuilder(),
+              TargetPlatform.windows: IOSPageTransitionsBuilder(),
+              TargetPlatform.fuchsia: IOSPageTransitionsBuilder(),
+            },
+          ),
         ),
 
         // 🌙 DARK THEME
@@ -163,7 +163,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 seedColor: const Color(0xFF0072B5),
                 brightness: Brightness.dark,
                 primary: const Color(0xFF0072B5),
-                secondary: const Color(0xFF1AA260),
+                secondary: Colors.teal,
                 tertiary: const Color(0xFFFFFFFF),
                 tertiaryFixed: const Color(0xFF121212),
               ).copyWith(
@@ -211,15 +211,15 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           useMaterial3: true,
           splashFactory: InkRipple.splashFactory,
           pageTransitionsTheme: const PageTransitionsTheme(
-          builders: {
-            TargetPlatform.android: IOSPageTransitionsBuilder(),
-            TargetPlatform.iOS: IOSPageTransitionsBuilder(),
-            TargetPlatform.linux: IOSPageTransitionsBuilder(),
-            TargetPlatform.macOS: IOSPageTransitionsBuilder(),
-            TargetPlatform.windows: IOSPageTransitionsBuilder(),
-            TargetPlatform.fuchsia: IOSPageTransitionsBuilder(),
-          },
-        ),
+            builders: {
+              TargetPlatform.android: IOSPageTransitionsBuilder(),
+              TargetPlatform.iOS: IOSPageTransitionsBuilder(),
+              TargetPlatform.linux: IOSPageTransitionsBuilder(),
+              TargetPlatform.macOS: IOSPageTransitionsBuilder(),
+              TargetPlatform.windows: IOSPageTransitionsBuilder(),
+              TargetPlatform.fuchsia: IOSPageTransitionsBuilder(),
+            },
+          ),
           // scrollbarTheme: ScrollbarThemeData(
           //   thumbVisibility: WidgetStateProperty.all(false),
           //   thickness: WidgetStateProperty.all(8),
@@ -249,10 +249,7 @@ class IOSPageTransitionsBuilder extends PageTransitionsBuilder {
       position: Tween<Offset>(
         begin: const Offset(1.0, 0.0), // Slide from right
         end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      )),
+      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
       child: child,
     );
   }

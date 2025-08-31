@@ -5,8 +5,18 @@ import 'package:labledger/models/bill_model.dart';
 class BillCard extends StatelessWidget {
   final Bill bill;
   final VoidCallback? onTap;
+  final Color? fullyPaidColor;
+  final Color? partiallyPaidColor;
+  final Color? unpaidColor;
 
-  const BillCard({super.key, required this.bill, this.onTap});
+  const BillCard({
+    super.key,
+    required this.bill,
+    this.onTap,
+    this.fullyPaidColor,
+    this.partiallyPaidColor,
+    this.unpaidColor,
+  });
 
   // Payment status logic
   PaymentStatus get _paymentStatus {
@@ -16,47 +26,6 @@ class BillCard extends StatelessWidget {
       return PaymentStatus.partiallyPaid;
     } else {
       return PaymentStatus.unpaid;
-    }
-  }
-
-  Color _getPaymentStatusColor() {
-    switch (_paymentStatus) {
-      case PaymentStatus.fullPaid:
-        return Colors.green[600]!;
-      case PaymentStatus.partiallyPaid:
-        return Colors.amber[600]!;
-      case PaymentStatus.unpaid:
-        return Colors.red[600]!;
-    }
-  }
-
-  Color _getBackgroundColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    switch (_paymentStatus) {
-      case PaymentStatus.fullPaid:
-        return isDark ? Colors.green[700]! : Colors.green[50]!;
-      case PaymentStatus.partiallyPaid:
-        return isDark ? Colors.amber[700]! : Colors.amber[50]!;
-      case PaymentStatus.unpaid:
-        return isDark ? Colors.red[700]! : Colors.red[50]!;
-    }
-  }
-
-  Color _getTextColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    if (isDark) {
-      return Colors.white;
-    } else {
-      switch (_paymentStatus) {
-        case PaymentStatus.fullPaid:
-          return Colors.green[800]!;
-        case PaymentStatus.partiallyPaid:
-          return Colors.amber[800]!;
-        case PaymentStatus.unpaid:
-          return Colors.red[800]!;
-      }
     }
   }
 
@@ -88,18 +57,66 @@ class BillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getPaymentStatusColor();
-    final backgroundColor = _getBackgroundColor(context);
-    final textColor = _getTextColor(context);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
+    // --- 🎨 Color Logic ---
+    // 1. Determine the base color based on payment status and optional inputs.
+    Color baseColor;
+    switch (_paymentStatus) {
+      case PaymentStatus.fullPaid:
+        baseColor = fullyPaidColor ?? Colors.teal;
+        break;
+      case PaymentStatus.partiallyPaid:
+        baseColor = partiallyPaidColor ?? Colors.amber;
+        break;
+      case PaymentStatus.unpaid:
+        baseColor = unpaidColor ?? Colors.red;
+        break;
+    }
+
+    // 2. Helper to safely derive colors, handling both MaterialColor and generic Color.
+    ({Color background, Color text, Color accent}) getDerivedColors(
+      Color baseColor,
+    ) {
+      // For Background Color
+      final Color bg = (baseColor is MaterialColor)
+          ? (isDark ? baseColor.shade900.withValues(alpha: 0.4) : baseColor.shade50)
+          : (isDark
+                ? Color.alphaBlend(baseColor.withValues(alpha:0.2), Colors.black)
+                : Color.alphaBlend(baseColor.withValues(alpha:0.1), Colors.white));
+
+      // For Important Text Color
+      final Color txt = (isDark)
+          ? Colors.white
+          : (baseColor is MaterialColor)
+          ? baseColor.shade900
+          : HSLColor.fromColor(baseColor).withLightness(0.2).toColor();
+
+      // For Accent Color (used for borders, shadows, highlights)
+      final Color acc = (baseColor is MaterialColor)
+          ? (isDark ? baseColor.shade200 : baseColor.shade600)
+          : (isDark
+                ? HSLColor.fromColor(baseColor).withLightness(0.7).toColor()
+                : HSLColor.fromColor(baseColor).withLightness(0.4).toColor());
+
+      return (background: bg, text: txt, accent: acc);
+    }
+
+    // 3. Get the final derived colors.
+    final derivedColors = getDerivedColors(baseColor);
+    final Color backgroundColor = derivedColors.background;
+    final Color textColor = derivedColors.text;
+    final Color accentColor = derivedColors.accent;
+
+    // --- 📝 Text Styles ---
     final titleStyle = theme.textTheme.titleMedium?.copyWith(
       fontWeight: FontWeight.bold,
       color: textColor,
     );
 
     final bodyStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: textColor.withValues(alpha: 0.8),
+      color: textColor.withValues(alpha:0.8),
       fontWeight: FontWeight.w500,
     );
 
@@ -114,13 +131,10 @@ class BillCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: statusColor.withValues(alpha: 0.3),
-            width: 1,
-          ),
+          border: Border.all(color: accentColor.withValues(alpha:0.3), width: 1),
           boxShadow: [
             BoxShadow(
-              color: statusColor.withValues(alpha: 0.1),
+              color: accentColor.withValues(alpha:0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
               spreadRadius: 0,
@@ -159,7 +173,7 @@ class BillCard extends StatelessWidget {
                               : _paymentStatus == PaymentStatus.partiallyPaid
                               ? Icons.access_time_filled
                               : Icons.error,
-                          color: _getTextColor(context),
+                          color: textColor,
                           size: 16,
                         ),
                         const SizedBox(width: 4),
@@ -169,10 +183,7 @@ class BillCard extends StatelessWidget {
                               : _paymentStatus == PaymentStatus.partiallyPaid
                               ? 'PARTIAL'
                               : 'UNPAID',
-                          style: amountStyle!.copyWith(
-                            fontSize: 14,
-                            // fontWeight: FontWeight.b,
-                          ),
+                          style: amountStyle!.copyWith(fontSize: 14),
                         ),
                       ],
                     ),
@@ -192,7 +203,7 @@ class BillCard extends StatelessWidget {
                               ? Icons.female
                               : Icons.person,
                           size: 18,
-                          color: textColor.withValues(alpha: 0.7),
+                          color: textColor.withValues(alpha:0.7),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -210,7 +221,7 @@ class BillCard extends StatelessWidget {
                         Icon(
                           Icons.calendar_today,
                           size: 16,
-                          color: textColor.withValues(alpha: 0.7),
+                          color: textColor.withValues(alpha:0.7),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -227,12 +238,11 @@ class BillCard extends StatelessWidget {
                 // Doctor Name Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                   children: [
                     Icon(
                       Icons.local_hospital,
                       size: 16,
-                      color: textColor.withValues(alpha: 0.7),
+                      color: textColor.withValues(alpha:0.7),
                     ),
                     const SizedBox(width: 6),
                     Expanded(
@@ -252,17 +262,13 @@ class BillCard extends StatelessWidget {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Icon(
-                            Icons.card_giftcard,
-                            size: 16,
-                            color: _getTextColor(context),
-                          ),
+                          Icon(Icons.card_giftcard, size: 16, color: textColor),
                           const SizedBox(width: 6),
                           Text(
                             'Incentive: ',
                             style: bodyStyle?.copyWith(
                               fontSize: 12,
-                              color: _getTextColor(context),
+                              color: textColor,
                             ),
                           ),
                           Text(
@@ -270,8 +276,7 @@ class BillCard extends StatelessWidget {
                             style: bodyStyle?.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              // color: Colors.teal[700],
-                              color: _getTextColor(context),
+                              color: textColor,
                             ),
                           ),
                         ],
@@ -288,7 +293,7 @@ class BillCard extends StatelessWidget {
                     Icon(
                       Icons.medical_services,
                       size: 16,
-                      color: textColor.withValues(alpha: 0.7),
+                      color: textColor.withValues(alpha:0.7),
                     ),
                     const SizedBox(width: 6),
                     Expanded(

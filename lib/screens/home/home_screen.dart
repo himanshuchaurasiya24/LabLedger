@@ -51,6 +51,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Color baseColor = Color(0xff00410575);
+    Color baseColor = Colors.teal;
+
     final referralStatsAsync = ref.watch(referralStatsProvider);
     final chartStatsAsync = ref.watch(chartStatsProvider);
     final width = MediaQuery.of(context).size.width;
@@ -79,7 +82,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             referrals: data,
                             selectedPeriod: selectedPeriod,
 
-                            baseColor: Theme.of(context).colorScheme.primary,
+                            baseColor: baseColor,
                           ),
                           Positioned(
                             bottom: 12,
@@ -89,10 +92,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               spacing: 8,
                               runSpacing: 8,
                               children: [
-                                buildFilterChipCustom("This Week"),
-                                buildFilterChipCustom("This Month"),
-                                buildFilterChipCustom("This Year"),
-                                buildFilterChipCustom("All Time"),
+                                buildFilterChipCustom(
+                                  "This Week",
+                                  primaryColor: baseColor,
+                                ),
+                                buildFilterChipCustom(
+                                  "This Month",
+                                  primaryColor: baseColor,
+                                ),
+                                buildFilterChipCustom(
+                                  "This Year",
+                                  primaryColor: baseColor,
+                                ),
+                                buildFilterChipCustom(
+                                  "All Time",
+                                  primaryColor: baseColor,
+                                ),
                               ],
                             ),
                           ),
@@ -126,7 +141,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         },
                         child: ChartStatsCard(
                           title: selectedPeriod,
-                          accentColor: Theme.of(context).colorScheme.primary,
+                          // accentColor: Theme.of(context).colorScheme.primary,
+                          accentColor: baseColor,
+
                           data: chartData,
                         ),
                       );
@@ -201,15 +218,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   // Alternative version with more customization options
-  Widget buildFilterChipCustom(
-    String label, {
-    Color? primaryColor,
-    Color? secondaryColor,
-  }) {
+  Widget buildFilterChipCustom(String label, {Color? primaryColor}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = selectedPeriod == label;
     final primary = primaryColor ?? Theme.of(context).colorScheme.primary;
-    // final secondary = secondaryColor ?? Theme.of(context).colorScheme.secondary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),

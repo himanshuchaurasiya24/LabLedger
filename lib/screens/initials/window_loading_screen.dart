@@ -104,45 +104,46 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+      // backgroundColor: Colors.transparent,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Text(
-        "Lab",
-        style: TextStyle(
-          fontSize: 90,
-          fontWeight: FontWeight.bold,
-          color: Color.fromARGB(255, 0, 110, 164),
-        ),
-      ),
-      Text(
-        "Ledger",
-        style: TextStyle(
-          fontSize: 90,
-          fontWeight: FontWeight.bold,
-          color: Color.fromARGB(255, 2, 166, 36),
-        ),
-      ),
-    ],
-  ),
-            // SizedBox(height: 30),
-            SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
-            SizedBox(height: 10),
             Text(
-              tileText,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 16,
-              ),
+      "Lab",
+      style: TextStyle(
+        fontSize: 90,
+        fontWeight: FontWeight.bold,
+        // color: Color.fromARGB(255, 0, 110, 164),
+        color: Theme.of(context).colorScheme.primary
+      ),
+            ),
+            Text(
+      "Ledger",
+      style: TextStyle(
+        fontSize: 90,
+        fontWeight: FontWeight.bold,
+        // color: Color.fromARGB(255, 2, 166, 36),
+        color: Theme.of(context).colorScheme.secondary
+
+      ),
             ),
           ],
         ),
+          // SizedBox(height: 30),
+          SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
+          SizedBox(height: 10),
+          Text(
+            tileText,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontSize: 16,
+            ),
+          ),
+        ],
       ),
     );
   }

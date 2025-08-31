@@ -55,7 +55,9 @@ class _ReferralCardState extends State<ReferralCard> {
     }
   }
 
-  /// ----- 🎨 Derived Colors from baseColor -----
+  // --- 🎨 Color Logic copied from ChartStatsCard ---
+
+  /// Background color
   Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark
@@ -63,14 +65,20 @@ class _ReferralCardState extends State<ReferralCard> {
         : widget.baseColor.withValues(alpha: 0.1); // lighter bg in light mode
   }
 
-  Color get importantTextColor {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? Colors.white : widget.baseColor; // info color
+   /// Text color - Use accent color at full opacity in light mode
+Color get importantTextColor {
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  if (isDark) {
+    return Colors.white; // Keep white for dark mode
+  } else {
+    // Use accent color with guaranteed full opacity.
+    return widget.baseColor.withValues(alpha:  1.0);
   }
+}
 
   Color get normalTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? Colors.white70 : Colors.black87; // readable neutral text
+    return isDark ? Colors.white70 : Colors.black87;
   }
 
   Color get accentFillColor {
@@ -140,6 +148,7 @@ class _ReferralCardState extends State<ReferralCard> {
 
   Widget _buildReferrerCard(ReferralStat referrer, int index) {
     final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -164,7 +173,7 @@ class _ReferralCardState extends State<ReferralCard> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: widget.baseColor,
+                  color: isDark ? accentFillColor : importantTextColor,
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(
@@ -234,7 +243,6 @@ class _ReferralCardState extends State<ReferralCard> {
                         child: Text(
                           entry.key.toUpperCase(),
                           maxLines: 1,
-
                           style: TextStyle(color: importantTextColor),
                         ),
                       ),
@@ -248,9 +256,7 @@ class _ReferralCardState extends State<ReferralCard> {
                                     height: 8,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(4),
-                                      color: widget.baseColor.withValues(
-                                        alpha: 0.2,
-                                      ),
+                                      color: accentFillColor,
                                     ),
                                   ),
                                   FractionallySizedBox(
@@ -260,8 +266,7 @@ class _ReferralCardState extends State<ReferralCard> {
                                       height: 8,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(4),
-                                        color:
-                                            importantTextColor, // 👈 highlight
+                                        color: importantTextColor,
                                       ),
                                     ),
                                   ),
@@ -309,11 +314,7 @@ class _ReferralCardState extends State<ReferralCard> {
           children: [
             Text(
               label,
-              style: TextStyle(
-                color: importantTextColor,
-                fontSize: 12,
-                // fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: importantTextColor, fontSize: 12),
             ),
             Text(
               value,

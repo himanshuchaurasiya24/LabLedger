@@ -19,7 +19,6 @@ class NoThumbScrollBehavior extends ScrollBehavior {
   }
 }
 
-
 class CenterSearchBar extends StatelessWidget {
   final String hintText;
   final Function(String) onSearch; // <-- take value
@@ -108,28 +107,27 @@ Widget pageHeader({
 void setWindowBehavior({bool? isForLogin}) async {
   bool isLogin = isForLogin ?? false;
   await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-  
+
   if (isLogin) {
     // Only handle login/loading screens here
     await windowManager.setSkipTaskbar(false);
     await windowManager.setMinimumSize(const Size(700, 350));
     await windowManager.setMaximumSize(const Size(700, 350));
-    
+
     await Future.delayed(const Duration(milliseconds: 100));
     await windowManager.setSize(const Size(700, 350));
     await Future.delayed(const Duration(milliseconds: 200));
-    
+
     // Aggressive centering for login screen
     for (int i = 0; i < 3; i++) {
       await windowManager.center();
       await Future.delayed(const Duration(milliseconds: 150));
     }
-    
+
     isLoginScreen.value = true;
   }
   // Remove the else block - let WindowScaffold handle main app setup
 }
-
 
 class CustomTextField extends StatefulWidget {
   const CustomTextField({

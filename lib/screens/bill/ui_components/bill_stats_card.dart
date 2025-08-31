@@ -7,51 +7,22 @@ class BillStatsCard extends StatelessWidget {
   final String title;
   final BillPeriodStats currentPeriod;
   final BillPeriodStats previousPeriod;
+  final Color? positiveColor;
+  final Color? negativeColor;
 
   const BillStatsCard({
     super.key,
     required this.title,
     required this.currentPeriod,
     required this.previousPeriod,
+    this.positiveColor,
+    this.negativeColor,
   });
-
-  Color getBackgroundColor(BuildContext context, bool isPositive) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    if (isPositive) {
-      return isDark ? Colors.green[700]! : Colors.green[50]!;
-    } else {
-      return isDark ? Colors.red[700]! : Colors.red[50]!;
-    }
-  }
-
-  Color getAccentColor(
-    bool isPositive,
-    BuildContext context, {
-    bool? isContainerColor,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (isContainerColor != null && isContainerColor) {
-      if (isDark) {
-        return isPositive ? Colors.green[100]! : Colors.red[100]!;
-      }
-      return isPositive ? Colors.green[600]! : Colors.red[600]!;
-    }
-    return isPositive ? Colors.green[600]! : Colors.red[600]!;
-  }
-
-  Color getTextColor(BuildContext context, bool isPositive) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    if (isDark) {
-      return Colors.white;
-    } else {
-      return isPositive ? Colors.green[800]! : Colors.red[800]!;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final current = currentPeriod.totalBills;
     final previous = previousPeriod.totalBills;
 
@@ -59,20 +30,63 @@ class BillStatsCard extends StatelessWidget {
         ? 0.0
         : ((current - previous) / previous) * 100;
     final isPositive = growth >= 0;
-    final theme = Theme.of(context);
 
+    // --- 🎨 Color Logic ---
+    // Use provided colors or default to teal/red.
+    final Color effectivePositiveColor = positiveColor ?? Colors.teal;
+    final Color effectiveNegativeColor = negativeColor ?? Colors.red;
+
+    // Helper function to safely derive colors, handling both MaterialColor and generic Color.
+    ({Color background, Color text, Color accent}) getDerivedColors(
+      Color baseColor,
+    ) {
+      // For Background Color
+      final Color bg = (baseColor is MaterialColor)
+          ? (isDark ? baseColor.shade900.withValues(alpha:0.4) : baseColor.shade50)
+          : (isDark
+                ? Color.alphaBlend(baseColor.withValues(alpha:0.2), Colors.black)
+                : Color.alphaBlend(baseColor.withValues(alpha:0.1), Colors.white));
+
+      // For Important Text Color
+      final Color txt = (isDark)
+          ? Colors.white
+          : (baseColor is MaterialColor)
+          ? baseColor.shade900
+          : HSLColor.fromColor(
+              baseColor,
+            ).withLightness(0.2).toColor(); // Darken generic color
+
+      // For Accent Color
+      final Color acc = (baseColor is MaterialColor)
+          ? (isDark ? baseColor.shade200 : baseColor.shade600)
+          : (isDark
+                ? HSLColor.fromColor(baseColor).withLightness(0.7).toColor()
+                : HSLColor.fromColor(baseColor).withLightness(0.4).toColor());
+
+      return (background: bg, text: txt, accent: acc);
+    }
+
+    final derivedColors = isPositive
+        ? getDerivedColors(effectivePositiveColor)
+        : getDerivedColors(effectiveNegativeColor);
+
+    final Color backgroundColor = derivedColors.background;
+    final Color importantTextColor = derivedColors.text;
+    final Color accentColor = derivedColors.accent;
+
+    // --- 📝 Text Styles ---
     final titleStyle = theme.textTheme.titleLarge?.copyWith(
       fontWeight: FontWeight.bold,
-      color: getTextColor(context, isPositive),
+      color: importantTextColor,
     );
 
     final totalStyle = theme.textTheme.headlineMedium?.copyWith(
       fontWeight: FontWeight.w800,
-      color: getTextColor(context, isPositive),
+      color: importantTextColor,
     );
 
     final diagnosisStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: getTextColor(context, isPositive).withValues(alpha: 0.8),
+      color: importantTextColor.withValues(alpha:0.8),
       fontWeight: FontWeight.w500,
     );
 
@@ -80,15 +94,12 @@ class BillStatsCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 4.0),
         decoration: BoxDecoration(
-          color: getBackgroundColor(context, isPositive),
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: getAccentColor(isPositive, context).withValues(alpha: 0.2),
-            width: 1,
-          ),
+          border: Border.all(color: accentColor.withValues(alpha:0.3), width: 1),
           boxShadow: [
             BoxShadow(
-              color: getAccentColor(isPositive, context).withValues(alpha: 0.1),
+              color: accentColor.withValues(alpha:0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
               spreadRadius: 0,
@@ -119,11 +130,7 @@ class BillStatsCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: getAccentColor(
-                        isContainerColor: true,
-                        isPositive,
-                        context,
-                      ).withValues(alpha: 0.15),
+                      color: accentColor.withValues(alpha:0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -131,7 +138,7 @@ class BillStatsCard extends StatelessWidget {
                       children: [
                         Icon(
                           isPositive ? Icons.trending_up : Icons.trending_down,
-                          color: getTextColor(context, isPositive),
+                          color: importantTextColor,
                           size: 16,
                         ),
                         const SizedBox(width: 4),
@@ -139,7 +146,7 @@ class BillStatsCard extends StatelessWidget {
                           "${isPositive ? '+' : ''}${growth.toStringAsFixed(1)}%",
                           style: TextStyle(
                             fontSize: 14,
-                            color: getTextColor(context, isPositive),
+                            color: importantTextColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -157,15 +164,12 @@ class BillStatsCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: getAccentColor(
-                        isPositive,
-                        context,
-                      ).withValues(alpha: 0.1),
+                      color: accentColor.withValues(alpha:0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       Icons.receipt_long,
-                      color: getTextColor(context, isPositive),
+                      color: importantTextColor,
                       size: 30,
                     ),
                   ),
@@ -190,7 +194,7 @@ class BillStatsCard extends StatelessWidget {
                 Text("Breakdown", style: titleStyle?.copyWith(fontSize: 16)),
                 SizedBox(height: defaultHeight),
 
-                // Diagnosis items in a scrollable list to show all items
+                // Diagnosis items in a scrollable list
                 Expanded(
                   child: ScrollConfiguration(
                     behavior: NoThumbScrollBehavior(),
@@ -224,10 +228,7 @@ class BillStatsCard extends StatelessWidget {
                                   child: Container(
                                     height: 6,
                                     decoration: BoxDecoration(
-                                      color: getAccentColor(
-                                        isPositive,
-                                        context,
-                                      ).withValues(alpha: 0.2),
+                                      color: accentColor.withValues(alpha:0.2),
                                       borderRadius: BorderRadius.circular(3),
                                     ),
                                     child: FractionallySizedBox(
@@ -235,11 +236,9 @@ class BillStatsCard extends StatelessWidget {
                                       widthFactor: percentage / 100,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: getTextColor(
-                                            context,
-                                            isPositive,
-                                          ).withValues(alpha: 0.8),
-
+                                          color: importantTextColor.withValues(alpha:
+                                            0.8,
+                                          ),
                                           borderRadius: BorderRadius.circular(
                                             3,
                                           ),
