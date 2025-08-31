@@ -72,10 +72,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       final data = statsResponse.getDataForPeriod(
                         selectedPeriod,
                       );
-
-                      if (data.isEmpty) {
-                        return const Text("No referral data available");
-                      }
                       return Stack(
                         children: [
                           ReferralCard(

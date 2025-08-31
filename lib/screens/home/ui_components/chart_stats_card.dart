@@ -56,15 +56,15 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
   }
 
   /// Text color - Use accent color at full opacity in light mode
-Color get importantTextColor {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  if (isDark) {
-    return Colors.white; // Keep white for dark mode
-  } else {
-    // Use accent color with guaranteed full opacity.
-    return widget.accentColor.withValues(alpha:  1.0);
+  Color get importantTextColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (isDark) {
+      return Colors.white; // Keep white for dark mode
+    } else {
+      // Use accent color with guaranteed full opacity.
+      return widget.accentColor.withValues(alpha: 1.0);
+    }
   }
-}
 
   Color get normalTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -90,6 +90,26 @@ Color get importantTextColor {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (widget.data.isEmpty) {
+      // --- Empty state similar to ReferralCard ---
+      return Container(
+        height: widget.height ?? 300,
+        width: widget.width ?? double.infinity,
+        padding: EdgeInsets.all(defaultPadding),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(defaultRadius),
+          border: Border.all(color: widget.accentColor.withValues(alpha: 0.2)),
+        ),
+        child: Center(
+          child: Text(
+            "No bills recorded for ${widget.title.toLowerCase()}",
+            style: TextStyle(color: normalTextColor, fontSize: 20),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
     final maxValue = (breakdown.values.isNotEmpty)
         ? breakdown.values.reduce((a, b) => a > b ? a : b)
         : 1;

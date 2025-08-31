@@ -65,16 +65,16 @@ class _ReferralCardState extends State<ReferralCard> {
         : widget.baseColor.withValues(alpha: 0.1); // lighter bg in light mode
   }
 
-   /// Text color - Use accent color at full opacity in light mode
-Color get importantTextColor {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  if (isDark) {
-    return Colors.white; // Keep white for dark mode
-  } else {
-    // Use accent color with guaranteed full opacity.
-    return widget.baseColor.withValues(alpha:  1.0);
+  /// Text color - Use accent color at full opacity in light mode
+  Color get importantTextColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (isDark) {
+      return Colors.white; // Keep white for dark mode
+    } else {
+      // Use accent color with guaranteed full opacity.
+      return widget.baseColor.withValues(alpha: 1.0);
+    }
   }
-}
 
   Color get normalTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -139,8 +139,8 @@ Color get importantTextColor {
       ),
       child: Center(
         child: Text(
-          "No referrals found",
-          style: TextStyle(color: normalTextColor),
+          "No referrals till now for ${widget.selectedPeriod.toLowerCase()}",
+          style: TextStyle(color: normalTextColor, fontSize: 20),
         ),
       ),
     );
@@ -184,29 +184,21 @@ Color get importantTextColor {
                   ),
                 ),
               ),
-              // Text(
-              //   referrer.doctorFullName.isNotEmpty
-              //       ? referrer.doctorFullName
-              //       : "Unknown Doctor",
-              //   style: theme.textTheme.titleLarge?.copyWith(
-              //     fontWeight: FontWeight.bold,
-              //     color: importantTextColor,
-              //   ),
-              // ),
+
               Expanded(
-      child: Text(
-        referrer.doctorFullName.isNotEmpty
-            ? referrer.doctorFullName
-            : "Unknown Doctor",
-        style: theme.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: importantTextColor,
-        ),
-        textAlign: TextAlign.end, // Align text to the right
-        overflow: TextOverflow.ellipsis, // Add ... if still too long
-        maxLines: 1,
-      ),
-    ),
+                child: Text(
+                  referrer.doctorFullName.isNotEmpty
+                      ? referrer.doctorFullName
+                      : "Unknown Doctor",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: importantTextColor,
+                  ),
+                  textAlign: TextAlign.end, // Align text to the right
+                  overflow: TextOverflow.ellipsis, // Add ... if still too long
+                  maxLines: 1,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
