@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:labledger/main.dart';
+// Make sure these imports point to the correct files in your project
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
@@ -17,7 +17,7 @@ class WindowScaffold extends StatefulWidget {
   final bool isInitialScreen;
   final double? spaceAfterRow;
   final bool enableSlideTransition; // New parameter to control transition
-  
+
   const WindowScaffold({
     super.key,
     required this.child,
@@ -34,7 +34,7 @@ class WindowScaffold extends StatefulWidget {
   State<WindowScaffold> createState() => _WindowScaffoldState();
 }
 
-class _WindowScaffoldState extends State<WindowScaffold> 
+class _WindowScaffoldState extends State<WindowScaffold>
     with WindowListener, TickerProviderStateMixin {
   bool isMaximized = false;
   bool isFullScreen = false;
@@ -49,34 +49,35 @@ class _WindowScaffoldState extends State<WindowScaffold>
     focusNode = FocusNode();
     _initializeWindow();
     windowManager.addListener(this);
-    
-    // Initialize slide animation controller with variable duration
-    final Duration slideDuration = widget.isInitialScreen 
-        ? const Duration(milliseconds: 2000)  // 2 seconds for initial screen
-        : const Duration(milliseconds: 1000);  // 500ms for other screens
-    
+
+    final Duration slideDuration = widget.isInitialScreen
+        ? const Duration(milliseconds: 2000)
+        : const Duration(milliseconds: 1000);
+
     _slideController = AnimationController(
       duration: slideDuration,
       vsync: this,
     );
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(1.0, 0.0), // Start from right
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: widget.isInitialScreen 
-          ? Curves.easeInOutCubic  // Smoother curve for longer animation
-          : Curves.easeOutCubic,   // Standard curve for shorter animation
-    ));
-    
-    // Start the slide animation when widget is built
+
+    _slideAnimation =
+        Tween<Offset>(
+          begin: const Offset(1.0, 0.0), // Start from right
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(
+            parent: _slideController,
+            curve: widget.isInitialScreen
+                ? Curves.easeInOutCubic
+                : Curves.easeOutCubic,
+          ),
+        );
+
     if (widget.enableSlideTransition) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _slideController.forward();
       });
     } else {
-      _slideController.value = 1.0; // Skip animation
+      _slideController.value = 1.0;
     }
   }
 
@@ -95,6 +96,8 @@ class _WindowScaffoldState extends State<WindowScaffold>
   }
 
   Future<void> _initializeWindow() async {
+    await windowManager.ensureInitialized();
+
     await windowManager.setMaximizable(true);
     await windowManager.setMinimizable(true);
 
@@ -107,21 +110,20 @@ class _WindowScaffoldState extends State<WindowScaffold>
     if (mounted) setState(() {});
   }
 
+  /// ✅ **FIXED**: Re-implemented the more robust window setup and centering logic.
+  /// Adds delays to give the OS window manager time to process each command.
   Future<void> _setupMainAppWindow() async {
     try {
       if (await windowManager.isMaximized()) {
         await windowManager.unmaximize();
         await Future.delayed(const Duration(milliseconds: 150));
       }
-
       if (await windowManager.isFullScreen()) {
         await windowManager.setFullScreen(false);
         await Future.delayed(const Duration(milliseconds: 150));
       }
 
       await windowManager.setSkipTaskbar(false);
-      await Future.delayed(const Duration(milliseconds: 100));
-
       await windowManager.setMinimumSize(const Size(800, 600));
       await windowManager.setMaximumSize(const Size(4000, 3000));
       await Future.delayed(const Duration(milliseconds: 150));
@@ -129,13 +131,13 @@ class _WindowScaffoldState extends State<WindowScaffold>
       await windowManager.setSize(const Size(1600, 900));
       await Future.delayed(const Duration(milliseconds: 300));
 
+      // This loop robustly centers the window, retrying if needed.
       for (int i = 0; i < 5; i++) {
         await windowManager.center();
         await Future.delayed(const Duration(milliseconds: 150));
-
         final position = await windowManager.getPosition();
-
-        if (position.dx > 0 && position.dy > 0 && position.dx < 1000) {
+        // Check if centering was successful before breaking the loop
+        if (position.dx > 0 && position.dy > 0) {
           break;
         }
       }
@@ -145,59 +147,38 @@ class _WindowScaffoldState extends State<WindowScaffold>
 
       isLoginScreen.value = false;
     } catch (e) {
+      debugPrint("Error setting up main window: $e");
+      // Fallback in case of an error
       await windowManager.center();
     }
   }
 
+  // --- Window Listener Methods ---
   @override
-  void onWindowMaximize() {
-    if (mounted) {
-      setState(() {
-        isMaximized = true;
-      });
-    }
-  }
+  void onWindowMaximize() => setState(() => isMaximized = true);
 
   @override
-  void onWindowUnmaximize() {
-    if (mounted) {
-      setState(() {
-        isMaximized = false;
-      });
-    }
-  }
+  void onWindowUnmaximize() => setState(() => isMaximized = false);
 
   @override
-  void onWindowEnterFullScreen() async {
-    final state = await windowManager.isFullScreen();
-    if (mounted) setState(() => isFullScreen = state);
-  }
+  void onWindowEnterFullScreen() => setState(() => isFullScreen = true);
 
   @override
-  void onWindowLeaveFullScreen() async {
-    final state = await windowManager.isFullScreen();
-    if (mounted) setState(() => isFullScreen = state);
-  }
+  void onWindowLeaveFullScreen() => setState(() => isFullScreen = false);
 
   Future<void> _handleKeyEvent(KeyEvent event) async {
     if (!widget.allowFullScreen) return;
 
     if (event is KeyDownEvent) {
-      if (event.logicalKey == LogicalKeyboardKey.escape && isFullScreen) {
-        await windowManager.setFullScreen(false);
-      }
       if (event.logicalKey == LogicalKeyboardKey.f11) {
         await windowManager.setFullScreen(!isFullScreen);
+      } else if (event.logicalKey == LogicalKeyboardKey.escape &&
+          isFullScreen) {
+        await windowManager.setFullScreen(false);
       }
-
-      // ✅ Always check actual state after toggle
-      final state = await windowManager.isFullScreen();
-      if (mounted) setState(() => isFullScreen = state);
     }
   }
 
-  /// **FIXED**: This function is now simpler and more reliable.
-  /// It avoids conflicts with the OS's native window handling.
   Future<void> _handleMaximizeRestore() async {
     if (await windowManager.isMaximized()) {
       windowManager.unmaximize();
@@ -206,25 +187,20 @@ class _WindowScaffoldState extends State<WindowScaffold>
     }
   }
 
-  // Handle back button with slide out animation (fast duration)
   Future<void> _handleBackButton() async {
-    if (widget.enableSlideTransition && Navigator.of(context).canPop()) {
-      final originalDuration = _slideController.duration;
-      _slideController.duration = const Duration(milliseconds: 30); // Fast reverse
-      
-      // Reverse the animation (slides from center to left)
+    if (!Navigator.of(context).canPop()) return;
+
+    if (widget.enableSlideTransition) {
+      _slideController.duration = const Duration(milliseconds: 250);
       await _slideController.reverse();
-      
-      // Restore original duration for next use (though this instance will be disposed)
-      _slideController.duration = originalDuration;
     }
-    
-    // Pop the route
-    if (navigatorKey.currentState!.canPop()) {
-      navigatorKey.currentState!.pop();
+
+    if (mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
     }
   }
 
+  // --- Color Getters for UI Elements ---
   Color get _iconColor => currentTheme.brightness == Brightness.dark
       ? const Color(0xFFCCCCCC)
       : const Color(0xFF5A5A5A);
@@ -242,21 +218,24 @@ class _WindowScaffoldState extends State<WindowScaffold>
       child: Scaffold(
         body: Column(
           children: [
+            // The main title bar container
             SizedBox(
               height: 50,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // --- Left Section: Back Button & Title ---
                   Row(
                     children: [
-                      if (!widget.isInitialScreen) // ✅ Only show back button if not the initial screen
+                      // Show back button only if navigation is possible
+                      // if (Navigator.of(context).canPop())
+                      if (!widget.isInitialScreen)
                         GestureDetector(
-                          onTap: _handleBackButton, // Updated to use new method
+                          onTap: _handleBackButton,
                           child: Container(
+                            color: Colors.transparent,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8.0,
                             ),
-                            color: Colors.transparent,
                             child: Icon(
                               CupertinoIcons.back,
                               size: 35,
@@ -264,25 +243,19 @@ class _WindowScaffoldState extends State<WindowScaffold>
                             ),
                           ),
                         ),
-
-                      // Title or app name (draggable)
+                      // Draggable Title Area
                       GestureDetector(
-                        onPanStart: (details) {
-                          windowManager.startDragging();
-                        },
+                        onPanStart: (_) => windowManager.startDragging(),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           color: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           alignment: Alignment.center,
                           child: widget.customTitle != null
                               ? Text(
                                   widget.customTitle!,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: currentTheme.brightness == Brightness.dark
-                                        ? Colors.white
-                                        : Colors.black87,
                                   ),
                                 )
                               : appIconName(
@@ -296,43 +269,33 @@ class _WindowScaffoldState extends State<WindowScaffold>
                     ],
                   ),
 
-                  // Center - Draggable area with the centerWidget
+                  // --- Center Section: Draggable Area & Optional Widget ---
                   Expanded(
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: GestureDetector(
-                            // **FIXED**: Ensures drag events are caught in empty space
-                            // without interfering with other widgets.
-                            behavior: HitTestBehavior.translucent,
-                            onPanStart: (details) => windowManager.startDragging(),
-                            child: Container(color: Colors.transparent),
-                          ),
-                        ),
-                        if (widget.centerWidget != null)
-                          Center(child: widget.centerWidget!),
-                      ],
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onPanStart: (_) => windowManager.startDragging(),
+                      child: Center(child: widget.centerWidget),
                     ),
                   ),
 
-                  // Window control buttons are only shown when not in fullscreen
+                  // ✅ **FIXED**: The `if` condition now only wraps the window buttons.
+                  // The rest of the title bar will always remain visible.
                   if (!isFullScreen)
                     Row(
                       mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         _WindowControlButton(
                           icon: LucideIcons.minus,
-                          onPressed: () async {
-                            await windowManager.minimize();
-                          },
+                          onPressed: () => windowManager.minimize(),
                           tooltip: 'Minimize',
                           iconColor: _iconColor,
                           hoverColor: _hoverColor,
                           isClose: false,
                         ),
                         _WindowControlButton(
-                          icon: isMaximized ? LucideIcons.copy : LucideIcons.square,
+                          icon: isMaximized
+                              ? LucideIcons.copy
+                              : LucideIcons.square,
                           onPressed: _handleMaximizeRestore,
                           tooltip: isMaximized ? 'Restore Down' : 'Maximize',
                           iconColor: _iconColor,
@@ -341,12 +304,11 @@ class _WindowScaffoldState extends State<WindowScaffold>
                         ),
                         _WindowControlButton(
                           icon: LucideIcons.x,
-                          onPressed: () async {
-                            await windowManager.close();
-                          },
+                          onPressed: () => windowManager.close(),
                           tooltip: 'Close',
                           iconColor: _iconColor,
-                          hoverColor: _hoverColor,
+                          hoverColor:
+                              _hoverColor, // Hover color is handled in the widget
                           isClose: true,
                         ),
                       ],
@@ -354,9 +316,11 @@ class _WindowScaffoldState extends State<WindowScaffold>
                 ],
               ),
             ),
-            SizedBox(height: widget.spaceAfterRow ?? 7),
-            
-            // Your app's main content with slide transition
+
+            // This spacer also needs to be hidden in fullscreen to avoid an empty gap
+            if (!isFullScreen) SizedBox(height: widget.spaceAfterRow ?? 7),
+
+            // --- Main Content Area ---
             Expanded(
               child: widget.enableSlideTransition
                   ? SlideTransition(
@@ -372,6 +336,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
   }
 }
 
+// --- Helper Widget for Window Control Buttons ---
 class _WindowControlButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onPressed;
@@ -394,7 +359,7 @@ class _WindowControlButton extends StatefulWidget {
 }
 
 class _WindowControlButtonState extends State<_WindowControlButton> {
-  bool isHovered = false;
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
@@ -402,22 +367,22 @@ class _WindowControlButtonState extends State<_WindowControlButton> {
       message: widget.tooltip,
       waitDuration: const Duration(milliseconds: 500),
       child: MouseRegion(
-        onEnter: (_) => setState(() => isHovered = true),
-        onExit: (_) => setState(() => isHovered = false),
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
         child: GestureDetector(
           onTap: widget.onPressed,
           child: Container(
             width: 46,
             height: 50,
-            decoration: BoxDecoration(
-              color: isHovered
-                  ? (widget.isClose ? const Color(0xFFE81123) : widget.hoverColor)
-                  : Colors.transparent,
-            ),
+            color: _isHovered
+                ? (widget.isClose ? const Color(0xFFE81123) : widget.hoverColor)
+                : Colors.transparent,
             child: Icon(
               widget.icon,
               size: 16,
-              color: isHovered && widget.isClose ? Colors.white : widget.iconColor,
+              color: _isHovered && widget.isClose
+                  ? Colors.white
+                  : widget.iconColor,
             ),
           ),
         ),

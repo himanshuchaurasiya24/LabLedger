@@ -184,15 +184,29 @@ Color get importantTextColor {
                   ),
                 ),
               ),
-              Text(
-                referrer.doctorFullName.isNotEmpty
-                    ? referrer.doctorFullName
-                    : "Unknown Doctor",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: importantTextColor,
-                ),
-              ),
+              // Text(
+              //   referrer.doctorFullName.isNotEmpty
+              //       ? referrer.doctorFullName
+              //       : "Unknown Doctor",
+              //   style: theme.textTheme.titleLarge?.copyWith(
+              //     fontWeight: FontWeight.bold,
+              //     color: importantTextColor,
+              //   ),
+              // ),
+              Expanded(
+      child: Text(
+        referrer.doctorFullName.isNotEmpty
+            ? referrer.doctorFullName
+            : "Unknown Doctor",
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: importantTextColor,
+        ),
+        textAlign: TextAlign.end, // Align text to the right
+        overflow: TextOverflow.ellipsis, // Add ... if still too long
+        maxLines: 1,
+      ),
+    ),
             ],
           ),
           const SizedBox(height: 16),

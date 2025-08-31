@@ -232,7 +232,18 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
         floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          // Use a color that matches the positive-themed cards in your UI
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.secondary, // A nice teal color
+          // Use foregroundColor for the color of the label and icon
+          foregroundColor: Colors.white,
+          elevation: 4.0, // A slightly more subtle shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              16.0,
+            ), // Match the rounded corners of your cards
+          ),
           onPressed: () async {
             await navigatorKey.currentState
                 ?.push(
@@ -242,18 +253,14 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                   _refreshBillsData();
                 });
           },
-          label: Text(
+          label: const Text(
             "Add Bill",
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onPrimary,
               fontWeight: FontWeight.bold,
-              fontSize: 20,
+              fontSize: 18, // Slightly reduced for a cleaner look
             ),
           ),
-          icon: Icon(
-            LucideIcons.plus,
-            color: Theme.of(context).colorScheme.onPrimary,
-          ),
+          icon: const Icon(LucideIcons.plus),
         ),
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: defaultPadding),
