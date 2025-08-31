@@ -53,7 +53,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
     // Initialize slide animation controller with variable duration
     final Duration slideDuration = widget.isInitialScreen 
         ? const Duration(milliseconds: 2000)  // 2 seconds for initial screen
-        : const Duration(milliseconds: 500);  // 500ms for other screens
+        : const Duration(milliseconds: 1000);  // 500ms for other screens
     
     _slideController = AnimationController(
       duration: slideDuration,
@@ -210,7 +210,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
   Future<void> _handleBackButton() async {
     if (widget.enableSlideTransition && Navigator.of(context).canPop()) {
       final originalDuration = _slideController.duration;
-      _slideController.duration = const Duration(milliseconds: 50); // Fast reverse
+      _slideController.duration = const Duration(milliseconds: 30); // Fast reverse
       
       // Reverse the animation (slides from center to left)
       await _slideController.reverse();

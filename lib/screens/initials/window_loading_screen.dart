@@ -9,6 +9,7 @@ import 'package:labledger/authentication/auth_repository.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/home/home_screen.dart';
+import 'package:labledger/screens/initials/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/window_scaffold.dart';
 
@@ -102,14 +103,24 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
       body: Center(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 20),
-            Text(tileText, style: Theme.of(context).textTheme.titleMedium),
+            appIconName(context: context, firstName: "Lab", secondName:"Ledger", fontSize: 100),
+            // SizedBox(height: 30),
+            SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
+            SizedBox(height: 10),
+            Text(
+              tileText,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontSize: 16,
+              ),
+            ),
           ],
         ),
       ),
