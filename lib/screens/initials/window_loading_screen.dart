@@ -82,8 +82,8 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
     }
   }
 
-  void _navigateToLogin(String reason)async  {
-          await Future.delayed(const Duration(milliseconds: 1500));
+  void _navigateToLogin(String reason) async {
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     if (mounted) {
       setState(() {
@@ -110,9 +110,28 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            appIconName(context: context, firstName: "Lab", secondName:"Ledger", fontSize: 100),
-            // SizedBox(height: 30),
-            SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Lab",
+                  style: TextStyle(
+                    fontSize: 90,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 0, 110, 164),
+                  ),
+                ),
+                Text(
+                  "Ledger",
+                  style: TextStyle(
+                    fontSize: 90,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 2, 166, 36),
+                  ),
+                ),
+              ],
+            ),
+            AnimatedLabProgressIndicator(),
             SizedBox(height: 10),
             Text(
               tileText,
