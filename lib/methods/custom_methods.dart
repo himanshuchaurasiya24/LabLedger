@@ -19,6 +19,7 @@ class NoThumbScrollBehavior extends ScrollBehavior {
   }
 }
 
+
 class CenterSearchBar extends StatelessWidget {
   final String hintText;
   final Function(String) onSearch; // <-- take value
@@ -104,37 +105,13 @@ Widget pageHeader({
   );
 }
 
-// // Updated setWindowBehavior method
-// void setWindowBehavior({bool? isForLogin}) async {
-//   bool isLogin = isForLogin ?? false;
-//   await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-//     // await windowManager.center();
-  
-//   if (!isLogin) {
-//     await windowManager.center();
-//     await windowManager.setMinimumSize(const Size(800, 600)); // Reasonable minimum
-//     await windowManager.setMaximumSize(const Size(4000, 3000)); // Allow maximize
-//     await windowManager.setSkipTaskbar(false);
-//     // Set constraints to prevent manual resizing but allow maximize
-//     await windowManager.setSize(const Size(1600, 900), animate: true);
-//     isLoginScreen.value = false; // Enable F11 for main screens
-//   } else {
-//     await windowManager.center();
-//     await windowManager.setMinimumSize(const Size(700, 350));
-//     await windowManager.setMaximumSize(const Size(700, 350));
-//     await windowManager.setSize(const Size(700, 350), animate: true);
-//     await windowManager.setSkipTaskbar(true);
-//     isLoginScreen.value = true; // Block F11 for login screens
-//   }
-// }
-// Simplified setWindowBehavior - only for login/loading screens
 void setWindowBehavior({bool? isForLogin}) async {
   bool isLogin = isForLogin ?? false;
   await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
   
   if (isLogin) {
     // Only handle login/loading screens here
-    await windowManager.setSkipTaskbar(true);
+    await windowManager.setSkipTaskbar(false);
     await windowManager.setMinimumSize(const Size(700, 350));
     await windowManager.setMaximumSize(const Size(700, 350));
     

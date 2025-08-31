@@ -13,55 +13,15 @@ Size get initialWindowSize => const Size(700, 350);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-  
+
   await initializeBaseUrl();
-  
-  // Minimal initial setup
-  WindowOptions windowOptions = const WindowOptions(
-    backgroundColor: Colors.transparent,
-    titleBarStyle: TitleBarStyle.hidden,
-  );
 
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    // Comprehensive window setup
-    await _setupInitialWindow();
-  });
-  runApp(ProviderScope(
-     
-    child:  MyApp()));
+  await windowManager.ensureInitialized();
+  runApp(ProviderScope(child: MyApp()));
 }
 
-Future<void> _setupInitialWindow() async {
-  try {
-    // Step 1: Basic setup
-    await windowManager.setSkipTaskbar(false);
-    await Future.delayed(const Duration(milliseconds: 100));
-    
-    // Step 2: Set constraints
-    await windowManager.setMinimumSize(const Size(700, 350));
-    await windowManager.setMaximumSize(const Size(700, 350));
-    await Future.delayed(const Duration(milliseconds: 100));
-    
-    // Step 3: Set size
-    await windowManager.setSize(const Size(700, 350));
-    await Future.delayed(const Duration(milliseconds: 200));
-    
-    // Step 4: Multiple centering attempts
-    for (int i = 0; i < 5; i++) {
-      await windowManager.center();
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-    
-    // Step 5: Final operations
-    await windowManager.show();
-    await windowManager.focus();
-    
-  } catch (e) {
-    await windowManager.show();
-  }
-}
 class MyApp extends ConsumerStatefulWidget {
-  const MyApp( {super.key});
+  const MyApp({super.key});
 
   @override
   ConsumerState<MyApp> createState() => _MyAppState();
@@ -148,17 +108,20 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
             800: Color(0xFF004E7F),
             900: Color(0xFF00375F),
           }),
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF0072B5),
-            primary: const Color(0xFF0072B5), // Deep Blue
-            secondary: const Color(0xFF1AA260), // Teal Green
-            brightness: Brightness.light,
-            tertiary: const Color(0xFF2D2D2D), // Neutral dark text
-            tertiaryFixed: const Color(0xFFFFFFFF), // White
-          ).copyWith(
-            surface: const Color(0xFFFDFDFD), // modern neutral bg
-            surfaceContainerHighest: const Color(0xFFF0F4F8), // subtle cards
-          ),
+          colorScheme:
+              ColorScheme.fromSeed(
+                seedColor: const Color(0xFF0072B5),
+                primary: const Color(0xFF0072B5), // Deep Blue
+                secondary: const Color(0xFF1AA260), // Teal Green
+                brightness: Brightness.light,
+                tertiary: const Color(0xFF2D2D2D), // Neutral dark text
+                tertiaryFixed: const Color(0xFFFFFFFF), // White
+              ).copyWith(
+                surface: const Color(0xFFFDFDFD), // modern neutral bg
+                surfaceContainerHighest: const Color(
+                  0xFFF0F4F8,
+                ), // subtle cards
+              ),
           scaffoldBackgroundColor: const Color(0xFFF9FAFB),
           appBarTheme: const AppBarTheme(
             backgroundColor: Color(0xFFF9FAFB),
@@ -180,22 +143,33 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
             ),
           ),
           useMaterial3: true,
+          pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: IOSPageTransitionsBuilder(),
+            TargetPlatform.iOS: IOSPageTransitionsBuilder(),
+            TargetPlatform.linux: IOSPageTransitionsBuilder(),
+            TargetPlatform.macOS: IOSPageTransitionsBuilder(),
+            TargetPlatform.windows: IOSPageTransitionsBuilder(),
+            TargetPlatform.fuchsia: IOSPageTransitionsBuilder(),
+          },
+        ),
         ),
 
         // 🌙 DARK THEME
         darkTheme: ThemeData(
           brightness: Brightness.dark,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF0072B5),
-            brightness: Brightness.dark,
-            primary: const Color(0xFF0072B5),
-            secondary: const Color(0xFF1AA260),
-            tertiary: const Color(0xFFFFFFFF),
-            tertiaryFixed: const Color(0xFF121212),
-          ).copyWith(
-            surface: const Color(0xFF1C1C1E),
-            surfaceContainerHighest: const Color(0xFF2A2A2C),
-          ),
+          colorScheme:
+              ColorScheme.fromSeed(
+                seedColor: const Color(0xFF0072B5),
+                brightness: Brightness.dark,
+                primary: const Color(0xFF0072B5),
+                secondary: const Color(0xFF1AA260),
+                tertiary: const Color(0xFFFFFFFF),
+                tertiaryFixed: const Color(0xFF121212),
+              ).copyWith(
+                surface: const Color(0xFF1C1C1E),
+                surfaceContainerHighest: const Color(0xFF2A2A2C),
+              ),
           scaffoldBackgroundColor: const Color(0xFF0F0F10),
           fontFamily: 'GoogleSans',
           textTheme: const TextTheme(
@@ -237,24 +211,49 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           useMaterial3: true,
           splashFactory: InkRipple.splashFactory,
           pageTransitionsTheme: const PageTransitionsTheme(
-            builders: {
-              TargetPlatform.android: ZoomPageTransitionsBuilder(),
-              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.windows: ZoomPageTransitionsBuilder(),
-              TargetPlatform.linux: ZoomPageTransitionsBuilder(),
-              TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.fuchsia: ZoomPageTransitionsBuilder(),
-            },
-          ),
-          scrollbarTheme: ScrollbarThemeData(
-            thumbVisibility: WidgetStateProperty.all(false),
-            thickness: WidgetStateProperty.all(8),
-            radius: const Radius.circular(4),
-          ),
+          builders: {
+            TargetPlatform.android: IOSPageTransitionsBuilder(),
+            TargetPlatform.iOS: IOSPageTransitionsBuilder(),
+            TargetPlatform.linux: IOSPageTransitionsBuilder(),
+            TargetPlatform.macOS: IOSPageTransitionsBuilder(),
+            TargetPlatform.windows: IOSPageTransitionsBuilder(),
+            TargetPlatform.fuchsia: IOSPageTransitionsBuilder(),
+          },
+        ),
+          // scrollbarTheme: ScrollbarThemeData(
+          //   thumbVisibility: WidgetStateProperty.all(false),
+          //   thickness: WidgetStateProperty.all(8),
+          //   radius: const Radius.circular(4),
+          // ),
         ),
 
         home: WindowLoadingScreen(),
       ),
+    );
+  }
+}
+
+// ✅ Add this class - Custom page transition builder
+class IOSPageTransitionsBuilder extends PageTransitionsBuilder {
+  const IOSPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T extends Object?>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(1.0, 0.0), // Slide from right
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      )),
+      child: child,
     );
   }
 }

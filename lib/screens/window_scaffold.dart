@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
@@ -14,6 +16,8 @@ class WindowScaffold extends StatefulWidget {
   final bool allowFullScreen;
   final bool isInitialScreen;
   final double? spaceAfterRow;
+  final bool enableSlideTransition; // New parameter to control transition
+  
   const WindowScaffold({
     super.key,
     required this.child,
@@ -21,18 +25,23 @@ class WindowScaffold extends StatefulWidget {
     this.customTitle,
     this.centerWidget,
     this.allowFullScreen = true,
-    this.isInitialScreen = false, this.spaceAfterRow,
+    this.isInitialScreen = false,
+    this.spaceAfterRow,
+    this.enableSlideTransition = true, // Default to true
   });
 
   @override
   State<WindowScaffold> createState() => _WindowScaffoldState();
 }
 
-class _WindowScaffoldState extends State<WindowScaffold> with WindowListener {
+class _WindowScaffoldState extends State<WindowScaffold> 
+    with WindowListener, TickerProviderStateMixin {
   bool isMaximized = false;
   bool isFullScreen = false;
   late ThemeData currentTheme;
   late FocusNode focusNode;
+  late AnimationController _slideController;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
@@ -40,12 +49,42 @@ class _WindowScaffoldState extends State<WindowScaffold> with WindowListener {
     focusNode = FocusNode();
     _initializeWindow();
     windowManager.addListener(this);
+    
+    // Initialize slide animation controller with variable duration
+    final Duration slideDuration = widget.isInitialScreen 
+        ? const Duration(milliseconds: 2000)  // 2 seconds for initial screen
+        : const Duration(milliseconds: 500);  // 500ms for other screens
+    
+    _slideController = AnimationController(
+      duration: slideDuration,
+      vsync: this,
+    );
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0.0), // Start from right
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideController,
+      curve: widget.isInitialScreen 
+          ? Curves.easeInOutCubic  // Smoother curve for longer animation
+          : Curves.easeOutCubic,   // Standard curve for shorter animation
+    ));
+    
+    // Start the slide animation when widget is built
+    if (widget.enableSlideTransition) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _slideController.forward();
+      });
+    } else {
+      _slideController.value = 1.0; // Skip animation
+    }
   }
 
   @override
   void dispose() {
     windowManager.removeListener(this);
     focusNode.dispose();
+    _slideController.dispose();
     super.dispose();
   }
 
@@ -167,13 +206,24 @@ class _WindowScaffoldState extends State<WindowScaffold> with WindowListener {
     }
   }
 
-  // Color get _titleBarColor => currentTheme.brightness == Brightness.dark
-  //     ? const Color(0xFF2D2D30)
-  //     : Colors.white;
-
-  // Color get _borderColor => currentTheme.brightness == Brightness.dark
-  //     ? const Color(0xFF3E3E42)
-  //     : Colors.grey.withAlpha(51);
+  // Handle back button with slide out animation (fast duration)
+  Future<void> _handleBackButton() async {
+    if (widget.enableSlideTransition && Navigator.of(context).canPop()) {
+      final originalDuration = _slideController.duration;
+      _slideController.duration = const Duration(milliseconds: 50); // Fast reverse
+      
+      // Reverse the animation (slides from center to left)
+      await _slideController.reverse();
+      
+      // Restore original duration for next use (though this instance will be disposed)
+      _slideController.duration = originalDuration;
+    }
+    
+    // Pop the route
+    if (navigatorKey.currentState!.canPop()) {
+      navigatorKey.currentState!.pop();
+    }
+  }
 
   Color get _iconColor => currentTheme.brightness == Brightness.dark
       ? const Color(0xFFCCCCCC)
@@ -197,36 +247,54 @@ class _WindowScaffoldState extends State<WindowScaffold> with WindowListener {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Left side - App name or custom title (draggable)
-                  if (widget.showAppName || widget.customTitle != null)
-                    GestureDetector(
-                      onPanStart: (details) {
-                        windowManager.startDragging();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        color: Colors.transparent, // For hittesting
-                        alignment: Alignment.center,
-                        child: widget.customTitle != null
-                            ? Text(
-                                widget.customTitle!,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color:
-                                      currentTheme.brightness == Brightness.dark
-                                      ? Colors.white
-                                      : Colors.black87,
+                  Row(
+                    children: [
+                      if (!widget.isInitialScreen) // ✅ Only show back button if not the initial screen
+                        GestureDetector(
+                          onTap: _handleBackButton, // Updated to use new method
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                            ),
+                            color: Colors.transparent,
+                            child: Icon(
+                              CupertinoIcons.back,
+                              size: 35,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+
+                      // Title or app name (draggable)
+                      GestureDetector(
+                        onPanStart: (details) {
+                          windowManager.startDragging();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          color: Colors.transparent,
+                          alignment: Alignment.center,
+                          child: widget.customTitle != null
+                              ? Text(
+                                  widget.customTitle!,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: currentTheme.brightness == Brightness.dark
+                                        ? Colors.white
+                                        : Colors.black87,
+                                  ),
+                                )
+                              : appIconName(
+                                  context: context,
+                                  firstName: "Lab",
+                                  secondName: "Ledger",
+                                  fontSize: 35,
                                 ),
-                              )
-                            : appIconName(
-                                context: context,
-                                firstName: " Lab",
-                                secondName: "Ledger",
-                                fontSize: 35,
-                              ),
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
 
                   // Center - Draggable area with the centerWidget
                   Expanded(
@@ -237,8 +305,7 @@ class _WindowScaffoldState extends State<WindowScaffold> with WindowListener {
                             // **FIXED**: Ensures drag events are caught in empty space
                             // without interfering with other widgets.
                             behavior: HitTestBehavior.translucent,
-                            onPanStart: (details) =>
-                                windowManager.startDragging(),
+                            onPanStart: (details) => windowManager.startDragging(),
                             child: Container(color: Colors.transparent),
                           ),
                         ),
@@ -265,9 +332,7 @@ class _WindowScaffoldState extends State<WindowScaffold> with WindowListener {
                           isClose: false,
                         ),
                         _WindowControlButton(
-                          icon: isMaximized
-                              ? LucideIcons.copy
-                              : LucideIcons.square,
+                          icon: isMaximized ? LucideIcons.copy : LucideIcons.square,
                           onPressed: _handleMaximizeRestore,
                           tooltip: isMaximized ? 'Restore Down' : 'Maximize',
                           iconColor: _iconColor,
@@ -289,9 +354,17 @@ class _WindowScaffoldState extends State<WindowScaffold> with WindowListener {
                 ],
               ),
             ),
-            SizedBox(height: widget.spaceAfterRow??7,),
-            // Your app's main content
-            Expanded(child: widget.child),
+            SizedBox(height: widget.spaceAfterRow ?? 7),
+            
+            // Your app's main content with slide transition
+            Expanded(
+              child: widget.enableSlideTransition
+                  ? SlideTransition(
+                      position: _slideAnimation,
+                      child: widget.child,
+                    )
+                  : widget.child,
+            ),
           ],
         ),
       ),
@@ -338,17 +411,13 @@ class _WindowControlButtonState extends State<_WindowControlButton> {
             height: 50,
             decoration: BoxDecoration(
               color: isHovered
-                  ? (widget.isClose
-                        ? const Color(0xFFE81123)
-                        : widget.hoverColor)
+                  ? (widget.isClose ? const Color(0xFFE81123) : widget.hoverColor)
                   : Colors.transparent,
             ),
             child: Icon(
               widget.icon,
               size: 16,
-              color: isHovered && widget.isClose
-                  ? Colors.white
-                  : widget.iconColor,
+              color: isHovered && widget.isClose ? Colors.white : widget.iconColor,
             ),
           ),
         ),

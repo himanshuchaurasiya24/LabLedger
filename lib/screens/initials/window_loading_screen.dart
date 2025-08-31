@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:labledger/authentication/auth_repository.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
@@ -41,16 +42,19 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
         tileText = "Authentication successful!";
       });
 
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 1500));
 
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
+        navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
             builder: (context) {
               return WindowScaffold(
                 allowFullScreen: true, // Enable F11 for home screen
                 isInitialScreen: true,
+                centerWidget: Text(
+                  "${userData['centerDetail']['center_name'].toString().toUpperCase()}, ${userData["centerDetail"]['address']}",
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
                 child: HomeScreen(
                   id: userData['id'],
                   firstName: userData['firstName'],
@@ -77,7 +81,9 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
     }
   }
 
-  void _navigateToLogin(String reason) {
+  void _navigateToLogin(String reason)async  {
+          await Future.delayed(const Duration(milliseconds: 1500));
+
     if (mounted) {
       setState(() {
         tileText = reason;
@@ -85,8 +91,7 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
 
       Future.delayed(const Duration(milliseconds: 1000), () {
         if (mounted) {
-          Navigator.pushReplacement(
-            context,
+          navigatorKey.currentState?.pushReplacement(
             MaterialPageRoute(builder: (context) => const LoginScreen()),
           );
         }
@@ -104,10 +109,7 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
           children: [
             const CircularProgressIndicator(),
             const SizedBox(height: 20),
-            Text(
-              tileText,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text(tileText, style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
       ),
