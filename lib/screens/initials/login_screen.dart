@@ -1,175 +1,361 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:labledger/authentication/config.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
+import 'package:labledger/screens/initials/ui_components/reusable_ui_components.dart';
 import 'package:labledger/screens/window_scaffold.dart';
-import 'package:http/http.dart' as http;
+import 'package:labledger/authentication/auth_exceptions.dart';
 
-// 2. LOGIN SCREEN
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with TickerProviderStateMixin {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
   String errorMessage = "";
+  bool isLoading = false;
+  bool rememberMe = false;
+
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
   @override
   void initState() {
     super.initState();
-    setWindowBehavior(isForLogin: true); // Block F11 and window controls
+    setWindowBehavior(isForLogin: true);
+
+    // Initialize animations
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
+
+    // Start animations
+    _fadeController.forward();
+    Future.delayed(const Duration(milliseconds: 200), () {
+      _slideController.forward();
+    });
   }
 
   @override
   void dispose() {
     usernameController.dispose();
     passwordController.dispose();
+    _fadeController.dispose();
+    _slideController.dispose();
     super.dispose();
   }
 
-  Future<Map<String, dynamic>> attemptLogin({
-    required String username,
-    required String password,
-  }) async {
-    final storage = FlutterSecureStorage();
-
-    try {
-      final response = await http
-          .post(
-            Uri.parse("$globalBaseUrl/api/token/"),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'username': username, 'password': password}),
-          )
-          .timeout(const Duration(seconds: 5));
-      String statusNumber = response.statusCode.toString();
-      final body = jsonDecode(response.body);
-      if (response.statusCode == 200) {
-        String accessToken = body['access'];
-        String refreshToken = body['refresh'];
-        await storage.write(key: 'access_token', value: accessToken);
-        await storage.write(key: 'refresh_token', value: refreshToken);
-        return {
-          'success': true,
-          'is_admin': body['is_admin'],
-          'username': body['username'],
-          'first_name': body['first_name'],
-          'last_name': body['last_name'],
-          'id': body['id'],
-          'center_detail': body['center_detail'],
-        };
-      } else if (response.statusCode == 401) {
-        String error = body['detail'];
-        setState(() {
-          errorMessage = "$error : Unauthorized";
-        });
-        return {"success": false, "is_admin": false};
-      } else {
-        setState(() {
-          errorMessage = "Internal Server Error...: $statusNumber";
-        });
-        return {"success": false, "is_admin": false};
-      }
-    } catch (e) {
-      setState(() {
-        errorMessage = "Some error occurred. $e \nCheck server status...";
-      });
+  String? _validateUsername(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Username is required';
     }
-    return {"success": false, "is_admin": false};
+    if (value.length < 3) {
+      return 'Username must be at least 3 characters';
+    }
+    return null;
   }
 
-  void login() async {
-    final value = await attemptLogin(
-      username: usernameController.text,
-      password: passwordController.text,
-    );
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+    if (value.length < 4) {
+      return 'Password must be at least 4 characters';
+    }
+    return null;
+  }
 
-    if (!mounted) return;
+  void _login() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-    if (value['success'] == true) {
-      navigatorKey.currentState?.pushReplacement(
-        MaterialPageRoute(
-          builder: (context) {
-        return     WindowScaffold(
-              allowFullScreen: true, // Enable F11 for home screen
-              isInitialScreen: true,
-              child: HomeScreen(
-                isAdmin: value["is_admin"]!,
-                firstName: value['first_name']!,
-                lastName: value['last_name']!,
-                username: value['username']!,
-                id: value['id'],
-                centerDetail: value['center_detail'],
-              ),
-            );
-          },
-        ),
+    setState(() {
+      isLoading = true;
+      errorMessage = "";
+    });
+
+    try {
+      final credentials = LoginCredentials(
+        username: usernameController.text.trim(),
+        password: passwordController.text,
       );
+
+      final authResponse = await ref.read(loginProvider(credentials).future);
+
+      if (mounted) {
+        final userData = authResponse.toHomeScreenData();
+        navigatorKey.currentState?.pushReplacement(
+          MaterialPageRoute(
+            builder: (context) {
+              return WindowScaffold(
+                allowFullScreen: true,
+                isInitialScreen: true,
+                child: HomeScreen(
+                  isAdmin: userData["isAdmin"]!,
+                  firstName: userData['firstName']!,
+                  lastName: userData['lastName']!,
+                  username: userData['username']!,
+                  id: userData['id'],
+                  centerDetail: userData['centerDetail'],
+                ),
+              );
+            },
+          ),
+        );
+      }
+    } on InvalidCredentialsException {
+      setState(() {
+        errorMessage = "Invalid username or password. Please try again.";
+      });
+    } on SubscriptionInactiveException {
+      setState(() {
+        errorMessage =
+            "Your account has been locked. Please contact administrator.";
+      });
+    } on SubscriptionExpiredException {
+      setState(() {
+        errorMessage =
+            "Your subscription has expired. Please renew to continue.";
+      });
+    } on NetworkException {
+      setState(() {
+        errorMessage =
+            "Network error. Please check your connection and try again.";
+      });
+    } on ServerException catch (e) {
+      setState(() {
+        errorMessage = "Server error: ${e.message}";
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = "An unexpected error occurred. Please try again.";
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Center(
-        child: Container(
-          width: 400,
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // App logo
-              appIconName(
-                context: context,
-                firstName: " Lab",
-                secondName: "Ledger",
-                fontSize: 32,
-              ),
-              const SizedBox(height: 32),
-              // Login form
-              TextField(
-                controller: usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  border: OutlineInputBorder(),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: defaultPadding * 2,
+              vertical: defaultPadding,
+            ),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface.withValues(alpha: 0.95),
+              borderRadius: BorderRadius.circular(defaultRadius),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.colorScheme.shadow.withValues(alpha: 0.1),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                  spreadRadius: 0,
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
+                BoxShadow(
+                  color: theme.colorScheme.shadow.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                  spreadRadius: 0,
                 ),
+              ],
+              border: Border.all(
+                color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                width: 1,
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: login,
-                  child: const Text('Login'),
-                ),
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                // mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                // mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  appIconName(
+                    context: context,
+                    firstName: "Lab",
+                    secondName: "ledger",
+                  ),
+
+                  SizedBox(height: defaultHeight),
+
+                  // Error Message
+                  if (errorMessage.isNotEmpty) ...[
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.errorContainer.withValues(
+                          alpha: 0.8,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: theme.colorScheme.error.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            color: theme.colorScheme.error,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              errorMessage,
+                              style: TextStyle(
+                                color: theme.colorScheme.error,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: defaultHeight * 2),
+                  ],
+
+                  ReusableTextField(
+                    controller: usernameController,
+                    label: 'Username',
+                    hintText: 'Enter your username',
+                    prefixIcon: Icons.person_outline,
+                    keyboardType: TextInputType.text,
+                    validator: _validateUsername,
+                    enabled: !isLoading,
+                  ),
+
+                  SizedBox(height: defaultHeight),
+
+                  // Password Field
+                  ReusableTextField(
+                    controller: passwordController,
+                    label: 'Password',
+                    hintText: 'Enter your password',
+                    prefixIcon: Icons.lock_outline,
+                    obscureText: true,
+                    showTogglePasswordVisibility: true,
+                    validator: _validatePassword,
+                    onSubmitted: (_) => _login(),
+                    enabled: !isLoading,
+                  ),
+
+                  SizedBox(height: defaultHeight),
+
+                  // Remember Me & Forgot Password
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: rememberMe,
+                        onChanged: isLoading
+                            ? null
+                            : (value) {
+                                setState(() {
+                                  rememberMe = value ?? false;
+                                });
+                              },
+                        activeColor: theme.colorScheme.primary,
+                      ),
+                      Text(
+                        'Remember me',
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const Spacer(),
+                      ReusableButton(
+                        text: 'Forgot Password?',
+                        variant: ButtonVariant.text,
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                // Handle forgot password
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Contact administrator to reset password',
+                                    ),
+                                  ),
+                                );
+                              },
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: defaultHeight),
+
+                  // Login Button
+                  ReusableButton(
+                    text: 'Sign In',
+                    variant: ButtonVariant.primary,
+                    icon: Icons.login,
+                    onPressed: isLoading ? null : _login,
+                    isLoading: isLoading,
+                    width: double.infinity,
+                    height: 56,
+                    borderRadius: 16,
+                  ),
+
+                  SizedBox(height: defaultHeight),
+
+                  // Footer
+                  Text(
+                    "$appName $appVersion | $appDescription",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.7,
+                      ),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

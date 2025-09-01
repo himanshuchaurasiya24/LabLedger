@@ -109,13 +109,12 @@ void setWindowBehavior({bool? isForLogin}) async {
   await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
 
   if (isLogin) {
-    // Only handle login/loading screens here
     await windowManager.setSkipTaskbar(false);
-    await windowManager.setMinimumSize(const Size(700, 350));
-    await windowManager.setMaximumSize(const Size(700, 350));
+    await windowManager.setMinimumSize(const Size(800, 413));
+    await windowManager.setMaximumSize(const Size(800, 413));
 
     await Future.delayed(const Duration(milliseconds: 100));
-    await windowManager.setSize(const Size(700, 350));
+    await windowManager.setSize(const Size(800, 413));
     await Future.delayed(const Duration(milliseconds: 200));
 
     // Aggressive centering for login screen
@@ -434,7 +433,7 @@ Widget appIconName({
   required String secondName,
 }) {
   return Row(
-    mainAxisAlignment: MainAxisAlignment.start,
+    // mainAxisAlignment: MainAxisAlignment.center,
     children: [
       Text(
         firstName,

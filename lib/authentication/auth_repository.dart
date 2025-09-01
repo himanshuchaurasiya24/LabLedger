@@ -1,8 +1,10 @@
+// authentication/auth_repository.dart
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/models/auth_response_model.dart';
 
 class AuthRepository {
   // Singleton pattern
@@ -17,34 +19,33 @@ class AuthRepository {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   /// Login with username/password
-  Future<Map<String, dynamic>> login(String username, String password) async {
+  Future<AuthResponse> login(String username, String password) async {
     try {
       final response = await http
           .post(
             Uri.parse('$globalBaseUrl/api/token/'),
-            body: {"username": username, "password": password},
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({"username": username, "password": password}),
           )
           .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final authResponse = AuthResponse.fromJson(jsonDecode(response.body));
 
-        final access = data["access"] as String?;
-        final refresh = data["refresh"] as String?;
+        // Validate subscription
+        _validateSubscription(authResponse);
 
-        if (access == null || refresh == null) {
-          throw const ServerException("Invalid token response from server");
+        // Store tokens
+        if (authResponse.access != null && authResponse.refresh != null) {
+          await _storage.write(key: "access_token", value: authResponse.access!);
+          await _storage.write(key: "refresh_token", value: authResponse.refresh!);
         }
 
-        await _storage.write(key: "access_token", value: access);
-        await _storage.write(key: "refresh_token", value: refresh);
-
-        final normalizedData = _normalizeUserData(data);
-        return normalizedData;
+        return authResponse;
       } else if (response.statusCode == 401) {
         throw const InvalidCredentialsException();
       } else {
-        throw ServerException("Unexpected error: ${response.body}");
+        throw ServerException("Login failed: ${response.body}");
       }
     } catch (e) {
       if (e is AuthException) rethrow;
@@ -53,9 +54,7 @@ class AuthRepository {
   }
 
   /// Verify current access token with backend
-  Future<Map<String, dynamic>> verifyAuth() async {
-    await debugStorage();
-
+  Future<AuthResponse> verifyAuth() async {
     try {
       final accessToken = await getAccessToken();
 
@@ -71,19 +70,17 @@ class AuthRepository {
           .timeout(const Duration(seconds: 3));
 
       if (response.statusCode == 200) {
-        final userData = jsonDecode(response.body);
-        final normalizedData = _normalizeUserData(userData);
-        _validateUserData(normalizedData);
-        return normalizedData;
+        final authResponse = AuthResponse.fromJson(jsonDecode(response.body));
+        _validateSubscription(authResponse);
+        return authResponse;
       } else if (response.statusCode == 401) {
         try {
-          final data = await _retryWithRefresh();
-          return data;
+          return await _retryWithRefresh();
         } catch (refreshError) {
           rethrow;
         }
       } else {
-        throw ServerException("Unexpected verify response: ${response.body}");
+        throw ServerException("Verify auth failed: ${response.body}");
       }
     } catch (e) {
       if (e is AuthException) rethrow;
@@ -92,7 +89,7 @@ class AuthRepository {
   }
 
   /// Helper method to retry verification with refresh token
-  Future<Map<String, dynamic>> _retryWithRefresh() async {
+  Future<AuthResponse> _retryWithRefresh() async {
     try {
       final refresh = await getRefreshToken();
 
@@ -114,17 +111,14 @@ class AuthRepository {
           .timeout(const Duration(seconds: 5));
 
       if (retryResponse.statusCode == 200) {
-        final userData = jsonDecode(retryResponse.body);
-        final normalizedData = _normalizeUserData(userData);
-        _validateUserData(normalizedData);
-        return normalizedData;
+        final authResponse = AuthResponse.fromJson(jsonDecode(retryResponse.body));
+        _validateSubscription(authResponse);
+        return authResponse;
       } else if (retryResponse.statusCode == 401) {
         await logout();
         throw const TokenExpiredException();
       } else {
-        throw ServerException(
-          "Unexpected verify response after refresh: ${retryResponse.body}",
-        );
+        throw ServerException("Verify auth retry failed: ${retryResponse.body}");
       }
     } catch (e) {
       if (e is AuthException) rethrow;
@@ -155,7 +149,7 @@ class AuthRepository {
         await logout();
         throw const TokenExpiredException();
       } else {
-        throw ServerException("Unexpected refresh response: ${response.body}");
+        throw ServerException("Token refresh failed: ${response.body}");
       }
     } catch (e) {
       if (e is AuthException) rethrow;
@@ -163,36 +157,18 @@ class AuthRepository {
     }
   }
 
-  /// Convert snake_case API response to camelCase for HomeScreen
-  Map<String, dynamic> _normalizeUserData(Map<String, dynamic> rawData) {
-    final normalized = {
-      'id': rawData['id'],
-      'firstName': rawData['first_name'],
-      'lastName': rawData['last_name'],
-      'username': rawData['username'],
-      'isAdmin': rawData['is_admin'],
-      'centerDetail': rawData['center_detail'],
-      if (rawData.containsKey('access')) 'access': rawData['access'],
-      if (rawData.containsKey('refresh')) 'refresh': rawData['refresh'],
-    };
-    return normalized;
-  }
-
-  /// Validate that userData contains all required fields
-  void _validateUserData(Map<String, dynamic> userData) {
-    final requiredFields = [
-      'id',
-      'firstName',
-      'lastName',
-      'username',
-      'isAdmin',
-      'centerDetail',
-    ];
-
-    for (final field in requiredFields) {
-      if (!userData.containsKey(field) || userData[field] == null) {
-        throw ServerException("Missing required field: $field in user data");
-      }
+  /// Validate subscription status
+  void _validateSubscription(AuthResponse authResponse) {
+    final subscription = authResponse.centerDetail.subscription;
+    
+    // Check if subscription is active
+    if (!subscription.isActive) {
+      throw const SubscriptionInactiveException();
+    }
+    
+    // Check if subscription has expired
+    if (subscription.daysLeft <= 0) {
+      throw SubscriptionExpiredException(subscription.daysLeft);
     }
   }
 
@@ -209,6 +185,12 @@ class AuthRepository {
 
   Future<String?> getRefreshToken() async {
     return await _storage.read(key: "refresh_token");
+  }
+
+  /// Store tokens (public method)
+  Future<void> storeTokens({required String accessToken, required String refreshToken}) async {
+    await _storage.write(key: "access_token", value: accessToken);
+    await _storage.write(key: "refresh_token", value: refreshToken);
   }
 
   /// Debug method to check all storage contents

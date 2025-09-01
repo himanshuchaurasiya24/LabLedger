@@ -2,7 +2,7 @@
 import 'dart:ui';
 
 final appName = 'LabLedger';
-final appVersion = '1.0.0';
+final appVersion = 'v1.0';
 final appDescription = 'Medical Records Made Simple';
 final double defaultPadding = 12;
 final double defaultRadius = 12;

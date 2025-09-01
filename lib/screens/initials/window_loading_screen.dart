@@ -1,26 +1,22 @@
-// =============================================================================
-// INDIVIDUAL SCREEN IMPLEMENTATIONS
-// =============================================================================
-
-// 1. WINDOW LOADING SCREEN
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_exceptions.dart';
-import 'package:labledger/authentication/auth_repository.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/initials/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/window_scaffold.dart';
 
-class WindowLoadingScreen extends StatefulWidget {
+class WindowLoadingScreen extends ConsumerStatefulWidget {
   const WindowLoadingScreen({super.key});
 
   @override
-  State<WindowLoadingScreen> createState() => _WindowLoadingScreenState();
+  ConsumerState<WindowLoadingScreen> createState() => _WindowLoadingScreenState();
 }
 
-class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
+class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   String tileText = "Loading...";
 
   @override
@@ -31,13 +27,12 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
   }
 
   Future<void> _checkAuth() async {
-    final authRepo = AuthRepository.instance;
     try {
       setState(() {
         tileText = "Verifying credentials...";
       });
 
-      final userData = await authRepo.verifyAuth();
+      final authResponse = await ref.read(verifyAuthProvider.future);
 
       setState(() {
         tileText = "Authentication successful!";
@@ -46,6 +41,7 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
       await Future.delayed(const Duration(milliseconds: 1500));
 
       if (mounted) {
+        final userData = authResponse.toHomeScreenData();
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
             builder: (context) {
@@ -75,6 +71,10 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
       _navigateToLogin("Invalid credentials");
     } on NetworkException {
       _navigateToLogin("Network error - check connection");
+    } on SubscriptionInactiveException {
+      _navigateToLogin("Account locked - contact administrator");
+    } on SubscriptionExpiredException catch (e) {
+      _navigateToLogin("Subscription expired - $e please renew");
     } on ServerException catch (e) {
       _navigateToLogin("Server error: ${e.message}");
     } catch (e) {
@@ -104,36 +104,31 @@ class _WindowLoadingScreenState extends State<WindowLoadingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
-      // backgroundColor: Colors.transparent,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-      "Lab",
-      style: TextStyle(
-        fontSize: 90,
-        fontWeight: FontWeight.bold,
-        // color: Color.fromARGB(255, 0, 110, 164),
-        color: Theme.of(context).colorScheme.primary
-      ),
-            ),
-            Text(
-      "Ledger",
-      style: TextStyle(
-        fontSize: 90,
-        fontWeight: FontWeight.bold,
-        // color: Color.fromARGB(255, 2, 166, 36),
-        color: Theme.of(context).colorScheme.secondary
-
-      ),
-            ),
-          ],
-        ),
-          // SizedBox(height: 30),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Lab",
+                style: TextStyle(
+                  fontSize: 90,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary
+                ),
+              ),
+              Text(
+                "Ledger",
+                style: TextStyle(
+                  fontSize: 90,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary
+                ),
+              ),
+            ],
+          ),
           SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
           SizedBox(height: 10),
           Text(

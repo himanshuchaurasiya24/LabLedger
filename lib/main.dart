@@ -9,7 +9,6 @@ import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-Size get initialWindowSize => const Size(700, 350);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
@@ -220,14 +219,10 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
               TargetPlatform.fuchsia: IOSPageTransitionsBuilder(),
             },
           ),
-          // scrollbarTheme: ScrollbarThemeData(
-          //   thumbVisibility: WidgetStateProperty.all(false),
-          //   thickness: WidgetStateProperty.all(8),
-          //   radius: const Radius.circular(4),
-          // ),
         ),
 
         home: WindowLoadingScreen(),
+        // home: LoginScreen(),
       ),
     );
   }

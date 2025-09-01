@@ -110,8 +110,6 @@ class _WindowScaffoldState extends State<WindowScaffold>
     if (mounted) setState(() {});
   }
 
-  /// ✅ **FIXED**: Re-implemented the more robust window setup and centering logic.
-  /// Adds delays to give the OS window manager time to process each command.
   Future<void> _setupMainAppWindow() async {
     try {
       if (await windowManager.isMaximized()) {
@@ -131,12 +129,10 @@ class _WindowScaffoldState extends State<WindowScaffold>
       await windowManager.setSize(const Size(1600, 900));
       await Future.delayed(const Duration(milliseconds: 300));
 
-      // This loop robustly centers the window, retrying if needed.
       for (int i = 0; i < 5; i++) {
         await windowManager.center();
         await Future.delayed(const Duration(milliseconds: 150));
         final position = await windowManager.getPosition();
-        // Check if centering was successful before breaking the loop
         if (position.dx > 0 && position.dy > 0) {
           break;
         }
@@ -226,8 +222,6 @@ class _WindowScaffoldState extends State<WindowScaffold>
                   // --- Left Section: Back Button & Title ---
                   Row(
                     children: [
-                      // Show back button only if navigation is possible
-                      // if (Navigator.of(context).canPop())
                       if (!widget.isInitialScreen)
                         GestureDetector(
                           onTap: _handleBackButton,

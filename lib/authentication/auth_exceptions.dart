@@ -1,4 +1,4 @@
-class AuthException implements Exception {
+abstract class AuthException implements Exception {
   final String message;
   const AuthException(this.message);
 
@@ -19,5 +19,24 @@ class NetworkException extends AuthException {
 }
 
 class ServerException extends AuthException {
-  const ServerException(super.msg);
+  const ServerException(super.message);
+}
+
+class AccountLockedException extends AuthException {
+  const AccountLockedException() : super("Your account has been locked. Please contact administrator.");
+}
+
+class SubscriptionExpiredException extends AuthException {
+  final int daysLeft;
+  const SubscriptionExpiredException(this.daysLeft) 
+    : super("Your subscription has expired. Please renew to continue using the service.");
+}
+
+class SubscriptionInactiveException extends AuthException {
+  const SubscriptionInactiveException() 
+    : super("Your subscription is inactive. Please contact administrator to activate your account.");
+}
+
+class ValidationException extends AuthException {
+  const ValidationException(super.message);
 }
