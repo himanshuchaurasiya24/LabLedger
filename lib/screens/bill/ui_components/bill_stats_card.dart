@@ -1,276 +1,435 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_stats_model.dart';
+import 'package:labledger/screens/home/ui_components/chart_stats_card.dart';
+import 'package:labledger/models/referral_and_bill_chart_model.dart';
 
-class BillStatsCard extends StatelessWidget {
+class BillStatsCard extends StatefulWidget {
   final String title;
   final BillPeriodStats currentPeriod;
   final BillPeriodStats previousPeriod;
-  final Color? positiveColor;
-  final Color? negativeColor;
+  final Color positiveColor;
+  final Color negativeColor;
+  final bool autoSwipe;
+  final int autoSwipeDurationSeconds;
 
   const BillStatsCard({
     super.key,
     required this.title,
     required this.currentPeriod,
     required this.previousPeriod,
-    this.positiveColor,
-    this.negativeColor,
+    this.positiveColor = Colors.teal,
+    this.negativeColor = Colors.red,
+    this.autoSwipe = false,
+    this.autoSwipeDurationSeconds = 5,
   });
+
+  @override
+  State<BillStatsCard> createState() => _BillStatsCardState();
+}
+
+class _BillStatsCardState extends State<BillStatsCard> {
+  late PageController _pageController;
+  int _currentIndex = 0;
+  Timer? _timer;
+
+  // ✨ FIXED: Matched the key casing to your JSON data
+  final List<String> serviceKeys = const [
+    'ECG',
+    'Franchise Lab',
+    'Pathology',
+    'Ultrasound',
+    'X-Ray',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _startAutoSwipe();
+  }
+
+  void _startAutoSwipe() {
+    if (widget.autoSwipe) {
+      _timer = Timer.periodic(
+        Duration(seconds: widget.autoSwipeDurationSeconds),
+        (timer) {
+          final nextPage = (_currentIndex + 1) % 2;
+          if (_pageController.hasClients) {
+            _pageController.animateToPage(
+              nextPage,
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeInOut,
+            );
+          }
+        },
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final current = currentPeriod.totalBills;
-    final previous = previousPeriod.totalBills;
 
-    final growth = previous == 0
-        ? 0.0
-        : ((current - previous) / previous) * 100;
-    final isPositive = growth >= 0;
+    final currentBills = widget.currentPeriod.totalBills;
+    final previousBills = widget.previousPeriod.totalBills;
+    final isPositive = currentBills >= previousBills;
+    final baseColor = isPositive ? widget.positiveColor : widget.negativeColor;
 
-    // --- 🎨 Color Logic ---
-    // Use provided colors or default to teal/red.
-    final Color effectivePositiveColor = positiveColor ?? Colors.teal;
-    final Color effectiveNegativeColor = negativeColor ?? Colors.red;
+    final currentServicesCount = widget.currentPeriod.diagnosisCounts.length;
+    final previousServicesCount = widget.previousPeriod.diagnosisCounts.length;
+    final servicesGrowth = previousServicesCount == 0
+        ? (currentServicesCount > 0 ? 100.0 : 0.0)
+        : ((currentServicesCount - previousServicesCount) /
+                  previousServicesCount) *
+              100;
 
-    // Helper function to safely derive colors, handling both MaterialColor and generic Color.
-    ({Color background, Color text, Color accent}) getDerivedColors(
-      Color baseColor,
-    ) {
-      // For Background Color
-      final Color bg = (baseColor is MaterialColor)
-          ? (isDark ? baseColor.shade900.withValues(alpha:0.4) : baseColor.shade50)
-          : (isDark
-                ? Color.alphaBlend(baseColor.withValues(alpha:0.2), Colors.black)
-                : Color.alphaBlend(baseColor.withValues(alpha:0.1), Colors.white));
+    // ✨ FIXED: Replaced .withValues with standard .withValues
+    final Color backgroundColor = isDark
+        ? baseColor.withValues(alpha: 0.8)
+        : baseColor.withValues(alpha: 0.1);
+    final Color importantTextColor = isDark ? Colors.white : baseColor;
+    final Color accentFillColor = isDark
+        ? baseColor.withValues(alpha: 0.6)
+        : baseColor.withValues(alpha: 0.15);
 
-      // For Important Text Color
-      final Color txt = (isDark)
-          ? Colors.white
-          : (baseColor is MaterialColor)
-          ? baseColor.shade900
-          : HSLColor.fromColor(
-              baseColor,
-            ).withLightness(0.2).toColor(); // Darken generic color
-
-      // For Accent Color
-      final Color acc = (baseColor is MaterialColor)
-          ? (isDark ? baseColor.shade200 : baseColor.shade600)
-          : (isDark
-                ? HSLColor.fromColor(baseColor).withLightness(0.7).toColor()
-                : HSLColor.fromColor(baseColor).withLightness(0.4).toColor());
-
-      return (background: bg, text: txt, accent: acc);
-    }
-
-    final derivedColors = isPositive
-        ? getDerivedColors(effectivePositiveColor)
-        : getDerivedColors(effectiveNegativeColor);
-
-    final Color backgroundColor = derivedColors.background;
-    final Color importantTextColor = derivedColors.text;
-    final Color accentColor = derivedColors.accent;
-
-    // --- 📝 Text Styles ---
-    final titleStyle = theme.textTheme.titleLarge?.copyWith(
-      fontWeight: FontWeight.bold,
-      color: importantTextColor,
-    );
-
-    final totalStyle = theme.textTheme.headlineMedium?.copyWith(
-      fontWeight: FontWeight.w800,
-      color: importantTextColor,
-    );
-
-    final diagnosisStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: importantTextColor.withValues(alpha:0.8),
-      fontWeight: FontWeight.w500,
-    );
-
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4.0),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: accentColor.withValues(alpha:0.3), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: accentColor.withValues(alpha:0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-              spreadRadius: 0,
-            ),
-          ],
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        PageView.builder(
+          controller: _pageController,
+          itemCount: 2,
+          onPageChanged: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return _buildInfoPage(
+                data: widget.currentPeriod,
+                servicesGrowth: servicesGrowth,
+                colors: (
+                  background: backgroundColor,
+                  text: importantTextColor,
+                  accent: accentFillColor,
+                  base: baseColor,
+                ),
+              );
+            } else {
+              final prevData = widget.previousPeriod;
+              final chartDataObject = ChartData(
+                day: 'Previous Period',
+                total: prevData.totalBills,
+                ultrasound: prevData.diagnosisCounts['Ultrasound'] ?? 0,
+                ecg: prevData.diagnosisCounts['ECG'] ?? 0,
+                xray: prevData.diagnosisCounts['X-Ray'] ?? 0,
+                pathology: prevData.diagnosisCounts['Pathology'] ?? 0,
+                franchiseLab: prevData.diagnosisCounts['Franchise Lab'] ?? 0,
+              );
+              return ChartStatsCard(
+                title: "Previous Period",
+                data: [chartDataObject],
+                accentColor: baseColor,
+                height: 350,
+              );
+            }
+          },
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header with title and growth indicator
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: titleStyle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha:0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isPositive ? Icons.trending_up : Icons.trending_down,
-                          color: importantTextColor,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          "${isPositive ? '+' : ''}${growth.toStringAsFixed(1)}%",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: importantTextColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              2,
+              (index) => _buildIndicator(
+                isActive: _currentIndex == index,
+                activeColor: importantTextColor,
+                inactiveColor: accentFillColor,
               ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
-              SizedBox(height: defaultHeight),
+  Widget _buildInfoPage({
+    required BillPeriodStats data,
+    required double servicesGrowth,
+    required ({Color background, Color text, Color accent, Color base}) colors,
+  }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-              // Total bills count with icon
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: accentColor.withValues(alpha:0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.receipt_long,
-                      color: importantTextColor,
-                      size: 30,
-                    ),
-                  ),
-                  SizedBox(width: defaultWidth),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      padding: EdgeInsets.all(defaultPadding),
+      decoration: BoxDecoration(
+        color: colors.background,
+        borderRadius: BorderRadius.circular(defaultRadius),
+        border: Border.all(color: colors.base.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(isDark, colors.accent, colors.text),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildInfoTile(
+                Icons.receipt_long,
+                "Total Bills",
+                data.totalBills.toString(),
+                colors.accent,
+                colors.text,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: defaultPadding * 1.5,
+                  vertical: defaultPadding * 0.75,
+                ),
+                decoration: BoxDecoration(
+                  // ✨ FIXED: Replaced .withValues with standard .withValues
+                  color: colors.accent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        "Total Bills",
-                        style: diagnosisStyle?.copyWith(fontSize: 12),
+                      Icon(
+                        servicesGrowth >= 0
+                            ? Icons.trending_up
+                            : Icons.trending_down,
+                        color: colors.text,
+                        size: 16,
                       ),
-                      Text(current.toString(), style: totalStyle),
+                      const SizedBox(width: 4),
+                      Text(
+                        "${servicesGrowth >= 0 ? '+' : ''}${servicesGrowth.toStringAsFixed(1)}%",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: colors.text,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
+            ],
+          ),
+          SizedBox(height: defaultHeight / 2),
+          Text(
+            "Breakdown",
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: colors.text,
+            ),
+          ),
+          SizedBox(height: defaultHeight / 2),
+          _buildBreakdownList(data, (text: colors.text, accent: colors.accent)),
+        ],
+      ),
+    );
+  }
 
-              SizedBox(height: defaultHeight),
+  // --- Other helper widgets remain the same ---
 
-              // Diagnosis breakdown
-              if (currentPeriod.diagnosisCounts.isNotEmpty) ...[
-                Text("Breakdown", style: titleStyle?.copyWith(fontSize: 16)),
-                SizedBox(height: defaultHeight),
+  Widget _buildHeader(bool isDark, Color accent, Color text) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: BoxDecoration(
+            color: isDark ? accent : text,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: const Center(
+            child: Text(
+              "Growth Bar",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+        ),
+        Text(
+          widget.title,
+          textAlign: TextAlign.end,
+          maxLines: 2,
 
-                // Diagnosis items in a scrollable list
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: text,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBreakdownList(
+    BillPeriodStats data,
+    ({Color text, Color accent}) colors,
+  ) {
+    return Expanded(
+      child: serviceKeys.isEmpty
+          ? Center(
+              child: Text(
+                "No breakdown data available.",
+                // ✨ FIXED: Replaced .withValues with standard .withValues
+                style: TextStyle(color: colors.text.withValues(alpha: 0.7)),
+              ),
+            )
+          : ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: serviceKeys.length,
+              itemBuilder: (context, i) {
+                final key = serviceKeys[i];
+                final value = data.diagnosisCounts[key] ?? 0;
+                final percentage = data.totalBills > 0
+                    ? (value / data.totalBills)
+                    : 0.0;
+                return _buildBreakdownRow(
+                  key,
+                  value,
+                  percentage,
+                  colors.text,
+                  colors.accent,
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _buildBreakdownRow(
+    String key,
+    int value,
+    double percentage,
+    Color textColor,
+    Color accentColor,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(
+              key.toUpperCase(),
+              style: TextStyle(color: textColor),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
                 Expanded(
-                  child: ScrollConfiguration(
-                    behavior: NoThumbScrollBehavior(),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: currentPeriod.diagnosisCounts.entries.map((
-                          entry,
-                        ) {
-                          final percentage = current > 0
-                              ? (entry.value / current * 100)
-                              : 0.0;
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    entry.key.toUpperCase(),
-                                    style: diagnosisStyle?.copyWith(
-                                      fontSize: 12,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  flex: 2,
-                                  child: Container(
-                                    height: 6,
-                                    decoration: BoxDecoration(
-                                      color: accentColor.withValues(alpha:0.2),
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                    child: FractionallySizedBox(
-                                      alignment: Alignment.centerLeft,
-                                      widthFactor: percentage / 100,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: importantTextColor.withValues(alpha:
-                                            0.8,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            3,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                SizedBox(
-                                  width: 30,
-                                  child: Text(
-                                    entry.value.toString(),
-                                    style: diagnosisStyle?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                    textAlign: TextAlign.right,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: 8,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: accentColor,
+                        ),
                       ),
-                    ),
+                      FractionallySizedBox(
+                        widthFactor: percentage,
+                        child: Container(
+                          height: 8,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: textColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: defaultWidth),
+                Text(
+                  "$value",
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
-            ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoTile(
+    IconData icon,
+    String label,
+    String value,
+    Color accentColor,
+    Color textColor,
+  ) {
+    return Row(
+      children: [
+        Container(
+          height: 55,
+          width: 55,
+          decoration: BoxDecoration(
+            color: accentColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: textColor, size: 32),
         ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(label, style: TextStyle(color: textColor, fontSize: 12)),
+            Text(
+              value,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIndicator({
+    required bool isActive,
+    required Color activeColor,
+    required Color inactiveColor,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      margin: const EdgeInsets.symmetric(horizontal: 4.0),
+      height: 8.0,
+      width: isActive ? 24.0 : 8.0,
+      decoration: BoxDecoration(
+        color: isActive ? activeColor : inactiveColor,
+        borderRadius: BorderRadius.circular(12),
       ),
     );
   }

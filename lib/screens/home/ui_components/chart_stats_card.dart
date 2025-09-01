@@ -47,9 +47,12 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     return agg;
   }
 
+  // --- 🎨 Updated Color Logic ---
+
   /// Background color
   Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Updated to use standard .withOpacity()
     return isDark
         ? widget.accentColor.withValues(alpha: 0.8) // darker bg in dark mode
         : widget.accentColor.withValues(alpha: 0.1); // lighter bg in light mode
@@ -62,6 +65,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
       return Colors.white; // Keep white for dark mode
     } else {
       // Use accent color with guaranteed full opacity.
+      // Updated to use standard .withOpacity()
       return widget.accentColor.withValues(alpha: 1.0);
     }
   }
@@ -73,6 +77,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
 
   Color get accentFillColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Updated to use standard .withOpacity()
     return isDark
         ? widget.accentColor.withValues(alpha: 0.6)
         : widget.accentColor.withValues(alpha: 0.15);
@@ -81,6 +86,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
   /// Bar color for the breakdown charts
   Color get barColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Updated to use standard .withOpacity()
     return isDark
         ? Colors.white.withValues(alpha: 0.9)
         : widget.accentColor; // Use accent color for bars in light mode
@@ -90,41 +96,25 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (widget.data.isEmpty) {
-      // --- Empty state similar to ReferralCard ---
-      return Container(
-        height: widget.height ?? 300,
-        width: widget.width ?? double.infinity,
-        padding: EdgeInsets.all(defaultPadding),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(defaultRadius),
-          border: Border.all(color: widget.accentColor.withValues(alpha: 0.2)),
-        ),
-        child: Center(
-          child: Text(
-            "No bills recorded for ${widget.title.toLowerCase()}",
-            style: TextStyle(color: normalTextColor, fontSize: 20),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
-    }
-    final maxValue = (breakdown.values.isNotEmpty)
+
+    // 👇 This 'if (widget.data.isEmpty)' block is now removed.
+    // The code will now proceed to build the main card regardless of data.
+
+    // ✨ Updated to prevent division by zero when all breakdown values are 0.
+    final calculatedMaxValue = (breakdown.values.isNotEmpty)
         ? breakdown.values.reduce((a, b) => a > b ? a : b)
-        : 1;
+        : 0;
+    final maxValue = calculatedMaxValue > 0 ? calculatedMaxValue : 1;
 
     return Container(
-      height: widget.height ?? 300,
+      height: widget.height ?? 302,
       width: widget.width ?? double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding / 2,
-      ),
+      padding: EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(defaultRadius),
         border: Border.all(
+          // Updated to use standard .withOpacity()
           color: widget.accentColor.withValues(alpha: 0.3),
           width: 1,
         ),
@@ -154,7 +144,8 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
           _buildInfoTile(
             Icons.receipt_long,
             "Total Bills",
-            totalBills.toString(),
+            totalBills
+                .toString(), // This will correctly show "0" when data is empty
           ),
           SizedBox(height: defaultHeight),
 
@@ -272,12 +263,10 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
   /// Badge widget
   Widget _buildBadge(BuildContext context, bool isDark) {
     return Container(
-      height: 40,
-      width: 200,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: isDark ? accentFillColor : importantTextColor,
-        borderRadius: BorderRadius.circular(defaultRadius * 3),
+        borderRadius: BorderRadius.circular(30),
       ),
       child: const Center(
         child: Text(

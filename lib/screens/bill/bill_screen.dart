@@ -197,9 +197,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                   _selectedView == "grid"
                       ? LucideIcons.layoutGrid
                       : LucideIcons.list,
-                  // color: Theme.of(context).brightness == Brightness.dark
-                  //     ? theme.colorScheme.onSurface
-                  //     : theme.colorScheme.secondary,
                   color: theme.colorScheme.onSurface,
                   size: 24,
                 ),
@@ -285,28 +282,34 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                               return Row(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  BillStatsCard(
-                                    title: "Monthly Growth",
-                                    currentPeriod: stats.currentMonth,
-                                    previousPeriod: stats.previousMonth,
-                                    positiveColor: positiveColor,
-                                    negativeColor: negativeColor,
+                                  Expanded(
+                                    child: BillStatsCard(
+                                      title: "Monthly Growth",
+                                      currentPeriod: stats.currentMonth,
+                                      previousPeriod: stats.previousMonth,
+                                      positiveColor: positiveColor,
+                                      negativeColor: negativeColor,
+                                    ),
                                   ),
                                   SizedBox(width: defaultWidth),
-                                  BillStatsCard(
-                                    title: "Quarterly Growth",
-                                    currentPeriod: stats.currentQuarter,
-                                    previousPeriod: stats.previousQuarter,
-                                    positiveColor: positiveColor,
-                                    negativeColor: negativeColor,
+                                  Expanded(
+                                    child: BillStatsCard(
+                                      title: "Quarterly Growth",
+                                      currentPeriod: stats.currentQuarter,
+                                      previousPeriod: stats.previousQuarter,
+                                      positiveColor: positiveColor,
+                                      negativeColor: negativeColor,
+                                    ),
                                   ),
                                   SizedBox(width: defaultWidth),
-                                  BillStatsCard(
-                                    title: "Yearly Growth",
-                                    currentPeriod: stats.currentYear,
-                                    previousPeriod: stats.previousYear,
-                                    positiveColor: positiveColor,
-                                    negativeColor: negativeColor,
+                                  Expanded(
+                                    child: BillStatsCard(
+                                      title: "Yearly Growth",
+                                      currentPeriod: stats.currentYear,
+                                      previousPeriod: stats.previousYear,
+                                      positiveColor: positiveColor,
+                                      negativeColor: negativeColor,
+                                    ),
                                   ),
                                 ],
                               );

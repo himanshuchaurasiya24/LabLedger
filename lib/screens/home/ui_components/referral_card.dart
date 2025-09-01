@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
@@ -11,14 +10,18 @@ class ReferralCard extends StatefulWidget {
     required this.selectedPeriod,
     this.width,
     this.height,
-    required this.baseColor, // 👈 only one color
+    required this.baseColor,
+    this.autoSwipe = true,
+    this.autoSwipeDurationSeconds = 5,
   });
 
   final List<ReferralStat> referrals;
   final String selectedPeriod;
   final double? width;
   final double? height;
-  final Color baseColor; // 👈 single source of truth
+  final Color baseColor;
+  final bool autoSwipe;
+  final int autoSwipeDurationSeconds;
 
   @override
   State<ReferralCard> createState() => _ReferralCardState();
@@ -37,41 +40,40 @@ class _ReferralCardState extends State<ReferralCard> {
   }
 
   void _startAutoSwipe() {
-    if (widget.referrals.length > 1) {
-      _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-        if (_currentIndex < widget.referrals.take(3).length - 1) {
-          _currentIndex++;
-        } else {
-          _currentIndex = 0;
-        }
-        if (_pageController.hasClients) {
-          _pageController.animateToPage(
-            _currentIndex,
-            duration: const Duration(milliseconds: 2500),
-            curve: Curves.fastOutSlowIn,
-          );
-        }
-      });
+    if (widget.autoSwipe && widget.referrals.length > 1) {
+      _timer = Timer.periodic(
+        Duration(seconds: widget.autoSwipeDurationSeconds),
+        (timer) {
+          if (_currentIndex < widget.referrals.take(3).length - 1) {
+            _currentIndex++;
+          } else {
+            _currentIndex = 0;
+          }
+          if (_pageController.hasClients) {
+            _pageController.animateToPage(
+              _currentIndex,
+              duration: const Duration(milliseconds: 2500),
+              curve: Curves.fastOutSlowIn,
+            );
+          }
+        },
+      );
     }
   }
 
-  // --- 🎨 Color Logic copied from ChartStatsCard ---
-
-  /// Background color
+  // --- 🎨 Color Logic ---
   Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark
-        ? widget.baseColor.withValues(alpha: 0.8) // darker bg in dark mode
-        : widget.baseColor.withValues(alpha: 0.1); // lighter bg in light mode
+        ? widget.baseColor.withValues(alpha: 0.8)
+        : widget.baseColor.withValues(alpha: 0.1);
   }
 
-  /// Text color - Use accent color at full opacity in light mode
   Color get importantTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (isDark) {
-      return Colors.white; // Keep white for dark mode
+      return Colors.white;
     } else {
-      // Use accent color with guaranteed full opacity.
       return widget.baseColor.withValues(alpha: 1.0);
     }
   }
@@ -97,51 +99,47 @@ class _ReferralCardState extends State<ReferralCard> {
 
   @override
   Widget build(BuildContext context) {
-    // Make a copy so original list is not mutated
-    final sortedReferrers = List<ReferralStat>.from(widget.referrals);
+    final sortedReferrers = List<ReferralStat>.from(widget.referrals)
+      ..sort((a, b) => b.incentiveAmount.compareTo(a.incentiveAmount));
 
-    // Sort by incentiveAmount descending
-    sortedReferrers.sort(
-      (a, b) => b.incentiveAmount.compareTo(a.incentiveAmount),
-    );
-
-    // Take top 3 after sorting
     final topReferrers = sortedReferrers.take(3).toList();
 
-    return SizedBox(
-      height: widget.height ?? 300,
-      width: widget.width ?? double.infinity,
-      child: topReferrers.isEmpty
-          ? _buildEmptyState()
-          : PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              itemCount: topReferrers.length,
-              itemBuilder: (context, index) {
-                final referrer = topReferrers[index];
-                return _buildReferrerCard(referrer, index);
-              },
-            ),
-    );
-  }
+    List<ReferralStat> displayReferrers;
+    if (topReferrers.isEmpty) {
+      final dummyReferrer = ReferralStat(
+        referredByDoctorId: 0,
+        doctorFullName: widget.selectedPeriod,
+        incentiveAmount: 0,
+        total: 0,
+        ecg: 0,
+        franchiseLab: 0,
+        pathology: 0,
+        ultrasound: 0,
+        xray: 0,
+      );
+      displayReferrers = [dummyReferrer];
+    } else {
+      displayReferrers = topReferrers;
+    }
 
-  Widget _buildEmptyState() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: widget.baseColor.withValues(alpha: 0.2)),
-      ),
-      child: Center(
-        child: Text(
-          "No referrals till now for ${widget.selectedPeriod.toLowerCase()}",
-          style: TextStyle(color: normalTextColor, fontSize: 20),
-        ),
+    return SizedBox(
+      height: widget.height ?? 302,
+      width: widget.width ?? double.infinity,
+      child: PageView.builder(
+        physics: displayReferrers.length > 1
+            ? const AlwaysScrollableScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        itemCount: displayReferrers.length,
+        itemBuilder: (context, index) {
+          final referrer = displayReferrers[index];
+          return _buildReferrerCard(referrer, index);
+        },
       ),
     );
   }
@@ -150,11 +148,13 @@ class _ReferralCardState extends State<ReferralCard> {
     final theme = Theme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final bool isDummy = referrer.referredByDoctorId == 0;
+    final String cardTitle = isDummy
+        ? "No Referrals"
+        : "Top Incentive #${index + 1}";
+
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding / 2,
-      ),
+      padding: EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(defaultRadius),
@@ -177,14 +177,13 @@ class _ReferralCardState extends State<ReferralCard> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Text(
-                  "Top Incentive #${index + 1}",
+                  cardTitle,
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-
               Expanded(
                 child: Text(
                   referrer.doctorFullName.isNotEmpty
@@ -194,8 +193,8 @@ class _ReferralCardState extends State<ReferralCard> {
                     fontWeight: FontWeight.bold,
                     color: importantTextColor,
                   ),
-                  textAlign: TextAlign.end, // Align text to the right
-                  overflow: TextOverflow.ellipsis, // Add ... if still too long
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
               ),
@@ -219,10 +218,10 @@ class _ReferralCardState extends State<ReferralCard> {
               ),
             ],
           ),
-
           SizedBox(height: defaultHeight),
 
           /// Breakdown
+          // 👇 The 'if (!isDummy)' checks are removed to ensure this section always shows.
           Text(
             "Breakdown",
             style: theme.textTheme.titleMedium?.copyWith(
@@ -236,9 +235,8 @@ class _ReferralCardState extends State<ReferralCard> {
             child: Column(
               children: _getServiceBreakdown(referrer).entries.map((entry) {
                 final percentage = referrer.total > 0
-                    ? (entry.value / referrer.total * 100)
+                    ? entry.value / referrer.total
                     : 0.0;
-
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Row(
@@ -267,7 +265,7 @@ class _ReferralCardState extends State<ReferralCard> {
                                   ),
                                   FractionallySizedBox(
                                     alignment: Alignment.centerLeft,
-                                    widthFactor: percentage / 100,
+                                    widthFactor: percentage,
                                     child: Container(
                                       height: 8,
                                       decoration: BoxDecoration(
@@ -281,7 +279,7 @@ class _ReferralCardState extends State<ReferralCard> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              entry.value.toString(),
+                              entry.value.toString(), // This will show "0"
                               style: TextStyle(
                                 color: importantTextColor,
                                 fontWeight: FontWeight.bold,
@@ -296,6 +294,7 @@ class _ReferralCardState extends State<ReferralCard> {
               }).toList(),
             ),
           ),
+          // 🗑️ Removed the conditional Spacer.
         ],
       ),
     );
@@ -336,6 +335,7 @@ class _ReferralCardState extends State<ReferralCard> {
     );
   }
 
+  // ✨ This method now returns all services, even if their value is 0.
   Map<String, int> _getServiceBreakdown(ReferralStat referrer) {
     final allServices = {
       'ECG': referrer.ecg,
@@ -344,8 +344,7 @@ class _ReferralCardState extends State<ReferralCard> {
       'ULTRASOUND': referrer.ultrasound,
       'X-RAY': referrer.xray,
     };
-    return Map.fromEntries(
-      allServices.entries.where((entry) => entry.value > 0),
-    );
+    // The filter that removed zero-value entries has been removed.
+    return allServices;
   }
 }

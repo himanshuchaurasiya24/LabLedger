@@ -51,12 +51,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Color baseColor = Color(0xff00410575);
-    Color baseColor = Colors.teal;
-
     final referralStatsAsync = ref.watch(referralStatsProvider);
     final chartStatsAsync = ref.watch(chartStatsProvider);
     final width = MediaQuery.of(context).size.width;
+    final baseColor = Theme.of(context).colorScheme.secondary;
 
     return Scaffold(
       body: Padding(
@@ -77,7 +75,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ReferralCard(
                             referrals: data,
                             selectedPeriod: selectedPeriod,
-
                             baseColor: baseColor,
                           ),
                           Positioned(
@@ -137,7 +134,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         },
                         child: ChartStatsCard(
                           title: selectedPeriod,
-                          // accentColor: Theme.of(context).colorScheme.primary,
                           accentColor: baseColor,
 
                           data: chartData,
