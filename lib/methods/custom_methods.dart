@@ -106,10 +106,10 @@ Widget pageHeader({
 
 void setWindowBehavior({bool? isForLogin, bool? isLoadingScreen}) async {
   bool isLogin = isForLogin ?? false;
-  bool isLoadingScreen = isForLogin ?? false;
+  bool isForLoadingScreen = isLoadingScreen ?? false;
 
   await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-if (isLoadingScreen) {
+if (isForLoadingScreen) {
     await windowManager.setSkipTaskbar(false);
     await windowManager.setMinimumSize(const Size(700, 350));
     await windowManager.setMaximumSize(const Size(700, 350));

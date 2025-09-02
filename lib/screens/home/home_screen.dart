@@ -10,7 +10,6 @@ import 'package:labledger/screens/bill/bill_screen.dart';
 import 'package:labledger/screens/home/ui_components/chart_stats_card.dart';
 import 'package:labledger/screens/home/ui_components/referral_card.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
-import 'package:labledger/screens/window_scaffold.dart'; // Import for navigation
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -112,9 +111,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ],
                       );
                     },
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (err, _) =>
-                        Center(child: Text("Error: Failed to load referral stats.")),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (err, _) => Center(
+                      child: Text("Error: Failed to load referral stats."),
+                    ),
                   ),
                 ),
                 SizedBox(width: defaultWidth),
@@ -125,17 +126,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         selectedPeriod,
                       );
                       return GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           // This navigation logic now correctly pushes a WindowScaffold
-                          navigatorKey.currentState?.push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return const WindowScaffold(
-                                  child: BillsScreen(),
-                                );
-                              },
-                            ),
-                          );
+                          await navigatorKey.currentState
+                              ?.push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return BillsScreen();
+                                  },
+                                ),
+                              )
+                              .then((value) {
+                                ref.invalidate(referralStatsProvider);
+                                ref.invalidate(chartStatsProvider);
+                              });
                         },
                         child: ChartStatsCard(
                           title: selectedPeriod,
@@ -146,8 +150,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     },
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
-                    error: (err, _) =>
-                        Center(child: Text("Error: Failed to load chart data.")),
+                    error: (err, _) => Center(
+                      child: Text("Error: Failed to load chart data."),
+                    ),
                   ),
                 ),
               ],

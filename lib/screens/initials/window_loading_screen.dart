@@ -34,7 +34,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     setWindowBehavior(isLoadingScreen: true);
     _checkAuth();
 
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 800), () {
       if (mounted) {
         setState(() {
           _isContentVisible = true;
@@ -52,18 +52,25 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       // 1. Define all three asynchronous operations to run in parallel.
       final authFuture = ref.read(verifyAuthProvider.future);
       final versionFuture = AuthRepository.instance.fetchMinimumAppVersion();
-      final delayFuture = Future.delayed(const Duration(seconds: 2));
+      final delayFuture = Future.delayed(const Duration(seconds: 3));
 
       // 2. Wait for all three to complete.
-      final results = await Future.wait([authFuture, versionFuture, delayFuture]);
+      final results = await Future.wait([
+        authFuture,
+        versionFuture,
+        delayFuture,
+      ]);
 
       // 3. Extract the results.
       final authResponse = results[0] as AuthResponse;
       final requiredVersionString = results[1] as String;
-
       // 4. Perform the version check.
       final currentVersion = Version.parse(appVersion);
+      debugPrint(currentVersion.toString());
+
       final requiredVersion = Version.parse(requiredVersionString);
+      debugPrint(requiredVersionString);
+      debugPrint(requiredVersionString);
 
       if (currentVersion < requiredVersion) {
         // VERSION IS OUTDATED. Navigate to LoginScreen which will show the update message.
@@ -119,9 +126,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       // will run and show the appropriate error UI.
       if (mounted) {
         navigatorKey.currentState?.pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const LoginScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       }
     }
@@ -133,7 +138,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
       body: AnimatedOpacity(
         opacity: _isContentVisible ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 800),
+        duration: const Duration(milliseconds: 1000),
         curve: Curves.easeIn,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
