@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/methods/global_error_observer.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:labledger/screens/window_scaffold.dart';
@@ -16,7 +17,11 @@ void main() async {
   await initializeBaseUrl();
 
   await windowManager.ensureInitialized();
-  runApp(ProviderScope(child: MyApp()));
+  runApp(ProviderScope(
+    observers: [
+        GlobalErrorObserver(),
+      ],
+    child: MyApp()));
 }
 
 class MyApp extends ConsumerStatefulWidget {

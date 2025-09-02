@@ -1,4 +1,3 @@
-// authentication/auth_repository.dart
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -198,5 +197,31 @@ class AuthRepository {
     try {
       await _storage.readAll();
     } catch (_) {}
+  }
+  Future<String> fetchMinimumAppVersion() async {
+    try {
+      final response = await http
+          .get(Uri.parse('$globalBaseUrl/api/app-info/'))
+          .timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final version = data['minimum_required_version'];
+        if (version != null && version is String && version.isNotEmpty) {
+          return version;
+        } else {
+          // If the key is missing or null in the response, it's a server-side error.
+          throw const ServerException("Invalid version format from server.");
+        }
+      } else {
+        // If the server returns any error code (like 500), it's a failure.
+        throw ServerException(
+            "Could not connect to server to verify app version.");
+      }
+    } catch (e) {
+      // Re-throw any known exceptions or wrap others in a NetworkException.
+      if (e is AuthException) rethrow;
+      throw const NetworkException();
+    }
   }
 }

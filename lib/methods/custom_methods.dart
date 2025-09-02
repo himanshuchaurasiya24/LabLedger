@@ -104,17 +104,35 @@ Widget pageHeader({
   );
 }
 
-void setWindowBehavior({bool? isForLogin}) async {
+void setWindowBehavior({bool? isForLogin, bool? isLoadingScreen}) async {
   bool isLogin = isForLogin ?? false;
-  await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+  bool isLoadingScreen = isForLogin ?? false;
 
-  if (isLogin) {
+  await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+if (isLoadingScreen) {
     await windowManager.setSkipTaskbar(false);
-    await windowManager.setMinimumSize(const Size(800, 413));
-    await windowManager.setMaximumSize(const Size(800, 413));
+    await windowManager.setMinimumSize(const Size(700, 350));
+    await windowManager.setMaximumSize(const Size(700, 350));
 
     await Future.delayed(const Duration(milliseconds: 100));
-    await windowManager.setSize(const Size(800, 413));
+    await windowManager.setSize(const Size(700, 350));
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    // Aggressive centering for login screen
+    for (int i = 0; i < 3; i++) {
+      await windowManager.center();
+      await Future.delayed(const Duration(milliseconds: 150));
+    }
+
+    isLoginScreen.value = true;
+  }
+  if (isLogin) {
+    await windowManager.setSkipTaskbar(false);
+    await windowManager.setMinimumSize(const Size(800, 490));
+    await windowManager.setMaximumSize(const Size(800, 490));
+
+    await Future.delayed(const Duration(milliseconds: 100));
+    await windowManager.setSize(const Size(800, 490));
     await Future.delayed(const Duration(milliseconds: 200));
 
     // Aggressive centering for login screen
@@ -431,9 +449,10 @@ Widget appIconName({
   double? fontSize,
   required String firstName,
   required String secondName,
+  MainAxisAlignment? alignment
 }) {
   return Row(
-    // mainAxisAlignment: MainAxisAlignment.center,
+    mainAxisAlignment: alignment?? MainAxisAlignment.start,
     children: [
       Text(
         firstName,

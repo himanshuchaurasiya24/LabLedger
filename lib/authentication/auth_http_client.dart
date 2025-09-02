@@ -1,3 +1,5 @@
+// authentication/auth_http_client.dart
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/providers/token_provider.dart';
 import 'package:labledger/authentication/auth_repository.dart';
@@ -5,7 +7,7 @@ import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:http/http.dart' as http;
 
 class AuthHttpClient {
-  /// Makes an authenticated HTTP request with automatic token refresh
+  /// Makes an authenticated HTTP request with automatic token refresh and subscription validation.
   static Future<http.Response> request(
     Ref ref, {
     required String method,
@@ -14,22 +16,20 @@ class AuthHttpClient {
     String? body,
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    
-    // Get the current token
     String? token;
     try {
       token = await ref.read(tokenProvider.future);
     } catch (e) {
-      throw Exception("Authentication required");
+      // If no token is available at all, this is a critical auth failure.
+      throw const TokenExpiredException();
     }
-    
-    // Prepare headers
+
     final requestHeaders = {
+      'Content-Type': 'application/json', // Set default content type
       ...?headers,
       "Authorization": "Bearer $token",
     };
-    
-    // Make the initial request
+
     http.Response response = await _makeHttpRequest(
       method: method,
       url: url,
@@ -37,25 +37,25 @@ class AuthHttpClient {
       body: body,
       timeout: timeout,
     );
-    
-    
-    // If token is expired (401), try to refresh and retry
-    if (response.statusCode == 401) {
+
+    // --- AMENDED LOGIC ---
+    // Handle both 401 (Unauthorized) and 403 (Forbidden).
+    // The 403 code from your backend indicates an inactive subscription.
+    if (response.statusCode == 401 || response.statusCode == 403) {
       try {
-        // Refresh the token using auth repository
         final authRepo = AuthRepository.instance;
-        await authRepo.verifyAuth(); // This will refresh the token if needed
-        
-        // Get the new token
+        // This single call handles both token refresh AND subscription validation.
+        // It will throw SubscriptionInactiveException if the account is locked.
+        await authRepo.verifyAuth();
+
+        // If verifyAuth succeeds, a new token should be available.
         final newToken = await ref.read(tokenProvider.future);
-        
-        // Update headers with new token
         final refreshedHeaders = {
-          ...?headers,
+          ...requestHeaders, // Carry over original headers
           "Authorization": "Bearer $newToken",
         };
-        
-        // Retry the original request with new token
+
+        // Retry the original request with the new token
         response = await _makeHttpRequest(
           method: method,
           url: url,
@@ -63,20 +63,25 @@ class AuthHttpClient {
           body: body,
           timeout: timeout,
         );
-        
-        
-      } on TokenExpiredException {
-        throw Exception("Session expired. Please login again.");
-      } on NetworkException {
-        throw Exception("Network error during authentication. Please try again.");
+
+        // If the retry also fails, the session is truly invalid.
+        if (response.statusCode == 401 || response.statusCode == 403) {
+          throw const TokenExpiredException();
+        }
+
+      } on AuthException {
+        // If verifyAuth throws ANY specific auth exception (TokenExpired, SubscriptionInactive, etc.),
+        // catch it and re-throw it so the UI layer's listener can handle it.
+        rethrow;
       } catch (e) {
-        throw Exception("Authentication failed: Please try again.");
+        // Catch any other unexpected errors during the refresh process.
+        throw const NetworkException();
       }
     }
-    
+
     return response;
   }
-  
+
   /// Helper method to make actual HTTP requests
   static Future<http.Response> _makeHttpRequest({
     required String method,
@@ -101,10 +106,11 @@ class AuthHttpClient {
           throw Exception("Unsupported HTTP method: $method");
       }
     } catch (e) {
-      throw Exception("Network error: Please check your connection and try again.");
+      // AMENDED: Throw a specific, catchable exception for all network-related issues.
+      throw const NetworkException();
     }
   }
-  
+
   /// Convenience methods for common HTTP verbs
   static Future<http.Response> get(
     Ref ref,
@@ -113,7 +119,7 @@ class AuthHttpClient {
     Duration timeout = const Duration(seconds: 10),
   }) =>
       request(ref, method: 'GET', url: url, headers: headers, timeout: timeout);
-      
+
   static Future<http.Response> post(
     Ref ref,
     String url, {
@@ -122,7 +128,7 @@ class AuthHttpClient {
     Duration timeout = const Duration(seconds: 10),
   }) =>
       request(ref, method: 'POST', url: url, headers: headers, body: body, timeout: timeout);
-      
+
   static Future<http.Response> put(
     Ref ref,
     String url, {
@@ -131,7 +137,7 @@ class AuthHttpClient {
     Duration timeout = const Duration(seconds: 10),
   }) =>
       request(ref, method: 'PUT', url: url, headers: headers, body: body, timeout: timeout);
-      
+
   static Future<http.Response> delete(
     Ref ref,
     String url, {

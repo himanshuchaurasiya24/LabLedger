@@ -1,6 +1,7 @@
+// screens/home/home_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/providers/secure_storage_provider.dart';
@@ -9,6 +10,7 @@ import 'package:labledger/screens/bill/bill_screen.dart';
 import 'package:labledger/screens/home/ui_components/chart_stats_card.dart';
 import 'package:labledger/screens/home/ui_components/referral_card.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
+import 'package:labledger/screens/window_scaffold.dart'; // Import for navigation
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({
@@ -34,14 +36,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String selectedPeriod = "This Month";
 
   void logout() {
-    FlutterSecureStorage secureStorage = ref.read(secureStorageProvider);
+    final secureStorage = ref.read(secureStorageProvider);
     secureStorage.delete(key: 'access_token');
     secureStorage.delete(key: 'refresh_token');
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => WindowLoadingScreen()),
-    );
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const WindowLoadingScreen()),
+      );
+    }
   }
 
   @override
@@ -51,6 +55,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Note: All ref.listen blocks have been removed.
+
     final referralStatsAsync = ref.watch(referralStatsProvider);
     final chartStatsAsync = ref.watch(chartStatsProvider);
     final width = MediaQuery.of(context).size.width;
@@ -63,7 +69,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             Row(
               children: [
-                // / --- REFERRAL STATS SECTION ---
                 Expanded(
                   child: referralStatsAsync.when(
                     data: (statsResponse) {
@@ -107,27 +112,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ],
                       );
                     },
-                    loading: () => const CircularProgressIndicator(),
+                    loading: () => const Center(child: CircularProgressIndicator()),
                     error: (err, _) =>
-                        Text("Error loading referral stats: $err"),
+                        Center(child: Text("Error: Failed to load referral stats.")),
                   ),
                 ),
                 SizedBox(width: defaultWidth),
-
-                /// --- CHART SECTION ---
                 Expanded(
                   child: chartStatsAsync.when(
                     data: (chartResponse) {
                       final chartData = chartResponse.getDataForPeriod(
                         selectedPeriod,
                       );
-
                       return GestureDetector(
                         onTap: () {
+                          // This navigation logic now correctly pushes a WindowScaffold
                           navigatorKey.currentState?.push(
                             MaterialPageRoute(
                               builder: (context) {
-                                return BillsScreen();
+                                return const WindowScaffold(
+                                  child: BillsScreen(),
+                                );
                               },
                             ),
                           );
@@ -135,7 +140,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         child: ChartStatsCard(
                           title: selectedPeriod,
                           accentColor: baseColor,
-
                           data: chartData,
                         ),
                       );
@@ -143,7 +147,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
                     error: (err, _) =>
-                        Center(child: Text("Error loading chart data: $err")),
+                        Center(child: Text("Error: Failed to load chart data.")),
                   ),
                 ),
               ],
@@ -154,62 +158,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// --- FILTER CHIP WIDGET ---
-  Widget buildFilterChip(String label) {
-    final isSelected = selectedPeriod == label;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: InkWell(
-        onTap: () {
-          setState(() => selectedPeriod = label);
-        },
-        borderRadius: BorderRadius.circular(20),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            gradient: isSelected
-                ? const LinearGradient(
-                    colors: [
-                      Color(0xFF2E86AB), // LabLedger blue
-                      Color(0xFF42A5B3), // LabLedger teal
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  )
-                : null,
-            color: isSelected ? null : Colors.grey[100],
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isSelected ? Colors.transparent : Colors.grey[300]!,
-              width: 1,
-            ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: const Color(0xFF2E86AB).withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.grey[700],
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Alternative version with more customization options
   Widget buildFilterChipCustom(String label, {Color? primaryColor}) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = selectedPeriod == label;
@@ -229,28 +177,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
             color: isDark
-                ? isSelected
-                      ? Colors.white
-                      : primary.withValues(alpha: 0.8)
-                : isSelected
-                ? primary.withValues(alpha: 0.8)
-                : Colors.transparent,
+                ? (isSelected ? Colors.white : primary.withAlpha(204))
+                : (isSelected ? primary.withAlpha(204) : Colors.transparent),
             border: Border.all(
-              color: isDark
-                  ? Colors.transparent
-                  : primary.withValues(alpha: 0.8),
+              color: isDark ? Colors.transparent : primary.withAlpha(204),
             ),
           ),
           child: AnimatedDefaultTextStyle(
             duration: const Duration(milliseconds: 200),
             style: TextStyle(
               color: isDark
-                  ? isSelected
-                        ? Colors.black
-                        : Colors.white
-                  : isSelected
-                  ? Colors.white
-                  : Colors.black,
+                  ? (isSelected ? Colors.black : Colors.white)
+                  : (isSelected ? Colors.white : Colors.black),
               fontWeight: FontWeight.w600,
               fontSize: 14,
               letterSpacing: 0.5,
@@ -258,39 +196,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Text(label),
           ),
         ),
-      ),
-    );
-  }
-
-  // Simple rounded version
-  Widget buildSimpleFilterChip(String label) {
-    final isSelected = selectedPeriod == label;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 3),
-      child: FilterChip(
-        label: Text(label),
-        selected: isSelected,
-        onSelected: (_) {
-          setState(() => selectedPeriod = label);
-        },
-        selectedColor: const Color(0xFF2E86AB),
-        backgroundColor: Colors.grey[100],
-        checkmarkColor: Colors.white,
-        labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.grey[700],
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-          fontSize: 13,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: isSelected ? const Color(0xFF2E86AB) : Colors.grey[300]!,
-            width: 1,
-          ),
-        ),
-        elevation: isSelected ? 2 : 0,
-        pressElevation: 4,
       ),
     );
   }

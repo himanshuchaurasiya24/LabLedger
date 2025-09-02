@@ -1,7 +1,8 @@
+// screens/window_scaffold.dart
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// Make sure these imports point to the correct files in your project
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
@@ -12,11 +13,11 @@ class WindowScaffold extends StatefulWidget {
   final Widget child;
   final bool showAppName;
   final String? customTitle;
-  final Widget? centerWidget; // For implementing a search bar or other actions
+  final Widget? centerWidget;
   final bool allowFullScreen;
   final bool isInitialScreen;
   final double? spaceAfterRow;
-  final bool enableSlideTransition; // New parameter to control transition
+  final bool enableSlideTransition;
 
   const WindowScaffold({
     super.key,
@@ -27,7 +28,7 @@ class WindowScaffold extends StatefulWidget {
     this.allowFullScreen = true,
     this.isInitialScreen = false,
     this.spaceAfterRow,
-    this.enableSlideTransition = true, // Default to true
+    this.enableSlideTransition = true,
   });
 
   @override
@@ -59,18 +60,17 @@ class _WindowScaffoldState extends State<WindowScaffold>
       vsync: this,
     );
 
-    _slideAnimation =
-        Tween<Offset>(
-          begin: const Offset(1.0, 0.0), // Start from right
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(
-            parent: _slideController,
-            curve: widget.isInitialScreen
-                ? Curves.easeInOutCubic
-                : Curves.easeOutCubic,
-          ),
-        );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1.0, 0.0), // Start from right
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _slideController,
+        curve: widget.isInitialScreen
+            ? Curves.easeInOutCubic
+            : Curves.easeOutCubic,
+      ),
+    );
 
     if (widget.enableSlideTransition) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -97,14 +97,11 @@ class _WindowScaffoldState extends State<WindowScaffold>
 
   Future<void> _initializeWindow() async {
     await windowManager.ensureInitialized();
-
     await windowManager.setMaximizable(true);
     await windowManager.setMinimizable(true);
-
     if (widget.isInitialScreen) {
       await _setupMainAppWindow();
     }
-
     isMaximized = await windowManager.isMaximized();
     isFullScreen = await windowManager.isFullScreen();
     if (mounted) setState(() {});
@@ -120,56 +117,42 @@ class _WindowScaffoldState extends State<WindowScaffold>
         await windowManager.setFullScreen(false);
         await Future.delayed(const Duration(milliseconds: 150));
       }
-
       await windowManager.setSkipTaskbar(false);
       await windowManager.setMinimumSize(const Size(800, 600));
       await windowManager.setMaximumSize(const Size(4000, 3000));
       await Future.delayed(const Duration(milliseconds: 150));
-
       await windowManager.setSize(const Size(1600, 900));
       await Future.delayed(const Duration(milliseconds: 300));
-
       for (int i = 0; i < 5; i++) {
         await windowManager.center();
         await Future.delayed(const Duration(milliseconds: 150));
         final position = await windowManager.getPosition();
-        if (position.dx > 0 && position.dy > 0) {
-          break;
-        }
+        if (position.dx > 0 && position.dy > 0) break;
       }
-
       await windowManager.show();
       await windowManager.focus();
-
       isLoginScreen.value = false;
     } catch (e) {
       debugPrint("Error setting up main window: $e");
-      // Fallback in case of an error
       await windowManager.center();
     }
   }
 
-  // --- Window Listener Methods ---
   @override
   void onWindowMaximize() => setState(() => isMaximized = true);
-
   @override
   void onWindowUnmaximize() => setState(() => isMaximized = false);
-
   @override
   void onWindowEnterFullScreen() => setState(() => isFullScreen = true);
-
   @override
   void onWindowLeaveFullScreen() => setState(() => isFullScreen = false);
 
   Future<void> _handleKeyEvent(KeyEvent event) async {
     if (!widget.allowFullScreen) return;
-
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.f11) {
         await windowManager.setFullScreen(!isFullScreen);
-      } else if (event.logicalKey == LogicalKeyboardKey.escape &&
-          isFullScreen) {
+      } else if (event.logicalKey == LogicalKeyboardKey.escape && isFullScreen) {
         await windowManager.setFullScreen(false);
       }
     }
@@ -185,28 +168,25 @@ class _WindowScaffoldState extends State<WindowScaffold>
 
   Future<void> _handleBackButton() async {
     if (!Navigator.of(context).canPop()) return;
-
     if (widget.enableSlideTransition) {
       _slideController.duration = const Duration(milliseconds: 250);
       await _slideController.reverse();
     }
-
     if (mounted && Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     }
   }
 
-  // --- Color Getters for UI Elements ---
   Color get _iconColor => currentTheme.brightness == Brightness.dark
       ? const Color(0xFFCCCCCC)
       : const Color(0xFF5A5A5A);
-
   Color get _hoverColor => currentTheme.brightness == Brightness.dark
       ? const Color(0xFF3E3E42)
       : const Color(0xFFE5E5E5);
 
   @override
   Widget build(BuildContext context) {
+    // Note: All ref.listen blocks have been removed from here.
     return KeyboardListener(
       focusNode: focusNode,
       autofocus: true,
@@ -214,12 +194,10 @@ class _WindowScaffoldState extends State<WindowScaffold>
       child: Scaffold(
         body: Column(
           children: [
-            // The main title bar container
             SizedBox(
               height: 50,
               child: Row(
                 children: [
-                  // --- Left Section: Back Button & Title ---
                   Row(
                     children: [
                       if (!widget.isInitialScreen)
@@ -227,9 +205,8 @@ class _WindowScaffoldState extends State<WindowScaffold>
                           onTap: _handleBackButton,
                           child: Container(
                             color: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                            ),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Icon(
                               CupertinoIcons.back,
                               size: 35,
@@ -237,12 +214,12 @@ class _WindowScaffoldState extends State<WindowScaffold>
                             ),
                           ),
                         ),
-                      // Draggable Title Area
                       GestureDetector(
                         onPanStart: (_) => windowManager.startDragging(),
                         child: Container(
                           color: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 16.0),
                           alignment: Alignment.center,
                           child: widget.customTitle != null
                               ? Text(
@@ -262,8 +239,6 @@ class _WindowScaffoldState extends State<WindowScaffold>
                       ),
                     ],
                   ),
-
-                  // --- Center Section: Draggable Area & Optional Widget ---
                   Expanded(
                     child: GestureDetector(
                       behavior: HitTestBehavior.translucent,
@@ -271,9 +246,6 @@ class _WindowScaffoldState extends State<WindowScaffold>
                       child: Center(child: widget.centerWidget),
                     ),
                   ),
-
-                  // ✅ **FIXED**: The `if` condition now only wraps the window buttons.
-                  // The rest of the title bar will always remain visible.
                   if (!isFullScreen)
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -301,8 +273,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
                           onPressed: () => windowManager.close(),
                           tooltip: 'Close',
                           iconColor: _iconColor,
-                          hoverColor:
-                              _hoverColor, // Hover color is handled in the widget
+                          hoverColor: _hoverColor,
                           isClose: true,
                         ),
                       ],
@@ -310,11 +281,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
                 ],
               ),
             ),
-
-            // This spacer also needs to be hidden in fullscreen to avoid an empty gap
             if (!isFullScreen) SizedBox(height: widget.spaceAfterRow ?? 7),
-
-            // --- Main Content Area ---
             Expanded(
               child: widget.enableSlideTransition
                   ? SlideTransition(
@@ -330,7 +297,6 @@ class _WindowScaffoldState extends State<WindowScaffold>
   }
 }
 
-// --- Helper Widget for Window Control Buttons ---
 class _WindowControlButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onPressed;
