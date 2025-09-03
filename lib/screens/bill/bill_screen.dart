@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/methods/provider_invalidator.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/bills_provider.dart';
@@ -71,10 +72,8 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   }
 
   void _refreshBillsData() {
+    ref.invalidate(billGrowthStatsProvider);
     ref.invalidate(billsProvider);
-    ref.invalidate(searchBillsProvider);
-    ref.invalidate(billStatsProvider);
-
     if (_currentSearchQuery.isNotEmpty) {
       ref.invalidate(searchBillsProvider(_currentSearchQuery));
     }
@@ -242,13 +241,15 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
             ), // Match the rounded corners of your cards
           ),
           onPressed: () async {
-            await navigatorKey.currentState
-                ?.push(
-                  MaterialPageRoute(builder: (context) => AddBillScreen2()),
-                )
-                .then((value) {
-                  _refreshBillsData();
-                });
+            navigatorKey.currentState?.push(
+              MaterialPageRoute(builder: (context) => AddBillScreen2()),
+            );
+            if (!mounted) return;
+            invalidateProvidersAfterDelay(
+              ref: ref,
+              providers: [searchBillsProvider(searchController.text)],
+            );
+
           },
           label: const Text(
             "Add Bill",
@@ -276,7 +277,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                         borderRadius: BorderRadius.circular(defaultRadius),
                       ),
                       child: ref
-                          .watch(billStatsProvider)
+                          .watch(billGrowthStatsProvider)
                           .when(
                             data: (stats) {
                               return Row(
@@ -324,8 +325,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                                   Text("Error loading stats: $err"),
                                   const SizedBox(height: 10),
                                   ElevatedButton(
-                                    onPressed: () =>
-                                        ref.invalidate(billStatsProvider),
+                                    onPressed: () => _refreshBillsData(),
                                     child: const Text("Retry"),
                                   ),
                                 ],
@@ -390,7 +390,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: categoryBills.length,
-                                  separatorBuilder: (_, __) =>
+                                  separatorBuilder: (_, _) =>
                                       SizedBox(height: defaultHeight),
                                   itemBuilder: (ctx, index) {
                                     final bill = categoryBills[index];

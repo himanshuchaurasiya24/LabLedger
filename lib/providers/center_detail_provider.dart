@@ -38,27 +38,27 @@ final singleCenterDetailProvider = FutureProvider.autoDispose
       }
     });
 
-/// ✅ Create a new center detail
-final createCenterDetailProvider = FutureProvider.autoDispose
-    .family<CenterDetail, CenterDetail>((ref, newDetail) async {
-      final response = await AuthHttpClient.post(
-        ref,
-        centerDetailsEndpoint,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(newDetail.toJson()),
-      );
+// /// ✅ Create a new center detail
+// final createCenterDetailProvider = FutureProvider.autoDispose
+//     .family<CenterDetail, CenterDetail>((ref, newDetail) async {
+//       final response = await AuthHttpClient.post(
+//         ref,
+//         centerDetailsEndpoint,
+//         headers: {"Content-Type": "application/json"},
+//         body: jsonEncode(newDetail.toJson()),
+//       );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        // Invalidate caches after mutation
-        ref.invalidate(centerDetailsProvider);
-        ref.invalidate(userDetailsProvider);
-        ref.invalidate(usersDetailsProvider);
+//       if (response.statusCode == 201 || response.statusCode == 200) {
+//         // Invalidate caches after mutation
+//         ref.invalidate(centerDetailsProvider);
+//         ref.invalidate(userDetailsProvider);
+//         ref.invalidate(usersDetailsProvider);
 
-        return CenterDetail.fromJson(jsonDecode(response.body));
-      } else {
-        throw Exception("Failed to create center detail: ${response.body}");
-      }
-    });
+//         return CenterDetail.fromJson(jsonDecode(response.body));
+//       } else {
+//         throw Exception("Failed to create center detail: ${response.body}");
+//       }
+//     });
 
 /// ✅ Update an existing center detail
 final updateCenterDetailProvider = FutureProvider.autoDispose

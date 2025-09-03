@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/methods/handle_api_error.dart';
+import 'package:labledger/authentication/handle_api_error.dart';
 import 'package:version/version.dart';
 import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:labledger/authentication/auth_repository.dart';

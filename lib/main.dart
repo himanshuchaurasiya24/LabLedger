@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
-import 'package:labledger/methods/global_error_observer.dart';
+import 'package:labledger/authentication/global_error_observer.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:labledger/screens/window_scaffold.dart';
@@ -149,12 +149,13 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           useMaterial3: true,
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: {
-              TargetPlatform.android: IOSPageTransitionsBuilder(),
-              TargetPlatform.iOS: IOSPageTransitionsBuilder(),
-              TargetPlatform.linux: IOSPageTransitionsBuilder(),
-              TargetPlatform.macOS: IOSPageTransitionsBuilder(),
-              TargetPlatform.windows: IOSPageTransitionsBuilder(),
-              TargetPlatform.fuchsia: IOSPageTransitionsBuilder(),
+             
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.fuchsia: CupertinoPageTransitionsBuilder(),
             },
           ),
         ),
@@ -216,12 +217,13 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           splashFactory: InkRipple.splashFactory,
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: {
-              TargetPlatform.android: IOSPageTransitionsBuilder(),
-              TargetPlatform.iOS: IOSPageTransitionsBuilder(),
-              TargetPlatform.linux: IOSPageTransitionsBuilder(),
-              TargetPlatform.macOS: IOSPageTransitionsBuilder(),
-              TargetPlatform.windows: IOSPageTransitionsBuilder(),
-              TargetPlatform.fuchsia: IOSPageTransitionsBuilder(),
+               TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.fuchsia: CupertinoPageTransitionsBuilder(),
+             
             },
           ),
         ),
@@ -229,28 +231,6 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
         home: WindowLoadingScreen(),
         // home: LoginScreen(),
       ),
-    );
-  }
-}
-
-// ✅ Add this class - Custom page transition builder
-class IOSPageTransitionsBuilder extends PageTransitionsBuilder {
-  const IOSPageTransitionsBuilder();
-
-  @override
-  Widget buildTransitions<T extends Object?>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(1.0, 0.0), // Slide from right
-        end: Offset.zero,
-      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
-      child: child,
     );
   }
 }

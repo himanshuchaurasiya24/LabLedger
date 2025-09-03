@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/bill_model.dart';
+import 'package:labledger/providers/bill_status_provider.dart';
+import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 
 import '../authentication/auth_http_client.dart'; // Import the utility client
 
@@ -73,6 +75,9 @@ final createBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
     // Invalidate related providers to refresh data
     ref.invalidate(billsProvider);
     ref.invalidate(searchBillsProvider);
+    ref.invalidate(referralStatsProvider);
+    ref.invalidate(billChartStatsProvider);
+    ref.invalidate(billGrowthStatsProvider);
 
     return Bill.fromJson(jsonDecode(response.body));
   } else {
@@ -95,9 +100,12 @@ final updateBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
 
   if (response.statusCode == 200) {
     
-    // Invalidate related providers to refresh data
+     // Invalidate related providers to refresh data
     ref.invalidate(billsProvider);
     ref.invalidate(searchBillsProvider);
+    ref.invalidate(referralStatsProvider);
+    ref.invalidate(billChartStatsProvider);
+    ref.invalidate(billGrowthStatsProvider);
     ref.invalidate(singleBillProvider(updatedBill.id!)); // Invalidate specific bill too
     
     return Bill.fromJson(jsonDecode(response.body));
@@ -119,9 +127,12 @@ final deleteBillProvider = FutureProvider.autoDispose.family<void, int>((
   
   if (response.statusCode == 204) {
     
-    // Invalidate related providers to refresh data
+     // Invalidate related providers to refresh data
     ref.invalidate(billsProvider);
     ref.invalidate(searchBillsProvider);
+    ref.invalidate(referralStatsProvider);
+    ref.invalidate(billChartStatsProvider);
+    ref.invalidate(billGrowthStatsProvider);
     ref.invalidate(singleBillProvider(id)); // Invalidate the deleted bill provider
 
   } else {

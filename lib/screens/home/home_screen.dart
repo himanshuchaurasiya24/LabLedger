@@ -57,7 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Note: All ref.listen blocks have been removed.
 
     final referralStatsAsync = ref.watch(referralStatsProvider);
-    final chartStatsAsync = ref.watch(chartStatsProvider);
+    final chartStatsAsync = ref.watch(billChartStatsProvider);
     final width = MediaQuery.of(context).size.width;
     final baseColor = Theme.of(context).colorScheme.secondary;
 
@@ -126,20 +126,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         selectedPeriod,
                       );
                       return GestureDetector(
-                        onTap: () async {
-                          // This navigation logic now correctly pushes a WindowScaffold
-                          await navigatorKey.currentState
-                              ?.push(
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return BillsScreen();
-                                  },
-                                ),
-                              )
-                              .then((value) {
-                                ref.invalidate(referralStatsProvider);
-                                ref.invalidate(chartStatsProvider);
-                              });
+                        onTap: ()  {
+                           navigatorKey.currentState?.push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return BillsScreen();
+                              },
+                            ),
+                          );
+                          
                         },
                         child: ChartStatsCard(
                           title: selectedPeriod,

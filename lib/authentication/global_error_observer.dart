@@ -1,7 +1,7 @@
 // providers/global_error_observer.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/methods/handle_api_error.dart';
+import 'package:labledger/authentication/handle_api_error.dart';
 
 /// This observer listens to all provider state changes in the app.
 class GlobalErrorObserver extends ProviderObserver {

@@ -5,9 +5,9 @@ import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/bill_stats_model.dart';
 
-String billStatsEndpoint = "${globalBaseUrl}diagnosis/bills/growth-stats/";
-final billStatsProvider = FutureProvider.autoDispose((ref) async {
-  final response = await AuthHttpClient.get(ref, billStatsEndpoint);
+String billGrowthStatsEndpoint = "${globalBaseUrl}diagnosis/bills/growth-stats/";
+final billGrowthStatsProvider = FutureProvider.autoDispose((ref) async {
+  final response = await AuthHttpClient.get(ref, billGrowthStatsEndpoint);
 
   if (response.statusCode == 200) {
     return BillStats.fromJson(jsonDecode(response.body));
