@@ -104,47 +104,41 @@ Widget pageHeader({
   );
 }
 
-void setWindowBehavior({bool? isForLogin, bool? isLoadingScreen}) async {
-  bool isLogin = isForLogin ?? false;
-  bool isForLoadingScreen = isLoadingScreen ?? false;
+Future<void> setWindowBehavior({bool? isForLogin, bool? isLoadingScreen}) async {
+  final isLogin = isForLogin ?? false;
+  final isForLoadingScreen = isLoadingScreen ?? false;
 
-  await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
-if (isForLoadingScreen) {
-    await windowManager.setSkipTaskbar(false);
-    await windowManager.setMinimumSize(const Size(700, 350));
-    await windowManager.setMaximumSize(const Size(700, 350));
+  await windowManager.waitUntilReadyToShow(null, () async {
+    await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
 
-    await Future.delayed(const Duration(milliseconds: 100));
-    await windowManager.setSize(const Size(700, 350));
-    await Future.delayed(const Duration(milliseconds: 200));
+    if (isForLoadingScreen) {
+      await windowManager.setSkipTaskbar(false);
+      await windowManager.setMinimumSize(const Size(700, 350));
+      await windowManager.setMaximumSize(const Size(700, 350));
 
-    // Aggressive centering for login screen
-    for (int i = 0; i < 3; i++) {
+      await windowManager.setSize(const Size(700, 350));
       await windowManager.center();
-      await Future.delayed(const Duration(milliseconds: 150));
+
+      isLoginScreen.value = true;
+      return;
     }
 
-    isLoginScreen.value = true;
-  }
-  if (isLogin) {
-    await windowManager.setSkipTaskbar(false);
-    await windowManager.setMinimumSize(const Size(800, 490));
-    await windowManager.setMaximumSize(const Size(800, 490));
+    if (isLogin) {
+      await windowManager.setSkipTaskbar(false);
+      await windowManager.setMinimumSize(const Size(800, 490));
+      await windowManager.setMaximumSize(const Size(800, 490));
 
-    await Future.delayed(const Duration(milliseconds: 100));
-    await windowManager.setSize(const Size(800, 490));
-    await Future.delayed(const Duration(milliseconds: 200));
-
-    // Aggressive centering for login screen
-    for (int i = 0; i < 3; i++) {
+      await windowManager.setSize(const Size(800, 490));
       await windowManager.center();
-      await Future.delayed(const Duration(milliseconds: 150));
+
+      isLoginScreen.value = true;
+      return;
     }
 
-    isLoginScreen.value = true;
-  }
-  // Remove the else block - let WindowScaffold handle main app setup
+    // Else: WindowScaffold will handle main app window setup
+  });
 }
+
 
 class CustomTextField extends StatefulWidget {
   const CustomTextField({

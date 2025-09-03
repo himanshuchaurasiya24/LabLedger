@@ -16,12 +16,12 @@ void main() async {
 
   await initializeBaseUrl();
 
-  await windowManager.ensureInitialized();
-  runApp(ProviderScope(
-    observers: [
-        GlobalErrorObserver(),
-      ],
-    child: MyApp()));
+  runApp(
+    ProviderScope(
+      observers: [GlobalErrorObserver()],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends ConsumerStatefulWidget {
