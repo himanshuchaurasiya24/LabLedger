@@ -81,10 +81,18 @@ class BillCard extends StatelessWidget {
     ) {
       // For Background Color
       final Color bg = (baseColor is MaterialColor)
-          ? (isDark ? baseColor.shade900.withValues(alpha: 0.4) : baseColor.shade50)
+          ? (isDark
+                ? baseColor.shade900.withValues(alpha: 0.4)
+                : baseColor.shade50)
           : (isDark
-                ? Color.alphaBlend(baseColor.withValues(alpha:0.2), Colors.black)
-                : Color.alphaBlend(baseColor.withValues(alpha:0.1), Colors.white));
+                ? Color.alphaBlend(
+                    baseColor.withValues(alpha: 0.2),
+                    Colors.black,
+                  )
+                : Color.alphaBlend(
+                    baseColor.withValues(alpha: 0.1),
+                    Colors.white,
+                  ));
 
       // For Important Text Color
       final Color txt = (isDark)
@@ -116,7 +124,7 @@ class BillCard extends StatelessWidget {
     );
 
     final bodyStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: textColor.withValues(alpha:0.8),
+      color: textColor.withValues(alpha: 0.8),
       fontWeight: FontWeight.w500,
     );
 
@@ -131,10 +139,13 @@ class BillCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: accentColor.withValues(alpha:0.3), width: 1),
+          border: Border.all(
+            color: accentColor.withValues(alpha: 0.3),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: accentColor.withValues(alpha:0.1),
+              color: accentColor.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 4),
               spreadRadius: 0,
@@ -145,7 +156,7 @@ class BillCard extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: defaultPadding,
-              vertical: defaultPadding / 2,
+              vertical: defaultPadding / 4,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +214,7 @@ class BillCard extends StatelessWidget {
                               ? Icons.female
                               : Icons.person,
                           size: 18,
-                          color: textColor.withValues(alpha:0.7),
+                          color: textColor.withValues(alpha: 0.7),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -221,7 +232,7 @@ class BillCard extends StatelessWidget {
                         Icon(
                           Icons.calendar_today,
                           size: 16,
-                          color: textColor.withValues(alpha:0.7),
+                          color: textColor.withValues(alpha: 0.7),
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -242,13 +253,12 @@ class BillCard extends StatelessWidget {
                     Icon(
                       Icons.local_hospital,
                       size: 16,
-                      color: textColor.withValues(alpha:0.7),
+                      color: textColor.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        bill.referredByDoctorOutput?['name'] ??
-                            'Dr. ${bill.referredByDoctorOutput!["first_name"]} ${bill.referredByDoctorOutput!["last_name"]}',
+                        'Dr. ${bill.referredByDoctorOutput!["first_name"]} ${bill.referredByDoctorOutput!["last_name"]}',
                         style: bodyStyle?.copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -293,7 +303,7 @@ class BillCard extends StatelessWidget {
                     Icon(
                       Icons.medical_services,
                       size: 16,
-                      color: textColor.withValues(alpha:0.7),
+                      color: textColor.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 6),
                     Expanded(

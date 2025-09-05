@@ -7,17 +7,17 @@ import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/screens/home/home_screen_logic.dart';
 
-class AddFranchiseScreen extends ConsumerWidget {
-  AddFranchiseScreen({super.key, this.franchise}) {
+class AddFranchiseNameScreen extends ConsumerWidget {
+  AddFranchiseNameScreen({super.key, this.franchiseName}) {
     // initialize controllers if editing
-    if (franchise != null) {
-      nameController.text = franchise!.franchiseName;
-      addressController.text = franchise!.address;
-      phoneController.text = franchise!.phoneNumber;
+    if (franchiseName != null) {
+      nameController.text = franchiseName!.franchiseName!;
+      addressController.text = franchiseName!.address!;
+      phoneController.text = franchiseName!.phoneNumber!;
     }
   }
 
-  final Franchise? franchise;
+  final FranchiseName? franchiseName;
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
@@ -26,26 +26,26 @@ class AddFranchiseScreen extends ConsumerWidget {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
   // ADD NEW
-  Future<void> addFranchise(Franchise newFranchise, WidgetRef ref) async {
+  Future<void> addFranchiseName(FranchiseName newFranchiseName, WidgetRef ref) async {
     try {
       final created = await ref.read(
-        createFranchiseProvider(newFranchise).future,
+        createFranchiseProvider(newFranchiseName).future,
       );
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        const SnackBar(content: Text("Franchise created successfully")),
+        const SnackBar(content: Text("FranchiseName created successfully")),
       );
       Navigator.pop(navigatorKey.currentContext!, created);
     } catch (e) {
       ScaffoldMessenger.of(
         navigatorKey.currentContext!,
-      ).showSnackBar(SnackBar(content: Text("Failed to create Franchise: $e")));
+      ).showSnackBar(SnackBar(content: Text("Failed to create FranchiseName: $e")));
     }
   }
 
   // UPDATE
-  Future<void> updateFranchiseDetails(
+  Future<void> updateFranchiseNameDetails(
     int? id,
-    Franchise updatedFranchise,
+    FranchiseName updatedFranchiseName,
     WidgetRef ref,
   ) async {
     if (id == null) return;
@@ -53,46 +53,48 @@ class AddFranchiseScreen extends ConsumerWidget {
       final updated = await ref.read(
         updateFranchiseProvider({
           'id': id,
-          'data': updatedFranchise.toJson(),
+          'data': updatedFranchiseName.toJson(),
         }).future,
       );
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        const SnackBar(content: Text("Franchise updated successfully")),
+        const SnackBar(content: Text("FranchiseName updated successfully")),
       );
       Navigator.pop(navigatorKey.currentContext!, updated);
     } catch (e) {
       ScaffoldMessenger.of(
         navigatorKey.currentContext!,
-      ).showSnackBar(SnackBar(content: Text("Failed to update Franchise: $e")));
+      ).showSnackBar(SnackBar(content: Text("Failed to update FranchiseName: $e")));
     }
   }
 
   // DELETE
-  Future<void> deleteFranchise(int id, WidgetRef ref) async {
+  Future<void> deleteFranchiseName(int id, WidgetRef ref) async {
     try {
       await ref.read(deleteFranchiseProvider(id).future);
       ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        const SnackBar(content: Text("Franchise deleted successfully")),
+        const SnackBar(content: Text("FranchiseName deleted successfully")),
       );
       Navigator.pop(navigatorKey.currentContext!);
     } catch (e) {
       ScaffoldMessenger.of(
         navigatorKey.currentContext!,
-      ).showSnackBar(SnackBar(content: Text("Failed to delete Franchise: $e")));
+      ).showSnackBar(SnackBar(content: Text("Failed to delete FranchiseName: $e")));
     }
   }
 
   void _submitForm(WidgetRef ref) {
-    Franchise newFranchise = Franchise(
+    FranchiseName newFranchiseName = FranchiseName(
+      id: 0,
       franchiseName: nameController.text,
       address: addressController.text,
       phoneNumber: phoneController.text,
+      
     );
 
-    if (franchise == null) {
-      addFranchise(newFranchise, ref);
+    if (franchiseName == null) {
+      addFranchiseName(newFranchiseName, ref);
     } else {
-      updateFranchiseDetails(franchise!.id, newFranchise, ref);
+      updateFranchiseNameDetails(franchiseName!.id, newFranchiseName, ref);
     }
   }
 
@@ -131,13 +133,13 @@ class AddFranchiseScreen extends ConsumerWidget {
                 ),
                 const Spacer(),
 
-                if (franchise != null)
+                if (franchiseName != null)
                   Column(
                     children: [
                       InkWell(
                         onTap: () {
                           if (_formKey.currentState!.validate()) {
-                            deleteFranchise(franchise!.id!, ref);
+                            deleteFranchiseName(franchiseName!.id!, ref);
                           }
                         },
                         child: Container(
@@ -175,7 +177,7 @@ class AddFranchiseScreen extends ConsumerWidget {
                     ),
                     child: Center(
                       child: Text(
-                        franchise == null ? "Add" : "Update",
+                        franchiseName == null ? "Add" : "Update",
                         style: Theme.of(context).textTheme.headlineMedium!
                             .copyWith(color: Colors.white),
                       ),

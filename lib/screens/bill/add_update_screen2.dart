@@ -5,6 +5,7 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/models/doctors_model.dart';
+import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
@@ -236,7 +237,7 @@ class _AddBillScreen2State extends ConsumerState<AddBillScreen2> {
                         valueMapper: (item) =>
                             "${item.franchiseName} , ${item.address}", // For display text
                         idMapper: (item) => item
-                            .franchiseName, // For controller value (ID in your case is franchiseName string)
+                            .franchiseName!, // For controller value (ID in your case is franchiseName string)
                         hintText: "Select Franchise Name",
                       ),
                       loading: () => CircularProgressIndicator(),

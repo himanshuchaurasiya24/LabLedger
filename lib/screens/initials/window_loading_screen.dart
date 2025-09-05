@@ -14,7 +14,7 @@ import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/initials/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
-import 'package:labledger/screens/window_scaffold.dart';
+import 'package:labledger/screens/title_bar/window_scaffold.dart';
 
 class WindowLoadingScreen extends ConsumerStatefulWidget {
   const WindowLoadingScreen({super.key});
@@ -135,7 +135,6 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
       body: AnimatedOpacity(
         opacity: _isContentVisible ? 1.0 : 0.0,
         duration: const Duration(milliseconds: 1000),

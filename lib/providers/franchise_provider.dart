@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
-import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/franchise_model.dart';
 
 /// ✅ Base API Endpoint
@@ -11,12 +10,12 @@ final String franchiseEndpoint =
     "${globalBaseUrl}diagnosis/franchise-names/franchise-name/";
 
 /// ✅ Fetch all franchises
-final franchiseProvider = FutureProvider.autoDispose<List<Franchise>>((ref) async {
+final franchiseProvider = FutureProvider.autoDispose<List<FranchiseName>>((ref) async {
   final response = await AuthHttpClient.get(ref, franchiseEndpoint);
 
   if (response.statusCode == 200) {
     final List data = jsonDecode(response.body);
-    return data.map((e) => Franchise.fromJson(e)).toList().cast<Franchise>();
+    return data.map((e) => FranchiseName.fromJson(e)).toList().cast<FranchiseName>();
   } else {
     throw Exception("Failed to fetch franchises: ${response.body}");
   }
@@ -24,14 +23,14 @@ final franchiseProvider = FutureProvider.autoDispose<List<Franchise>>((ref) asyn
 
 /// ✅ Fetch single franchise by ID
 final singleFranchiseProvider =
-    FutureProvider.autoDispose.family<Franchise, int>((ref, id) async {
+    FutureProvider.autoDispose.family<FranchiseName, int>((ref, id) async {
   final response = await AuthHttpClient.get(
     ref,
     "$franchiseEndpoint$id/",
   );
 
   if (response.statusCode == 200) {
-    return Franchise.fromJson(jsonDecode(response.body));
+    return FranchiseName.fromJson(jsonDecode(response.body));
   } else {
     throw Exception("Failed to fetch franchise: ${response.body}");
   }
@@ -39,7 +38,7 @@ final singleFranchiseProvider =
 
 /// ✅ Create franchise
 final createFranchiseProvider =
-    FutureProvider.autoDispose.family<Franchise, Franchise>((ref, newFranchise) async {
+    FutureProvider.autoDispose.family<FranchiseName, FranchiseName>((ref, newFranchise) async {
   final response = await AuthHttpClient.post(
     ref,
     franchiseEndpoint,
@@ -49,7 +48,7 @@ final createFranchiseProvider =
 
   if (response.statusCode == 201) {
     ref.invalidate(franchiseProvider);
-    return Franchise.fromJson(jsonDecode(response.body));
+    return FranchiseName.fromJson(jsonDecode(response.body));
   } else {
     throw Exception("Failed to create franchise: ${response.body}");
   }

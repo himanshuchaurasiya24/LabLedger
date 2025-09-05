@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/providers/theme_providers.dart';
-import 'package:labledger/screens/window_scaffold.dart';
+import 'package:labledger/screens/title_bar/window_scaffold.dart';
 import 'package:window_manager/window_manager.dart';
 
 final containerLightColor = Color(0xFFEEEEEE);
@@ -19,12 +20,15 @@ class NoThumbScrollBehavior extends ScrollBehavior {
   }
 }
 
+// Modern Search Bar
 class CenterSearchBar extends StatelessWidget {
   final String hintText;
-  final Function(String) onSearch; // <-- take value
+  final Function(String) onSearch;
   final TextEditingController controller;
   final FocusNode searchFocusNode;
   final double? width;
+  final VoidCallback? onClear;
+
   const CenterSearchBar({
     super.key,
     required this.hintText,
@@ -32,35 +36,423 @@ class CenterSearchBar extends StatelessWidget {
     required this.controller,
     required this.searchFocusNode,
     this.width = 200,
+    this.onClear,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 45,
+      height: 48,
       width: width,
-      child: Center(
+      child: Container(
+        decoration: BoxDecoration(
+          // Gradient background for modern look
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).brightness == Brightness.light
+                  ? Colors.white
+                  : const Color(0xFF2A2A2A),
+              Theme.of(context).brightness == Brightness.light
+                  ? const Color(0xFFF8F9FA)
+                  : const Color(0xFF1E1E1E),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(12),
+          // Enhanced shadow
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.black.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.3),
+              offset: const Offset(0, 2),
+              blurRadius: 8,
+              spreadRadius: 0,
+            ),
+            // Inner shadow for depth
+            BoxShadow(
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.white.withValues(alpha: 0.8)
+                  : Colors.white.withValues(alpha: 0.05),
+              offset: const Offset(0, -1),
+              blurRadius: 1,
+              spreadRadius: 0,
+            ),
+          ],
+          // Subtle border
+          border: Border.all(
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.grey.withValues(alpha: 0.2)
+                : Colors.grey.withValues(alpha: 0.3),
+            width: 0.5,
+          ),
+        ),
         child: TextField(
           focusNode: searchFocusNode,
           controller: controller,
+          style: TextStyle(
+            fontSize: 15,
+            color: Theme.of(context).brightness == Brightness.light
+                ? const Color(0xFF2C2C2C)
+                : Colors.white.withValues(alpha: 0.9),
+            fontWeight: FontWeight.w500,
+          ),
           decoration: InputDecoration(
-            fillColor: Theme.of(context).brightness == Brightness.light
-                ? containerLightColor
-                : containerDarkColor,
+            fillColor: Colors.transparent,
             filled: true,
             border: OutlineInputBorder(
               borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(minimalBorderRadius),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary,
+                width: 0.5,
+              ),
+              borderRadius: BorderRadius.circular(12),
             ),
             hintText: hintText,
+            hintStyle: TextStyle(
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.grey.withValues(alpha: 0.6)
+                  : Colors.grey.withValues(alpha: 0.5),
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
+            // Search icon
+            prefixIcon: Icon(
+              CupertinoIcons.search,
+              size: 20,
+              color: Theme.of(context).brightness == Brightness.light
+                  ? Colors.grey.withValues(alpha: 0.7)
+                  : Colors.grey.withValues(alpha: 0.6),
+            ),
+            // Clear button when text is present
+            suffixIcon: controller.text.isNotEmpty
+                ? IconButton(
+                    icon: Icon(
+                      CupertinoIcons.clear_circled_solid,
+                      size: 18,
+                      color: Colors.grey.withValues(alpha: 0.6),
+                    ),
+                    onPressed: () {
+                      controller.clear();
+                      onSearch('');
+                      if (onClear != null) onClear!();
+                    },
+                  )
+                : null,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
           ),
-          onChanged: onSearch, // <-- pass directly
+          onChanged: onSearch,
         ),
       ),
     );
   }
 }
 
+// Custom Text Field for forms and other inputs
+class CustomTextField extends StatefulWidget {
+  final String? label;
+  final String? hintText;
+  final TextEditingController controller;
+  final FocusNode? focusNode;
+  final TextInputType keyboardType;
+  final bool obscureText;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final void Function()? onTap;
+  final bool readOnly;
+  final int maxLines;
+  final double? width;
+  final double? height;
+  final bool required;
+  final TextStyle? textStyle;
+  final bool enabled;
+  final String? errorText;
+  final String? helperText;
+
+  const CustomTextField({
+    super.key,
+    this.label,
+    this.hintText,
+    required this.controller,
+    this.focusNode,
+    this.keyboardType = TextInputType.text,
+    this.obscureText = false,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.validator,
+    this.onChanged,
+    this.onTap,
+    this.readOnly = false,
+    this.maxLines = 1,
+    this.width,
+    this.height,
+    this.required = false,
+    this.textStyle,
+    this.enabled = true,
+    this.errorText,
+    this.helperText,
+  });
+
+  @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  late FocusNode _focusNode;
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = widget.focusNode ?? FocusNode();
+    _focusNode.addListener(() {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Label
+          if (widget.label != null) ...[
+            Row(
+              children: [
+                Text(
+                  widget.label!,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : const Color(0xFF2C2C2C),
+                  ),
+                ),
+                if (widget.required)
+                  Text(
+                    ' *',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.red.withValues(alpha: 0.8),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+
+          // Text Field Container
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  isDark ? const Color(0xFF2A2A2A) : Colors.white,
+                  isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF8F9FA),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                // Main shadow
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.3)
+                      : Colors.black.withValues(alpha: 0.1),
+                  offset: const Offset(0, 2),
+                  blurRadius: _isFocused ? 12 : 8,
+                  spreadRadius: _isFocused ? 1 : 0,
+                ),
+                // Inner highlight
+                BoxShadow(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.white.withValues(alpha: 0.8),
+                  offset: const Offset(0, -1),
+                  blurRadius: 1,
+                  spreadRadius: 0,
+                ),
+              ],
+              border: Border.all(
+                color: widget.errorText != null
+                    ? Colors.red.withValues(alpha: 0.6)
+                    : _isFocused
+                    ? const Color(0xFF0072B5)
+                    : isDark
+                    ? Colors.grey.withValues(alpha: 0.3)
+                    : Colors.grey.withValues(alpha: 0.2),
+                width: _isFocused ? 2 : 0.5,
+              ),
+            ),
+            child: TextFormField(
+              controller: widget.controller,
+              focusNode: _focusNode,
+              keyboardType: widget.keyboardType,
+              obscureText: widget.obscureText,
+              validator: widget.validator,
+              onChanged: widget.onChanged,
+              onTap: widget.onTap,
+              readOnly: widget.readOnly,
+              maxLines: widget.maxLines,
+              enabled: widget.enabled,
+              style:
+                  widget.textStyle ??
+                  TextStyle(
+                    fontSize: 15,
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.9)
+                        : const Color(0xFF2C2C2C),
+                    fontWeight: FontWeight.w500,
+                  ),
+              decoration: InputDecoration(
+                fillColor: Colors.transparent,
+                filled: true,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                hintText: widget.hintText,
+                hintStyle: TextStyle(
+                  color: isDark
+                      ? Colors.grey.withValues(alpha: 0.5)
+                      : Colors.grey.withValues(alpha: 0.6),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                ),
+                prefixIcon: widget.prefixIcon,
+                suffixIcon: widget.suffixIcon,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: widget.maxLines > 1 ? 16 : 12,
+                ),
+                errorText: null, // Handle error display separately
+              ),
+            ),
+          ),
+
+          // Error and Helper Text
+          if (widget.errorText != null || widget.helperText != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              widget.errorText ?? widget.helperText!,
+              style: TextStyle(
+                fontSize: 12,
+                color: widget.errorText != null
+                    ? Colors.red.withValues(alpha: 0.8)
+                    : isDark
+                    ? Colors.grey.withValues(alpha: 0.6)
+                    : Colors.grey.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// Usage Examples:
+
+/*
+// Search Bar Usage:
+CenterSearchBar(
+  hintText: 'Search Bills...',
+  onSearch: (value) => print('Searching: $value'),
+  controller: searchController,
+  searchFocusNode: searchFocusNode,
+  width: 300,
+)
+
+// Custom Text Field Usage:
+CustomTextField(
+  label: 'Patient Name',
+  hintText: 'Enter patient name',
+  controller: nameController,
+  required: true,
+  prefixIcon: Icon(CupertinoIcons.person),
+  validator: (value) {
+    if (value?.isEmpty ?? true) return 'Name is required';
+    return null;
+  },
+)
+
+// Amount Field:
+CustomTextField(
+  label: 'Amount',
+  hintText: '₹0.00',
+  controller: amountController,
+  keyboardType: TextInputType.numberWithOptions(decimal: true),
+  prefixIcon: Icon(CupertinoIcons.money_dollar),
+  required: true,
+)
+
+// Notes Field:
+CustomTextField(
+  label: 'Notes',
+  hintText: 'Additional notes...',
+  controller: notesController,
+  maxLines: 3,
+  height: 100,
+)
+
+// Date Field (read-only with tap handler):
+CustomTextField(
+  label: 'Date',
+  hintText: 'Select date',
+  controller: dateController,
+  readOnly: true,
+  onTap: () => _selectDate(context),
+  suffixIcon: Icon(CupertinoIcons.calendar),
+)
+*/
 Widget pageHeader({
   required BuildContext context,
   required Widget? centerWidget,
@@ -104,7 +496,10 @@ Widget pageHeader({
   );
 }
 
-Future<void> setWindowBehavior({bool? isForLogin, bool? isLoadingScreen}) async {
+Future<void> setWindowBehavior({
+  bool? isForLogin,
+  bool? isLoadingScreen,
+}) async {
   final isLogin = isForLogin ?? false;
   final isForLoadingScreen = isLoadingScreen ?? false;
 
@@ -139,101 +534,100 @@ Future<void> setWindowBehavior({bool? isForLogin, bool? isLoadingScreen}) async 
   });
 }
 
+// class CustomTextField extends StatefulWidget {
+//   const CustomTextField({
+//     super.key,
+//     required this.controller,
+//     this.isObscure = false,
+//     required this.labelText,
+//     this.keyboardType,
+//     this.passwordController,
+//     this.isConfirm,
+//     this.readOnly,
+//     this.maxLines,
+//     this.onChanged,
+//     this.valueLimit,
+//     this.fillColor,
+//     this.hoverColor,
+//   });
 
-class CustomTextField extends StatefulWidget {
-  const CustomTextField({
-    super.key,
-    required this.controller,
-    this.isObscure = false,
-    required this.labelText,
-    this.keyboardType,
-    this.passwordController,
-    this.isConfirm,
-    this.readOnly,
-    this.maxLines,
-    this.onChanged,
-    this.valueLimit,
-    this.fillColor,
-    this.hoverColor,
-  });
+//   final TextEditingController controller;
+//   final bool? isObscure;
+//   final String labelText;
+//   final void Function(String)? onChanged;
+//   final TextInputType? keyboardType;
+//   final TextEditingController? passwordController;
+//   final bool? isConfirm;
+//   final bool? readOnly;
+//   final int? maxLines;
+//   final int? valueLimit;
+//   final Color? fillColor;
+//   final Color? hoverColor;
 
-  final TextEditingController controller;
-  final bool? isObscure;
-  final String labelText;
-  final void Function(String)? onChanged;
-  final TextInputType? keyboardType;
-  final TextEditingController? passwordController;
-  final bool? isConfirm;
-  final bool? readOnly;
-  final int? maxLines;
-  final int? valueLimit;
-  final Color? fillColor;
-  final Color? hoverColor;
+//   @override
+//   State<CustomTextField> createState() => _CustomTextFieldState();
+// }
 
-  @override
-  State<CustomTextField> createState() => _CustomTextFieldState();
-}
+// class _CustomTextFieldState extends State<CustomTextField> {
+//   bool isObscure = false;
+//   @override
+//   void initState() {
+//     super.initState();
+//     isObscure = widget.isObscure! ? true : false;
+//   }
 
-class _CustomTextFieldState extends State<CustomTextField> {
-  bool isObscure = false;
-  @override
-  void initState() {
-    super.initState();
-    isObscure = widget.isObscure! ? true : false;
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return TextFormField(
+//       onChanged: widget.onChanged,
+//       controller: widget.controller,
+//       keyboardType: widget.keyboardType,
+//       maxLines: widget.maxLines ?? 1,
+//       obscureText: isObscure,
+//       readOnly: widget.readOnly ?? false,
+//       validator: (value) {
+//         if (widget.isConfirm == true && widget.passwordController != null) {
+//           if (value != widget.passwordController!.text) {
+//             return 'Password does\'nt match';
+//           }
+//         }
+//         if (value != null && value.trim().isEmpty) {
+//           return 'Please enter ${widget.labelText}';
+//         }
+//         if (widget.valueLimit != null &&
+//             widget.keyboardType == TextInputType.number &&
+//             value != null) {
+//           int pValue = int.tryParse(value)!;
+//           if (pValue > widget.valueLimit!) {
+//             return 'Range is only upto ${widget.valueLimit}';
+//           }
+//         }
+//         if (value != null && widget.keyboardType == TextInputType.number) {
+//           final intvalue = int.tryParse(value);
+//           if (intvalue == null) {
+//             return 'Invalid ${widget.labelText}';
+//           }
+//         }
 
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      onChanged: widget.onChanged,
-      controller: widget.controller,
-      keyboardType: widget.keyboardType,
-      maxLines: widget.maxLines ?? 1,
-      obscureText: isObscure,
-      readOnly: widget.readOnly ?? false,
-      validator: (value) {
-        if (widget.isConfirm == true && widget.passwordController != null) {
-          if (value != widget.passwordController!.text) {
-            return 'Password does\'nt match';
-          }
-        }
-        if (value != null && value.trim().isEmpty) {
-          return 'Please enter ${widget.labelText}';
-        }
-        if (widget.valueLimit != null &&
-            widget.keyboardType == TextInputType.number &&
-            value != null) {
-          int pValue = int.tryParse(value)!;
-          if (pValue > widget.valueLimit!) {
-            return 'Range is only upto ${widget.valueLimit}';
-          }
-        }
-        if (value != null && widget.keyboardType == TextInputType.number) {
-          final intvalue = int.tryParse(value);
-          if (intvalue == null) {
-            return 'Invalid ${widget.labelText}';
-          }
-        }
-
-        return null;
-      },
-      decoration: InputDecoration(
-        labelText: widget.labelText,
-        suffixIcon: widget.isObscure!
-            ? IconButton(
-                onPressed: () {
-                  setState(() {
-                    isObscure = !isObscure;
-                  });
-                },
-                icon: const Icon(Icons.visibility),
-              )
-            : null,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-}
+//         return null;
+//       },
+//       decoration: InputDecoration(
+//         labelText: widget.labelText,
+//         suffixIcon: widget.isObscure!
+//             ? IconButton(
+//                 onPressed: () {
+//                   setState(() {
+//                     isObscure = !isObscure;
+//                   });
+//                 },
+//                 icon: const Icon(Icons.visibility),
+//               )
+//             : null,
+//         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+//       ),
+//     );
+//   }
+// }
 
 Widget customBar({
   required BuildContext context,
@@ -443,10 +837,10 @@ Widget appIconName({
   double? fontSize,
   required String firstName,
   required String secondName,
-  MainAxisAlignment? alignment
+  MainAxisAlignment? alignment,
 }) {
   return Row(
-    mainAxisAlignment: alignment?? MainAxisAlignment.start,
+    mainAxisAlignment: alignment ?? MainAxisAlignment.start,
     children: [
       Text(
         firstName,

@@ -5,7 +5,7 @@ import 'package:labledger/authentication/config.dart';
 import 'package:labledger/authentication/global_error_observer.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
-import 'package:labledger/screens/window_scaffold.dart';
+import 'package:labledger/screens/title_bar/window_scaffold.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 

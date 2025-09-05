@@ -12,7 +12,7 @@ import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/screens/bill/add_update_screen2.dart';
 import 'package:labledger/screens/bill/ui_components/bill_card.dart';
 import 'package:labledger/screens/bill/ui_components/bill_stats_card.dart';
-import 'package:labledger/screens/window_scaffold.dart';
+import 'package:labledger/screens/title_bar/window_scaffold.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -228,7 +228,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
         floatingActionButton: FloatingActionButton.extended(
-          // Use a color that matches the positive-themed cards in your UI
           backgroundColor: Theme.of(
             context,
           ).colorScheme.secondary, // A nice teal color
@@ -249,7 +248,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
               ref: ref,
               providers: [searchBillsProvider(searchController.text)],
             );
-
           },
           label: const Text(
             "Add Bill",
@@ -260,206 +258,196 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
           ),
           icon: const Icon(LucideIcons.plus),
         ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-          child: ScrollConfiguration(
-            behavior: NoThumbScrollBehavior(),
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  Visibility(
-                    visible: _currentSearchQuery.isEmpty,
-                    child: Container(
-                      height: 310,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(defaultRadius),
-                      ),
-                      child: ref
-                          .watch(billGrowthStatsProvider)
-                          .when(
-                            data: (stats) {
-                              return Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Expanded(
-                                    child: BillStatsCard(
-                                      title: "Monthly Growth",
-                                      currentPeriod: stats.currentMonth,
-                                      previousPeriod: stats.previousMonth,
-                                      positiveColor: positiveColor,
-                                      negativeColor: negativeColor,
-                                    ),
-                                  ),
-                                  SizedBox(width: defaultWidth),
-                                  Expanded(
-                                    child: BillStatsCard(
-                                      title: "Quarterly Growth",
-                                      currentPeriod: stats.currentQuarter,
-                                      previousPeriod: stats.previousQuarter,
-                                      positiveColor: positiveColor,
-                                      negativeColor: negativeColor,
-                                    ),
-                                  ),
-                                  SizedBox(width: defaultWidth),
-                                  Expanded(
-                                    child: BillStatsCard(
-                                      title: "Yearly Growth",
-                                      currentPeriod: stats.currentYear,
-                                      previousPeriod: stats.previousYear,
-                                      positiveColor: positiveColor,
-                                      negativeColor: negativeColor,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                            loading: () => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                            error: (err, stack) => Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text("Error loading stats: $err"),
-                                  const SizedBox(height: 10),
-                                  ElevatedButton(
-                                    onPressed: () => _refreshBillsData(),
-                                    child: const Text("Retry"),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                    ),
+        body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              Visibility(
+                visible: _currentSearchQuery.isEmpty,
+                child: Container(
+                  height: 310,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(defaultRadius),
                   ),
-                  billsAsyncValue.when(
-                    data: (bills) {
-                      if (bills.isEmpty) {
-                        return Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 50.0),
-                            child: Text(
-                              _currentSearchQuery.isEmpty
-                                  ? 'No bills found.'
-                                  : 'No bills found for "$_currentSearchQuery"',
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                          ),
-                        );
-                      }
-
-                      final groupedBills = _groupBillsByReason(bills);
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: groupedBills.entries.map((entry) {
-                          final category = entry.key;
-                          final categoryBills = entry.value;
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                  child: ref
+                      .watch(billGrowthStatsProvider)
+                      .when(
+                        data: (stats) {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _buildSectionHeader(context, category),
-                              if (_selectedView == "grid")
-                                GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 4,
-                                        childAspectRatio: aspectRatio,
-                                        crossAxisSpacing: defaultWidth,
-                                        mainAxisSpacing: defaultHeight,
-                                      ),
-                                  itemCount: categoryBills.length,
-                                  itemBuilder: (ctx, index) {
-                                    final bill = categoryBills[index];
-                                    return BillCard(
-                                      bill: bill,
-                                      onTap: () => _navigateToBill(bill),
-                                      fullyPaidColor: positiveColor,
-                                      partiallyPaidColor: neutralColor,
-                                      unpaidColor: negativeColor,
-                                    );
-                                  },
+                              Expanded(
+                                child: BillStatsCard(
+                                  title: "Monthly Growth",
+                                  currentPeriod: stats.currentMonth,
+                                  previousPeriod: stats.previousMonth,
+                                  positiveColor: positiveColor,
+                                  negativeColor: negativeColor,
                                 ),
-                              if (_selectedView == "list")
-                                ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: categoryBills.length,
-                                  separatorBuilder: (_, _) =>
-                                      SizedBox(height: defaultHeight),
-                                  itemBuilder: (ctx, index) {
-                                    final bill = categoryBills[index];
-                                    return BillCard(
-                                      bill: bill,
-                                      onTap: () => _navigateToBill(bill),
-                                      fullyPaidColor: positiveColor,
-                                      partiallyPaidColor: neutralColor,
-                                      unpaidColor: negativeColor,
-                                    );
-                                  },
+                              ),
+                              SizedBox(width: defaultWidth),
+                              Expanded(
+                                child: BillStatsCard(
+                                  title: "Quarterly Growth",
+                                  currentPeriod: stats.currentQuarter,
+                                  previousPeriod: stats.previousQuarter,
+                                  positiveColor: positiveColor,
+                                  negativeColor: negativeColor,
                                 ),
-                              const SizedBox(height: 20),
+                              ),
+                              SizedBox(width: defaultWidth),
+                              Expanded(
+                                child: BillStatsCard(
+                                  title: "Yearly Growth",
+                                  currentPeriod: stats.currentYear,
+                                  previousPeriod: stats.previousYear,
+                                  positiveColor: positiveColor,
+                                  negativeColor: negativeColor,
+                                ),
+                              ),
                             ],
                           );
-                        }).toList(),
-                      );
-                    },
-                    loading: () => const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(50.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                    error: (err, stack) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 50.0),
+                        },
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (err, stack) => Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.error_outline, size: 48),
-                              const SizedBox(height: 16),
-                              Text(
-                                "Failed to load bills",
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.headlineSmall,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(err.toString(), textAlign: TextAlign.center),
-                              const SizedBox(height: 20),
-                              ElevatedButton.icon(
-                                onPressed: _refreshBillsData,
-                                icon: const Icon(Icons.refresh),
-                                label: const Text("Retry"),
+                              Text("Error loading stats: $err"),
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: () => _refreshBillsData(),
+                                child: const Text("Retry"),
                               ),
                             ],
                           ),
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 80),
-                ],
+                      ),
+                ),
               ),
-            ),
+              billsAsyncValue.when(
+                data: (bills) {
+                  if (bills.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 50.0),
+                        child: Text(
+                          _currentSearchQuery.isEmpty
+                              ? 'No bills found.'
+                              : 'No bills found for "$_currentSearchQuery"',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                      ),
+                    );
+                  }
+
+                  final groupedBills = _groupBillsByReason(bills);
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: groupedBills.entries.map((entry) {
+                      final category = entry.key;
+                      final categoryBills = entry.value;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader(context, category),
+                          if (_selectedView == "grid")
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    childAspectRatio: aspectRatio,
+                                    crossAxisSpacing: defaultWidth,
+                                    mainAxisSpacing: defaultHeight,
+                                  ),
+                              itemCount: categoryBills.length,
+                              itemBuilder: (ctx, index) {
+                                final bill = categoryBills[index];
+                                return BillCard(
+                                  bill: bill,
+                                  onTap: () => _navigateToBill(bill),
+                                  fullyPaidColor: positiveColor,
+                                  partiallyPaidColor: neutralColor,
+                                  unpaidColor: negativeColor,
+                                );
+                              },
+                            ),
+                          if (_selectedView == "list")
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: categoryBills.length,
+                              separatorBuilder: (_, _) =>
+                                  SizedBox(height: defaultHeight),
+                              itemBuilder: (ctx, index) {
+                                final bill = categoryBills[index];
+                                return BillCard(
+                                  bill: bill,
+                                  onTap: () => _navigateToBill(bill),
+                                  fullyPaidColor: positiveColor,
+                                  partiallyPaidColor: neutralColor,
+                                  unpaidColor: negativeColor,
+                                );
+                              },
+                            ),
+                          const SizedBox(height: 20),
+                        ],
+                      );
+                    }).toList(),
+                  );
+                },
+                loading: () => const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(50.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (err, stack) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 50.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline, size: 48),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Failed to load bills",
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(err.toString(), textAlign: TextAlign.center),
+                          const SizedBox(height: 20),
+                          ElevatedButton.icon(
+                            onPressed: _refreshBillsData,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text("Retry"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 80),
+            ],
           ),
         ),
       ),
     );
   }
 
-  void _navigateToBill(Bill bill) async {
-    final result = await navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => AddBillScreen2(billData: bill)),
+  void _navigateToBill(Bill bill) {
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(
+        builder: (_) => AddBillScreen2(billData: bill),
+      ),
     );
-    if (result == true) {
-      _refreshBillsData();
-    }
   }
 }

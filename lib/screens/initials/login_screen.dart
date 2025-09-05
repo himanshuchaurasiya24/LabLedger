@@ -8,7 +8,7 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/initials/ui_components/reusable_ui_components.dart';
-import 'package:labledger/screens/window_scaffold.dart';
+import 'package:labledger/screens/title_bar/window_scaffold.dart';
 import 'package:version/version.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';

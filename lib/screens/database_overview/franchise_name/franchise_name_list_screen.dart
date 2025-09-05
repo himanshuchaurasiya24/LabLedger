@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/franchise_provider.dart';
-import 'package:labledger/screens/database_overview/franchise_name/add_franchise_screen.dart';
 import 'package:labledger/screens/profile/account_list_screen.dart';
 
 class FranchiseNameListScreen extends ConsumerStatefulWidget {
@@ -34,7 +32,7 @@ class _FranchiseNameListScreenState
     super.dispose();
   }
 
-  Future<Map<String, List<Franchise>>> fetchFranchises() async {
+  Future<Map<String, List<FranchiseName>>> fetchFranchises() async {
     final franchisesAsync = ref.watch(franchiseProvider);
     final query = searchController.text.trim().toLowerCase();
 
@@ -44,14 +42,14 @@ class _FranchiseNameListScreenState
           return {'All Franchises': data};
         }
 
-        final nameMatches = <Franchise>[];
-        final addressMatches = <Franchise>[];
-        final phoneMatches = <Franchise>[];
+        final nameMatches = <FranchiseName>[];
+        final addressMatches = <FranchiseName>[];
+        final phoneMatches = <FranchiseName>[];
 
         for (var franchise in data) {
-          final name = franchise.franchiseName.toLowerCase();
-          final address = franchise.address.toLowerCase();
-          final phone = franchise.phoneNumber.toLowerCase();
+          final name = franchise.franchiseName!.toLowerCase();
+          final address = franchise.address!.toLowerCase();
+          final phone = franchise.phoneNumber!.toLowerCase();
 
           if (name.contains(query) || query.contains(name)) {
             nameMatches.add(franchise);
@@ -80,9 +78,9 @@ class _FranchiseNameListScreenState
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Theme.of(context).colorScheme.primary,
         onPressed: () {
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(builder: (context) => AddFranchiseScreen()),
-          );
+          // navigatorKey.currentState?.push(
+          //   MaterialPageRoute(builder: (context) => AddFranchiseScreen()),
+          // );
         },
         label: Text(
           "Add Franchise",
@@ -115,7 +113,7 @@ class _FranchiseNameListScreenState
               ),
             ),
             Expanded(
-              child: FutureBuilder<Map<String, List<Franchise>>>(
+              child: FutureBuilder<Map<String, List<FranchiseName>>>(
                 future: fetchFranchises(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -174,14 +172,14 @@ class _FranchiseNameListScreenState
                                 return GridCard(
                                   context: context,
                                   onTap: () {
-                                    navigatorKey.currentState?.push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            AddFranchiseScreen(
-                                              franchise: franchise,
-                                            ),
-                                      ),
-                                    );
+                                    // navigatorKey.currentState?.push(
+                                    //   MaterialPageRoute(
+                                    //     builder: (context) =>
+                                    //         // AddFranchiseScreen(
+                                    //         //   franchise: franchise,
+                                    //         // ),
+                                    //   ),
+                                    // );
                                   },
                                   child: Column(
                                     crossAxisAlignment:
@@ -203,7 +201,7 @@ class _FranchiseNameListScreenState
                                             ),
                                             child: Center(
                                               child: Text(
-                                                franchise.franchiseName[0]
+                                                franchise.franchiseName![0]
                                                     .toUpperCase(),
                                                 style: TextStyle(
                                                   fontSize: 20,
@@ -221,7 +219,7 @@ class _FranchiseNameListScreenState
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  franchise.franchiseName,
+                                                  franchise.franchiseName!,
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .titleSmall
@@ -235,7 +233,7 @@ class _FranchiseNameListScreenState
                                                       TextOverflow.ellipsis,
                                                 ),
                                                 Text(
-                                                  franchise.address,
+                                                  franchise.address!,
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .bodyMedium

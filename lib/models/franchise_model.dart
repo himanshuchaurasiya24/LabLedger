@@ -1,37 +1,40 @@
-import 'dart:convert';
+import 'package:labledger/models/bill_model.dart';
 
-class Franchise {
+class FranchiseName {
   final int? id;
-  final String franchiseName;
-  final String address;
-  final String phoneNumber;
+  final String? franchiseName;
+  final String? address;
+  final String? phoneNumber;
+  final CenterDetailForFranchise? centerDetail;
 
-  Franchise({
+  FranchiseName({
     this.id,
-    required this.franchiseName,
-    required this.address,
-    required this.phoneNumber,
+    this.franchiseName,
+    this.address,
+    this.phoneNumber,
+    this.centerDetail,
   });
 
-  /// Factory to create Franchise from JSON
-  factory Franchise.fromJson(Map<String, dynamic> json) {
-    return Franchise(
+  factory FranchiseName.fromJson(Map<String, dynamic> json) {
+    return FranchiseName(
       id: json['id'],
-      franchiseName: json['franchise_name'] ?? '',
-      address: json['address'] ?? '',
-      phoneNumber: json['phone_number'] ?? '',
+      franchiseName: json['franchise_name'],
+      address: json['address'],
+      phoneNumber: json['phone_number'],
+      centerDetail: json['center_detail'] != null
+          ? CenterDetailForFranchise.fromJson(json['center_detail'])
+          : null,
     );
   }
 
-  /// Convert Franchise object to JSON for update (includes id if available)
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {
+    return {
+      'id': id,
       'franchise_name': franchiseName,
       'address': address,
       'phone_number': phoneNumber,
+      'center_detail': centerDetail?.toJson(),
     };
-    if (id != null) data['id'] = id;
-    return data;
   }
 
   /// Convert Franchise object to JSON for create (excludes id)
@@ -40,17 +43,7 @@ class Franchise {
       'franchise_name': franchiseName,
       'address': address,
       'phone_number': phoneNumber,
+      if (centerDetail != null) 'center_detail': centerDetail!.toJson(),
     };
   }
-
-  /// Encode list of Franchise objects to JSON string
-  static String encode(List<Franchise> franchises) => json.encode(
-        franchises.map<Map<String, dynamic>>((f) => f.toJson()).toList(),
-      );
-
-  /// Decode list of Franchise objects from JSON string
-  static List<Franchise> decode(String franchises) =>
-      (json.decode(franchises) as List<dynamic>)
-          .map<Franchise>((item) => Franchise.fromJson(item))
-          .toList();
 }

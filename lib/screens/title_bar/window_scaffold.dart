@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
@@ -60,17 +61,18 @@ class _WindowScaffoldState extends State<WindowScaffold>
       vsync: this,
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(1.0, 0.0), // Start from right
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _slideController,
-        curve: widget.isInitialScreen
-            ? Curves.easeInOutCubic
-            : Curves.easeOutCubic,
-      ),
-    );
+    _slideAnimation =
+        Tween<Offset>(
+          begin: const Offset(1.0, 0.0), // Start from right
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(
+            parent: _slideController,
+            curve: widget.isInitialScreen
+                ? Curves.easeInOutCubic
+                : Curves.easeOutCubic,
+          ),
+        );
 
     if (widget.enableSlideTransition) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -152,7 +154,8 @@ class _WindowScaffoldState extends State<WindowScaffold>
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.f11) {
         await windowManager.setFullScreen(!isFullScreen);
-      } else if (event.logicalKey == LogicalKeyboardKey.escape && isFullScreen) {
+      } else if (event.logicalKey == LogicalKeyboardKey.escape &&
+          isFullScreen) {
         await windowManager.setFullScreen(false);
       }
     }
@@ -201,25 +204,53 @@ class _WindowScaffoldState extends State<WindowScaffold>
                   Row(
                     children: [
                       if (!widget.isInitialScreen)
-                        GestureDetector(
-                          onTap: _handleBackButton,
-                          child: Container(
-                            color: Colors.transparent,
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Icon(
-                              CupertinoIcons.back,
-                              size: 35,
-                              color: Theme.of(context).colorScheme.primary,
+                        Padding(
+                          padding: EdgeInsets.only(
+                            left: defaultPadding,
+                            top: defaultPadding / 2,
+                          ),
+                          child: GestureDetector(
+                            onTap: _handleBackButton,
+                            child: Container(
+                              width: 50,
+                              height: 45,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(
+                                  defaultRadius,
+                                ),
+                                color: Colors.red[400],
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  CupertinoIcons.back,
+                                  size:
+                                      24, // Slightly smaller for better proportion
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.white.withValues(alpha: 0.95)
+                                      : Colors.white,
+                                  shadows: [
+                                    // Icon shadow for better visibility
+                                    Shadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                      offset: const Offset(0, 1),
+                                      blurRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
+
                       GestureDetector(
                         onPanStart: (_) => windowManager.startDragging(),
                         child: Container(
                           color: Colors.transparent,
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 16.0),
+                          padding: EdgeInsets.only(left: defaultPadding),
                           alignment: Alignment.center,
                           child: widget.customTitle != null
                               ? Text(
@@ -243,7 +274,10 @@ class _WindowScaffoldState extends State<WindowScaffold>
                     child: GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onPanStart: (_) => windowManager.startDragging(),
-                      child: Center(child: widget.centerWidget),
+                      child: Padding(
+                        padding: EdgeInsets.only(top: defaultPadding / 2),
+                        child: Center(child: widget.centerWidget),
+                      ),
                     ),
                   ),
                   if (!isFullScreen)
@@ -283,12 +317,15 @@ class _WindowScaffoldState extends State<WindowScaffold>
             ),
             if (!isFullScreen) SizedBox(height: widget.spaceAfterRow ?? 7),
             Expanded(
-              child: widget.enableSlideTransition
-                  ? SlideTransition(
-                      position: _slideAnimation,
-                      child: widget.child,
-                    )
-                  : widget.child,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+                child: widget.enableSlideTransition
+                    ? SlideTransition(
+                        position: _slideAnimation,
+                        child: widget.child,
+                      )
+                    : widget.child,
+              ),
             ),
           ],
         ),
