@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:labledger/constants/constants.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/models/doctors_model.dart';
@@ -89,6 +91,12 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     franchiseNameDisplayController.dispose();
     refByDoctorDisplayController.dispose();
     super.dispose();
+  }
+
+  void showSnackBar({required String message, required Color backgroundColor}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: backgroundColor),
+    );
   }
 
   void _preFillData() {
@@ -281,6 +289,15 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
+  Future<void> deleteBill({required int id}) async {
+    ref.read(deleteBillProvider(id));
+    showSnackBar(
+      message: "Bill deleted successfully",
+      backgroundColor: Colors.red.withValues(alpha: 0.9),
+    );
+    navigatorKey.currentState?.pop();
+  }
+
   Future<void> _saveBill() async {
     if (billStatusController.text == "Unpaid") {
       paidAmountController.text = "0";
@@ -309,13 +326,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       if (widget.billData != null) {
         final updatedBill = await ref.read(updateBillProvider(bill).future);
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Bill updated successfully: ${updatedBill.billNumber}',
-            ),
-            backgroundColor: Colors.green,
-          ),
+
+        showSnackBar(
+          message: 'Bill updated successfully: ${updatedBill.billNumber}',
+          backgroundColor: Colors.green,
         );
         Navigator.pop(context, updatedBill);
       } else {
@@ -327,6 +341,11 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
             backgroundColor: Colors.green,
           ),
         );
+        showSnackBar(
+          message: 'Bill created successfully: ${newBill.billNumber}',
+          backgroundColor: Colors.green,
+        );
+
         Navigator.pop(context, newBill);
       }
     } catch (e) {
@@ -381,23 +400,23 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                if (!isSmallScreen) ...[
+                if (isEditing)
                   CustomActionButton(
-                    label: 'Cancel',
-                    onPressed: () => Navigator.pop(context),
-                    isPrimary: false,
+                    label: "Delete",
+                    color: Colors.red.withValues(alpha: 0.8),
+                    onPressed: () {
+                      deleteBill(id: widget.billData!.id!);
+                    },
                   ),
-                  const SizedBox(width: 12),
-                ],
-                Expanded(
-                  flex: isSmallScreen ? 1 : 0,
-                  child: CustomActionButton(
-                    label: isEditing ? 'Update Bill' : 'Add Bill',
-                    icon: isEditing
-                        ? Icons.save_as_rounded
-                        : Icons.add_circle_outline_rounded,
-                    onPressed: _saveBill,
-                  ),
+                SizedBox(width: defaultWidth),
+
+                CustomActionButton(
+                  color: Theme.of(context).colorScheme.secondary,
+                  label: isEditing ? 'Update Bill' : 'Add Bill',
+                  icon: isEditing
+                      ? Icons.save_as_rounded
+                      : Icons.add_circle_outline_rounded,
+                  onPressed: _saveBill,
                 ),
               ],
             ),
