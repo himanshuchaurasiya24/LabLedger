@@ -7,8 +7,8 @@ import 'package:labledger/main.dart';
 import 'package:labledger/providers/secure_storage_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 import 'package:labledger/screens/bill/bill_screen.dart';
-import 'package:labledger/screens/home/ui_components/chart_stats_card.dart';
-import 'package:labledger/screens/home/ui_components/referral_card.dart';
+import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
+import 'package:labledger/screens/ui_components/cards/referral_card.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -138,7 +138,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         },
                         child: ChartStatsCard(
                           title: selectedPeriod,
-                          accentColor: baseColor,
+                          baseColor: baseColor,
                           data: chartData,
                         ),
                       );

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/providers/theme_providers.dart';
-import 'package:labledger/screens/title_bar/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:window_manager/window_manager.dart';
 
 final containerLightColor = Color(0xFFEEEEEE);

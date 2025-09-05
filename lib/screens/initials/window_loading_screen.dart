@@ -12,9 +12,9 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
-import 'package:labledger/screens/initials/animated_progress_indicator.dart';
+import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
-import 'package:labledger/screens/title_bar/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 
 class WindowLoadingScreen extends ConsumerStatefulWidget {
   const WindowLoadingScreen({super.key});

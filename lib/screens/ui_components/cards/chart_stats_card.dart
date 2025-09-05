@@ -2,11 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
+import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class ChartStatsCard extends StatefulWidget {
   final String title;
   final List<ChartData> data;
-  final Color accentColor;
+  final Color baseColor;
   final double? height;
   final double? width;
 
@@ -14,7 +15,7 @@ class ChartStatsCard extends StatefulWidget {
     super.key,
     required this.title,
     required this.data,
-    required this.accentColor,
+    required this.baseColor,
     this.height,
     this.width,
   });
@@ -54,8 +55,8 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Updated to use standard .withOpacity()
     return isDark
-        ? widget.accentColor.withValues(alpha: 0.8) // darker bg in dark mode
-        : widget.accentColor.withValues(alpha: 0.1); // lighter bg in light mode
+        ? widget.baseColor.withValues(alpha: 0.8) // darker bg in dark mode
+        : widget.baseColor.withValues(alpha: 0.1); // lighter bg in light mode
   }
 
   /// Text color - Use accent color at full opacity in light mode
@@ -66,7 +67,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     } else {
       // Use accent color with guaranteed full opacity.
       // Updated to use standard .withOpacity()
-      return widget.accentColor.withValues(alpha: 1.0);
+      return widget.baseColor.withValues(alpha: 1.0);
     }
   }
 
@@ -79,8 +80,8 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Updated to use standard .withOpacity()
     return isDark
-        ? widget.accentColor.withValues(alpha: 0.6)
-        : widget.accentColor.withValues(alpha: 0.15);
+        ? widget.baseColor.withValues(alpha: 0.6)
+        : widget.baseColor.withValues(alpha: 0.15);
   }
 
   /// Bar color for the breakdown charts
@@ -89,7 +90,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     // Updated to use standard .withOpacity()
     return isDark
         ? Colors.white.withValues(alpha: 0.9)
-        : widget.accentColor; // Use accent color for bars in light mode
+        : widget.baseColor; // Use accent color for bars in light mode
   }
 
   @override
@@ -106,19 +107,8 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
         : 0;
     final maxValue = calculatedMaxValue > 0 ? calculatedMaxValue : 1;
 
-    return Container(
-      height: widget.height ?? 302,
-      width: widget.width ?? double.infinity,
-      padding: EdgeInsets.all(defaultPadding),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(defaultRadius),
-        border: Border.all(
-          // Updated to use standard .withOpacity()
-          color: widget.accentColor.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
+    return TintedContainer(
+      baseColor: widget.baseColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

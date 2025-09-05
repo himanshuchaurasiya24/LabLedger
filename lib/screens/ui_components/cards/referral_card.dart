@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
+import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class ReferralCard extends StatefulWidget {
   const ReferralCard({
@@ -153,13 +154,9 @@ class _ReferralCardState extends State<ReferralCard> {
         ? "No Referrals"
         : "Top Incentive #${index + 1}";
 
-    return Container(
-      padding: EdgeInsets.all(defaultPadding),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(defaultRadius),
-        border: Border.all(color: widget.baseColor.withValues(alpha: 0.3)),
-      ),
+    return TintedContainer(
+      baseColor: widget.baseColor,
+     
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

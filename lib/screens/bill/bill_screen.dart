@@ -10,9 +10,9 @@ import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/screens/bill/add_update_screen2.dart';
-import 'package:labledger/screens/bill/ui_components/bill_card.dart';
-import 'package:labledger/screens/bill/ui_components/bill_stats_card.dart';
-import 'package:labledger/screens/title_bar/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/cards/bill_card.dart';
+import 'package:labledger/screens/ui_components/cards/bill_stats_card.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 
