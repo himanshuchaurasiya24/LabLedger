@@ -1,123 +1,146 @@
-// lib/methods/custom_methods.dart OR lib/widgets/custom_text_field.dart
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
-  final String label;
-  final String hintText;
   final TextEditingController controller;
-  final FocusNode? focusNode;
+  final String label;
+  final bool useSearchBarDesign; // <-- New property to switch styles
   final TextInputType? keyboardType;
+  final bool readOnly;
+  final bool obscureText;
+  final ValueChanged<String>? onChanged;
+  final FormFieldValidator<String>? validator;
+  final FocusNode? focusNode;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
-  final bool readOnly;
-  final bool required;
   final VoidCallback? onTap;
-  final String? Function(String?)? validator;
-  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextField({
     super.key,
-    required this.label,
-    required this.hintText,
     required this.controller,
-    this.focusNode,
+    required this.label,
+    this.useSearchBarDesign = false, // Defaults to the standard style
     this.keyboardType,
+    this.readOnly = false,
+    this.obscureText = false,
+    this.onChanged,
+    this.validator,
+    this.focusNode,
     this.prefixIcon,
     this.suffixIcon,
-    this.readOnly = false,
-    this.required = false,
     this.onTap,
-    this.validator,
-    this.inputFormatters,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    // If using the search bar design, wrap the field in a decorated container
+    if (useSearchBarDesign) {
+      return _buildSearchBarStyledField(context);
+    }
+    // Otherwise, return the standard styled field
+    return _buildStandardStyledField(context);
+  }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white70 : Colors.black87,
-                fontSize: 14,
-              ),
-            ),
-            if (required)
-              const Text(
-                ' *',
-                style: TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
-              ),
+  /// Builds the field with the modern search bar container style.
+  Widget _buildSearchBarStyledField(BuildContext context) {
+    final theme = Theme.of(context);
+    final isLightMode = theme.brightness == Brightness.light;
+
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            isLightMode ? Colors.white : const Color(0xFF2A2A2A),
+            isLightMode ? const Color(0xFFF8F9FA) : const Color(0xFF1E1E1E),
           ],
         ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          keyboardType: keyboardType,
-          readOnly: readOnly,
-          onTap: onTap,
-          validator: validator,
-          inputFormatters: inputFormatters,
-          decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: TextStyle(color: Colors.grey.shade400),
-            prefixIcon: prefixIcon != null
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: prefixIcon,
-                  )
-                : null,
-            suffixIcon: suffixIcon,
-            filled: true,
-            fillColor: isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF8F9FA),
-            contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: isDark ? Colors.grey.shade800 : Colors.grey.shade200,
-                width: 1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF0072B5),
-                width: 2.0,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Colors.red.shade400,
-                width: 1,
-              ),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Colors.red.shade400,
-                width: 2,
-              ),
-            ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha:  isLightMode ? 0.08 : 0.3),
+            offset: const Offset(0, 4),
+            blurRadius: 12,
           ),
+        ],
+        border: Border.all(
+          color: isLightMode ? Colors.grey.shade200 : Colors.grey.shade800,
+          width: 1.0,
         ),
-      ],
+      ),
+      child: _buildTextFieldCore(context, isTransparent: true),
+    );
+  }
+
+  /// Builds the field with the standard, general-purpose form style.
+  Widget _buildStandardStyledField(BuildContext context) {
+    return _buildTextFieldCore(context, isTransparent: false);
+  }
+
+  /// The core TextFormField used by both styles.
+  Widget _buildTextFieldCore(
+    BuildContext context, {
+    required bool isTransparent,
+  }) {
+    final theme = Theme.of(context);
+    final isLightMode = theme.brightness == Brightness.light;
+
+    // Define colors
+    final fillColor = isLightMode
+        ? const Color(0xFFF8F9FA)
+        : const Color(0xFF2A2D3E);
+    final borderColor = isLightMode
+        ? Colors.grey.shade300
+        : Colors.grey.shade700;
+    final hintColor = isLightMode ? Colors.grey.shade500 : Colors.grey.shade400;
+
+    return TextFormField(
+      controller: controller,
+      focusNode: focusNode,
+      keyboardType: keyboardType,
+      readOnly: readOnly,
+      obscureText: obscureText,
+      onChanged: onChanged,
+      validator: validator,
+      onTap: onTap,
+      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+      decoration: InputDecoration(
+        hintText: label,
+        hintStyle: TextStyle(color: hintColor, fontWeight: FontWeight.w400),
+        prefixIcon: prefixIcon,
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: isTransparent ? Colors.transparent : fillColor,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: isTransparent
+              ? BorderSide.none
+              : BorderSide(color: borderColor, width: 1.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: isTransparent
+              ? BorderSide.none
+              : BorderSide(color: theme.colorScheme.primary, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: theme.colorScheme.error, width: 1.0),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(color: theme.colorScheme.error, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+      ),
     );
   }
 }

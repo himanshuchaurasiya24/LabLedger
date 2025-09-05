@@ -189,7 +189,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
 
   @override
   Widget build(BuildContext context) {
-    // Note: All ref.listen blocks have been removed from here.
+    final isDark = ThemeData().brightness == Brightness.dark;
     return KeyboardListener(
       focusNode: focusNode,
       autofocus: true,
@@ -200,8 +200,11 @@ class _WindowScaffoldState extends State<WindowScaffold>
             SizedBox(
               height: 50,
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       if (!widget.isInitialScreen)
                         Padding(
@@ -212,13 +215,15 @@ class _WindowScaffoldState extends State<WindowScaffold>
                           child: GestureDetector(
                             onTap: _handleBackButton,
                             child: Container(
-                              width: 50,
-                              height: 45,
+                              width: 40,
+                              height: 40,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(
                                   defaultRadius,
                                 ),
-                                color: Colors.red[400],
+                                color: isDark
+                                    ? Colors.red.withValues(alpha: 0.3)
+                                    : Colors.red.withValues(alpha: 0.8),
                               ),
                               child: Center(
                                 child: Icon(

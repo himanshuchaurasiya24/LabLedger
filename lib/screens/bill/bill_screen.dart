@@ -9,7 +9,7 @@ import 'package:labledger/methods/provider_invalidator.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/bills_provider.dart';
-import 'package:labledger/screens/bill/add_update_screen2.dart';
+import 'package:labledger/screens/bill/add_update_screen.dart';
 import 'package:labledger/screens/ui_components/cards/bill_card.dart';
 import 'package:labledger/screens/ui_components/cards/bill_stats_card.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
@@ -133,7 +133,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
           value: 'list',
           child: Row(
             children: [
-              Icon(Icons.list_rounded, color: theme.colorScheme.secondary),
+              Icon(Icons.list, color: theme.colorScheme.secondary),
               SizedBox(width: defaultWidth),
               Text(
                 "List View",
@@ -241,7 +241,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
           ),
           onPressed: () async {
             navigatorKey.currentState?.push(
-              MaterialPageRoute(builder: (context) => AddBillScreen2()),
+              MaterialPageRoute(builder: (context) => AddBillScreen()),
             );
             if (!mounted) return;
             invalidateProvidersAfterDelay(
@@ -445,9 +445,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
 
   void _navigateToBill(Bill bill) {
     navigatorKey.currentState?.push(
-      MaterialPageRoute(
-        builder: (_) => AddBillScreen2(billData: bill),
-      ),
+      MaterialPageRoute(builder: (_) => AddBillScreen(billData: bill)),
     );
   }
 }

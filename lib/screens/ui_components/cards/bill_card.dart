@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/bill_model.dart';
-import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class BillCard extends StatelessWidget {
   final Bill bill;
@@ -114,6 +113,7 @@ class BillCard extends StatelessWidget {
 
     // 3. Get the final derived colors.
     final derivedColors = getDerivedColors(baseColor);
+    final Color backgroundColor = derivedColors.background;
     final Color textColor = derivedColors.text;
     final Color accentColor = derivedColors.accent;
 
@@ -135,9 +135,23 @@ class BillCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: TintedContainer(
-        baseColor: accentColor,
-        disablePadding: true,
+      child: Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: accentColor.withValues(alpha: 0.3),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: accentColor.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
+            ),
+          ],
+        ),
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(
