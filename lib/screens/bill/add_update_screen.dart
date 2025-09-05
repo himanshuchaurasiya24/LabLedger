@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/models/doctors_model.dart';
@@ -11,6 +10,7 @@ import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_provider.dart';
+import 'package:labledger/screens/ui_components/custom_action_button.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
 
@@ -19,9 +19,7 @@ const _cardSpacing = 20.0;
 
 class AddBillScreen extends ConsumerStatefulWidget {
   final Bill? billData;
-
   const AddBillScreen({super.key, this.billData});
-
   @override
   ConsumerState<AddBillScreen> createState() => _AddBillScreenState();
 }
@@ -29,10 +27,7 @@ class AddBillScreen extends ConsumerStatefulWidget {
 class _AddBillScreenState extends ConsumerState<AddBillScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  late AnimationController _slideController;
-  late AnimationController _fadeController;
 
-  // Controllers for storing IDs or simple text values
   final patientNameController = TextEditingController();
   final patientAgeController = TextEditingController();
   final patientSexController = TextEditingController();
@@ -46,12 +41,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
   final discByDoctorController = TextEditingController();
   final discByCenterController = TextEditingController();
 
-  // Controllers for displaying user-friendly text in popup fields
   final diagnosisTypeDisplayController = TextEditingController();
   final franchiseNameDisplayController = TextEditingController();
   final refByDoctorDisplayController = TextEditingController();
 
-  // State variables for API submission
   String selectedTestDateISO = DateTime.now().toIso8601String();
   String selectedBillDateISO = DateTime.now().toIso8601String();
 
@@ -66,40 +59,20 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     "Unpaid",
   ];
 
-  // Flag to track if data has been loaded to prevent re-initialization
   bool _dataLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    // Add listener to rebuild UI when bill status changes (for showing/hiding amount fields)
     billStatusController.addListener(() => setState(() {}));
 
-    // If we are editing, pre-fill the form fields right away
     if (widget.billData != null) {
       _preFillData();
     }
-
-    // Start animations
-    _slideController.forward();
-    _fadeController.forward();
   }
 
   @override
   void dispose() {
-    _slideController.dispose();
-    _fadeController.dispose();
-
-    // Dispose all controllers to prevent memory leaks
     patientNameController.dispose();
     patientAgeController.dispose();
     patientSexController.dispose();
@@ -118,77 +91,57 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     super.dispose();
   }
 
-  /// Pre-fill form data when editing. This populates controllers with initial values.
   void _preFillData() {
     if (widget.billData == null || _dataLoaded) return;
-
     final bill = widget.billData!;
     final dateFormat = DateFormat('dd-MM-yyyy');
 
-    // Fill basic patient info
     patientNameController.text = bill.patientName;
     patientAgeController.text = bill.patientAge.toString();
     patientSexController.text = bill.patientSex;
-
-    // Fill IDs for dropdowns/popups
     diagnosisTypeController.text = bill.diagnosisType.toString();
     franchiseNameController.text = bill.franchiseName ?? '';
     refByDoctorController.text = bill.referredByDoctor.toString();
-
-    // Fill dates and update ISO strings for API submission
     dateOfTestController.text = dateFormat.format(bill.dateOfTest);
     dateOfBillController.text = dateFormat.format(bill.dateOfBill);
     selectedTestDateISO = bill.dateOfTest.toIso8601String();
     selectedBillDateISO = bill.dateOfBill.toIso8601String();
-
-    // Fill bill status and amounts
     billStatusController.text = bill.billStatus;
     paidAmountController.text = bill.paidAmount.toString();
     discByDoctorController.text = bill.discByDoctor.toString();
     discByCenterController.text = bill.discByCenter.toString();
-
-    // Set flag to true to avoid re-filling data on subsequent builds
     _dataLoaded = true;
   }
 
-  /// Update display controllers after async data (diagnosis types, doctors) has been loaded.
   void _updateDisplayControllers(
     List<DiagnosisType> diagnosisTypes,
     List<FranchiseName> franchises,
     List<Doctor> doctors,
   ) {
     if (widget.billData == null) return;
-
-    // Find and set the selected diagnosis type object and its display text
-    _selectedDiagnosisType = diagnosisTypes.firstWhere(
-      (type) => type.id.toString() == diagnosisTypeController.text,
-      orElse: () => diagnosisTypes.first,
-    );
-    diagnosisTypeDisplayController.text =
-        '${_selectedDiagnosisType!.category} ${_selectedDiagnosisType!.name}';
-
-    // Find and set franchise if applicable
-    if (franchiseNameController.text.isNotEmpty) {
-      _selectedFranchise = franchises.firstWhere(
-        (franchise) => franchise.franchiseName == franchiseNameController.text,
-        orElse: () => franchises.isNotEmpty ? franchises.first : franchises[0],
+    try {
+      _selectedDiagnosisType = diagnosisTypes.firstWhere(
+        (type) => type.id.toString() == diagnosisTypeController.text,
       );
-      if (_selectedFranchise != null) {
+      diagnosisTypeDisplayController.text =
+          '${_selectedDiagnosisType!.category} ${_selectedDiagnosisType!.name}';
+      if (franchiseNameController.text.isNotEmpty) {
+        _selectedFranchise = franchises.firstWhere(
+          (f) => f.franchiseName == franchiseNameController.text,
+        );
         franchiseNameDisplayController.text =
             "${_selectedFranchise!.franchiseName}, ${_selectedFranchise!.address}";
       }
+      _selectedDoctor = doctors.firstWhere(
+        (doc) => doc.id.toString() == refByDoctorController.text,
+      );
+      refByDoctorDisplayController.text =
+          '${_selectedDoctor!.firstName} ${_selectedDoctor!.lastName ?? ''}';
+    } catch (e) {
+      debugPrint("Error updating display controllers: $e");
     }
-
-    // Find and set the selected doctor object and its display text
-    _selectedDoctor = doctors.firstWhere(
-      (doctor) => doctor.id.toString() == refByDoctorController.text,
-      orElse: () => doctors.first,
-    );
-    refByDoctorDisplayController.text =
-        '${_selectedDoctor!.firstName} ${_selectedDoctor!.lastName ?? ''}';
   }
 
-  /// Modern dropdown with improved styling
   Widget _buildPopupMenuField<T>({
     required BuildContext context,
     required String label,
@@ -197,179 +150,130 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     required String Function(T item) valueMapper,
     required Function(T item) onSelected,
     String? Function(String?)? validator,
+    Color? tintColor,
   }) {
     final GlobalKey key = GlobalKey();
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final Color baseColor = theme.colorScheme.secondary;
 
-    // Modern menu background color
-    final Color menuBackgroundColor = (baseColor is MaterialColor)
-        ? (isDark
-              ? baseColor.shade900.withValues(alpha: 0.95)
-              : baseColor.shade50)
-        : (isDark
-              ? Color.alphaBlend(
-                  baseColor.withValues(alpha: 0.4),
-                  theme.colorScheme.surface,
-                )
-              : Color.alphaBlend(
-                  baseColor.withValues(alpha: 0.1),
-                  theme.colorScheme.surface,
-                ));
-
-    final Color menuBorderColor = (baseColor is MaterialColor)
-        ? (isDark ? baseColor.shade200 : baseColor.shade600)
-        : HSLColor.fromColor(baseColor).withLightness(0.5).toColor();
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: InkWell(
-        key: key,
-        borderRadius: BorderRadius.circular(12),
-        onTap: () async {
-          if (items.isEmpty) return;
-          HapticFeedback.selectionClick();
-          final RenderBox renderBox =
-              key.currentContext!.findRenderObject() as RenderBox;
-          final size = renderBox.size;
-          final position = renderBox.localToGlobal(Offset.zero);
-
-          final selected = await showMenu<T>(
-            context: context,
-            position: RelativeRect.fromLTRB(
-              position.dx,
-              position.dy + size.height + 4,
-              position.dx + size.width,
-              position.dy,
-            ),
-            elevation: 0,
-            shadowColor: Colors.transparent,
-            color: menuBackgroundColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(defaultRadius),
-              side: BorderSide(color: menuBorderColor.withValues(alpha: 0.3)),
-            ),
-            items: items.map((item) {
-              return PopupMenuItem<T>(
-                value: item,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 4,
-                  ),
-                  child: Text(
-                    valueMapper(item),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ),
+    return InkWell(
+      key: key,
+      borderRadius: BorderRadius.circular(12),
+      onTap: () async {
+        if (items.isEmpty) return;
+        HapticFeedback.selectionClick();
+        final RenderBox renderBox =
+            key.currentContext!.findRenderObject() as RenderBox;
+        final size = renderBox.size;
+        final position = renderBox.localToGlobal(Offset.zero);
+        final isDark = theme.brightness == Brightness.dark;
+        final Color baseColor = tintColor ?? theme.colorScheme.primary;
+        final Color menuBackgroundColor = isDark
+            ? Color.alphaBlend(
+                baseColor.withValues(alpha: 0.25),
+                theme.colorScheme.surface,
+              )
+            : Color.alphaBlend(
+                baseColor.withValues(alpha: 0.1),
+                theme.colorScheme.surface,
               );
-            }).toList(),
-          );
+        final Color menuBorderColor = baseColor.withValues(
+          alpha: isDark ? 0.5 : 0.4,
+        );
 
-          if (selected != null) {
-            onSelected(selected);
-          }
-        },
-        child: AbsorbPointer(
-          child: CustomTextField(
-            label: label,
-            controller: displayController,
-            readOnly: true,
-            validator: validator,
-            suffixIcon: Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.7),
-              size: 24,
-            ),
+        final selected = await showMenu<T>(
+          context: context,
+          position: RelativeRect.fromLTRB(
+            position.dx,
+            position.dy + size.height + 4,
+            position.dx + size.width,
+            position.dy,
+          ),
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          color: menuBackgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: menuBorderColor, width: 1),
+          ),
+          items: items.map((item) {
+            return PopupMenuItem<T>(
+              value: item,
+              child: Text(
+                valueMapper(item),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            );
+          }).toList(),
+        );
+        if (selected != null) {
+          onSelected(selected);
+        }
+      },
+      child: AbsorbPointer(
+        child: CustomTextField(
+          label: label,
+          controller: displayController,
+          readOnly: true,
+          validator: validator,
+          tintColor: tintColor,
+          suffixIcon: Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color:
+                tintColor ?? theme.colorScheme.primary.withValues(alpha: 0.7),
+            size: 24,
           ),
         ),
       ),
     );
   }
 
-  /// Builds the modern date selector widget.
   Widget _buildDateSelector({
     required String label,
     required TextEditingController controller,
     required Function(String isoDate) onDateSelected,
     String? Function(String?)? validator,
+    Color? tintColor,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () async {
-          HapticFeedback.selectionClick();
+    final theme = Theme.of(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () async {
+        HapticFeedback.selectionClick();
+        final pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(2020),
+          lastDate: DateTime(2100),
+        );
 
-          final pickedDate = await showDatePicker(
-            context: context,
-            initialDate: DateTime.now(),
-            firstDate: DateTime(2020),
-            lastDate: DateTime(2100),
-            builder: (context, child) {
-              return Theme(
-                data: Theme.of(context).copyWith(
-                  dialogTheme: DialogThemeData(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
-                child: child!,
-              );
-            },
+        if (pickedDate != null) {
+          final now = DateTime.now();
+          final fullDateTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            now.hour,
+            now.minute,
+            now.second,
           );
-
-          if (pickedDate != null) {
-            final now = DateTime.now();
-            final fullDateTime = DateTime(
-              pickedDate.year,
-              pickedDate.month,
-              pickedDate.day,
-              now.hour,
-              now.minute,
-              now.second,
-            );
-            controller.text = DateFormat('dd-MM-yyyy').format(fullDateTime);
-            onDateSelected(fullDateTime.toIso8601String());
-          }
-        },
-        child: AbsorbPointer(
-          child: CustomTextField(
-            label: label,
-            controller: controller,
-            readOnly: true,
-            validator: validator,
-            suffixIcon: Icon(
-              Icons.calendar_month_rounded,
-              size: 22,
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.7),
+          controller.text = DateFormat('dd-MM-yyyy').format(fullDateTime);
+          onDateSelected(fullDateTime.toIso8601String());
+        }
+      },
+      child: AbsorbPointer(
+        child: CustomTextField(
+          label: label,
+          controller: controller,
+          readOnly: true,
+          validator: validator,
+          tintColor: tintColor,
+          suffixIcon: Icon(
+            Icons.calendar_month_rounded,
+            size: 22,
+            color: (tintColor ?? theme.colorScheme.primary).withValues(
+              alpha: 0.9,
             ),
           ),
         ),
@@ -377,80 +281,50 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  /// Save or Update bill logic
   Future<void> _saveBill() async {
-    // If bill is unpaid, reset amount fields to 0
     if (billStatusController.text == "Unpaid") {
       paidAmountController.text = "0";
       discByCenterController.text = "0";
       discByDoctorController.text = "0";
     }
-
     if (!_formKey.currentState!.validate()) {
-      return; // If form is not valid, do nothing.
+      return;
     }
-
-    // Prepare data payload for the API
-    final billData = {
+    final billDataMap = {
       'patient_name': patientNameController.text,
       'patient_age': int.parse(patientAgeController.text),
       'patient_sex': patientSexController.text,
       'diagnosis_type': int.parse(diagnosisTypeController.text),
       'franchise_name': franchiseNameController.text,
       'referred_by_doctor': int.parse(refByDoctorController.text),
-      'date_of_test': DateTime.parse(selectedTestDateISO).toString(),
-      'date_of_bill': DateTime.parse(selectedBillDateISO).toString(),
+      'date_of_test': selectedTestDateISO,
+      'date_of_bill': selectedBillDateISO,
       'bill_status': billStatusController.text,
       'paid_amount': int.parse(paidAmountController.text),
       'disc_by_center': int.parse(discByCenterController.text),
       'disc_by_doctor': int.parse(discByDoctorController.text),
     };
-
-    // Create a Bill object, preserving the ID if we are editing
-    final bill = Bill.fromJson({...billData, 'id': widget.billData?.id});
-
+    final bill = Bill.fromJson({...billDataMap, 'id': widget.billData?.id});
     try {
       if (widget.billData != null) {
-        // --- UPDATE LOGIC ---
         final updatedBill = await ref.read(updateBillProvider(bill).future);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 8),
-                Text('Bill updated successfully: ${updatedBill.billNumber}'),
-              ],
+            content: Text(
+              'Bill updated successfully: ${updatedBill.billNumber}',
             ),
             backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            margin: const EdgeInsets.all(16),
           ),
         );
         Navigator.pop(context, updatedBill);
       } else {
-        // --- CREATE LOGIC ---
         final newBill = await ref.read(createBillProvider(bill).future);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 8),
-                Text('Bill created successfully: ${newBill.billNumber}'),
-              ],
-            ),
+            content: Text('Bill created successfully: ${newBill.billNumber}'),
             backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            margin: const EdgeInsets.all(16),
           ),
         );
         Navigator.pop(context, newBill);
@@ -459,19 +333,8 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 8),
-              Expanded(child: Text('Failed: $e')),
-            ],
-          ),
+          content: Text('Failed to save bill: $e'),
           backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          margin: const EdgeInsets.all(16),
         ),
       );
     }
@@ -497,15 +360,15 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   )
                 : _buildCenteredContent(context, isLargeScreen, isMediumScreen),
           ),
-
-          // Bottom Action Bar
           Container(
             padding: EdgeInsets.symmetric(
               horizontal: isLargeScreen ? 48 : (isMediumScreen ? 32 : 24),
               vertical: 16,
             ),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.8),
               border: Border(
                 top: BorderSide(
                   color: Theme.of(
@@ -514,75 +377,26 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   width: 1,
                 ),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (!isSmallScreen) ...[
-                  OutlinedButton(
+                  CustomActionButton(
+                    label: 'Cancel',
                     onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Cancel',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    isPrimary: false,
                   ),
                   const SizedBox(width: 12),
                 ],
-                Container(
-                  constraints: BoxConstraints(
-                    minWidth: isSmallScreen ? double.infinity : 160,
-                  ),
-                  child: ElevatedButton(
+                Expanded(
+                  flex: isSmallScreen ? 1 : 0,
+                  child: CustomActionButton(
+                    label: isEditing ? 'Update Bill' : 'Add Bill',
+                    icon: isEditing
+                        ? Icons.save_as_rounded
+                        : Icons.add_circle_outline_rounded,
                     onPressed: _saveBill,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isEditing ? Icons.save_as_rounded : Icons.add_rounded,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          isEditing ? 'Update Bill' : 'Add Bill',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ],
@@ -600,22 +414,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
   ) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.all(24),
-      child: SlideTransition(
-        position: Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero)
-            .animate(
-              CurvedAnimation(
-                parent: _slideController,
-                curve: Curves.easeOutCubic,
-              ),
-            ),
-        child: FadeTransition(
-          opacity: _fadeController,
-          child: Form(
-            key: _formKey,
-            child: _buildFormContent(context, isLargeScreen, isMediumScreen),
-          ),
-        ),
+      padding: const EdgeInsets.all(24),
+      child: Form(
+        key: _formKey,
+        child: _buildFormContent(context, isLargeScreen, isMediumScreen),
       ),
     );
   }
@@ -634,28 +436,9 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
             horizontal: isLargeScreen ? 48 : (isMediumScreen ? 32 : 24),
             vertical: 32,
           ),
-          child: SlideTransition(
-            position:
-                Tween<Offset>(
-                  begin: const Offset(0, 0.1),
-                  end: Offset.zero,
-                ).animate(
-                  CurvedAnimation(
-                    parent: _slideController,
-                    curve: Curves.easeOutCubic,
-                  ),
-                ),
-            child: FadeTransition(
-              opacity: _fadeController,
-              child: Form(
-                key: _formKey,
-                child: _buildFormContent(
-                  context,
-                  isLargeScreen,
-                  isMediumScreen,
-                ),
-              ),
-            ),
+          child: Form(
+            key: _formKey,
+            child: _buildFormContent(context, isLargeScreen, isMediumScreen),
           ),
         ),
       ),
@@ -667,8 +450,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     bool isLargeScreen,
     bool isMediumScreen,
   ) {
-    if (isLargeScreen) {
-      // Three-column layout for large screens
+    if (isLargeScreen || isMediumScreen) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -676,49 +458,17 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
             child: Column(
               children: [
                 _buildPatientDetailsCard(context),
-                SizedBox(height: _cardSpacing),
+                const SizedBox(height: _cardSpacing),
                 _buildDiagnosisDetailsCard(context),
               ],
             ),
           ),
-          SizedBox(width: _cardSpacing),
+          const SizedBox(width: _cardSpacing),
           Expanded(
             child: Column(
               children: [
                 _buildBillingDetailsCard(context),
-                SizedBox(height: _cardSpacing),
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeInOutCubic,
-                  child: billStatusController.text != "Unpaid"
-                      ? _buildAmountDetailsCard(context)
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    } else if (isMediumScreen) {
-      // Two-column layout for medium screens
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                _buildPatientDetailsCard(context),
-                SizedBox(height: _cardSpacing),
-                _buildDiagnosisDetailsCard(context),
-              ],
-            ),
-          ),
-          SizedBox(width: _cardSpacing),
-          Expanded(
-            child: Column(
-              children: [
-                _buildBillingDetailsCard(context),
-                SizedBox(height: _cardSpacing),
+                const SizedBox(height: _cardSpacing),
                 AnimatedSize(
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeInOutCubic,
@@ -732,15 +482,14 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         ],
       );
     } else {
-      // Single column layout for small screens
       return Column(
         children: [
           _buildPatientDetailsCard(context),
-          SizedBox(height: _cardSpacing),
+          const SizedBox(height: _cardSpacing),
           _buildDiagnosisDetailsCard(context),
-          SizedBox(height: _cardSpacing),
+          const SizedBox(height: _cardSpacing),
           _buildBillingDetailsCard(context),
-          SizedBox(height: _cardSpacing),
+          const SizedBox(height: _cardSpacing),
           AnimatedSize(
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeInOutCubic,
@@ -753,27 +502,23 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     }
   }
 
-  // --- Modern Card Builder Methods ---
-
   Widget _buildPatientDetailsCard(BuildContext context) {
+    final Color tint = Colors.blue;
     return _buildModernCard(
       context: context,
       title: "Patient Details",
       icon: Icons.person_outline_rounded,
-      iconColor: Colors.blue,
+      iconColor: tint,
       child: Column(
         children: [
           CustomTextField(
             label: "Patient Name",
             controller: patientNameController,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Patient name is required';
-              }
-              return null;
-            },
+            tintColor: tint,
+            validator: (v) =>
+                v!.trim().isEmpty ? 'Patient name is required' : null,
           ),
-          SizedBox(height: _spacing),
+          const SizedBox(height: _spacing),
           Row(
             children: [
               Expanded(
@@ -783,15 +528,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   displayController: patientSexController,
                   items: sexDropDownList,
                   valueMapper: (item) => item,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please select sex';
-                    }
-                    return null;
-                  },
-                  onSelected: (selectedSex) {
-                    setState(() => patientSexController.text = selectedSex);
-                  },
+                  tintColor: tint,
+                  validator: (v) => v!.isEmpty ? 'Please select sex' : null,
+                  onSelected: (sex) =>
+                      setState(() => patientSexController.text = sex),
                 ),
               ),
               const SizedBox(width: 16),
@@ -800,11 +540,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   label: "Age",
                   controller: patientAgeController,
                   keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Age is required';
-                    }
-                    if (int.tryParse(value.trim()) == null) {
+                  tintColor: tint,
+                  validator: (v) {
+                    if (v!.trim().isEmpty) return 'Age is required';
+                    if (int.tryParse(v.trim()) == null) {
                       return 'Enter valid age';
                     }
                     return null;
@@ -822,26 +561,33 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     final diagnosisTypeAsync = ref.watch(diagnosisTypeProvider);
     final franchiseNamesAsync = ref.watch(franchiseNamesProvider);
     final doctorAsync = ref.watch(doctorsProvider);
+    final Color tint = Colors.green;
 
     return _buildModernCard(
       context: context,
       title: "Diagnosis Details",
       icon: Icons.medical_services_rounded,
-      iconColor: Colors.green,
+      iconColor: tint,
       child: Column(
         children: [
           diagnosisTypeAsync.when(
             data: (types) {
+              // ⭐️⭐️⭐️ BUG FIX IS HERE ⭐️⭐️⭐️
+              // This logic ensures that when editing a bill, the `_selectedDiagnosisType`
+              // object is set as soon as the types are loaded, which correctly
+              // reveals the 'Franchise Name' field without needing a user tap.
               if (widget.billData != null && _selectedDiagnosisType == null) {
-                final billDiagnosisId = diagnosisTypeController.text;
-                _selectedDiagnosisType = types.firstWhere(
-                  (type) => type.id.toString() == billDiagnosisId,
-                  orElse: () => types.isNotEmpty ? types.first : types[0],
-                );
+                try {
+                  final billDiagnosisId = diagnosisTypeController.text;
+                  _selectedDiagnosisType = types.firstWhere(
+                    (type) => type.id.toString() == billDiagnosisId,
+                  );
+                } catch (e) {
+                  debugPrint("Could not find pre-selected diagnosis type: $e");
+                }
               }
-              // ========================== FIX END ==========================
+              // ======================= FIX END =======================
 
-              // Update display controllers when data is first loaded during an edit
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (doctorAsync.hasValue &&
                     franchiseNamesAsync.hasValue &&
@@ -853,20 +599,16 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   );
                 }
               });
-
               return _buildPopupMenuField<DiagnosisType>(
                 context: context,
                 label: "Diagnosis Type",
                 displayController: diagnosisTypeDisplayController,
                 items: types,
+                tintColor: tint,
                 valueMapper: (item) =>
                     '${item.category} ${item.name}, ₹${item.price}',
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please select diagnosis type';
-                  }
-                  return null;
-                },
+                validator: (v) =>
+                    v!.isEmpty ? 'Please select diagnosis type' : null,
                 onSelected: (selected) {
                   setState(() {
                     _selectedDiagnosisType = selected;
@@ -880,7 +622,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
             loading: () => _buildShimmerLoader(),
             error: (e, s) => _buildErrorWidget("Error loading diagnosis types"),
           ),
-          SizedBox(height: _spacing),
+          const SizedBox(height: _spacing),
           AnimatedSize(
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeInOutCubic,
@@ -893,6 +635,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                           label: "Franchise Name",
                           displayController: franchiseNameDisplayController,
                           items: franchises,
+                          tintColor: tint,
                           valueMapper: (item) =>
                               "${item.franchiseName}, ${item.address}",
                           onSelected: (selected) {
@@ -905,19 +648,19 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                             });
                           },
                         ),
-                        SizedBox(height: _spacing),
+                        const SizedBox(height: _spacing),
                       ],
                     ),
                     loading: () => Column(
                       children: [
                         _buildShimmerLoader(),
-                        SizedBox(height: _spacing),
+                        const SizedBox(height: _spacing),
                       ],
                     ),
                     error: (e, s) => Column(
                       children: [
                         _buildErrorWidget("Error loading franchises"),
-                        SizedBox(height: _spacing),
+                        const SizedBox(height: _spacing),
                       ],
                     ),
                   )
@@ -929,14 +672,11 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               label: "Referred By Doctor",
               displayController: refByDoctorDisplayController,
               items: doctors,
+              tintColor: tint,
               valueMapper: (item) =>
                   '${item.firstName} ${item.lastName ?? ''}, ${item.address ?? ""}',
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please select referring doctor';
-                }
-                return null;
-              },
+              validator: (v) =>
+                  v!.isEmpty ? 'Please select referring doctor' : null,
               onSelected: (selected) {
                 setState(() {
                   _selectedDoctor = selected;
@@ -955,11 +695,12 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
   }
 
   Widget _buildBillingDetailsCard(BuildContext context) {
+    final Color tint = Colors.orange;
     return _buildModernCard(
       context: context,
       title: "Billing Details",
       icon: Icons.receipt_long_rounded,
-      iconColor: Colors.orange,
+      iconColor: tint,
       child: Column(
         children: [
           Row(
@@ -968,13 +709,9 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                 child: _buildDateSelector(
                   label: "Date of Test",
                   controller: dateOfTestController,
+                  tintColor: tint,
                   onDateSelected: (iso) => selectedTestDateISO = iso,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Test date is required';
-                    }
-                    return null;
-                  },
+                  validator: (v) => v!.isEmpty ? 'Test date is required' : null,
                 ),
               ),
               const SizedBox(width: 16),
@@ -982,40 +719,24 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                 child: _buildDateSelector(
                   label: "Date of Bill",
                   controller: dateOfBillController,
+                  tintColor: tint,
                   onDateSelected: (iso) => selectedBillDateISO = iso,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Bill date is required';
-                    }
-                    return null;
-                  },
+                  validator: (v) => v!.isEmpty ? 'Bill date is required' : null,
                 ),
               ),
             ],
           ),
-          SizedBox(height: _spacing),
+          const SizedBox(height: _spacing),
           _buildPopupMenuField<String>(
             context: context,
             label: "Bill Status",
             displayController: billStatusController,
             items: billStatusList,
+            tintColor: tint,
             valueMapper: (item) => item,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Please select bill status';
-              }
-              return null;
-            },
-            onSelected: (status) {
-              setState(() {
-                billStatusController.text = status;
-                if (status == "Unpaid") {
-                  paidAmountController.text = "0";
-                  discByDoctorController.text = "0";
-                  discByCenterController.text = "0";
-                }
-              });
-            },
+            validator: (v) => v!.isEmpty ? 'Please select bill status' : null,
+            onSelected: (status) =>
+                setState(() => billStatusController.text = status),
           ),
         ],
       ),
@@ -1023,28 +744,28 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
   }
 
   Widget _buildAmountDetailsCard(BuildContext context) {
+    final Color tint = Colors.purple;
     return _buildModernCard(
       context: context,
       title: "Amount Details",
       icon: Icons.payments_rounded,
-      iconColor: Colors.purple,
+      iconColor: tint,
       child: Column(
         children: [
           CustomTextField(
             label: "Paid Amount",
             controller: paidAmountController,
             keyboardType: TextInputType.number,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Paid amount is required';
-              }
-              if (double.tryParse(value.trim()) == null) {
+            tintColor: tint,
+            validator: (v) {
+              if (v!.trim().isEmpty) return 'Paid amount is required';
+              if (double.tryParse(v.trim()) == null) {
                 return 'Enter valid amount';
               }
               return null;
             },
           ),
-          SizedBox(height: _spacing),
+          const SizedBox(height: _spacing),
           Row(
             children: [
               Expanded(
@@ -1052,11 +773,11 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   label: "Doctor's Discount",
                   controller: discByDoctorController,
                   keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value != null && value.trim().isNotEmpty) {
-                      if (double.tryParse(value.trim()) == null) {
-                        return 'Enter valid discount';
-                      }
+                  tintColor: tint,
+                  validator: (v) {
+                    if (v!.trim().isNotEmpty &&
+                        double.tryParse(v.trim()) == null) {
+                      return 'Enter valid discount';
                     }
                     return null;
                   },
@@ -1068,11 +789,11 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   label: "Center's Discount",
                   controller: discByCenterController,
                   keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value != null && value.trim().isNotEmpty) {
-                      if (double.tryParse(value.trim()) == null) {
-                        return 'Enter valid discount';
-                      }
+                  tintColor: tint,
+                  validator: (v) {
+                    if (v!.trim().isNotEmpty &&
+                        double.tryParse(v.trim()) == null) {
+                      return 'Enter valid discount';
                     }
                     return null;
                   },
@@ -1085,7 +806,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  // Modern card wrapper with enhanced design
   Widget _buildModernCard({
     required BuildContext context,
     required String title,
@@ -1093,15 +813,19 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     required Widget child,
     required Color iconColor,
   }) {
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(defaultPadding),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.primary,
-          width: 1,
-        ),
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final backgroundColor = Color.alphaBlend(
+      iconColor.withValues(alpha: isDark ? 0.15 : 0.08),
+      theme.colorScheme.surface,
+    );
+    final borderColor = iconColor.withValues(alpha: isDark ? 0.5 : 0.4);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -1117,7 +841,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  // Modern section header with improved design
   Widget _buildModernSectionHeader(
     BuildContext context,
     String title,
@@ -1131,43 +854,23 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
           decoration: BoxDecoration(
             color: iconColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: iconColor.withValues(alpha: 0.2),
-              width: 1,
-            ),
+            border: Border.all(color: iconColor.withValues(alpha: 0.2)),
           ),
           child: Icon(icon, color: iconColor, size: 24),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.3,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Container(
-                height: 2,
-                width: 32,
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-            ],
+          child: Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
       ],
     );
   }
 
-  // Enhanced shimmer loading effect
   Widget _buildShimmerLoader() {
     return Container(
       height: 56,
@@ -1177,46 +880,27 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
           context,
         ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       ),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'Loading...',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-          ],
+      child: const Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
         ),
       ),
     );
   }
 
-  // Enhanced error widget
   Widget _buildErrorWidget(String message) {
     return Container(
       height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Theme.of(
           context,
-        ).colorScheme.errorContainer.withValues(alpha: 0.1),
+        ).colorScheme.errorContainer.withValues(alpha: 0.2),
         border: Border.all(
-          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.4),
         ),
       ),
       child: Center(

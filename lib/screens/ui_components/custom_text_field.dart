@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
-  final bool useSearchBarDesign; // <-- New property to switch styles
+  final bool useSearchBarDesign;
   final TextInputType? keyboardType;
   final bool readOnly;
   final bool obscureText;
@@ -13,12 +13,13 @@ class CustomTextField extends StatelessWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final VoidCallback? onTap;
+  final Color? tintColor; // <-- ADD THIS: To receive the tint color
 
   const CustomTextField({
     super.key,
     required this.controller,
     required this.label,
-    this.useSearchBarDesign = false, // Defaults to the standard style
+    this.useSearchBarDesign = false,
     this.keyboardType,
     this.readOnly = false,
     this.obscureText = false,
@@ -28,19 +29,18 @@ class CustomTextField extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.onTap,
+    this.tintColor, // <-- ADD THIS to the constructor
   });
 
   @override
   Widget build(BuildContext context) {
-    // If using the search bar design, wrap the field in a decorated container
     if (useSearchBarDesign) {
       return _buildSearchBarStyledField(context);
     }
-    // Otherwise, return the standard styled field
     return _buildStandardStyledField(context);
   }
-
-  /// Builds the field with the modern search bar container style.
+  
+  // ... (no changes to _buildSearchBarStyledField)
   Widget _buildSearchBarStyledField(BuildContext context) {
     final theme = Theme.of(context);
     final isLightMode = theme.brightness == Brightness.light;
@@ -73,27 +73,40 @@ class CustomTextField extends StatelessWidget {
     );
   }
 
-  /// Builds the field with the standard, general-purpose form style.
   Widget _buildStandardStyledField(BuildContext context) {
     return _buildTextFieldCore(context, isTransparent: false);
   }
 
-  /// The core TextFormField used by both styles.
   Widget _buildTextFieldCore(
     BuildContext context, {
     required bool isTransparent,
   }) {
     final theme = Theme.of(context);
-    final isLightMode = theme.brightness == Brightness.light;
+    final isDarkMode = theme.brightness == Brightness.dark;
 
-    // Define colors
-    final fillColor = isLightMode
-        ? const Color(0xFFF8F9FA)
-        : const Color(0xFF2A2D3E);
-    final borderColor = isLightMode
-        ? Colors.grey.shade300
-        : Colors.grey.shade700;
-    final hintColor = isLightMode ? Colors.grey.shade500 : Colors.grey.shade400;
+    // --- DYNAMIC TINTING LOGIC ---
+    Color finalFillColor;
+    Color finalBorderColor;
+
+    if (tintColor != null) {
+      // Use the tinted colors if a tintColor is provided
+      final baseColor = tintColor!;
+      finalFillColor = Color.alphaBlend(
+        baseColor.withValues(alpha:  isDarkMode ? 0.1 : 0.05),
+        theme.colorScheme.surface,
+      );
+      finalBorderColor = baseColor.withValues(alpha:  isDarkMode ? 0.4 : 0.3);
+    } else {
+      // Fallback to the original hardcoded colors
+      finalFillColor = isDarkMode
+          ? const Color(0xFF2A2D3E)
+          : const Color(0xFFF8F9FA);
+      finalBorderColor = isDarkMode
+          ? Colors.grey.shade700
+          : Colors.grey.shade300;
+    }
+
+    final hintColor = isDarkMode ? Colors.grey.shade400 : Colors.grey.shade500;
 
     return TextFormField(
       controller: controller,
@@ -111,7 +124,7 @@ class CustomTextField extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         filled: true,
-        fillColor: isTransparent ? Colors.transparent : fillColor,
+        fillColor: isTransparent ? Colors.transparent : finalFillColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
           borderSide: BorderSide.none,
@@ -120,7 +133,7 @@ class CustomTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.0),
           borderSide: isTransparent
               ? BorderSide.none
-              : BorderSide(color: borderColor, width: 1.0),
+              : BorderSide(color: finalBorderColor, width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
