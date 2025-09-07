@@ -17,10 +17,7 @@ void main() async {
   await initializeBaseUrl();
 
   runApp(
-    ProviderScope(
-      observers: [GlobalErrorObserver()],
-      child: const MyApp(),
-    ),
+    ProviderScope(observers: [GlobalErrorObserver()], child: const MyApp()),
   );
 }
 
@@ -149,7 +146,6 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           useMaterial3: true,
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: {
-             
               TargetPlatform.android: CupertinoPageTransitionsBuilder(),
               TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
               TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
@@ -217,13 +213,12 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           splashFactory: InkRipple.splashFactory,
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: {
-               TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
               TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
               TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
               TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
               TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
               TargetPlatform.fuchsia: CupertinoPageTransitionsBuilder(),
-             
             },
           ),
         ),

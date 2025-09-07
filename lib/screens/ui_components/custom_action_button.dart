@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 
 class CustomActionButton extends StatelessWidget {
   final String label;
@@ -21,14 +22,14 @@ class CustomActionButton extends StatelessWidget {
     final baseColor = color ?? theme.colorScheme.primary;
     return InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(defaultPadding),
       child: Container(
         decoration: BoxDecoration(
           color: baseColor,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding:  EdgeInsets.symmetric(horizontal: defaultPadding*2, vertical: defaultPadding),
           child: Text(
             label,
             style: theme.textTheme.labelLarge?.copyWith(

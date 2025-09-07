@@ -5,7 +5,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/methods/provider_invalidator.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/bills_provider.dart';
@@ -72,8 +71,8 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   }
 
   void _refreshBillsData() {
-    ref.invalidate(billGrowthStatsProvider);
-    ref.invalidate(billsProvider);
+    // ref.invalidate(billGrowthStatsProvider);
+    // ref.invalidate(billsProvider);
     if (_currentSearchQuery.isNotEmpty) {
       ref.invalidate(searchBillsProvider(_currentSearchQuery));
     }
@@ -82,9 +81,10 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   Map<String, List<Bill>> _groupBillsByReason(List<Bill> bills) {
     final Map<String, List<Bill>> grouped = {};
     for (var bill in bills) {
+      // This is the key line:
       final reasons = (bill.matchReason?.isNotEmpty ?? false)
           ? bill.matchReason!
-          : ["Bills List"];
+          : ["Bills List"]; // <--- This is the fallback
       for (var reason in reasons) {
         grouped.putIfAbsent(reason, () => []);
         grouped[reason]!.add(bill);
@@ -239,16 +239,27 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
               16.0,
             ), // Match the rounded corners of your cards
           ),
+          // onPressed: () async {
+          //   navigatorKey.currentState?.push(
+          //     MaterialPageRoute(builder: (context) => AddBillScreen()),
+          //   );
+          //   if (!mounted) return;
+          //   invalidateProvidersAfterDelay(
+          //     ref: ref,
+          //     providers: [searchBillsProvider(searchController.text)],
+          //   );
+          // }
+          // ,
           onPressed: () async {
-            navigatorKey.currentState?.push(
-              MaterialPageRoute(builder: (context) => AddBillScreen()),
-            );
-            if (!mounted) return;
-            invalidateProvidersAfterDelay(
-              ref: ref,
-              providers: [searchBillsProvider(searchController.text)],
-            );
-          },
+  // 1. Await the push. The Future completes when the AddBillScreen is popped.
+  await navigatorKey.currentState?.push(
+    MaterialPageRoute(builder: (context) => AddBillScreen()),
+  );
+
+  // 2. After returning, call your existing refresh method.
+  // This correctly refreshes stats, the main list, AND the search list.
+  _refreshBillsData();
+},
           label: const Text(
             "Add Bill",
             style: TextStyle(
