@@ -73,7 +73,7 @@ class CustomTextField extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isLightMode ? 0.08 : 0.3),
+            color: Colors.black.withValues(alpha:  isLightMode ? 0.08 : 0.3),
             offset: const Offset(0, 4),
             blurRadius: 12,
           ),
@@ -104,10 +104,10 @@ class CustomTextField extends StatelessWidget {
     if (tintColor != null) {
       final baseColor = tintColor!;
       finalFillColor = Color.alphaBlend(
-        baseColor.withOpacity(isDarkMode ? 0.1 : 0.05),
+        baseColor.withValues(alpha:  isDarkMode ? 0.1 : 0.05),
         theme.colorScheme.surface,
       );
-      finalBorderColor = baseColor.withOpacity(isDarkMode ? 0.4 : 0.3);
+      finalBorderColor = baseColor.withValues(alpha:  isDarkMode ? 0.4 : 0.3);
     } else {
       finalFillColor = isDarkMode
           ? const Color(0xFF2A2D3E)
