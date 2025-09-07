@@ -14,7 +14,6 @@ import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
-import 'package:labledger/screens/ui_components/window_scaffold.dart';
 
 class WindowLoadingScreen extends ConsumerStatefulWidget {
   const WindowLoadingScreen({super.key});
@@ -66,11 +65,8 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       final requiredVersionString = results[1] as String;
       // 4. Perform the version check.
       final currentVersion = Version.parse(appVersion);
-      debugPrint(currentVersion.toString());
 
       final requiredVersion = Version.parse(requiredVersionString);
-      debugPrint(requiredVersionString);
-      debugPrint(requiredVersionString);
 
       if (currentVersion < requiredVersion) {
         // VERSION IS OUTDATED. Navigate to LoginScreen which will show the update message.
@@ -93,26 +89,10 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       await Future.delayed(const Duration(milliseconds: 1000));
 
       if (mounted) {
-        final userData = authResponse.toHomeScreenData();
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
             builder: (context) {
-              return WindowScaffold(
-                allowFullScreen: true,
-                isInitialScreen: true,
-                centerWidget: Text(
-                  "${userData['centerDetail']['center_name'].toString().toUpperCase()}, ${userData["centerDetail"]['address']}",
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                child: HomeScreen(
-                  id: userData['id'],
-                  firstName: userData['firstName'],
-                  lastName: userData['lastName'],
-                  username: userData['username'],
-                  isAdmin: userData['isAdmin'],
-                  centerDetail: userData['centerDetail'],
-                ),
-              );
+              return HomeScreen(authResponse: authResponse,);
             },
           ),
         );

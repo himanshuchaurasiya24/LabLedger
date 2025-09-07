@@ -8,7 +8,6 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/ui_components/reusable_ui_components.dart';
-import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:version/version.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
@@ -55,13 +54,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
 
     _fadeController = AnimationController(
-        duration: const Duration(milliseconds: 800), vsync: this);
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
     _slideController = AnimationController(
-        duration: const Duration(milliseconds: 600), vsync: this);
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0)
-        .animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut));
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
     _fadeController.forward();
     Future.delayed(const Duration(milliseconds: 200), () {
@@ -81,8 +87,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Future<void> _checkAppVersion() async {
     await Future.delayed(const Duration(milliseconds: 300));
     try {
-      final requiredVersionString =
-          await AuthRepository.instance.fetchMinimumAppVersion();
+      final requiredVersionString = await AuthRepository.instance
+          .fetchMinimumAppVersion();
       final currentVersion = Version.parse(appVersion);
       final requiredVersion = Version.parse(requiredVersionString);
 
@@ -141,31 +147,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     try {
       final credentials = LoginCredentials(
-          username: usernameController.text.trim(),
-          password: passwordController.text);
+        username: usernameController.text.trim(),
+        password: passwordController.text,
+      );
       final authResponse = await ref.read(loginProvider(credentials).future);
 
       if (mounted) {
-        final userData = authResponse.toHomeScreenData();
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
             builder: (context) {
-              return WindowScaffold(
-                allowFullScreen: true,
-                isInitialScreen: true,
-                centerWidget: Text(
-                  "${userData['centerDetail']['center_name'].toString().toUpperCase()}, ${userData["centerDetail"]['address']}",
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                child: HomeScreen(
-                  isAdmin: userData["isAdmin"]!,
-                  firstName: userData['firstName']!,
-                  lastName: userData['lastName']!,
-                  username: userData['username']!,
-                  id: userData['id'],
-                  centerDetail: userData['centerDetail'],
-                ),
-              );
+              return HomeScreen(authResponse: authResponse,);
             },
           ),
         );
@@ -176,15 +167,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       });
     } on SubscriptionInactiveException {
       setState(() {
-        errorMessage = "Your account has been locked. Please contact administrator.";
+        errorMessage =
+            "Your account has been locked. Please contact administrator.";
       });
     } on SubscriptionExpiredException {
       setState(() {
-        errorMessage = "Your subscription has expired. Please renew to continue.";
+        errorMessage =
+            "Your subscription has expired. Please renew to continue.";
       });
     } on NetworkException {
       setState(() {
-        errorMessage = "Network error. Please check your connection and try again.";
+        errorMessage =
+            "Network error. Please check your connection and try again.";
       });
     } on ServerException catch (e) {
       setState(() {
@@ -243,22 +237,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.cloud_off_rounded, size: 60, color: theme.colorScheme.error),
+          Icon(
+            Icons.cloud_off_rounded,
+            size: 60,
+            color: theme.colorScheme.error,
+          ),
           const SizedBox(height: 24),
-          Text('Verification Failed',
-              style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center),
+          Text(
+            'Verification Failed',
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 16),
           Text(
-              'Could not verify the application version. Please check your internet connection and restart the app.',
-              style: theme.textTheme.bodyLarge,
-              textAlign: TextAlign.center),
+            'Could not verify the application version. Please check your internet connection and restart the app.',
+            style: theme.textTheme.bodyLarge,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 32),
           ReusableButton(
-              text: 'Contact Support',
-              onPressed: () {},
-              width: 253,
-              variant: ButtonVariant.elevated),
+            text: 'Contact Support',
+            onPressed: () {},
+            width: 253,
+            variant: ButtonVariant.elevated,
+          ),
         ],
       ),
     );
@@ -270,20 +274,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.system_update_alt, size: 60, color: theme.colorScheme.primary),
+          Icon(
+            Icons.system_update_alt,
+            size: 60,
+            color: theme.colorScheme.primary,
+          ),
           const SizedBox(height: 24),
-          Text('Update Required',
-              style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center),
+          Text(
+            'Update Required',
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 16),
           Text(
-              'A new version of the app is available. Please update to\nversion $_requiredVersion to continue.',
-              style: theme.textTheme.bodyLarge,
-              maxLines: 2,
-              textAlign: TextAlign.center),
+            'A new version of the app is available. Please update to\nversion $_requiredVersion to continue.',
+            style: theme.textTheme.bodyLarge,
+            maxLines: 2,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 32),
           ReusableButton(
-              text: 'Contact Support to Update', onPressed: () {}, width: 253, variant: ButtonVariant.elevated,),
+            text: 'Contact Support to Update',
+            onPressed: () {},
+            width: 253,
+            variant: ButtonVariant.elevated,
+          ),
         ],
       ),
     );
@@ -298,7 +315,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            appIconName(context: context, firstName: "Lab", secondName: "ledger"),
+            appIconName(
+              context: context,
+              firstName: "Lab",
+              secondName: "ledger",
+            ),
             SizedBox(height: defaultHeight),
             if (_versionStatus == VersionCheckStatus.checking)
               Padding(
@@ -307,12 +328,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 3)),
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    ),
                     const SizedBox(width: 16),
-                    Text("Verifying app version...",
-                        style: theme.textTheme.bodyLarge),
+                    Text(
+                      "Verifying app version...",
+                      style: theme.textTheme.bodyLarge,
+                    ),
                   ],
                 ),
               ),
@@ -322,19 +346,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 decoration: BoxDecoration(
                   color: theme.colorScheme.errorContainer.withAlpha(204),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: theme.colorScheme.error.withAlpha(77)),
+                  border: Border.all(
+                    color: theme.colorScheme.error.withAlpha(77),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.error_outline,
-                        color: theme.colorScheme.error, size: 20),
+                    Icon(
+                      Icons.error_outline,
+                      color: theme.colorScheme.error,
+                      size: 20,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(errorMessage,
-                          style: TextStyle(
-                              color: theme.colorScheme.error,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500)),
+                      child: Text(
+                        errorMessage,
+                        style: TextStyle(
+                          color: theme.colorScheme.error,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -342,76 +374,88 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               SizedBox(height: defaultHeight * 2),
             ],
             ReusableTextField(
-                controller: usernameController,
-                label: 'Username',
-                hintText: 'Enter your username',
-                prefixIcon: Icons.person_outline,
-                keyboardType: TextInputType.text,
-                validator: _validateUsername,
-                enabled: formEnabled),
+              controller: usernameController,
+              label: 'Username',
+              hintText: 'Enter your username',
+              prefixIcon: Icons.person_outline,
+              keyboardType: TextInputType.text,
+              validator: _validateUsername,
+              enabled: formEnabled,
+            ),
             SizedBox(height: defaultHeight),
             ReusableTextField(
-                controller: passwordController,
-                label: 'Password',
-                hintText: 'Enter your password',
-                prefixIcon: Icons.lock_outline,
-                obscureText: true,
-                showTogglePasswordVisibility: true,
-                validator: _validatePassword,
-                onSubmitted: (_) => formEnabled ? _login() : null,
-                enabled: formEnabled),
+              controller: passwordController,
+              label: 'Password',
+              hintText: 'Enter your password',
+              prefixIcon: Icons.lock_outline,
+              obscureText: true,
+              showTogglePasswordVisibility: true,
+              validator: _validatePassword,
+              onSubmitted: (_) => formEnabled ? _login() : null,
+              enabled: formEnabled,
+            ),
             SizedBox(height: defaultHeight),
             Row(
               children: [
                 Checkbox(
-                    value: rememberMe,
-                    onChanged: formEnabled
-                        ? (value) {
-                            setState(() {
-                              rememberMe = value ?? false;
-                            });
-                          }
-                        : null,
-                    activeColor: theme.colorScheme.primary),
-                Text('Remember me',
-                    style: TextStyle(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        fontSize: 14)),
+                  value: rememberMe,
+                  onChanged: formEnabled
+                      ? (value) {
+                          setState(() {
+                            rememberMe = value ?? false;
+                          });
+                        }
+                      : null,
+                  activeColor: theme.colorScheme.primary,
+                ),
+                Text(
+                  'Remember me',
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
+                ),
                 const Spacer(),
                 ReusableButton(
-                    text: 'Forgot Password?',
-                    variant: ButtonVariant.text,
-                    onPressed: formEnabled
-                        ? () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'Contact administrator to reset password'),
+                  text: 'Forgot Password?',
+                  variant: ButtonVariant.text,
+                  onPressed: formEnabled
+                      ? () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Contact administrator to reset password',
                               ),
-                            );
-                          }
-                        : null,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500),
+                            ),
+                          );
+                        }
+                      : null,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ],
             ),
             SizedBox(height: defaultHeight),
             ReusableButton(
-                text: 'Sign In',
-                variant: ButtonVariant.primary,
-                icon: Icons.login,
-                onPressed: formEnabled ? _login : null,
-                isLoading: isLoading,
-                width: double.infinity,
-                height: 56,
-                borderRadius: 16),
+              text: 'Sign In',
+              variant: ButtonVariant.primary,
+              icon: Icons.login,
+              onPressed: formEnabled ? _login : null,
+              isLoading: isLoading,
+              width: double.infinity,
+              height: 56,
+              borderRadius: 16,
+            ),
             SizedBox(height: defaultHeight),
-            Text("$appName $appVersion | $appDescription",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: theme.colorScheme.onSurfaceVariant.withAlpha(178),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400)),
+            Text(
+              "$appName $appVersion | $appDescription",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: theme.colorScheme.onSurfaceVariant.withAlpha(178),
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
           ],
         ),
       ),

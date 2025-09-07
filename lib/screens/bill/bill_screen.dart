@@ -9,7 +9,7 @@ import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/screens/bill/add_update_screen.dart';
-import 'package:labledger/screens/bill/pagination_controls.dart';
+import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
 import 'package:labledger/screens/ui_components/cards/bill_card.dart';
 import 'package:labledger/screens/ui_components/cards/bill_stats_card.dart';
@@ -46,10 +46,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
     _debounce?.cancel();
     searchController.dispose();
     searchFocusNode.dispose();
-    Future.microtask(() {
-      ref.read(currentPageProvider.notifier).state = 1;
-      ref.read(currentSearchQueryProvider.notifier).state = '';
-    });
 
     super.dispose();
   }

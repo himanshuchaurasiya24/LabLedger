@@ -4,29 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
+import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/providers/secure_storage_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 import 'package:labledger/screens/bill/bill_screen.dart';
 import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
 import 'package:labledger/screens/ui_components/cards/referral_card.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
+import 'package:labledger/screens/ui_components/user_profile_widget.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({
-    super.key,
-    required this.id,
-    required this.firstName,
-    required this.lastName,
-    required this.username,
-    required this.isAdmin,
-    required this.centerDetail,
-  });
-  final int id;
-  final bool isAdmin;
-  final String firstName;
-  final String lastName;
-  final String username;
-  final Map<String, dynamic> centerDetail;
+  const HomeScreen({super.key, required this.authResponse});
+  final AuthResponse authResponse;
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
@@ -54,18 +44,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Note: All ref.listen blocks have been removed.
-
+    // final isDark = ThemeData().brightness == Brightness.dark;
     final referralStatsAsync = ref.watch(referralStatsProvider);
     final chartStatsAsync = ref.watch(billChartStatsProvider);
-    final width = MediaQuery.of(context).size.width;
     final baseColor = Theme.of(context).colorScheme.secondary;
 
-    return Scaffold(
-      body: Padding(
+    return WindowScaffold(
+      allowFullScreen: true,
+      isInitialScreen: true,
+      child: Padding(
         padding: EdgeInsets.symmetric(horizontal: defaultPadding),
         child: Column(
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ...["This Week", "This Month", "This Year", "All Time"].map(
+                      (period) => Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: buildFilterChipCustom(
+                          period,
+                          primaryColor: baseColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                UserProfileWidget(
+                  authResponse: widget.authResponse,
+                  baseColor: Theme.of(context).colorScheme.primary,
+                  onLogout: () {
+                    //
+                  },
+                ),
+              ],
+            ),
             Row(
               children: [
                 Expanded(
@@ -74,41 +91,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       final data = statsResponse.getDataForPeriod(
                         selectedPeriod,
                       );
-                      return Stack(
-                        children: [
-                          ReferralCard(
-                            referrals: data,
-                            selectedPeriod: selectedPeriod,
-                            baseColor: baseColor,
-                          ),
-                          Positioned(
-                            bottom: 12,
-                            left: (width - defaultWidth) / 8.5,
-                            right: 0,
-                            child: Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                buildFilterChipCustom(
-                                  "This Week",
-                                  primaryColor: baseColor,
-                                ),
-                                buildFilterChipCustom(
-                                  "This Month",
-                                  primaryColor: baseColor,
-                                ),
-                                buildFilterChipCustom(
-                                  "This Year",
-                                  primaryColor: baseColor,
-                                ),
-                                buildFilterChipCustom(
-                                  "All Time",
-                                  primaryColor: baseColor,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                      return ReferralCard(
+                        referrals: data,
+                        selectedPeriod: selectedPeriod,
+                        baseColor: baseColor,
                       );
                     },
                     loading: () =>
@@ -126,15 +112,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         selectedPeriod,
                       );
                       return GestureDetector(
-                        onTap: ()  {
-                           navigatorKey.currentState?.push(
+                        onTap: () {
+                          navigatorKey.currentState?.push(
                             MaterialPageRoute(
                               builder: (context) {
                                 return BillsScreen();
                               },
                             ),
                           );
-                          
                         },
                         child: ChartStatsCard(
                           title: selectedPeriod,

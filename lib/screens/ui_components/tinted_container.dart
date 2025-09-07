@@ -8,12 +8,14 @@ class TintedContainer extends StatelessWidget {
     required this.child,
     this.height,
     this.width,
+    this.radius,
     this.disablePadding = false,
   });
   final Color baseColor;
   final Widget child;
   final double? height;
   final double? width;
+  final double? radius;
   final bool disablePadding;
   // --- 🎨 Color Logic ---
   Color backgroundColor(BuildContext context) {
@@ -27,11 +29,11 @@ class TintedContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: height ?? 302,
-      width: width ?? double.infinity,
+      width: width,
       padding: disablePadding ? null : EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: backgroundColor(context),
-        borderRadius: BorderRadius.circular(defaultRadius),
+        borderRadius: BorderRadius.circular(radius??defaultRadius),
         border: Border.all(color: baseColor.withValues(alpha: 0.3)),
       ),
       child: child,

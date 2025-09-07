@@ -52,17 +52,17 @@ class AuthResponse {
     };
   }
 
-  // Convert to the format expected by HomeScreen
-  Map<String, dynamic> toHomeScreenData() {
-    return {
-      'id': id,
-      'firstName': firstName,
-      'lastName': lastName,
-      'username': username,
-      'isAdmin': isAdmin,
-      'centerDetail': centerDetail.toJson(),
-    };
-  }
+  // // Convert to the format expected by HomeScreen
+  // Map<String, dynamic> toHomeScreenData() {
+  //   return {
+  //     'id': id,
+  //     'firstName': firstName,
+  //     'lastName': lastName,
+  //     'username': username,
+  //     'isAdmin': isAdmin,
+  //     'centerDetail': centerDetail.toJson(),
+  //   };
+  // }
 
   @override
   String toString() {
