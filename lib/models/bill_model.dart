@@ -25,7 +25,6 @@ class CenterDetailForFranchise {
     };
   }
 }
-
 class Bill {
   final int? id; // Nullable for new bills
   final int diagnosisType;
@@ -50,7 +49,7 @@ class Bill {
   final Map<String, dynamic>? referredByDoctorOutput;
   final Map<String, dynamic>? testDoneBy;
   final Map<String, dynamic>? centerDetailOutput;
-  final List<String>? matchReason;
+  final List<String>? matchReason; // This will just be null/empty now, which is fine
 
   Bill({
     this.id,

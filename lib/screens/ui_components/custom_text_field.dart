@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import for InputFormatters
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -8,12 +9,15 @@ class CustomTextField extends StatelessWidget {
   final bool readOnly;
   final bool obscureText;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted; // <-- ADDED for submission
   final FormFieldValidator<String>? validator;
   final FocusNode? focusNode;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final VoidCallback? onTap;
-  final Color? tintColor; // <-- ADD THIS: To receive the tint color
+  final Color? tintColor;
+  final List<TextInputFormatter>? inputFormatters; // <-- ADDED for input restriction
+  final TextAlign textAlign; // <-- ADDED for centering
 
   const CustomTextField({
     super.key,
@@ -24,12 +28,15 @@ class CustomTextField extends StatelessWidget {
     this.readOnly = false,
     this.obscureText = false,
     this.onChanged,
+    this.onSubmitted, // <-- ADDED
     this.validator,
     this.focusNode,
     this.prefixIcon,
     this.suffixIcon,
     this.onTap,
-    this.tintColor, // <-- ADD THIS to the constructor
+    this.tintColor,
+    this.inputFormatters, // <-- ADDED
+    this.textAlign = TextAlign.start, // <-- ADDED
   });
 
   @override
@@ -39,8 +46,7 @@ class CustomTextField extends StatelessWidget {
     }
     return _buildStandardStyledField(context);
   }
-  
-  // ... (no changes to _buildSearchBarStyledField)
+
   Widget _buildSearchBarStyledField(BuildContext context) {
     final theme = Theme.of(context);
     final isLightMode = theme.brightness == Brightness.light;
@@ -117,10 +123,13 @@ class CustomTextField extends StatelessWidget {
       onChanged: onChanged,
       validator: validator,
       onTap: onTap,
+      onFieldSubmitted: onSubmitted,     // <-- ADDED
+      inputFormatters: inputFormatters, // <-- ADDED
+      textAlign: textAlign,           // <-- ADDED
       style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
       decoration: InputDecoration(
         hintText: label,
-        hintStyle: TextStyle(color: hintColor, fontWeight: FontWeight.w400),
+        hintStyle: TextStyle(color: hintColor, fontWeight: FontWeight.w400), // <-- FIXED
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         filled: true,

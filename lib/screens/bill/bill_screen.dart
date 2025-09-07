@@ -9,6 +9,7 @@ import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/screens/bill/add_update_screen.dart';
+import 'package:labledger/screens/bill/pagination_controls.dart';
 import 'package:labledger/screens/ui_components/cards/bill_card.dart';
 import 'package:labledger/screens/ui_components/cards/bill_stats_card.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
@@ -28,7 +29,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   String _selectedView = 'grid'; // default view
   Timer? _debounce;
-  String _currentSearchQuery = '';
   double aspectRatio = 2.0;
 
   @override
@@ -45,6 +45,15 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
     _debounce?.cancel();
     searchController.dispose();
     searchFocusNode.dispose();
+
+    // Reset providers when leaving the screen.
+    // This ensures when the user comes back, they always start on Page 1.
+    // We use Future.microtask to ensure it runs just after this build cycle.
+    Future.microtask(() {
+      ref.read(currentPageProvider.notifier).state = 1;
+      ref.read(currentSearchQueryProvider.notifier).state = '';
+    });
+
     super.dispose();
   }
 
@@ -64,27 +73,26 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      setState(() {
-        _currentSearchQuery = query.trim();
-      });
+      // 1. Set the query state
+      ref.read(currentSearchQueryProvider.notifier).state = query.trim();
+      // 2. Reset to page 1
+      ref.read(currentPageProvider.notifier).state = 1;
+      // The paginatedBillsProvider will auto-refresh
     });
   }
 
   void _refreshBillsData() {
-    // ref.invalidate(billGrowthStatsProvider);
-    // ref.invalidate(billsProvider);
-    if (_currentSearchQuery.isNotEmpty) {
-      ref.invalidate(searchBillsProvider(_currentSearchQuery));
-    }
+    // Just invalidate the main provider. It will re-fetch the current page/query.
+    ref.invalidate(paginatedBillsProvider);
+    // You can also refresh stats if needed
+    ref.invalidate(billGrowthStatsProvider);
   }
 
   Map<String, List<Bill>> _groupBillsByReason(List<Bill> bills) {
     final Map<String, List<Bill>> grouped = {};
     for (var bill in bills) {
-      // This is the key line:
-      final reasons = (bill.matchReason?.isNotEmpty ?? false)
-          ? bill.matchReason!
-          : ["Bills List"]; // <--- This is the fallback
+      // This logic correctly uses the fallback "Bills List" every time.
+      final reasons = ["Bills List"];
       for (var reason in reasons) {
         grouped.putIfAbsent(reason, () => []);
         grouped[reason]!.add(bill);
@@ -98,20 +106,19 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
     final isDark = theme.brightness == Brightness.dark;
     final Color baseColor = theme.colorScheme.secondary;
 
-    // --- 🎨 Applying the same color logic as BillCards to the popup menu ---
     final Color menuBackgroundColor = (baseColor is MaterialColor)
         ? (isDark
-              ? baseColor.shade900.withValues(alpha: 0.95)
-              : baseColor.shade50)
+            ? baseColor.shade900.withValues(alpha: 0.95)
+            : baseColor.shade50)
         : (isDark
-              ? Color.alphaBlend(
-                  baseColor.withValues(alpha: 0.4),
-                  theme.colorScheme.surface,
-                )
-              : Color.alphaBlend(
-                  baseColor.withValues(alpha: 0.1),
-                  theme.colorScheme.surface,
-                ));
+            ? Color.alphaBlend(
+                baseColor.withValues(alpha: 0.4),
+                theme.colorScheme.surface,
+              )
+            : Color.alphaBlend(
+                baseColor.withValues(alpha: 0.1),
+                theme.colorScheme.surface,
+              ));
 
     final Color menuBorderColor = (baseColor is MaterialColor)
         ? (isDark ? baseColor.shade200 : baseColor.shade600)
@@ -120,7 +127,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
     final selected = await showMenu<String>(
       context: context,
       position: RelativeRect.fromLTRB(200, 420, defaultPadding, 100),
-
       color: menuBackgroundColor,
       elevation: 0,
       shadowColor: Colors.transparent,
@@ -209,9 +215,8 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    final billsAsyncValue = _currentSearchQuery.isEmpty
-        ? ref.watch(billsProvider)
-        : ref.watch(searchBillsProvider(_currentSearchQuery));
+    final asyncResponse = ref.watch(paginatedBillsProvider);
+    final currentQuery = ref.watch(currentSearchQueryProvider);
 
     const Color positiveColor = Colors.teal;
     const Color negativeColor = Colors.red;
@@ -230,41 +235,25 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
         floatingActionButton: FloatingActionButton.extended(
           backgroundColor: Theme.of(
             context,
-          ).colorScheme.secondary, // A nice teal color
-          // Use foregroundColor for the color of the label and icon
+          ).colorScheme.secondary,
           foregroundColor: Colors.white,
-          elevation: 4.0, // A slightly more subtle shadow
+          elevation: 4.0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(
               16.0,
-            ), // Match the rounded corners of your cards
+            ),
           ),
-          // onPressed: () async {
-          //   navigatorKey.currentState?.push(
-          //     MaterialPageRoute(builder: (context) => AddBillScreen()),
-          //   );
-          //   if (!mounted) return;
-          //   invalidateProvidersAfterDelay(
-          //     ref: ref,
-          //     providers: [searchBillsProvider(searchController.text)],
-          //   );
-          // }
-          // ,
           onPressed: () async {
-  // 1. Await the push. The Future completes when the AddBillScreen is popped.
-  await navigatorKey.currentState?.push(
-    MaterialPageRoute(builder: (context) => AddBillScreen()),
-  );
-
-  // 2. After returning, call your existing refresh method.
-  // This correctly refreshes stats, the main list, AND the search list.
-  _refreshBillsData();
-},
+            await navigatorKey.currentState?.push(
+              MaterialPageRoute(builder: (context) => AddBillScreen()),
+            );
+            _refreshBillsData();
+          },
           label: const Text(
             "Add Bill",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 18, // Slightly reduced for a cleaner look
+              fontSize: 18,
             ),
           ),
           icon: const Icon(LucideIcons.plus),
@@ -274,80 +263,80 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
           child: Column(
             children: [
               Visibility(
-                visible: _currentSearchQuery.isEmpty,
+                visible: currentQuery.isEmpty,
                 child: Container(
                   height: 310,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(defaultRadius),
                   ),
-                  child: ref
-                      .watch(billGrowthStatsProvider)
-                      .when(
-                        data: (stats) {
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Expanded(
-                                child: BillStatsCard(
-                                  title: "Monthly Growth",
-                                  currentPeriod: stats.currentMonth,
-                                  previousPeriod: stats.previousMonth,
-                                  positiveColor: positiveColor,
-                                  negativeColor: negativeColor,
-                                ),
-                              ),
-                              SizedBox(width: defaultWidth),
-                              Expanded(
-                                child: BillStatsCard(
-                                  title: "Quarterly Growth",
-                                  currentPeriod: stats.currentQuarter,
-                                  previousPeriod: stats.previousQuarter,
-                                  positiveColor: positiveColor,
-                                  negativeColor: negativeColor,
-                                ),
-                              ),
-                              SizedBox(width: defaultWidth),
-                              Expanded(
-                                child: BillStatsCard(
-                                  title: "Yearly Growth",
-                                  currentPeriod: stats.currentYear,
-                                  previousPeriod: stats.previousYear,
-                                  positiveColor: positiveColor,
-                                  negativeColor: negativeColor,
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                        loading: () =>
-                            const Center(child: CircularProgressIndicator()),
-                        error: (err, stack) => Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text("Error loading stats: $err"),
-                              const SizedBox(height: 10),
-                              ElevatedButton(
-                                onPressed: () => _refreshBillsData(),
-                                child: const Text("Retry"),
-                              ),
-                            ],
+                  child: ref.watch(billGrowthStatsProvider).when(
+                    data: (stats) {
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: BillStatsCard(
+                              title: "Monthly Growth",
+                              currentPeriod: stats.currentMonth,
+                              previousPeriod: stats.previousMonth,
+                              positiveColor: positiveColor,
+                              negativeColor: negativeColor,
+                            ),
                           ),
-                        ),
+                          SizedBox(width: defaultWidth),
+                          Expanded(
+                            child: BillStatsCard(
+                              title: "Quarterly Growth",
+                              currentPeriod: stats.currentQuarter,
+                              previousPeriod: stats.previousQuarter,
+                              positiveColor: positiveColor,
+                              negativeColor: negativeColor,
+                            ),
+                          ),
+                          SizedBox(width: defaultWidth),
+                          Expanded(
+                            child: BillStatsCard(
+                              title: "Yearly Growth",
+                              currentPeriod: stats.currentYear,
+                              previousPeriod: stats.previousYear,
+                              positiveColor: positiveColor,
+                              negativeColor: negativeColor,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (err, stack) => Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Error loading stats: $err"),
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () => _refreshBillsData(),
+                            child: const Text("Retry"),
+                          ),
+                        ],
                       ),
+                    ),
+                  ),
                 ),
               ),
-              billsAsyncValue.when(
-                data: (bills) {
+              asyncResponse.when(
+                data: (response) {
+                  final bills = response.bills;
+
                   if (bills.isEmpty) {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 50.0),
                         child: Text(
-                          _currentSearchQuery.isEmpty
+                          currentQuery.isEmpty
                               ? 'No bills found.'
-                              : 'No bills found for "$_currentSearchQuery"',
+                              : 'No bills found for "$currentQuery"',
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                       ),
@@ -355,62 +344,73 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                   }
 
                   final groupedBills = _groupBillsByReason(bills);
+                  final isSearching = currentQuery.isNotEmpty;
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: groupedBills.entries.map((entry) {
-                      final category = entry.key;
-                      final categoryBills = entry.value;
+                    children: [
+                      ...groupedBills.entries.map((entry) {
+                        final category = entry.key;
+                        final categoryBills = entry.value;
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSectionHeader(context, category),
-                          if (_selectedView == "grid")
-                            GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    childAspectRatio: aspectRatio,
-                                    crossAxisSpacing: defaultWidth,
-                                    mainAxisSpacing: defaultHeight,
-                                  ),
-                              itemCount: categoryBills.length,
-                              itemBuilder: (ctx, index) {
-                                final bill = categoryBills[index];
-                                return BillCard(
-                                  bill: bill,
-                                  onTap: () => _navigateToBill(bill),
-                                  fullyPaidColor: positiveColor,
-                                  partiallyPaidColor: neutralColor,
-                                  unpaidColor: negativeColor,
-                                );
-                              },
-                            ),
-                          if (_selectedView == "list")
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const BouncingScrollPhysics(),
-                              itemCount: categoryBills.length,
-                              separatorBuilder: (_, _) =>
-                                  SizedBox(height: defaultHeight),
-                              itemBuilder: (ctx, index) {
-                                final bill = categoryBills[index];
-                                return BillCard(
-                                  bill: bill,
-                                  onTap: () => _navigateToBill(bill),
-                                  fullyPaidColor: positiveColor,
-                                  partiallyPaidColor: neutralColor,
-                                  unpaidColor: negativeColor,
-                                );
-                              },
-                            ),
-                          const SizedBox(height: 20),
-                        ],
-                      );
-                    }).toList(),
+                        final headerTitle = isSearching
+                            ? 'Search Results for: "$currentQuery"'
+                            : category; // "Bills List"
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionHeader(context, headerTitle),
+                            if (_selectedView == "grid")
+                              GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  childAspectRatio: aspectRatio,
+                                  crossAxisSpacing: defaultWidth,
+                                  mainAxisSpacing: defaultHeight,
+                                ),
+                                itemCount: categoryBills.length,
+                                itemBuilder: (ctx, index) {
+                                  final bill = categoryBills[index];
+                                  return BillCard(
+                                    bill: bill,
+                                    onTap: () => _navigateToBill(bill),
+                                    fullyPaidColor: positiveColor,
+                                    partiallyPaidColor: neutralColor,
+                                    unpaidColor: negativeColor,
+                                  );
+                                },
+                              ),
+                            if (_selectedView == "list")
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const BouncingScrollPhysics(),
+                                itemCount: categoryBills.length,
+                                separatorBuilder: (_, _) =>
+                                    SizedBox(height: defaultHeight),
+                                itemBuilder: (ctx, index) {
+                                  final bill = categoryBills[index];
+                                  return BillCard(
+                                    bill: bill,
+                                    onTap: () => _navigateToBill(bill),
+                                    fullyPaidColor: positiveColor,
+                                    partiallyPaidColor: neutralColor,
+                                    unpaidColor: negativeColor,
+                                  );
+                                },
+                              ),
+                            const SizedBox(height: 20),
+                          ],
+                        );
+                      }),
+                      PaginationControls(
+                        totalItems: response.count,
+                        itemsPerPage: 40,
+                      ),
+                    ],
                   );
                 },
                 loading: () => const Center(
