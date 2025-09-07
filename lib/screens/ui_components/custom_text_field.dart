@@ -9,15 +9,19 @@ class CustomTextField extends StatelessWidget {
   final bool readOnly;
   final bool obscureText;
   final ValueChanged<String>? onChanged;
-  final ValueChanged<String>? onSubmitted; // <-- ADDED for submission
-  final FormFieldValidator<String>? validator;
+  final ValueChanged<String>? onSubmitted;
+  final FormFieldValidator<String>? validator; // For custom validation
   final FocusNode? focusNode;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final VoidCallback? onTap;
   final Color? tintColor;
-  final List<TextInputFormatter>? inputFormatters; // <-- ADDED for input restriction
-  final TextAlign textAlign; // <-- ADDED for centering
+  final List<TextInputFormatter>? inputFormatters;
+  final TextAlign textAlign;
+  
+  // --- ADDED VALIDATION PROPERTIES ---
+  final bool isRequired;
+  final bool isNumeric;
 
   const CustomTextField({
     super.key,
@@ -28,15 +32,18 @@ class CustomTextField extends StatelessWidget {
     this.readOnly = false,
     this.obscureText = false,
     this.onChanged,
-    this.onSubmitted, // <-- ADDED
+    this.onSubmitted,
     this.validator,
     this.focusNode,
     this.prefixIcon,
     this.suffixIcon,
     this.onTap,
     this.tintColor,
-    this.inputFormatters, // <-- ADDED
-    this.textAlign = TextAlign.start, // <-- ADDED
+    this.inputFormatters,
+    this.textAlign = TextAlign.start,
+    // --- ADDED TO CONSTRUCTOR (with defaults) ---
+    this.isRequired = false,
+    this.isNumeric = false,
   });
 
   @override
@@ -48,6 +55,7 @@ class CustomTextField extends StatelessWidget {
   }
 
   Widget _buildSearchBarStyledField(BuildContext context) {
+    // ... (This method is unchanged)
     final theme = Theme.of(context);
     final isLightMode = theme.brightness == Brightness.light;
 
@@ -65,7 +73,7 @@ class CustomTextField extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:  isLightMode ? 0.08 : 0.3),
+            color: Colors.black.withOpacity(isLightMode ? 0.08 : 0.3),
             offset: const Offset(0, 4),
             blurRadius: 12,
           ),
@@ -90,20 +98,17 @@ class CustomTextField extends StatelessWidget {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
-    // --- DYNAMIC TINTING LOGIC ---
+    // ... (Your dynamic tinting logic is unchanged)
     Color finalFillColor;
     Color finalBorderColor;
-
     if (tintColor != null) {
-      // Use the tinted colors if a tintColor is provided
       final baseColor = tintColor!;
       finalFillColor = Color.alphaBlend(
-        baseColor.withValues(alpha:  isDarkMode ? 0.1 : 0.05),
+        baseColor.withOpacity(isDarkMode ? 0.1 : 0.05),
         theme.colorScheme.surface,
       );
-      finalBorderColor = baseColor.withValues(alpha:  isDarkMode ? 0.4 : 0.3);
+      finalBorderColor = baseColor.withOpacity(isDarkMode ? 0.4 : 0.3);
     } else {
-      // Fallback to the original hardcoded colors
       finalFillColor = isDarkMode
           ? const Color(0xFF2A2D3E)
           : const Color(0xFFF8F9FA);
@@ -111,8 +116,30 @@ class CustomTextField extends StatelessWidget {
           ? Colors.grey.shade700
           : Colors.grey.shade300;
     }
-
     final hintColor = isDarkMode ? Colors.grey.shade400 : Colors.grey.shade500;
+
+    // --- MASTER VALIDATOR FUNCTION ---
+    String? masterValidator(String? value) {
+      final trimmedValue = value?.trim() ?? '';
+
+      // 1. Built-in 'isRequired' check
+      if (isRequired && trimmedValue.isEmpty) {
+        return '$label cannot be empty.';
+      }
+
+      // 2. Built-in 'isNumeric' check (only if not empty)
+      if (isNumeric && trimmedValue.isNotEmpty && double.tryParse(trimmedValue) == null) {
+        return '$label must be a valid number.';
+      }
+
+      // 3. Custom external validator (if provided)
+      if (validator != null) {
+        return validator!(value);
+      }
+
+      // All checks passed
+      return null;
+    }
 
     return TextFormField(
       controller: controller,
@@ -121,15 +148,15 @@ class CustomTextField extends StatelessWidget {
       readOnly: readOnly,
       obscureText: obscureText,
       onChanged: onChanged,
-      validator: validator,
+      validator: masterValidator, // <-- USE MASTER VALIDATOR
       onTap: onTap,
-      onFieldSubmitted: onSubmitted,     // <-- ADDED
-      inputFormatters: inputFormatters, // <-- ADDED
-      textAlign: textAlign,           // <-- ADDED
+      onFieldSubmitted: onSubmitted,
+      inputFormatters: inputFormatters,
+      textAlign: textAlign,
       style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
       decoration: InputDecoration(
         hintText: label,
-        hintStyle: TextStyle(color: hintColor, fontWeight: FontWeight.w400), // <-- FIXED
+        hintStyle: TextStyle(color: hintColor, fontWeight: FontWeight.w400),
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         filled: true,

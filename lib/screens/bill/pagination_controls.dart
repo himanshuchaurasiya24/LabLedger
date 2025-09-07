@@ -1,36 +1,48 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/providers/bills_provider.dart';
-import 'package:labledger/screens/ui_components/custom_text_field.dart';
 
-/// --- UPDATED PAGINATION WIDGET ---
-/// This is now a ConsumerStatefulWidget to manage the controller and focus node
-/// for the "Go to Page" text field.
-class PaginationControls extends ConsumerStatefulWidget {
-  const PaginationControls({super.key, 
+import 'package:labledger/screens/ui_components/custom_text_field.dart'; 
+
+/// A reusable pagination control widget.
+///
+/// This is a "dumb" component controlled by its parent. It receives the
+/// [currentPage] and notifies the parent of any changes via [onPageChanged].
+class PaginationControls extends StatefulWidget {
+  const PaginationControls({
+    super.key,
     required this.totalItems,
     required this.itemsPerPage,
+    required this.currentPage,
+    required this.onPageChanged,
   });
 
+  /// The total number of items from the backend (the "count").
   final int totalItems;
+
+  /// The number of items per page (must match backend setting).
   final int itemsPerPage;
 
+  /// The current page number being displayed.
+  final int currentPage;
+
+  /// A callback function that fires when the page should change.
+  final ValueChanged<int> onPageChanged;
+
   @override
-  ConsumerState<PaginationControls> createState() => _PaginationControlsState();
+  State<PaginationControls> createState() => _PaginationControlsState();
 }
 
-class _PaginationControlsState extends ConsumerState<PaginationControls> {
+class _PaginationControlsState extends State<PaginationControls> {
   late final TextEditingController _pageController;
   late final FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
-    _pageController = TextEditingController();
+    _pageController = TextEditingController(text: widget.currentPage.toString());
     _focusNode = FocusNode();
-    // Add a listener to submit when the user taps away (loses focus)
+    
+    // Add a listener to submit when the user taps away
     _focusNode.addListener(() {
       if (!_focusNode.hasFocus) {
         _submitPage();
@@ -39,33 +51,54 @@ class _PaginationControlsState extends ConsumerState<PaginationControls> {
   }
 
   @override
-  void dispose() {
-    _pageController.dispose();
-    _focusNode.dispose();
-    super.dispose();
+  void didUpdateWidget(covariant PaginationControls oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // This is crucial. If the parent updates the page (e.g., via arrow buttons),
+    // we must update our text controller to match the new state,
+    // but only if the user isn't currently typing in it.
+    if (widget.currentPage != oldWidget.currentPage && !_focusNode.hasFocus) {
+      _updateTextToCurrentPage();
+    }
+  }
+
+  void _updateTextToCurrentPage() {
+    _pageController.text = widget.currentPage.toString();
+    // Move cursor to the end
+    _pageController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _pageController.text.length));
   }
 
   void _submitPage() {
     final totalPages = (widget.totalItems / widget.itemsPerPage).ceil();
-    final currentPage = ref.read(currentPageProvider);
-    
-    // Try to parse the user's input
-    int newPage = int.tryParse(_pageController.text) ?? currentPage;
 
-    // Validate and clamp the input (constrain to max page count)
+    // Try to parse the user's input
+    int newPage = int.tryParse(_pageController.text) ?? widget.currentPage;
+
+    // Validate and clamp the input
     if (newPage < 1) {
       newPage = 1;
     } else if (newPage > totalPages) {
       newPage = totalPages;
     }
 
-    // Only update the state if the page number is actually different
-    if (newPage != currentPage) {
-      ref.read(currentPageProvider.notifier).state = newPage;
+    // Only call the callback if the page is actually different
+    if (newPage != widget.currentPage) {
+      widget.onPageChanged(newPage);
     }
-
-    // Unfocus to hide keyboard
+    
+    // After submitting, always reset the text to the (potentially validated) new page
+    // This handles cases where the user types an invalid page like "999"
+    _pageController.text = newPage.toString();
     _focusNode.unfocus();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _focusNode.removeListener(_submitPage); // Clean up listener
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -73,18 +106,8 @@ class _PaginationControlsState extends ConsumerState<PaginationControls> {
     if (widget.totalItems <= widget.itemsPerPage) {
       return const SizedBox.shrink(); // Hide controls if only one page
     }
-    
-    final currentPage = ref.watch(currentPageProvider);
-    final totalPages = (widget.totalItems / widget.itemsPerPage).ceil();
 
-    // Sync the text controller with the current page from the provider.
-    // This ensures it updates when the user clicks the arrow buttons.
-    // We also check focus to avoid interrupting the user while they are typing.
-    if (!_focusNode.hasFocus && _pageController.text != currentPage.toString()) {
-       _pageController.text = currentPage.toString();
-       // Move cursor to the end
-       _pageController.selection = TextSelection.fromPosition(TextPosition(offset: _pageController.text.length));
-    }
+    final totalPages = (widget.totalItems / widget.itemsPerPage).ceil();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -93,10 +116,10 @@ class _PaginationControlsState extends ConsumerState<PaginationControls> {
         children: [
           IconButton(
             icon: const Icon(Icons.chevron_left),
-            onPressed: currentPage == 1
+            onPressed: widget.currentPage == 1
                 ? null // Disable on first page
                 : () {
-                    ref.read(currentPageProvider.notifier).state = currentPage - 1;
+                    widget.onPageChanged(widget.currentPage - 1);
                   },
           ),
           const SizedBox(width: 8),
@@ -127,10 +150,10 @@ class _PaginationControlsState extends ConsumerState<PaginationControls> {
           const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.chevron_right),
-            onPressed: currentPage == totalPages
+            onPressed: widget.currentPage == totalPages
                 ? null // Disable on last page
                 : () {
-                    ref.read(currentPageProvider.notifier).state = currentPage + 1;
+                    widget.onPageChanged(widget.currentPage + 1);
                   },
           ),
         ],

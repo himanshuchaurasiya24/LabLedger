@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AnimatedLabProgressIndicator extends StatefulWidget {
-  const AnimatedLabProgressIndicator({super.key});
+  const AnimatedLabProgressIndicator({
+    super.key,
+    this.firstColor,
+    this.secondColor,
+  });
+  final Color? firstColor;
+  final Color? secondColor;
 
   @override
   State<AnimatedLabProgressIndicator> createState() =>
@@ -13,20 +19,40 @@ class _AnimatedLabProgressIndicatorState
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Color?> _colorAnimation;
+  late Color first;
+  late Color second;
 
-  final Color blue = const Color(0xFF0072B5);
-  final Color green = const Color(0xFF1AA260);
+  // This method is fine, but we will call it from didChangeDependencies
+  void getColor() {
+    first =
+        widget.firstColor ?? Theme.of(context).colorScheme.primary;
+    second =
+        widget.secondColor ?? Theme.of(context).colorScheme.secondary;
+  }
 
   @override
   void initState() {
     super.initState();
-
+    // Only initialize the controller here, since it doesn't depend on the theme.
     _controller = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
     )..repeat(reverse: true); // loops back and forth
+  }
 
-    _colorAnimation = ColorTween(begin: blue, end: green).animate(_controller);
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // --- THIS IS THE FIX ---
+    // Initialize all theme-dependent values here.
+    // This runs after initState and has a valid context.
+    getColor(); // Get the colors using the valid context
+
+    _colorAnimation = ColorTween( // Now create the animation
+      begin: first,
+      end: second,
+    ).animate(_controller);
   }
 
   @override
@@ -42,6 +68,8 @@ class _AnimatedLabProgressIndicatorState
       builder: (context, child) {
         return LinearProgressIndicator(
           backgroundColor: Colors.transparent,
+          // Use .value which might be null during the very first frame,
+          // or provide a default. Using `!` is okay if controller is running.
           valueColor: AlwaysStoppedAnimation<Color>(_colorAnimation.value!),
         );
       },

@@ -10,6 +10,7 @@ import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/screens/bill/add_update_screen.dart';
 import 'package:labledger/screens/bill/pagination_controls.dart';
+import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
 import 'package:labledger/screens/ui_components/cards/bill_card.dart';
 import 'package:labledger/screens/ui_components/cards/bill_stats_card.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
@@ -45,10 +46,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
     _debounce?.cancel();
     searchController.dispose();
     searchFocusNode.dispose();
-
-    // Reset providers when leaving the screen.
-    // This ensures when the user comes back, they always start on Page 1.
-    // We use Future.microtask to ensure it runs just after this build cycle.
     Future.microtask(() {
       ref.read(currentPageProvider.notifier).state = 1;
       ref.read(currentSearchQueryProvider.notifier).state = '';
@@ -108,17 +105,17 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
 
     final Color menuBackgroundColor = (baseColor is MaterialColor)
         ? (isDark
-            ? baseColor.shade900.withValues(alpha: 0.95)
-            : baseColor.shade50)
+              ? baseColor.shade900.withValues(alpha: 0.95)
+              : baseColor.shade50)
         : (isDark
-            ? Color.alphaBlend(
-                baseColor.withValues(alpha: 0.4),
-                theme.colorScheme.surface,
-              )
-            : Color.alphaBlend(
-                baseColor.withValues(alpha: 0.1),
-                theme.colorScheme.surface,
-              ));
+              ? Color.alphaBlend(
+                  baseColor.withValues(alpha: 0.4),
+                  theme.colorScheme.surface,
+                )
+              : Color.alphaBlend(
+                  baseColor.withValues(alpha: 0.1),
+                  theme.colorScheme.surface,
+                ));
 
     final Color menuBorderColor = (baseColor is MaterialColor)
         ? (isDark ? baseColor.shade200 : baseColor.shade600)
@@ -231,17 +228,12 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
         onSearch: _onSearchChanged,
       ),
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.tertiaryFixed,
         floatingActionButton: FloatingActionButton.extended(
-          backgroundColor: Theme.of(
-            context,
-          ).colorScheme.secondary,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
           foregroundColor: Colors.white,
           elevation: 4.0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              16.0,
-            ),
+            borderRadius: BorderRadius.circular(defaultRadius),
           ),
           onPressed: () async {
             await navigatorKey.currentState?.push(
@@ -251,10 +243,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
           },
           label: const Text(
             "Add Bill",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           icon: const Icon(LucideIcons.plus),
         ),
@@ -270,59 +259,61 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(defaultRadius),
                   ),
-                  child: ref.watch(billGrowthStatsProvider).when(
-                    data: (stats) {
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: BillStatsCard(
-                              title: "Monthly Growth",
-                              currentPeriod: stats.currentMonth,
-                              previousPeriod: stats.previousMonth,
-                              positiveColor: positiveColor,
-                              negativeColor: negativeColor,
-                            ),
+                  child: ref
+                      .watch(billGrowthStatsProvider)
+                      .when(
+                        data: (stats) {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: BillStatsCard(
+                                  title: "Monthly Growth",
+                                  currentPeriod: stats.currentMonth,
+                                  previousPeriod: stats.previousMonth,
+                                  positiveColor: positiveColor,
+                                  negativeColor: negativeColor,
+                                ),
+                              ),
+                              SizedBox(width: defaultWidth),
+                              Expanded(
+                                child: BillStatsCard(
+                                  title: "Quarterly Growth",
+                                  currentPeriod: stats.currentQuarter,
+                                  previousPeriod: stats.previousQuarter,
+                                  positiveColor: positiveColor,
+                                  negativeColor: negativeColor,
+                                ),
+                              ),
+                              SizedBox(width: defaultWidth),
+                              Expanded(
+                                child: BillStatsCard(
+                                  title: "Yearly Growth",
+                                  currentPeriod: stats.currentYear,
+                                  previousPeriod: stats.previousYear,
+                                  positiveColor: positiveColor,
+                                  negativeColor: negativeColor,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                        loading: () =>
+                            Center(child: AnimatedLabProgressIndicator(firstColor: positiveColor,secondColor: negativeColor,)),
+                        error: (err, stack) => Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Error loading stats: $err"),
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: () => _refreshBillsData(),
+                                child: const Text("Retry"),
+                              ),
+                            ],
                           ),
-                          SizedBox(width: defaultWidth),
-                          Expanded(
-                            child: BillStatsCard(
-                              title: "Quarterly Growth",
-                              currentPeriod: stats.currentQuarter,
-                              previousPeriod: stats.previousQuarter,
-                              positiveColor: positiveColor,
-                              negativeColor: negativeColor,
-                            ),
-                          ),
-                          SizedBox(width: defaultWidth),
-                          Expanded(
-                            child: BillStatsCard(
-                              title: "Yearly Growth",
-                              currentPeriod: stats.currentYear,
-                              previousPeriod: stats.previousYear,
-                              positiveColor: positiveColor,
-                              negativeColor: negativeColor,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (err, stack) => Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Error loading stats: $err"),
-                          const SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () => _refreshBillsData(),
-                            child: const Text("Retry"),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
                 ),
               ),
               asyncResponse.when(
@@ -359,6 +350,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _buildSectionHeader(context, headerTitle),
                             if (_selectedView == "grid")
@@ -367,11 +359,11 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                                 physics: const NeverScrollableScrollPhysics(),
                                 gridDelegate:
                                     SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 4,
-                                  childAspectRatio: aspectRatio,
-                                  crossAxisSpacing: defaultWidth,
-                                  mainAxisSpacing: defaultHeight,
-                                ),
+                                      crossAxisCount: 4,
+                                      childAspectRatio: aspectRatio,
+                                      crossAxisSpacing: defaultWidth,
+                                      mainAxisSpacing: defaultHeight,
+                                    ),
                                 itemCount: categoryBills.length,
                                 itemBuilder: (ctx, index) {
                                   final bill = categoryBills[index];
@@ -409,6 +401,13 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                       PaginationControls(
                         totalItems: response.count,
                         itemsPerPage: 40,
+                        currentPage: ref.watch(
+                          currentPageProvider,
+                        ), // <-- PASS THE STATE IN
+                        onPageChanged: (newPage) {
+                          ref.read(currentPageProvider.notifier).state =
+                              newPage;
+                        },
                       ),
                     ],
                   );
