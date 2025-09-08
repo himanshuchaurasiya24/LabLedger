@@ -14,7 +14,7 @@ import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/screens/ui_components/custom_action_button.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
-import 'package:labledger/screens/ui_components/window_scaffold.dart';
+import 'package:labledger/screens/initials/window_scaffold.dart';
 
 const _spacing = 16.0;
 const _cardSpacing = 20.0;

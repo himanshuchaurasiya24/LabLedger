@@ -13,7 +13,7 @@ import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
 import 'package:labledger/screens/ui_components/cards/bill_card.dart';
 import 'package:labledger/screens/ui_components/cards/bill_stats_card.dart';
-import 'package:labledger/screens/ui_components/window_scaffold.dart';
+import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 

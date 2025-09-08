@@ -320,7 +320,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
                 ],
               ),
             ),
-            if (!isFullScreen) SizedBox(height: widget.spaceAfterRow ?? 7),
+            SizedBox(height: widget.isInitialScreen ? 0 : 7),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: defaultPadding),
@@ -332,6 +332,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
                     : widget.child,
               ),
             ),
+            SizedBox(height: widget.isInitialScreen ? 7 : 0),
           ],
         ),
       ),

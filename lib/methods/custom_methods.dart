@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/providers/theme_providers.dart';
-import 'package:labledger/screens/ui_components/window_scaffold.dart';
+import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:window_manager/window_manager.dart';
 
 final containerLightColor = Color(0xFFEEEEEE);
@@ -159,50 +159,6 @@ class CenterSearchBar extends StatelessWidget {
   }
 }
 
-
-Widget pageHeader({
-  required BuildContext context,
-  required Widget? centerWidget,
-}) {
-  return Column(
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          appIconName(
-            context: context,
-            firstName: "Lab",
-            secondName: "Ledger",
-            fontSize: 45,
-          ),
-          centerWidget ?? const SizedBox(),
-
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            hoverColor: Colors.transparent,
-            color: Colors.red[100],
-            icon: Container(
-              height: 35,
-              width: 35,
-              decoration: BoxDecoration(
-                color: Colors.red[400],
-                borderRadius: BorderRadius.circular(defaultPadding / 2),
-              ),
-              child: Icon(
-                Icons.close,
-                size: 35,
-                color: Theme.of(context).colorScheme.tertiaryFixed,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
 Future<void> setWindowBehavior({
   bool? isForLogin,
   bool? isLoadingScreen,
@@ -241,100 +197,6 @@ Future<void> setWindowBehavior({
   });
 }
 
-// class CustomTextField extends StatefulWidget {
-//   const CustomTextField({
-//     super.key,
-//     required this.controller,
-//     this.isObscure = false,
-//     required this.labelText,
-//     this.keyboardType,
-//     this.passwordController,
-//     this.isConfirm,
-//     this.readOnly,
-//     this.maxLines,
-//     this.onChanged,
-//     this.valueLimit,
-//     this.fillColor,
-//     this.hoverColor,
-//   });
-
-//   final TextEditingController controller;
-//   final bool? isObscure;
-//   final String labelText;
-//   final void Function(String)? onChanged;
-//   final TextInputType? keyboardType;
-//   final TextEditingController? passwordController;
-//   final bool? isConfirm;
-//   final bool? readOnly;
-//   final int? maxLines;
-//   final int? valueLimit;
-//   final Color? fillColor;
-//   final Color? hoverColor;
-
-//   @override
-//   State<CustomTextField> createState() => _CustomTextFieldState();
-// }
-
-// class _CustomTextFieldState extends State<CustomTextField> {
-//   bool isObscure = false;
-//   @override
-//   void initState() {
-//     super.initState();
-//     isObscure = widget.isObscure! ? true : false;
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return TextFormField(
-//       onChanged: widget.onChanged,
-//       controller: widget.controller,
-//       keyboardType: widget.keyboardType,
-//       maxLines: widget.maxLines ?? 1,
-//       obscureText: isObscure,
-//       readOnly: widget.readOnly ?? false,
-//       validator: (value) {
-//         if (widget.isConfirm == true && widget.passwordController != null) {
-//           if (value != widget.passwordController!.text) {
-//             return 'Password does\'nt match';
-//           }
-//         }
-//         if (value != null && value.trim().isEmpty) {
-//           return 'Please enter ${widget.labelText}';
-//         }
-//         if (widget.valueLimit != null &&
-//             widget.keyboardType == TextInputType.number &&
-//             value != null) {
-//           int pValue = int.tryParse(value)!;
-//           if (pValue > widget.valueLimit!) {
-//             return 'Range is only upto ${widget.valueLimit}';
-//           }
-//         }
-//         if (value != null && widget.keyboardType == TextInputType.number) {
-//           final intvalue = int.tryParse(value);
-//           if (intvalue == null) {
-//             return 'Invalid ${widget.labelText}';
-//           }
-//         }
-
-//         return null;
-//       },
-//       decoration: InputDecoration(
-//         labelText: widget.labelText,
-//         suffixIcon: widget.isObscure!
-//             ? IconButton(
-//                 onPressed: () {
-//                   setState(() {
-//                     isObscure = !isObscure;
-//                   });
-//                 },
-//                 icon: const Icon(Icons.visibility),
-//               )
-//             : null,
-//         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-//       ),
-//     );
-//   }
-// }
 
 Widget customBar({
   required BuildContext context,

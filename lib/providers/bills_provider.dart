@@ -9,32 +9,55 @@ import '../authentication/auth_http_client.dart'; // Import the utility client
 
 String billsEndpoint = "${globalBaseUrl}diagnosis/bills/bill/";
 
-
-/// Stores the current page number the user is viewing. Defaults to 1.
 final currentPageProvider = StateProvider.autoDispose<int>((ref) => 1);
 
-/// Stores the current search query. Defaults to empty.
-final currentSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
-final paginatedBillsProvider = FutureProvider.autoDispose<PaginatedBillsResponse>((ref) async {
-  
+final currentSearchQueryProvider = StateProvider.autoDispose<String>(
+  (ref) => '',
+);
+final paginatedUnpaidPartialBillsProvider =
+    FutureProvider.autoDispose<PaginatedBillsResponse>((ref) async {
   final page = ref.watch(currentPageProvider);
   final query = ref.watch(currentSearchQueryProvider);
-  
+
   final queryParams = {
     'page': page.toString(),
+    'unpaid_or_partial': 'true', // ✅ filter from backend
+    'ordering': '-date_of_bill', // ✅ sort by recent bills first
     if (query.isNotEmpty) 'search': query,
   };
-  
+
   final uri = Uri.parse(billsEndpoint).replace(queryParameters: queryParams);
+
   final response = await AuthHttpClient.get(ref, uri.toString());
 
   if (response.statusCode == 200) {
     return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
   } else {
-    throw Exception("Failed to fetch bills: ${response.body}");
+    throw Exception("Failed to fetch unpaid/partial bills: ${response.body}");
   }
 });
 
+final paginatedBillsProvider =
+    FutureProvider.autoDispose<PaginatedBillsResponse>((ref) async {
+      final page = ref.watch(currentPageProvider);
+      final query = ref.watch(currentSearchQueryProvider);
+
+      final queryParams = {
+        'page': page.toString(),
+        if (query.isNotEmpty) 'search': query,
+      };
+
+      final uri = Uri.parse(
+        billsEndpoint,
+      ).replace(queryParameters: queryParams);
+      final response = await AuthHttpClient.get(ref, uri.toString());
+
+      if (response.statusCode == 200) {
+        return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
+      } else {
+        throw Exception("Failed to fetch bills: ${response.body}");
+      }
+    });
 
 // --- ACTION PROVIDERS (Updated Invalidation Logic) ---
 
@@ -46,14 +69,24 @@ final singleBillProvider = FutureProvider.autoDispose.family<Bill, int>((
     ref,
     "$billsEndpoint$id/?list_format=true",
   );
-  
+
   if (response.statusCode == 200) {
     return Bill.fromJson(jsonDecode(response.body));
   } else {
     throw Exception("Failed to fetch bill: ${response.body}");
   }
 });
+//
+final billProvider = FutureProvider.autoDispose<List<Bill>>((ref) async {
+  final response = await AuthHttpClient.get(ref, billsEndpoint);
 
+  if (response.statusCode == 200) {
+    final List data = jsonDecode(response.body);
+    return data.map((e) => Bill.fromJson(e)).toList();
+  } else {
+    throw Exception("Failed to fetch bill: ${response.body}");
+  }
+});
 
 /// ✅ Create a new bill (Updated invalidation)
 final createBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
@@ -66,20 +99,21 @@ final createBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode(newBill.toJson()),
   );
-  
+
   if (response.statusCode == 201 || response.statusCode == 200) {
     // Refresh stats AND our new main provider
-    ref.invalidate(paginatedBillsProvider); 
+    ref.invalidate(paginatedBillsProvider);
     ref.invalidate(referralStatsProvider);
     ref.invalidate(billChartStatsProvider);
     ref.invalidate(billGrowthStatsProvider);
+    ref.invalidate(billProvider);
+    ref.invalidate(paginatedUnpaidPartialBillsProvider);
 
     return Bill.fromJson(jsonDecode(response.body));
   } else {
     throw Exception("Failed to create a new bill: ${response.body}");
   }
 });
-
 
 /// ✅ Update an existing bill (Updated invalidation)
 final updateBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
@@ -100,24 +134,22 @@ final updateBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
     ref.invalidate(billChartStatsProvider);
     ref.invalidate(billGrowthStatsProvider);
     ref.invalidate(singleBillProvider(updatedBill.id!));
-    
+    ref.invalidate(billProvider);
+    ref.invalidate(paginatedUnpaidPartialBillsProvider);
+
     return Bill.fromJson(jsonDecode(response.body));
   } else {
     throw Exception("Failed to update bill: ${response.body}");
   }
 });
 
-
 /// ✅ Delete a bill (Updated invalidation)
 final deleteBillProvider = FutureProvider.autoDispose.family<void, int>((
   ref,
   id,
 ) async {
-  final response = await AuthHttpClient.delete(
-    ref,
-    "$billsEndpoint$id/",
-  );
-  
+  final response = await AuthHttpClient.delete(ref, "$billsEndpoint$id/");
+
   if (response.statusCode == 204) {
     // Refresh stats AND our new main provider
     ref.invalidate(paginatedBillsProvider);
@@ -125,7 +157,8 @@ final deleteBillProvider = FutureProvider.autoDispose.family<void, int>((
     ref.invalidate(billChartStatsProvider);
     ref.invalidate(billGrowthStatsProvider);
     ref.invalidate(singleBillProvider(id));
-
+    ref.invalidate(billProvider);
+    ref.invalidate(paginatedUnpaidPartialBillsProvider);
   } else {
     throw Exception("Failed to delete bill: ${response.body}");
   }

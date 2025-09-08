@@ -35,7 +35,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   late AnimationController _fadeController;
   late AnimationController _slideController;
-  late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
   VersionCheckStatus _versionStatus = VersionCheckStatus.checking;
@@ -61,9 +60,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
-    );
+    // _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    //   CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    // );
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
           CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
@@ -200,19 +199,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: defaultPadding * 2,
-              vertical: defaultPadding,
-            ),
-            child: _buildBody(),
+      body: SlideTransition(
+        position: _slideAnimation,
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: defaultPadding * 2,
+            vertical: defaultPadding,
           ),
+          child: _buildBody(),
         ),
       ),
     );

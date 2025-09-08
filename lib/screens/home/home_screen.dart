@@ -2,17 +2,22 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/auth_response_model.dart';
+import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/secure_storage_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
+import 'package:labledger/screens/bill/add_update_screen.dart';
 import 'package:labledger/screens/bill/bill_screen.dart';
+import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
+import 'package:labledger/screens/ui_components/cards/pending_bill_cards.dart';
 import 'package:labledger/screens/ui_components/cards/referral_card.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:labledger/screens/ui_components/user_profile_widget.dart';
-import 'package:labledger/screens/ui_components/window_scaffold.dart';
+import 'package:labledger/screens/initials/window_scaffold.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.authResponse});
@@ -48,6 +53,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final referralStatsAsync = ref.watch(referralStatsProvider);
     final chartStatsAsync = ref.watch(billChartStatsProvider);
     final baseColor = Theme.of(context).colorScheme.secondary;
+    final unpaidBillsAsync = ref.watch(paginatedUnpaidPartialBillsProvider);
 
     return WindowScaffold(
       allowFullScreen: true,
@@ -76,13 +82,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                 UserProfileWidget(
                   authResponse: widget.authResponse,
-                  baseColor: Theme.of(context).colorScheme.primary,
-                  onLogout: () {
-                    //
+                  baseColor: Theme.of(context).colorScheme.secondary,
+                  onLogout: () async {
+                    await FlutterSecureStorage().delete(key: "access_token");
+                    await FlutterSecureStorage().delete(key: "refresh_token");
+                    navigatorKey.currentState?.pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return LoginScreen(initialErrorMessage: "");
+                        },
+                      ),
+                    );
                   },
                 ),
               ],
             ),
+            SizedBox(height: defaultHeight),
             Row(
               children: [
                 Expanded(
@@ -135,8 +150,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                 ),
+                SizedBox(width: defaultWidth),
+
+                Expanded(
+                  child: unpaidBillsAsync.when(
+                    data: (unpaidBillsAsyncResponse) {
+                      final unpaidBillsAsyncData = unpaidBillsAsyncResponse;
+                      return PendingBillsCard(
+                        baseColor: unpaidBillsAsyncData.bills.isEmpty
+                            ? Theme.of(context).colorScheme.secondary
+                            : Colors.red,
+                        bills: unpaidBillsAsyncData.bills,
+                        onBillTap: (bill) {
+                          navigatorKey.currentState?.push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return AddBillScreen(billData: bill);
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (err, _) => Center(
+                      child: Text("Error: Failed to load chart data."),
+                    ),
+                  ),
+                ),
               ],
             ),
+            SizedBox(height: defaultHeight),
           ],
         ),
       ),
