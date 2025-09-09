@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/models/user_model.dart';
-import 'package:labledger/providers/user_provider.dart';
 import 'package:labledger/providers/password_reset_provider.dart';
+import 'package:labledger/providers/user_provider.dart';
+import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/custom_text_field.dart';
+import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class UserEditScreen extends ConsumerStatefulWidget {
   final int currentUserId; // The logged-in user's ID
@@ -45,7 +48,9 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   bool _isControllersInitialized = false;
 
   int get targetUserId => widget.targetUserId ?? widget.currentUserId;
-  bool get isEditingSelf => widget.targetUserId == null || widget.targetUserId == widget.currentUserId;
+  bool get isEditingSelf =>
+      widget.targetUserId == null ||
+      widget.targetUserId == widget.currentUserId;
 
   @override
   void initState() {
@@ -83,30 +88,32 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   @override
   Widget build(BuildContext context) {
     // Watch both current user and target user data
-    final currentUserAsync = ref.watch(singleUserDetailsProvider(widget.currentUserId));
+    final currentUserAsync = ref.watch(
+      singleUserDetailsProvider(widget.currentUserId),
+    );
     final targetUserAsync = ref.watch(singleUserDetailsProvider(targetUserId));
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FFFE),
-      appBar: _buildAppBar(),
-      body: currentUserAsync.when(
+    return WindowScaffold(
+      child: currentUserAsync.when(
         data: (currentUser) => targetUserAsync.when(
           data: (targetUser) {
             _initializeControllersWithUserData(targetUser);
             return _buildContent(currentUser, targetUser);
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => _buildErrorWidget('Failed to load target user: $error'),
+          error: (error, stackTrace) =>
+              _buildErrorWidget('Failed to load target user: $error'),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => _buildErrorWidget('Failed to load current user: $error'),
+        error: (error, stackTrace) =>
+            _buildErrorWidget('Failed to load current user: $error'),
       ),
     );
   }
 
   Widget _buildContent(User currentUser, User targetUser) {
     final bool isAdmin = currentUser.isAdmin;
-    
+
     return Column(
       children: [
         _buildUserHeader(targetUser),
@@ -129,18 +136,11 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red.shade400,
-          ),
+          Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
           const SizedBox(height: 16),
           Text(
             message,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.red.shade600,
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.red.shade600),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -157,59 +157,11 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black87),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Text(
-        isEditingSelf ? 'Edit Profile' : 'Edit User',
-        style: const TextStyle(
-          color: Colors.black87,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      actions: [
-        Consumer(
-          builder: (context, ref, child) {
-            final currentUserAsync = ref.watch(singleUserDetailsProvider(widget.currentUserId));
-            return currentUserAsync.when(
-              data: (currentUser) {
-                if (currentUser.isAdmin && !isEditingSelf) {
-                  return IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _showDeleteDialog(),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-              loading: () => const SizedBox.shrink(),
-              error: (_, _) => const SizedBox.shrink(),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
   Widget _buildUserHeader(User user) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+
       child: Row(
         children: [
           CircleAvatar(
@@ -240,23 +192,27 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                 const SizedBox(height: 4),
                 Text(
                   user.email,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
-                    color: user.isAdmin ? Colors.orange.shade100 : Colors.green.shade100,
+                    color: user.isAdmin
+                        ? Colors.orange.shade100
+                        : Colors.green.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     user.isAdmin ? 'Admin' : 'Staff',
                     style: TextStyle(
                       fontSize: 12,
-                      color: user.isAdmin ? Colors.orange.shade800 : Colors.green.shade800,
+                      color: user.isAdmin
+                          ? Colors.orange.shade800
+                          : Colors.green.shade800,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -298,17 +254,32 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
               children: [
                 Row(
                   children: [
-                    Expanded(child: _buildTextField('First Name', _firstNameController)),
+                    Expanded(
+                      child: _buildTextField(
+                        'First Name',
+                        _firstNameController,
+                      ),
+                    ),
                     const SizedBox(width: 16),
-                    Expanded(child: _buildTextField('Last Name', _lastNameController)),
+                    Expanded(
+                      child: _buildTextField('Last Name', _lastNameController),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 _buildTextField('Username', _usernameController),
                 const SizedBox(height: 16),
-                _buildTextField('Email', _emailController, keyboardType: TextInputType.emailAddress),
+                _buildTextField(
+                  'Email',
+                  _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                ),
                 const SizedBox(height: 16),
-                _buildTextField('Phone Number', _phoneController, keyboardType: TextInputType.phone),
+                _buildTextField(
+                  'Phone Number',
+                  _phoneController,
+                  keyboardType: TextInputType.phone,
+                ),
                 const SizedBox(height: 16),
                 _buildTextField('Address', _addressController, maxLines: 3),
               ],
@@ -321,22 +292,33 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                 _buildInfoTile('Center Address', user.centerDetail.address),
                 _buildInfoTile('Owner Name', user.centerDetail.ownerName),
                 _buildInfoTile('Owner Phone', user.centerDetail.ownerPhone),
-                _buildInfoTile('Plan Type', user.centerDetail.subscription.planType),
-                _buildInfoTile('Days Left', user.centerDetail.subscription.daysLeft.toString()),
+                _buildInfoTile(
+                  'Plan Type',
+                  user.centerDetail.subscription.planType,
+                ),
+                _buildInfoTile(
+                  'Days Left',
+                  user.centerDetail.subscription.daysLeft.toString(),
+                ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: user.centerDetail.subscription.isActive 
-                        ? Colors.green.shade100 
+                    color: user.centerDetail.subscription.isActive
+                        ? Colors.green.shade100
                         : Colors.red.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    user.centerDetail.subscription.isActive ? 'Active' : 'Inactive',
+                    user.centerDetail.subscription.isActive
+                        ? 'Active'
+                        : 'Inactive',
                     style: TextStyle(
                       fontSize: 12,
-                      color: user.centerDetail.subscription.isActive 
-                          ? Colors.green.shade800 
+                      color: user.centerDetail.subscription.isActive
+                          ? Colors.green.shade800
                           : Colors.red.shade800,
                       fontWeight: FontWeight.w600,
                     ),
@@ -353,7 +335,9 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                   backgroundColor: const Color(0xFF20B2AA),
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: _isUpdating
                     ? const SizedBox(
@@ -361,10 +345,18 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
-                    : const Text('Update Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    : const Text(
+                        'Update Details',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -382,14 +374,18 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildSectionCard(
-              title: isAdmin && !isEditingSelf ? 'Reset User Password' : 'Change Password',
+              title: isAdmin && !isEditingSelf
+                  ? 'Reset User Password'
+                  : 'Change Password',
               children: [
                 if (isEditingSelf) ...[
                   _buildPasswordField(
                     'Current Password',
                     _currentPasswordController,
                     _isPasswordVisible,
-                    () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                    () => setState(
+                      () => _isPasswordVisible = !_isPasswordVisible,
+                    ),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -397,14 +393,19 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                   isAdmin && !isEditingSelf ? 'New Password' : 'New Password',
                   _newPasswordController,
                   _isNewPasswordVisible,
-                  () => setState(() => _isNewPasswordVisible = !_isNewPasswordVisible),
+                  () => setState(
+                    () => _isNewPasswordVisible = !_isNewPasswordVisible,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _buildPasswordField(
                   'Confirm Password',
                   _confirmPasswordController,
                   _isConfirmPasswordVisible,
-                  () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
+                  () => setState(
+                    () =>
+                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible,
+                  ),
                   validator: (value) {
                     if (value != _newPasswordController.text) {
                       return 'Passwords do not match';
@@ -418,12 +419,16 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
             SizedBox(
               height: 48,
               child: ElevatedButton(
-                onPressed: _isResettingPassword ? null : () => _resetPassword(isAdmin),
+                onPressed: _isResettingPassword
+                    ? null
+                    : () => _resetPassword(isAdmin),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red.shade600,
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: _isResettingPassword
                     ? const SizedBox(
@@ -431,12 +436,19 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : Text(
-                        isAdmin && !isEditingSelf ? 'Reset Password' : 'Change Password',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        isAdmin && !isEditingSelf
+                            ? 'Reset Password'
+                            : 'Change Password',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
               ),
             ),
@@ -446,20 +458,13 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     );
   }
 
-  Widget _buildSectionCard({required String title, required List<Widget> children}) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha:  0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+  Widget _buildSectionCard({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return TintedContainer(
+      height: 369,
+      baseColor: Theme.of(context).colorScheme.primary,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -484,28 +489,16 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
   }) {
-    return TextFormField(
+    return CustomTextField(
+      label: label,
       controller: controller,
       keyboardType: keyboardType,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF20B2AA)),
-        ),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-      ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return '$label is required';
         }
-        if (label == 'Email' && !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+        if (label == 'Email' &&
+            !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
           return 'Please enter a valid email';
         }
         return null;
@@ -520,27 +513,13 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     VoidCallback onToggleVisibility, {
     String? Function(String?)? validator,
   }) {
-    return TextFormField(
+    return CustomTextField(
+      label: label,
       controller: controller,
       obscureText: !isVisible,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF20B2AA)),
-        ),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        suffixIcon: IconButton(
-          icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off),
-          onPressed: onToggleVisibility,
-        ),
-      ),
-      validator: validator ??
+
+      validator:
+          validator ??
           (value) {
             if (value == null || value.trim().isEmpty) {
               return '$label is required';
@@ -573,16 +552,15 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
             ),
           ),
         ],
       ),
     );
   }
+
+  // Updated UI methods for UserEditScreen
 
   Future<void> _updateUserDetails(User originalUser) async {
     if (!_formKey.currentState!.validate()) return;
@@ -606,17 +584,17 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
           const SnackBar(
             content: Text('User details updated successfully'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
           ),
         );
         Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update user: $e'),
-            backgroundColor: Colors.red,
-          ),
+        // Show detailed error in a dialog for better readability
+        _showErrorDialog(
+          'Update Failed',
+          e.toString().replaceAll('Exception: ', ''),
         );
       }
     } finally {
@@ -632,13 +610,11 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     try {
       final Map<String, String> passwordData;
 
-      if (isAdmin && !isEditingSelf) {
-        // Admin resetting another user's password
-        passwordData = {
-          'password': _newPasswordController.text.trim(),
-        };
+      if (isAdmin) {
+        // Admin resetting another user's password - only needs 'password'
+        passwordData = {'password': _newPasswordController.text.trim()};
       } else {
-        // User changing their own password
+        // User changing their own password - needs 'old_password' and 'new_password'
         passwordData = {
           'old_password': _currentPasswordController.text.trim(),
           'new_password': _newPasswordController.text.trim(),
@@ -657,9 +633,10 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
           const SnackBar(
             content: Text('Password updated successfully'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
           ),
         );
-        
+
         // Clear password fields
         _currentPasswordController.clear();
         _newPasswordController.clear();
@@ -667,11 +644,10 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update password: $e'),
-            backgroundColor: Colors.red,
-          ),
+        // Show detailed error in a dialog for better readability
+        _showErrorDialog(
+          'Password Update Failed',
+          e.toString().replaceAll('Exception: ', ''),
         );
       }
     } finally {
@@ -679,16 +655,228 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     }
   }
 
+  // Helper method to show detailed error dialogs
+  void _showErrorDialog(String title, String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.red.shade600),
+            const SizedBox(width: 8),
+            Text(title, style: TextStyle(color: Colors.red.shade600)),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'The following error occurred:',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Text(
+                  errorMessage,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.red.shade800,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Alternative: Show error in a bottom sheet for even better UX
+  // void _showErrorBottomSheet(String title, String errorMessage) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+  //     ),
+  //     builder:sage) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+  //     ),
+  //     builder: (context) => Container(
+  //       padding: const EdgeInsets.all(24),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Icon(Icons.error_outline, color: Colors.red.shade600, size: 28),
+  //               const SizedBox(width: 12),
+  //               Expanded(
+  //                 child: Text(
+  //                   title,
+  //                   style: TextStyle(
+  //                     fontSize: 18,
+  //                     fontWeight: FontWeight.bold,
+  //                     color: Colors.red.shade600,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           const SizedBox(height: 16),
+  //           const Text(
+  //             'Error Details:',
+  //             style: TextStyle(
+  //               fontSize: 14,
+  //               fontWeight: FontWeight.w600,
+  //               color: Colors.black87,
+  //             ),
+  //           ),
+  //           const SizedBox(height: 8),
+  //           Container(
+  //             width: double.infinity,
+  //             padding: const EdgeInsets.all(16),
+  //             decoration: BoxDecoration(
+  //               color: Colors.red.shade50,
+  //               borderRadius: BorderRadius.circular(12),
+  //               border: Border.all(color: Colors.red.shade200),
+  //             ),
+  //             child: Text(
+  //               errorMessage,
+  //               style: TextStyle(
+  //                 fontSize: 14,
+  //                 color: Colors.red.shade800,
+  //                 height: 1.5,
+  //               ),
+  //             ),
+  //           ),
+  //           const SizedBox(height: 24),
+  //           SizedBox(
+  //             width: double.infinity,
+  //             height: 48,
+  //             child: ElevatedButton(
+  //               onPressed: () => Navigator.pop(context),
+  //               style: ElevatedButton.styleFrom(
+  //                 backgroundColor: const Color(0xFF20B2AA),
+  //                 foregroundColor: Colors.white,
+  //                 shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(8),
+  //                 ),
+  //               ),
+  //               child: const Text('Got it', style: TextStyle(fontSize: 16)),
+  //             ),
+  //           ),
+  //           // Add padding for bottom safe area
+  //           SizedBox(height: MediaQuery.of(context).padding.bottom),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // } (context) => Container(
+  //       padding: const EdgeInsets.all(24),
+  //       child: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Icon(Icons.error_outline, color: Colors.red.shade600, size: 28),
+  //               const SizedBox(width: 12),
+  //               Expanded(
+  //                 child: Text(
+  //                   title,
+  //                   style: TextStyle(
+  //                     fontSize: 18,
+  //                     fontWeight: FontWeight.bold,
+  //                     color: Colors.red.shade600,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           const SizedBox(height: 16),
+  //           const Text(
+  //             'Error Details:',
+  //             style: TextStyle(
+  //               fontSize: 14,
+  //               fontWeight: FontWeight.w600,
+  //               color: Colors.black87,
+  //             ),
+  //           ),
+  //           const SizedBox(height: 8),
+  //           Container(
+  //             width: double.infinity,
+  //             padding: const EdgeInsets.all(16),
+  //             decoration: BoxDecoration(
+  //               color: Colors.red.shade50,
+  //               borderRadius: BorderRadius.circular(12),
+  //               border: Border.all(color: Colors.red.shade200),
+  //             ),
+  //             child: Text(
+  //               errorMessage,
+  //               style: TextStyle(
+  //                 fontSize: 14,
+  //                 color: Colors.red.shade800,
+  //                 height: 1.5,
+  //               ),
+  //             ),
+  //           ),
+  //           const SizedBox(height: 24),
+  //           SizedBox(
+  //             width: double.infinity,
+  //             height: 48,
+  //             child: ElevatedButton(
+  //               onPressed: () => Navigator.pop(context),
+  //               style: ElevatedButton.styleFrom(
+  //                 backgroundColor: const Color(0xFF20B2AA),
+  //                 foregroundColor: Colors.white,
+  //                 shape: RoundedRectangleBorder(
+  //                   borderRadius: BorderRadius.circular(8),
+  //                 ),
+  //               ),
+  //               child: const Text('Got it', style: TextStyle(fontSize: 16)),
+  //             ),
+  //           ),
+  //           // Add padding for bottom safe area
+  //           SizedBox(height: MediaQuery.of(context).padding.bottom),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   void _showDeleteDialog() {
     final targetUserAsync = ref.read(singleUserDetailsProvider(targetUserId));
-    
+
     targetUserAsync.when(
       data: (targetUser) {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Delete User'),
-            content: Text('Are you sure you want to delete ${targetUser.firstName} ${targetUser.lastName}?'),
+            content: Text(
+              'Are you sure you want to delete ${targetUser.firstName} ${targetUser.lastName}?',
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -714,7 +902,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   Future<void> _deleteUser() async {
     try {
       await ref.read(deleteUserProvider(targetUserId).future);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

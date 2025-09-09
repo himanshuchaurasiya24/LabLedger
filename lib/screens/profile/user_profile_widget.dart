@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/providers/theme_providers.dart';
-import 'package:labledger/screens/profile/user_profile_edit_screen.dart';
+import 'package:labledger/screens/profile/user_edit_screen.dart';
 
 class UserProfileWidget extends ConsumerStatefulWidget {
   final AuthResponse authResponse;
