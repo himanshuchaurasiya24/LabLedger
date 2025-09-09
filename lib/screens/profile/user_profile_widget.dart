@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/main.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class UserProfileWidget extends ConsumerStatefulWidget {
   final AuthResponse authResponse;
   final Color baseColor;
   final VoidCallback onLogout;
+
   final VoidCallback? onSettings; // Optional settings callback
+  final VoidCallback? onProfile; // Optional profile callback
 
   const UserProfileWidget({
     super.key,
     required this.authResponse,
     required this.baseColor,
     required this.onLogout,
-    this.onSettings,
+    required this.onProfile,
+    required this.onSettings,
   });
 
   @override
@@ -63,6 +66,10 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
         onLogoutTap: () {
           _removeOverlay();
           _showLogoutConfirmation(context);
+        },
+        onProfileTap: () {
+          _removeOverlay();
+          widget.onProfile!();
         },
       ),
     );
@@ -226,6 +233,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
   final VoidCallback onThemeToggle;
   final Function(ThemeMode) onThemeSelect;
   final VoidCallback onSettingsTap;
+  final VoidCallback onProfileTap;
   final VoidCallback onLogoutTap;
 
   const _CustomDropdownMenu({
@@ -236,6 +244,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
     required this.baseColor,
     required this.onLogout,
     this.onSettings,
+    required this.onProfileTap,
     required this.isThemeExpanded,
     required this.onThemeToggle,
     required this.onThemeSelect,
@@ -285,13 +294,17 @@ class _CustomDropdownMenu extends ConsumerWidget {
                       // User Info Header
                       GestureDetector(
                         onTap: () {
-                          navigatorKey.currentState?.push(
+                          Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) {
-                                return UserEditScreen(currentUserId: authResponse.id);
+                                return UserEditScreen(
+                                  targetUserId: authResponse.id,
+                                  isAdmin: authResponse.isAdmin,
+                                );
                               },
                             ),
                           );
+                          onDismiss();
                         },
                         child: Container(
                           padding: const EdgeInsets.all(16),
@@ -385,7 +398,14 @@ class _CustomDropdownMenu extends ConsumerWidget {
                             ? Colors.grey.shade700
                             : Colors.grey.shade300,
                       ),
-
+                      // Settings Option
+                      if (authResponse.isAdmin)
+                        _buildMenuItem(
+                          icon: LucideIcons.user2,
+                          label: 'Profile',
+                          onTap: onProfileTap,
+                          isDark: isDark,
+                        ),
                       // Settings Option
                       _buildMenuItem(
                         icon: Icons.settings_outlined,

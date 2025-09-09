@@ -12,6 +12,7 @@ import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 import 'package:labledger/screens/bill/add_update_screen.dart';
 import 'package:labledger/screens/bill/bill_screen.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
+import 'package:labledger/screens/profile/user_list_screen.dart';
 import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
 import 'package:labledger/screens/ui_components/cards/pending_bill_cards.dart';
 import 'package:labledger/screens/ui_components/cards/referral_card.dart';
@@ -86,6 +87,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   onLogout: () async {
                     await FlutterSecureStorage().delete(key: "access_token");
                     await FlutterSecureStorage().delete(key: "refresh_token");
+
                     navigatorKey.currentState?.pushReplacement(
                       MaterialPageRoute(
                         builder: (context) {
@@ -93,6 +95,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         },
                       ),
                     );
+                  },
+                  onProfile: () {
+                    navigatorKey.currentState?.push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return UserListScreen(baseColor: baseColor, adminId: widget.authResponse.isAdmin?widget.authResponse.id:0,);
+                        },
+                      ),
+                    );
+                  },
+                  onSettings: () {
+                    //
                   },
                 ),
               ],

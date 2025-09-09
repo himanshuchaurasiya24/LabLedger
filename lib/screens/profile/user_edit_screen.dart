@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/models/user_model.dart';
 import 'package:labledger/providers/password_reset_provider.dart';
 import 'package:labledger/providers/user_provider.dart';
@@ -8,14 +9,13 @@ import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class UserEditScreen extends ConsumerStatefulWidget {
-  final int currentUserId; // The logged-in user's ID
-  final int? targetUserId; // The user ID to edit (null means editing self)
-
   const UserEditScreen({
     super.key,
-    required this.currentUserId,
-    this.targetUserId,
+    this.isAdmin = false,
+    required this.targetUserId,
   });
+  final int targetUserId; // The user ID to edit (null means editing self)
+  final bool? isAdmin;
 
   @override
   ConsumerState<UserEditScreen> createState() => _UserEditScreenState();
@@ -46,11 +46,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   bool _isUpdating = false;
   bool _isResettingPassword = false;
   bool _isControllersInitialized = false;
-
-  int get targetUserId => widget.targetUserId ?? widget.currentUserId;
-  bool get isEditingSelf =>
-      widget.targetUserId == null ||
-      widget.targetUserId == widget.currentUserId;
 
   @override
   void initState() {
@@ -87,33 +82,24 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Watch both current user and target user data
-    final currentUserAsync = ref.watch(
-      singleUserDetailsProvider(widget.currentUserId),
+    final targetUserAsync = ref.watch(
+      singleUserDetailsProvider(widget.targetUserId),
     );
-    final targetUserAsync = ref.watch(singleUserDetailsProvider(targetUserId));
 
     return WindowScaffold(
-      child: currentUserAsync.when(
-        data: (currentUser) => targetUserAsync.when(
-          data: (targetUser) {
-            _initializeControllersWithUserData(targetUser);
-            return _buildContent(currentUser, targetUser);
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) =>
-              _buildErrorWidget('Failed to load target user: $error'),
-        ),
+      child: targetUserAsync.when(
+        data: (targetUser) {
+          _initializeControllersWithUserData(targetUser);
+          return _buildContent(targetUser, widget.isAdmin!);
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) =>
-            _buildErrorWidget('Failed to load current user: $error'),
+            _buildErrorWidget('Failed to load target user: $error'),
       ),
     );
   }
 
-  Widget _buildContent(User currentUser, User targetUser) {
-    final bool isAdmin = currentUser.isAdmin;
-
+  Widget _buildContent(User targetUser, bool isAdmin) {
     return Column(
       children: [
         _buildUserHeader(targetUser),
@@ -147,8 +133,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
           ElevatedButton(
             onPressed: () {
               // Refresh the data
-              ref.invalidate(singleUserDetailsProvider(widget.currentUserId));
-              ref.invalidate(singleUserDetailsProvider(targetUserId));
+              ref.invalidate(singleUserDetailsProvider(widget.targetUserId));
             },
             child: const Text('Retry'),
           ),
@@ -374,11 +359,9 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildSectionCard(
-              title: isAdmin && !isEditingSelf
-                  ? 'Reset User Password'
-                  : 'Change Password',
+              title: 'Change Password',
               children: [
-                if (isEditingSelf) ...[
+                if (!isAdmin)
                   _buildPasswordField(
                     'Current Password',
                     _currentPasswordController,
@@ -387,10 +370,10 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                       () => _isPasswordVisible = !_isPasswordVisible,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                ],
+                const SizedBox(height: 16),
+
                 _buildPasswordField(
-                  isAdmin && !isEditingSelf ? 'New Password' : 'New Password',
+                  'New Password',
                   _newPasswordController,
                   _isNewPasswordVisible,
                   () => setState(
@@ -442,9 +425,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                         ),
                       )
                     : Text(
-                        isAdmin && !isEditingSelf
-                            ? 'Reset Password'
-                            : 'Change Password',
+                        'Reset Password',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -609,7 +590,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
 
     try {
       final Map<String, String> passwordData;
-
       if (isAdmin) {
         // Admin resetting another user's password - only needs 'password'
         passwordData = {'password': _newPasswordController.text.trim()};
@@ -622,7 +602,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
       }
 
       final input = PasswordResetInput(
-        userId: targetUserId,
+        userId: widget.targetUserId,
         data: passwordData,
       );
 
@@ -641,6 +621,10 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
         _currentPasswordController.clear();
         _newPasswordController.clear();
         _confirmPasswordController.clear();
+        ref.invalidate(usersDetailsProvider);
+        ref.invalidate(singleUserDetailsProvider(widget.targetUserId));
+        ref.invalidate(resetPasswordProvider);
+        navigatorKey.currentState?.pop();
       }
     } catch (e) {
       if (mounted) {
@@ -865,62 +849,62 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   //   );
   // }
 
-  void _showDeleteDialog() {
-    final targetUserAsync = ref.read(singleUserDetailsProvider(targetUserId));
+  // void _showDeleteDialog() {
+  //   final targetUserAsync = ref.read(singleUserDetailsProvider(targetUserId));
 
-    targetUserAsync.when(
-      data: (targetUser) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Delete User'),
-            content: Text(
-              'Are you sure you want to delete ${targetUser.firstName} ${targetUser.lastName}?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _deleteUser();
-                },
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
-        );
-      },
-      loading: () {},
-      error: (_, _) {},
-    );
-  }
+  //   targetUserAsync.when(
+  //     data: (targetUser) {
+  //       showDialog(
+  //         context: context,
+  //         builder: (context) => AlertDialog(
+  //           title: const Text('Delete User'),
+  //           content: Text(
+  //             'Are you sure you want to delete ${targetUser.firstName} ${targetUser.lastName}?',
+  //           ),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () => Navigator.pop(context),
+  //               child: const Text('Cancel'),
+  //             ),
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.pop(context);
+  //                 _deleteUser();
+  //               },
+  //               style: TextButton.styleFrom(foregroundColor: Colors.red),
+  //               child: const Text('Delete'),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //     loading: () {},
+  //     error: (_, _) {},
+  //   );
+  // }
 
-  Future<void> _deleteUser() async {
-    try {
-      await ref.read(deleteUserProvider(targetUserId).future);
+  // Future<void> _deleteUser() async {
+  //   try {
+  //     await ref.read(deleteUserProvider(targetUserId).future);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('User deleted successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to delete user: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(
+  //           content: Text('User deleted successfully'),
+  //           backgroundColor: Colors.green,
+  //         ),
+  //       );
+  //       Navigator.pop(context, true);
+  //     }
+  //   } catch (e) {
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Failed to delete user: $e'),
+  //           backgroundColor: Colors.red,
+  //         ),
+  //       );
+  //     }
+  //   }
+  // }
 }

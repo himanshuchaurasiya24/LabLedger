@@ -123,7 +123,9 @@ class _WindowScaffoldState extends State<WindowScaffold>
       await windowManager.setMinimumSize(const Size(800, 600));
       await windowManager.setMaximumSize(const Size(4000, 3000));
       await Future.delayed(const Duration(milliseconds: 150));
-      await windowManager.setSize(const Size(1600, 900));
+      await windowManager.setSize(
+        Size(initialWindowWidth, initialWindowHeight),
+      );
       await Future.delayed(const Duration(milliseconds: 300));
       for (int i = 0; i < 5; i++) {
         await windowManager.center();
