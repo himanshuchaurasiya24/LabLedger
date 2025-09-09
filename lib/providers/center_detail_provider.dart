@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
-import 'package:labledger/models/center_detail_model.dart';
+import 'package:labledger/models/center_detail_model_with_subscription.dart';
 import 'package:labledger/providers/user_provider.dart'; // ✅ Make sure path is correct
 
 /// ✅ Base API Endpoint
@@ -38,28 +38,6 @@ final singleCenterDetailProvider = FutureProvider.autoDispose
       }
     });
 
-// /// ✅ Create a new center detail
-// final createCenterDetailProvider = FutureProvider.autoDispose
-//     .family<CenterDetail, CenterDetail>((ref, newDetail) async {
-//       final response = await AuthHttpClient.post(
-//         ref,
-//         centerDetailsEndpoint,
-//         headers: {"Content-Type": "application/json"},
-//         body: jsonEncode(newDetail.toJson()),
-//       );
-
-//       if (response.statusCode == 201 || response.statusCode == 200) {
-//         // Invalidate caches after mutation
-//         ref.invalidate(centerDetailsProvider);
-//         ref.invalidate(userDetailsProvider);
-//         ref.invalidate(usersDetailsProvider);
-
-//         return CenterDetail.fromJson(jsonDecode(response.body));
-//       } else {
-//         throw Exception("Failed to create center detail: ${response.body}");
-//       }
-//     });
-
 /// ✅ Update an existing center detail
 final updateCenterDetailProvider = FutureProvider.autoDispose
     .family<CenterDetail, CenterDetail>((ref, updatedDetail) async {
@@ -72,7 +50,7 @@ final updateCenterDetailProvider = FutureProvider.autoDispose
 
       if (response.statusCode == 200) {
         ref.invalidate(centerDetailsProvider);
-        ref.invalidate(userDetailsProvider);
+        ref.invalidate(singleCenterDetailProvider);
         ref.invalidate(usersDetailsProvider);
 
         return CenterDetail.fromJson(jsonDecode(response.body));
@@ -91,7 +69,7 @@ final deleteCenterDetailProvider = FutureProvider.autoDispose.family<void, int>(
 
     if (response.statusCode == 204) {
       ref.invalidate(centerDetailsProvider);
-      ref.invalidate(userDetailsProvider);
+      ref.invalidate(singleCenterDetailProvider);
       ref.invalidate(usersDetailsProvider);
     } else {
       throw Exception("Failed to delete center detail: ${response.body}");

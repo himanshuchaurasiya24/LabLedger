@@ -1,4 +1,4 @@
-import 'package:labledger/models/center_detail_model.dart';
+import 'package:labledger/models/center_detail_model_with_subscription.dart';
 
 class User {
   final int id;
