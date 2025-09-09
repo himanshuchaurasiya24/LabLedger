@@ -16,8 +16,8 @@ import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
 import 'package:labledger/screens/ui_components/cards/pending_bill_cards.dart';
 import 'package:labledger/screens/ui_components/cards/referral_card.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
-import 'package:labledger/screens/ui_components/user_profile_widget.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/user_profile_widget.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.authResponse});

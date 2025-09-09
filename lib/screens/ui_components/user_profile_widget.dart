@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/providers/theme_providers.dart';
-import 'package:labledger/screens/profile/user_profile_details_screen.dart';
+import 'package:labledger/screens/profile/user_profile_edit_screen.dart';
 
 class UserProfileWidget extends ConsumerStatefulWidget {
   final AuthResponse authResponse;
@@ -288,10 +288,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                           navigatorKey.currentState?.push(
                             MaterialPageRoute(
                               builder: (context) {
-                                return UserProfileDetailsScreen(
-                                  userId: 1,
-                                  loggedInUserId: 1,
-                                );
+                                return UserEditScreen(currentUserId: authResponse.id);
                               },
                             ),
                           );
