@@ -1,16 +1,16 @@
-// screens/initials/login_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:labledger/authentication/auth_repository.dart';
+import 'package:labledger/constants/constants.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
+import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/reusable_ui_components.dart';
+import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:version/version.dart';
-import 'package:labledger/constants/constants.dart';
-import 'package:labledger/main.dart';
 
 // An enum to manage the different states of the version check
 enum VersionCheckStatus { checking, ok, updateRequired, versionCheckFailed }
@@ -32,10 +32,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   String errorMessage = "";
   bool isLoading = false;
   bool rememberMe = false;
+  bool _isPasswordObscured = true; // State for password visibility
 
   late AnimationController _fadeController;
-  late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
+  // Removed the slide animation controller
+  // late AnimationController _slideController;
 
   VersionCheckStatus _versionStatus = VersionCheckStatus.checking;
   String _requiredVersion = '';
@@ -56,22 +57,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    // _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-    //   CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
-    // );
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
-          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
-        );
 
+    // Removed slide controller initialization
     _fadeController.forward();
-    Future.delayed(const Duration(milliseconds: 200), () {
-      _slideController.forward();
-    });
   }
 
   @override
@@ -79,7 +67,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     usernameController.dispose();
     passwordController.dispose();
     _fadeController.dispose();
-    _slideController.dispose();
+    // Removed slide controller disposal
     super.dispose();
   }
 
@@ -106,7 +94,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         }
       }
     } catch (e) {
-      // If the version check itself fails, show a persistent error screen.
       debugPrint("Error checking version: $e.");
       if (mounted) {
         setState(() {
@@ -117,8 +104,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 
   String? _validateUsername(String? value) {
-    if (value == null || value.isEmpty) return 'Username is required';
-    if (value.length < 3) return 'Username must be at least 3 characters';
+    if (value == null || value.trim().isEmpty) return 'Username is required';
+    if (value.trim().length < 3) {
+      return 'Username must be at least 3 characters';
+    }
     return null;
   }
 
@@ -129,7 +118,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 
   void _login() async {
-    // Block login attempts if an update is required or the check failed
     if (_versionStatus == VersionCheckStatus.updateRequired ||
         _versionStatus == VersionCheckStatus.versionCheckFailed) {
       return;
@@ -155,7 +143,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
             builder: (context) {
-              return HomeScreen(authResponse: authResponse,);
+              return HomeScreen(authResponse: authResponse);
             },
           ),
         );
@@ -198,19 +186,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Removed the SlideTransition widget wrapper
     return Scaffold(
-      body: SlideTransition(
-        position: _slideAnimation,
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          padding: EdgeInsets.symmetric(
-            horizontal: defaultPadding * 2,
-            vertical: defaultPadding,
-          ),
-          child: _buildBody(),
-        ),
-      ),
+      body: FadeTransition(opacity: _fadeController, child: _buildBody()),
     );
   }
 
@@ -227,234 +205,272 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
   }
 
-  Widget _buildVersionCheckFailedUI() {
+  Widget _buildInfoScreen({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String message,
+    required String buttonText,
+    VoidCallback? onButtonPressed,
+  }) {
     final theme = Theme.of(context);
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.cloud_off_rounded,
-            size: 60,
-            color: theme.colorScheme.error,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: TintedContainer(
+          baseColor: iconColor,
+          elevationLevel: 2,
+          radius: 24,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 50, color: iconColor),
+              const SizedBox(height: 24),
+              Text(
+                title,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                message,
+                style: theme.textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              ReusableButton(
+                text: buttonText,
+                onPressed: onButtonPressed ?? () {},
+                width: 253,
+                variant: ButtonVariant.elevated,
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
-          Text(
-            'Verification Failed',
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Could not verify the application version. Please check your internet connection and restart the app.',
-            style: theme.textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          ReusableButton(
-            text: 'Contact Support',
-            onPressed: () {},
-            width: 253,
-            variant: ButtonVariant.elevated,
-          ),
-        ],
+        ),
       ),
     );
   }
 
+  Widget _buildVersionCheckFailedUI() {
+    return _buildInfoScreen(
+      icon: Icons.cloud_off_rounded,
+      iconColor: Theme.of(context).colorScheme.error,
+      title: 'Verification Failed',
+      message:
+          'Could not verify the application version. Please check your internet connection and restart the app.',
+      buttonText: 'Contact Support',
+    );
+  }
+
   Widget _buildUpdateRequiredUI() {
-    final theme = Theme.of(context);
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.system_update_alt,
-            size: 60,
-            color: theme.colorScheme.primary,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Update Required',
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'A new version of the app is available. Please update to\nversion $_requiredVersion to continue.',
-            style: theme.textTheme.bodyLarge,
-            maxLines: 2,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          ReusableButton(
-            text: 'Contact Support to Update',
-            onPressed: () {},
-            width: 253,
-            variant: ButtonVariant.elevated,
-          ),
-        ],
-      ),
+    return _buildInfoScreen(
+      icon: Icons.system_update_alt,
+      iconColor: Theme.of(context).colorScheme.primary,
+      title: 'Update Required',
+      message:
+          'A new version of the app is available. Please update to\nversion $_requiredVersion to continue.',
+      buttonText: 'Contact Support to Update',
     );
   }
 
   Widget _buildLoginForm({required bool isEnabled}) {
     final theme = Theme.of(context);
     final bool formEnabled = isEnabled && !isLoading;
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            appIconName(
-              context: context,
-              firstName: "Lab",
-              secondName: "ledger",
-            ),
-            SizedBox(height: defaultHeight),
-            if (_versionStatus == VersionCheckStatus.checking)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 3),
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      "Verifying app version...",
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                  ],
-                ),
-              ),
-            if (errorMessage.isNotEmpty) ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.errorContainer.withAlpha(204),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: theme.colorScheme.error.withAlpha(77),
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: IntrinsicHeight(
+              child: Form(
+                key: _formKey,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: defaultPadding * 1.5,
+                    right: defaultPadding * 1.5,
+                    bottom: defaultPadding,
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      color: theme.colorScheme.error,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        errorMessage,
-                        style: TextStyle(
-                          color: theme.colorScheme.error,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      appIconName(
+                        context: context,
+                        firstName: "Lab",
+                        secondName: "ledger",
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: defaultHeight * 2),
-            ],
-            ReusableTextField(
-              controller: usernameController,
-              label: 'Username',
-              hintText: 'Enter your username',
-              prefixIcon: Icons.person_outline,
-              keyboardType: TextInputType.text,
-              validator: _validateUsername,
-              enabled: formEnabled,
-            ),
-            SizedBox(height: defaultHeight),
-            ReusableTextField(
-              controller: passwordController,
-              label: 'Password',
-              hintText: 'Enter your password',
-              prefixIcon: Icons.lock_outline,
-              obscureText: true,
-              showTogglePasswordVisibility: true,
-              validator: _validatePassword,
-              onSubmitted: (_) => formEnabled ? _login() : null,
-              enabled: formEnabled,
-            ),
-            SizedBox(height: defaultHeight),
-            Row(
-              children: [
-                Checkbox(
-                  value: rememberMe,
-                  onChanged: formEnabled
-                      ? (value) {
-                          setState(() {
-                            rememberMe = value ?? false;
-                          });
-                        }
-                      : null,
-                  activeColor: theme.colorScheme.primary,
-                ),
-                Text(
-                  'Remember me',
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    fontSize: 14,
-                  ),
-                ),
-                const Spacer(),
-                ReusableButton(
-                  text: 'Forgot Password?',
-                  variant: ButtonVariant.text,
-                  onPressed: formEnabled
-                      ? () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Contact administrator to reset password',
+                      SizedBox(height: defaultHeight),
+                      if (_versionStatus == VersionCheckStatus.checking)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Text(
+                                "Verifying app version...",
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (errorMessage.isNotEmpty) ...[
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.errorContainer.withValues(
+                              alpha: 0.8,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: theme.colorScheme.error.withValues(
+                                alpha: 0.3,
                               ),
                             ),
-                          );
-                        }
-                      : null,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: theme.colorScheme.error,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  errorMessage,
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onErrorContainer,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: defaultHeight),
+                      ],
+                      CustomTextField(
+                        controller: usernameController,
+                        label: 'Username',
+                        prefixIcon: const Icon(Icons.person_outline, size: 20),
+                        keyboardType: TextInputType.text,
+                        validator: _validateUsername,
+                        tintColor: theme.colorScheme.primary,
+                      ),
+                      SizedBox(height: defaultHeight),
+                      CustomTextField(
+                        controller: passwordController,
+                        label: 'Password',
+                        prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                        obscureText: _isPasswordObscured,
+                        validator: _validatePassword,
+                        onSubmitted: (_) => formEnabled ? _login() : null,
+                        tintColor: theme.colorScheme.primary,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordObscured
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordObscured = !_isPasswordObscured;
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(height: defaultHeight / 2),
+                      Row(
+                        children: [
+                          const Spacer(),
+                          ReusableButton(
+                            text: 'Forgot Password?',
+                            variant: ButtonVariant.text,
+                            onPressed: formEnabled
+                                ? () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Contact administrator to reset password',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                : null,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ],
+                      ),
+                      const Spacer(), // This is the flexible space
+                      ReusableButton(
+                        text: 'Sign In',
+                        variant: ButtonVariant.primary,
+                        icon: Icons.login,
+                        onPressed: formEnabled ? _login : null,
+                        isLoading: isLoading,
+                        width: double.infinity,
+                        height: 56,
+                        borderRadius: 16,
+                      ),
+                      SizedBox(height: defaultHeight * 2),
+                      Text(
+                        "$appName $appVersion | $appDescription",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: theme.colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.7,
+                          ),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            SizedBox(height: defaultHeight),
-            ReusableButton(
-              text: 'Sign In',
-              variant: ButtonVariant.primary,
-              icon: Icons.login,
-              onPressed: formEnabled ? _login : null,
-              isLoading: isLoading,
-              width: double.infinity,
-              height: 56,
-              borderRadius: 16,
-            ),
-            SizedBox(height: defaultHeight),
-            Text(
-              "$appName $appVersion | $appDescription",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: theme.colorScheme.onSurfaceVariant.withAlpha(178),
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
+  }
+}
+
+// Helper extension to simplify color modifications in TintedContainer
+extension ColorValues on Color {
+  /// Creates a new color by replacing specified values of the original color.
+  /// Values for alpha, red, green, and blue should be between 0.0 and 1.0.
+  Color withValues({double? alpha, double? red, double? green, double? blue}) {
+    // Start with the original color
+    Color updatedColor = this;
+
+    // Apply new values if they are provided
+    if (alpha != null) {
+      updatedColor = updatedColor.withAlpha((alpha * 255).round());
+    }
+    if (red != null) {
+      updatedColor = updatedColor.withRed((red * 255).round());
+    }
+    if (green != null) {
+      updatedColor = updatedColor.withGreen((green * 255).round());
+    }
+    if (blue != null) {
+      updatedColor = updatedColor.withBlue((blue * 255).round());
+    }
+
+    return updatedColor;
   }
 }
