@@ -298,6 +298,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                             MaterialPageRoute(
                               builder: (context) {
                                 return UserEditScreen(
+                                  themeColor: Theme.of(context).colorScheme.secondary,
                                   targetUserId: authResponse.id,
                                   isAdmin: authResponse.isAdmin,
                                 );

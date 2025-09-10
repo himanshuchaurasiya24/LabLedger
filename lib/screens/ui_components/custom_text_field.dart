@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Import for InputFormatters
+import 'package:flutter/services.dart';
+import 'package:labledger/constants/constants.dart'; // Import for InputFormatters
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -18,7 +19,7 @@ class CustomTextField extends StatelessWidget {
   final Color? tintColor;
   final List<TextInputFormatter>? inputFormatters;
   final TextAlign textAlign;
-  
+
   // --- ADDED VALIDATION PROPERTIES ---
   final bool isRequired;
   final bool isNumeric;
@@ -73,7 +74,7 @@ class CustomTextField extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:  isLightMode ? 0.08 : 0.3),
+            color: Colors.black.withValues(alpha: isLightMode ? 0.08 : 0.3),
             offset: const Offset(0, 4),
             blurRadius: 12,
           ),
@@ -104,10 +105,10 @@ class CustomTextField extends StatelessWidget {
     if (tintColor != null) {
       final baseColor = tintColor!;
       finalFillColor = Color.alphaBlend(
-        baseColor.withValues(alpha:  isDarkMode ? 0.1 : 0.05),
+        baseColor.withValues(alpha: isDarkMode ? 0.1 : 0.05),
         theme.colorScheme.surface,
       );
-      finalBorderColor = baseColor.withValues(alpha:  isDarkMode ? 0.4 : 0.3);
+      finalBorderColor = baseColor.withValues(alpha: isDarkMode ? 0.4 : 0.3);
     } else {
       finalFillColor = isDarkMode
           ? const Color(0xFF2A2D3E)
@@ -128,7 +129,9 @@ class CustomTextField extends StatelessWidget {
       }
 
       // 2. Built-in 'isNumeric' check (only if not empty)
-      if (isNumeric && trimmedValue.isNotEmpty && double.tryParse(trimmedValue) == null) {
+      if (isNumeric &&
+          trimmedValue.isNotEmpty &&
+          double.tryParse(trimmedValue) == null) {
         return '$label must be a valid number.';
       }
 
@@ -159,6 +162,8 @@ class CustomTextField extends StatelessWidget {
         hintStyle: TextStyle(color: hintColor, fontWeight: FontWeight.w400),
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
+        prefixIconColor: finalBorderColor,
+        suffixIconColor: finalBorderColor,
         filled: true,
         fillColor: isTransparent ? Colors.transparent : finalFillColor,
         border: OutlineInputBorder(
@@ -175,7 +180,7 @@ class CustomTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.0),
           borderSide: isTransparent
               ? BorderSide.none
-              : BorderSide(color: theme.colorScheme.primary, width: 1.5),
+              : BorderSide(color: finalBorderColor, width: 2.2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
@@ -185,10 +190,7 @@ class CustomTextField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.0),
           borderSide: BorderSide(color: theme.colorScheme.error, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        contentPadding: EdgeInsets.all(defaultPadding),
       ),
     );
   }

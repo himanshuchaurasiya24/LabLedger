@@ -8,7 +8,11 @@ import 'package:labledger/screens/profile/user_edit_screen.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class UserListScreen extends ConsumerStatefulWidget {
-  const UserListScreen( {super.key, required this.baseColor,required this.adminId,});
+  const UserListScreen({
+    super.key,
+    required this.baseColor,
+    required this.adminId,
+  });
   final Color baseColor;
   final int adminId;
   @override
@@ -87,7 +91,11 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
                   navigatorKey.currentState?.push(
                     MaterialPageRoute(
                       builder: (context) {
-                        return UserEditScreen(targetUserId: users[index].id, isAdmin: true,);
+                        return UserEditScreen(
+                          targetUserId: users[index].id,
+                          isAdmin: true,
+                          themeColor: Theme.of(context).colorScheme.secondary,
+                        );
                       },
                     ),
                   );

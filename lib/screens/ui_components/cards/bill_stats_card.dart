@@ -393,7 +393,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
           ),
           child: Icon(icon, color: textColor, size: 32),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: defaultWidth),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,

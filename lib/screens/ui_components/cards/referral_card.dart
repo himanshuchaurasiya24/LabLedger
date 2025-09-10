@@ -229,21 +229,17 @@ class _ReferralCardState extends State<ReferralCard> {
           /// Totals
           // CHANGED: This entire Row is now responsive
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: _buildInfoTile(
-                  Icons.receipt_long,
-                  "Total Bills",
-                  referrer.total.toString(),
-                ),
+              _buildInfoTile(
+                Icons.receipt_long,
+                "Total Bills",
+                referrer.total.toString(),
               ),
-              const SizedBox(width: 16), // Add a gap between tiles
-              Expanded(
-                child: _buildInfoTile(
-                  Icons.currency_rupee,
-                  "Total Incentives",
-                  referrer.incentiveAmount.toString(),
-                ),
+              _buildInfoTile(
+                Icons.currency_rupee,
+                "Total Incentives",
+                referrer.incentiveAmount.toString(),
               ),
             ],
           ),
@@ -344,30 +340,26 @@ class _ReferralCardState extends State<ReferralCard> {
           ),
           child: Icon(icon, color: importantTextColor, size: 40),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          // NEW: Allow the column to take the remaining space
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                label,
-                style: TextStyle(color: importantTextColor, fontSize: 12),
+        SizedBox(width: defaultWidth),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: TextStyle(color: importantTextColor, fontSize: 12),
+            ),
+            Text(
+              value,
+              style: TextStyle(
+                color: importantTextColor,
+                fontSize: 30,
+                fontWeight: FontWeight.w800,
               ),
-              Text(
-                value,
-                style: TextStyle(
-                  color: importantTextColor,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                ),
-                maxLines: 1, // NEW: Prevent wrapping
-                overflow:
-                    TextOverflow.ellipsis, // NEW: Add ellipsis if too long
-              ),
-            ],
-          ),
+              maxLines: 1, // NEW: Prevent wrapping
+              overflow: TextOverflow.ellipsis, // NEW: Add ellipsis if too long
+            ),
+          ],
         ),
       ],
     );

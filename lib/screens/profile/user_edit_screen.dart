@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/user_model.dart';
 import 'package:labledger/providers/password_reset_provider.dart';
@@ -13,9 +14,12 @@ class UserEditScreen extends ConsumerStatefulWidget {
     super.key,
     this.isAdmin = false,
     required this.targetUserId,
+    // The themeColor is now a required parameter with no default value.
+    required this.themeColor,
   });
-  final int targetUserId; // The user ID to edit (null means editing self)
+  final int targetUserId;
   final bool? isAdmin;
+  final Color themeColor;
 
   @override
   ConsumerState<UserEditScreen> createState() => _UserEditScreenState();
@@ -102,446 +106,693 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   Widget _buildContent(User targetUser, bool isAdmin) {
     return Column(
       children: [
-        _buildUserHeader(targetUser),
-        _buildTabBar(),
+        // User Header Card
+        _buildUserHeaderCard(targetUser, isAdmin),
+        SizedBox(height: defaultHeight * 2),
+        // Content Area
         Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildUserDetailsTab(targetUser),
-              _buildPasswordTab(isAdmin),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isLargeScreen = constraints.maxWidth > 900;
+
+              if (isLargeScreen) {
+                return _buildLargeScreenLayout(targetUser, isAdmin);
+              } else {
+                return Column(
+                  children: [
+                    _buildTabBar(),
+                    Expanded(child: _buildTabContent(targetUser, isAdmin)),
+                  ],
+                );
+              }
+            },
           ),
         ),
       ],
     );
   }
 
-  Widget _buildErrorWidget(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildUserHeaderCard(User user, bool isAdmin) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    // A lighter shade is derived from the main theme color for gradients.
+    final lightThemeColor = Color.lerp(
+      widget.themeColor,
+      isDark ? Colors.black : Colors.white,
+      isDark ? 0.3 : 0.2,
+    )!;
+
+    return TintedContainer(
+      baseColor: widget.themeColor,
+      height: 160,
+      radius: defaultRadius,
+      intensity: isDark ? 0.15 : 0.08,
+      useGradient: true,
+      elevationLevel: 2,
+      child: Row(
         children: [
-          Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(fontSize: 16, color: Colors.red.shade600),
-            textAlign: TextAlign.center,
+          // Avatar Section
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [widget.themeColor, lightThemeColor],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.themeColor.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                '${user.firstName.isNotEmpty ? user.firstName[0] : 'U'}${user.lastName.isNotEmpty ? user.lastName[0] : 'U'}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              // Refresh the data
-              ref.invalidate(singleUserDetailsProvider(widget.targetUserId));
-            },
-            child: const Text('Retry'),
+
+          SizedBox(width: defaultWidth * 2),
+
+          // User Info Section
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${user.firstName} ${user.lastName}',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                  ),
+                ),
+                SizedBox(height: defaultHeight / 2),
+                Text(
+                  user.email,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: isDark
+                        ? Colors.white70
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                SizedBox(height: defaultHeight),
+                Row(
+                  children: [
+                    _buildStatusBadge(
+                      user.isAdmin ? 'Admin' : 'Staff',
+                      // Staff badge uses the dynamic theme color.
+                      user.isAdmin ? Colors.orange : widget.themeColor,
+                    ),
+                    if (isAdmin) ...[
+                      const SizedBox(width: 8),
+                      _buildStatusBadge('Edit Mode', Colors.purple),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Center Info
+          Container(
+            padding: EdgeInsets.all(defaultPadding),
+            decoration: BoxDecoration(
+              color: (widget.themeColor).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(defaultRadius),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.business, color: widget.themeColor, size: 20),
+                SizedBox(height: defaultHeight / 2),
+                Text(
+                  'Center',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: isDark
+                        ? Colors.white70
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                Text(
+                  user.centerDetail.centerName,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildUserHeader(User user) {
+  Widget _buildStatusBadge(String text, Color color) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: const Color(0xFF20B2AA),
-            child: Text(
-              '${user.firstName[0]}${user.lastName[0]}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${user.firstName} ${user.lastName}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  user.email,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: user.isAdmin
-                        ? Colors.orange.shade100
-                        : Colors.green.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    user.isAdmin ? 'Admin' : 'Staff',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: user.isAdmin
-                          ? Colors.orange.shade800
-                          : Colors.green.shade800,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 12,
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
 
   Widget _buildTabBar() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      color: Colors.white,
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: TabBar(
         controller: _tabController,
+        indicator: BoxDecoration(
+          color: widget.themeColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        labelColor: Colors.white,
+        unselectedLabelColor: isDark
+            ? Colors.white70
+            : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+        dividerColor: Colors.transparent,
         tabs: const [
-          Tab(text: 'User Details'),
-          Tab(text: 'Password'),
+          Tab(
+            height: 44,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.person_outline, size: 18),
+                SizedBox(width: 8),
+                Text('Personal Details'),
+              ],
+            ),
+          ),
+          Tab(
+            height: 44,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.security, size: 18),
+                SizedBox(width: 8),
+                Text('Security'),
+              ],
+            ),
+          ),
         ],
-        labelColor: const Color(0xFF20B2AA),
-        unselectedLabelColor: Colors.grey,
-        indicatorColor: const Color(0xFF20B2AA),
       ),
     );
   }
 
-  Widget _buildUserDetailsTab(User user) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildSectionCard(
-              title: 'Personal Information',
+  Widget _buildTabContent(User targetUser, bool isAdmin) {
+    return TabBarView(
+      controller: _tabController,
+      children: [
+        _buildPersonalDetailsCard(targetUser),
+        _buildSecurityCard(isAdmin),
+      ],
+    );
+  }
+
+  Widget _buildLargeScreenLayout(User targetUser, bool isAdmin) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: _buildPersonalDetailsCard(targetUser)),
+        SizedBox(width: defaultWidth * 2),
+        Expanded(child: _buildSecurityCard(isAdmin)),
+      ],
+    );
+  }
+
+  Widget _buildPersonalDetailsCard(User user) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return TintedContainer(
+      baseColor: widget.themeColor,
+      height: 530,
+      radius: defaultRadius,
+      intensity: isDark ? 0.1 : 0.05,
+      elevationLevel: 1,
+      child: Column(
+        children: [
+          // Card Header
+          Container(
+            padding: EdgeInsets.all(defaultPadding * 2),
+            decoration: BoxDecoration(
+              color: widget.themeColor.withValues(alpha: isDark ? 0.2 : 0.1),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(defaultRadius),
+                topRight: Radius.circular(defaultRadius),
+              ),
+            ),
+            child: Row(
               children: [
-                Row(
+                Container(
+                  padding: EdgeInsets.all(defaultPadding),
+                  decoration: BoxDecoration(
+                    color: widget.themeColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.person, color: widget.themeColor, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Personal Information',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: defaultHeight * 2),
+          // Scrollable Form Content
+          Expanded(
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: _buildTextField(
-                        'First Name',
-                        _firstNameController,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextField(
+                            label: 'First Name',
+                            controller: _firstNameController,
+                            isRequired: true,
+                            tintColor: widget.themeColor,
+                          ),
+                        ),
+                        SizedBox(width: defaultWidth),
+                        Expanded(
+                          child: CustomTextField(
+                            label: 'Last Name',
+                            controller: _lastNameController,
+                            isRequired: true,
+                            tintColor: widget.themeColor,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildTextField('Last Name', _lastNameController),
+                    SizedBox(height: defaultHeight * 2),
+                    CustomTextField(
+                      label: 'Username',
+                      controller: _usernameController,
+                      isRequired: true,
+                      tintColor: widget.themeColor,
+                    ),
+                    SizedBox(height: defaultHeight * 2),
+                    CustomTextField(
+                      label: 'Email Address',
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      isRequired: true,
+                      tintColor: widget.themeColor,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Email is required';
+                        }
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: defaultHeight * 2),
+                    CustomTextField(
+                      label: 'Phone Number',
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      tintColor: widget.themeColor,
+                    ),
+                    SizedBox(height: defaultHeight * 2),
+                    CustomTextField(
+                      label: 'Address',
+                      controller: _addressController,
+                      tintColor: widget.themeColor,
+                    ),
+                    SizedBox(height: defaultHeight * 2),
+
+                    // Update Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: _isUpdating
+                            ? null
+                            : () => _updateUserDetails(user),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: widget.themeColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(defaultRadius),
+                          ),
+                          elevation: 2,
+                        ),
+                        icon: _isUpdating
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Icon(Icons.save),
+                        label: Text(
+                          _isUpdating ? 'Updating...' : 'Update Profile',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                _buildTextField('Username', _usernameController),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  'Email',
-                  _emailController,
-                  keyboardType: TextInputType.emailAddress,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSecurityCard(bool isAdmin) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return TintedContainer(
+      baseColor: widget.themeColor,
+      radius: defaultRadius,
+      intensity: isDark ? 0.1 : 0.05,
+      height: 395,
+      elevationLevel: 1,
+      child: Column(
+        children: [
+          // Card Header
+          Container(
+            padding: EdgeInsets.all(defaultPadding * 2),
+            decoration: BoxDecoration(
+              color: widget.themeColor.withValues(alpha: isDark ? 0.2 : 0.1),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(defaultRadius),
+                topRight: Radius.circular(defaultRadius),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(defaultPadding),
+                  decoration: BoxDecoration(
+                    color: widget.themeColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.security,
+                    color: widget.themeColor,
+                    size: 20,
+                  ),
                 ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  'Phone Number',
-                  _phoneController,
-                  keyboardType: TextInputType.phone,
+                SizedBox(width: defaultWidth),
+                Text(
+                  'Security Settings',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                  ),
                 ),
-                const SizedBox(height: 16),
-                _buildTextField('Address', _addressController, maxLines: 3),
               ],
             ),
-            const SizedBox(height: 24),
-            _buildSectionCard(
-              title: 'Center Information',
-              children: [
-                _buildInfoTile('Center Name', user.centerDetail.centerName),
-                _buildInfoTile('Center Address', user.centerDetail.address),
-                _buildInfoTile('Owner Name', user.centerDetail.ownerName),
-                _buildInfoTile('Owner Phone', user.centerDetail.ownerPhone),
-                _buildInfoTile(
-                  'Plan Type',
-                  user.centerDetail.subscription.planType,
+          ),
+          SizedBox(height: defaultHeight * 2),
+          // Scrollable Form Content
+          Expanded(
+            child: Form(
+              key: _passwordFormKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (!isAdmin) ...[
+                      CustomTextField(
+                        label: 'Current Password',
+                        controller: _currentPasswordController,
+                        obscureText: !_isPasswordVisible,
+                        isRequired: true,
+                        tintColor: widget.themeColor,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () => setState(
+                            () => _isPasswordVisible = !_isPasswordVisible,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: defaultHeight * 2),
+                    ],
+                    CustomTextField(
+                      label: 'New Password',
+                      controller: _newPasswordController,
+                      obscureText: !_isNewPasswordVisible,
+                      isRequired: true,
+                      tintColor: widget.themeColor,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isNewPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () => setState(
+                          () => _isNewPasswordVisible = !_isNewPasswordVisible,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'New password is required';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: defaultHeight * 2),
+                    CustomTextField(
+                      label: 'Confirm New Password',
+                      controller: _confirmPasswordController,
+                      obscureText: !_isConfirmPasswordVisible,
+                      isRequired: true,
+                      tintColor: widget.themeColor,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isConfirmPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () => setState(
+                          () => _isConfirmPasswordVisible =
+                              !_isConfirmPasswordVisible,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value != _newPasswordController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: defaultHeight * 2),
+
+                    // Info Card
+                    Container(
+                      padding: EdgeInsets.all(defaultPadding + 1),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.withValues(
+                          alpha: isDark ? 0.2 : 0.1,
+                        ),
+                        borderRadius: BorderRadius.circular(defaultRadius),
+                        border: Border.all(
+                          color: Colors.amber.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Colors.amber.shade700,
+                            size: 20,
+                          ),
+                          SizedBox(width: defaultWidth),
+                          Expanded(
+                            child: Text(
+                              isAdmin
+                                  ? 'As an admin, you can reset this user\'s password without requiring their current password.'
+                                  : 'Make sure to use a strong password with at least 6 characters.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isDark
+                                    ? Colors.amber.shade200
+                                    : Colors.amber.shade800,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: defaultHeight * 2),
+
+                    // Update Password Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: _isResettingPassword
+                            ? null
+                            : () => _resetPassword(isAdmin),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: widget.themeColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(defaultRadius),
+                          ),
+                          elevation: 2,
+                        ),
+                        icon: _isResettingPassword
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Icon(Icons.lock_reset),
+                        label: Text(
+                          _isResettingPassword
+                              ? 'Updating...'
+                              : 'Update Password',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                _buildInfoTile(
-                  'Days Left',
-                  user.centerDetail.subscription.daysLeft.toString(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget(String message) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: TintedContainer(
+          baseColor: theme.colorScheme.error,
+          intensity: isDark ? 0.2 : 0.1,
+          elevationLevel: 2,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: theme.colorScheme.error,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Error Loading User',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: theme.colorScheme.error,
+                  fontWeight: FontWeight.bold,
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: user.centerDetail.subscription.isActive
-                        ? Colors.green.shade100
-                        : Colors.red.shade100,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.invalidate(
+                    singleUserDetailsProvider(widget.targetUserId),
+                  );
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.error,
+                  foregroundColor: theme.colorScheme.onError,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text(
-                    user.centerDetail.subscription.isActive
-                        ? 'Active'
-                        : 'Inactive',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: user.centerDetail.subscription.isActive
-                          ? Colors.green.shade800
-                          : Colors.red.shade800,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _isUpdating ? null : () => _updateUserDetails(user),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF20B2AA),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: _isUpdating
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : const Text(
-                        'Update Details',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
-
-  Widget _buildPasswordTab(bool isAdmin) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Form(
-        key: _passwordFormKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildSectionCard(
-              title: 'Change Password',
-              children: [
-                if (!isAdmin)
-                  _buildPasswordField(
-                    'Current Password',
-                    _currentPasswordController,
-                    _isPasswordVisible,
-                    () => setState(
-                      () => _isPasswordVisible = !_isPasswordVisible,
-                    ),
-                  ),
-                const SizedBox(height: 16),
-
-                _buildPasswordField(
-                  'New Password',
-                  _newPasswordController,
-                  _isNewPasswordVisible,
-                  () => setState(
-                    () => _isNewPasswordVisible = !_isNewPasswordVisible,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildPasswordField(
-                  'Confirm Password',
-                  _confirmPasswordController,
-                  _isConfirmPasswordVisible,
-                  () => setState(
-                    () =>
-                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible,
-                  ),
-                  validator: (value) {
-                    if (value != _newPasswordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _isResettingPassword
-                    ? null
-                    : () => _resetPassword(isAdmin),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade600,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: _isResettingPassword
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        'Reset Password',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionCard({
-    required String title,
-    required List<Widget> children,
-  }) {
-    return TintedContainer(
-      height: 369,
-      baseColor: Theme.of(context).colorScheme.primary,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...children,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-    String label,
-    TextEditingController controller, {
-    TextInputType keyboardType = TextInputType.text,
-    int maxLines = 1,
-  }) {
-    return CustomTextField(
-      label: label,
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return '$label is required';
-        }
-        if (label == 'Email' &&
-            !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-          return 'Please enter a valid email';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildPasswordField(
-    String label,
-    TextEditingController controller,
-    bool isVisible,
-    VoidCallback onToggleVisibility, {
-    String? Function(String?)? validator,
-  }) {
-    return CustomTextField(
-      label: label,
-      controller: controller,
-      obscureText: !isVisible,
-
-      validator:
-          validator ??
-          (value) {
-            if (value == null || value.trim().isEmpty) {
-              return '$label is required';
-            }
-            if (value.length < 6) {
-              return 'Password must be at least 6 characters';
-            }
-            return null;
-          },
-    );
-  }
-
-  Widget _buildInfoTile(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Updated UI methods for UserEditScreen
 
   Future<void> _updateUserDetails(User originalUser) async {
     if (!_formKey.currentState!.validate()) return;
@@ -562,17 +813,25 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('User details updated successfully'),
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Profile updated successfully!'),
+              ],
+            ),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            duration: const Duration(seconds: 3),
           ),
         );
         Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
-        // Show detailed error in a dialog for better readability
         _showErrorDialog(
           'Update Failed',
           e.toString().replaceAll('Exception: ', ''),
@@ -591,10 +850,8 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     try {
       final Map<String, String> passwordData;
       if (isAdmin) {
-        // Admin resetting another user's password - only needs 'password'
         passwordData = {'password': _newPasswordController.text.trim()};
       } else {
-        // User changing their own password - needs 'old_password' and 'new_password'
         passwordData = {
           'old_password': _currentPasswordController.text.trim(),
           'new_password': _newPasswordController.text.trim(),
@@ -610,14 +867,22 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password updated successfully'),
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Password updated successfully!'),
+              ],
+            ),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            duration: const Duration(seconds: 3),
           ),
         );
 
-        // Clear password fields
         _currentPasswordController.clear();
         _newPasswordController.clear();
         _confirmPasswordController.clear();
@@ -628,7 +893,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
       }
     } catch (e) {
       if (mounted) {
-        // Show detailed error in a dialog for better readability
         _showErrorDialog(
           'Password Update Failed',
           e.toString().replaceAll('Exception: ', ''),
@@ -639,272 +903,91 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     }
   }
 
-  // Helper method to show detailed error dialogs
   void _showErrorDialog(String title, String errorMessage) {
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.error_outline, color: Colors.red.shade600),
-            const SizedBox(width: 8),
-            Text(title, style: TextStyle(color: Colors.red.shade600)),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'The following error occurred:',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: Text(
-                  errorMessage,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.red.shade800,
-                    height: 1.4,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: TintedContainer(
+          baseColor: theme.colorScheme.error,
+          intensity: 0.05,
+          disablePadding: true,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.error.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.error_outline,
+                    color: theme.colorScheme.error,
+                    size: 32,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: theme.colorScheme.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.errorContainer.withValues(
+                      alpha: 0.3,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: theme.colorScheme.error.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Text(
+                    errorMessage,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.error,
+                      height: 1.4,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: widget.themeColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Got it',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }
-
-  // Alternative: Show error in a bottom sheet for even better UX
-  // void _showErrorBottomSheet(String title, String errorMessage) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-  //     ),
-  //     builder:sage) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-  //     ),
-  //     builder: (context) => Container(
-  //       padding: const EdgeInsets.all(24),
-  //       child: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Row(
-  //             children: [
-  //               Icon(Icons.error_outline, color: Colors.red.shade600, size: 28),
-  //               const SizedBox(width: 12),
-  //               Expanded(
-  //                 child: Text(
-  //                   title,
-  //                   style: TextStyle(
-  //                     fontSize: 18,
-  //                     fontWeight: FontWeight.bold,
-  //                     color: Colors.red.shade600,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //           const SizedBox(height: 16),
-  //           const Text(
-  //             'Error Details:',
-  //             style: TextStyle(
-  //               fontSize: 14,
-  //               fontWeight: FontWeight.w600,
-  //               color: Colors.black87,
-  //             ),
-  //           ),
-  //           const SizedBox(height: 8),
-  //           Container(
-  //             width: double.infinity,
-  //             padding: const EdgeInsets.all(16),
-  //             decoration: BoxDecoration(
-  //               color: Colors.red.shade50,
-  //               borderRadius: BorderRadius.circular(12),
-  //               border: Border.all(color: Colors.red.shade200),
-  //             ),
-  //             child: Text(
-  //               errorMessage,
-  //               style: TextStyle(
-  //                 fontSize: 14,
-  //                 color: Colors.red.shade800,
-  //                 height: 1.5,
-  //               ),
-  //             ),
-  //           ),
-  //           const SizedBox(height: 24),
-  //           SizedBox(
-  //             width: double.infinity,
-  //             height: 48,
-  //             child: ElevatedButton(
-  //               onPressed: () => Navigator.pop(context),
-  //               style: ElevatedButton.styleFrom(
-  //                 backgroundColor: const Color(0xFF20B2AA),
-  //                 foregroundColor: Colors.white,
-  //                 shape: RoundedRectangleBorder(
-  //                   borderRadius: BorderRadius.circular(8),
-  //                 ),
-  //               ),
-  //               child: const Text('Got it', style: TextStyle(fontSize: 16)),
-  //             ),
-  //           ),
-  //           // Add padding for bottom safe area
-  //           SizedBox(height: MediaQuery.of(context).padding.bottom),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // } (context) => Container(
-  //       padding: const EdgeInsets.all(24),
-  //       child: Column(
-  //         mainAxisSize: MainAxisSize.min,
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Row(
-  //             children: [
-  //               Icon(Icons.error_outline, color: Colors.red.shade600, size: 28),
-  //               const SizedBox(width: 12),
-  //               Expanded(
-  //                 child: Text(
-  //                   title,
-  //                   style: TextStyle(
-  //                     fontSize: 18,
-  //                     fontWeight: FontWeight.bold,
-  //                     color: Colors.red.shade600,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //           const SizedBox(height: 16),
-  //           const Text(
-  //             'Error Details:',
-  //             style: TextStyle(
-  //               fontSize: 14,
-  //               fontWeight: FontWeight.w600,
-  //               color: Colors.black87,
-  //             ),
-  //           ),
-  //           const SizedBox(height: 8),
-  //           Container(
-  //             width: double.infinity,
-  //             padding: const EdgeInsets.all(16),
-  //             decoration: BoxDecoration(
-  //               color: Colors.red.shade50,
-  //               borderRadius: BorderRadius.circular(12),
-  //               border: Border.all(color: Colors.red.shade200),
-  //             ),
-  //             child: Text(
-  //               errorMessage,
-  //               style: TextStyle(
-  //                 fontSize: 14,
-  //                 color: Colors.red.shade800,
-  //                 height: 1.5,
-  //               ),
-  //             ),
-  //           ),
-  //           const SizedBox(height: 24),
-  //           SizedBox(
-  //             width: double.infinity,
-  //             height: 48,
-  //             child: ElevatedButton(
-  //               onPressed: () => Navigator.pop(context),
-  //               style: ElevatedButton.styleFrom(
-  //                 backgroundColor: const Color(0xFF20B2AA),
-  //                 foregroundColor: Colors.white,
-  //                 shape: RoundedRectangleBorder(
-  //                   borderRadius: BorderRadius.circular(8),
-  //                 ),
-  //               ),
-  //               child: const Text('Got it', style: TextStyle(fontSize: 16)),
-  //             ),
-  //           ),
-  //           // Add padding for bottom safe area
-  //           SizedBox(height: MediaQuery.of(context).padding.bottom),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // void _showDeleteDialog() {
-  //   final targetUserAsync = ref.read(singleUserDetailsProvider(targetUserId));
-
-  //   targetUserAsync.when(
-  //     data: (targetUser) {
-  //       showDialog(
-  //         context: context,
-  //         builder: (context) => AlertDialog(
-  //           title: const Text('Delete User'),
-  //           content: Text(
-  //             'Are you sure you want to delete ${targetUser.firstName} ${targetUser.lastName}?',
-  //           ),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () => Navigator.pop(context),
-  //               child: const Text('Cancel'),
-  //             ),
-  //             TextButton(
-  //               onPressed: () {
-  //                 Navigator.pop(context);
-  //                 _deleteUser();
-  //               },
-  //               style: TextButton.styleFrom(foregroundColor: Colors.red),
-  //               child: const Text('Delete'),
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //     loading: () {},
-  //     error: (_, _) {},
-  //   );
-  // }
-
-  // Future<void> _deleteUser() async {
-  //   try {
-  //     await ref.read(deleteUserProvider(targetUserId).future);
-
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(
-  //           content: Text('User deleted successfully'),
-  //           backgroundColor: Colors.green,
-  //         ),
-  //       );
-  //       Navigator.pop(context, true);
-  //     }
-  //   } catch (e) {
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('Failed to delete user: $e'),
-  //           backgroundColor: Colors.red,
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
 }
