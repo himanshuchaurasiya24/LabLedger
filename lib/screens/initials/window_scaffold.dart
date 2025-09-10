@@ -201,59 +201,58 @@ class _WindowScaffoldState extends State<WindowScaffold>
           children: [
             SizedBox(
               height: 50,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              // CHANGED: Replaced the outer Row with a Stack for true centering
+              child: Stack(
                 children: [
-                  // This is the main fix: The inner Row is wrapped with Expanded
-                  Expanded(
-                    flex: 2, // Adjust flex to give title area proportional space
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (!widget.isInitialScreen)
-                          Padding(
-                            padding: EdgeInsets.only(
-                              left: defaultPadding,
-                              top: defaultPadding / 2,
-                            ),
-                            child: GestureDetector(
-                              onTap: _handleBackButton,
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    defaultRadius,
+                  // Layer 1: Left and Right aligned widgets
+                  Row(
+                    children: [
+                      // Left-side widgets (Title/Back Button)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (!widget.isInitialScreen)
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: defaultPadding,
+                                top: defaultPadding / 2,
+                              ),
+                              child: GestureDetector(
+                                onTap: _handleBackButton,
+                                child: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.circular(defaultRadius),
+                                    color: isDark
+                                        ? Colors.red.withValues(alpha:  0.3)
+                                        : Colors.red.withValues(alpha:  0.8),
                                   ),
-                                  color: isDark
-                                      ? Colors.red.withValues(alpha:  0.3)
-                                      : Colors.red.withValues(alpha:  0.8),
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    CupertinoIcons.back,
-                                    size: 24,
-                                    color: Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? Colors.white.withValues(alpha:  0.95)
-                                        : Colors.white,
-                                    shadows: [
-                                      Shadow(
-                                        color: Colors.black.withValues(alpha:  0.3),
-                                        offset: const Offset(0, 1),
-                                        blurRadius: 2,
-                                      ),
-                                    ],
+                                  child: Center(
+                                    child: Icon(
+                                      CupertinoIcons.back,
+                                      size: 24,
+                                      color:
+                                          Theme.of(context).brightness == Brightness.dark
+                                              ? Colors.white.withValues(alpha:  0.95)
+                                              : Colors.white,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black.withValues(alpha:  0.3),
+                                          offset: const Offset(0, 1),
+                                          blurRadius: 2,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        Expanded(
-                          child: GestureDetector(
+                          GestureDetector(
                             onPanStart: (_) => windowManager.startDragging(),
                             child: Container(
-                              color: Colors.transparent,
                               padding: EdgeInsets.only(left: defaultPadding),
                               alignment: Alignment.centerLeft,
                               child: widget.customTitle != null
@@ -273,52 +272,64 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                     ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3, // Adjust flex to give center widget more space
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onPanStart: (_) => windowManager.startDragging(),
-                      child: Padding(
-                        padding: EdgeInsets.only(top: defaultPadding / 2),
-                        child: Center(child: widget.centerWidget),
+                        ],
                       ),
-                    ),
+                      // Draggable spacer that pushes controls to the right
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onPanStart: (_) => windowManager.startDragging(),
+                          child: Container(), // Empty draggable area
+                        ),
+                      ),
+                      // Right-side widgets (Window Controls)
+                      if (!isFullScreen)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _WindowControlButton(
+                              icon: LucideIcons.minus,
+                              onPressed: () => windowManager.minimize(),
+                              tooltip: 'Minimize',
+                              iconColor: _iconColor,
+                              hoverColor: _hoverColor,
+                              isClose: false,
+                            ),
+                            _WindowControlButton(
+                              icon: isMaximized
+                                  ? LucideIcons.copy
+                                  : LucideIcons.square,
+                              onPressed: _handleMaximizeRestore,
+                              tooltip:
+                                  isMaximized ? 'Restore Down' : 'Maximize',
+                              iconColor: _iconColor,
+                              hoverColor: _hoverColor,
+                              isClose: false,
+                            ),
+                            _WindowControlButton(
+                              icon: LucideIcons.x,
+                              onPressed: () => windowManager.close(),
+                              tooltip: 'Close',
+                              iconColor: _iconColor,
+                              hoverColor: _hoverColor,
+                              isClose: true,
+                            ),
+                          ],
+                        ),
+                    ],
                   ),
-                  if (!isFullScreen)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _WindowControlButton(
-                          icon: LucideIcons.minus,
-                          onPressed: () => windowManager.minimize(),
-                          tooltip: 'Minimize',
-                          iconColor: _iconColor,
-                          hoverColor: _hoverColor,
-                          isClose: false,
+                  // Layer 2: The centered widget, layered on top
+                  if (widget.centerWidget != null)
+                    Center(
+                      child: GestureDetector(
+                        // Make the center widget draggable as well
+                        behavior: HitTestBehavior.translucent,
+                        onPanStart: (_) => windowManager.startDragging(),
+                        child: Padding(
+                          padding: EdgeInsets.only(top: defaultPadding / 2),
+                          child: widget.centerWidget!,
                         ),
-                        _WindowControlButton(
-                          icon: isMaximized
-                              ? LucideIcons.copy
-                              : LucideIcons.square,
-                          onPressed: _handleMaximizeRestore,
-                          tooltip: isMaximized ? 'Restore Down' : 'Maximize',
-                          iconColor: _iconColor,
-                          hoverColor: _hoverColor,
-                          isClose: false,
-                        ),
-                        _WindowControlButton(
-                          icon: LucideIcons.x,
-                          onPressed: () => windowManager.close(),
-                          tooltip: 'Close',
-                          iconColor: _iconColor,
-                          hoverColor: _hoverColor,
-                          isClose: true,
-                        ),
-                      ],
+                      ),
                     ),
                 ],
               ),

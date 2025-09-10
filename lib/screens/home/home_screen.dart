@@ -46,55 +46,51 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final referralStatsAsync = ref.watch(referralStatsProvider);
     final chartStatsAsync = ref.watch(billChartStatsProvider);
     final baseColor = Theme.of(context).colorScheme.secondary;
     final unpaidBillsAsync = ref.watch(paginatedUnpaidPartialBillsProvider);
 
-    // NEW: Define a breakpoint for when to switch from Row to Column
     const double cardBreakpoint = 1100.0;
 
     return WindowScaffold(
       allowFullScreen: true,
       isInitialScreen: true,
-      // CHANGED: Removed outer Padding, it will be handled inside the scroll view.
       child: SingleChildScrollView(
-        // NEW: Make the whole screen scrollable
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: defaultPadding),
           child: Column(
             children: [
-              // CHANGED: Used Wrap for the top bar to make it responsive
-              Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                runSpacing:
-                    defaultHeight, // Spacing when items wrap to the next line
+              // CHANGED: Replaced the outer Wrap with a Row for explicit start/end alignment.
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // This Wrap handles the filter chips
-                  Wrap(
-                    spacing: 4.0, // Horizontal space between chips
-                    runSpacing: 4.0, // Vertical space if chips wrap
-                    children: [
-                      ...[
-                        "This Week",
-                        "This Month",
-                        "This Year",
-                        "All Time",
-                      ].map(
-                        (period) => buildFilterChipCustom(
-                          period,
-                          primaryColor: baseColor,
+                  // The chips will stay at the start. The inner Wrap is kept
+                  // so the chips themselves can wrap to a new line if needed.
+                  Flexible(
+                    child: Wrap(
+                      spacing: 4.0,
+                      runSpacing: 4.0,
+                      children: [
+                        ...[
+                          "This Week",
+                          "This Month",
+                          "This Year",
+                          "All Time",
+                        ].map(
+                          (period) => buildFilterChipCustom(
+                            period,
+                            primaryColor: baseColor,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  // NEW: Spacer pushes the user profile widget to the end.
+                  const Spacer(),
+                  // The user profile widget will stay at the end.
                   UserProfileWidget(
                     authResponse: widget.authResponse,
                     baseColor: Theme.of(context).colorScheme.secondary,
@@ -135,10 +131,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ],
               ),
               SizedBox(height: defaultHeight),
-              // NEW: Use LayoutBuilder to choose between Row and Column for cards
               LayoutBuilder(
                 builder: (context, constraints) {
-                  // If the screen is wide, use a Row
                   if (constraints.maxWidth > cardBreakpoint) {
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,7 +157,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ],
                     );
                   } else {
-                    // If the screen is narrow, use a Column
                     return Column(
                       children: [
                         _buildReferralCard(referralStatsAsync, baseColor),
@@ -183,8 +176,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
-
-  // NEW: Extracted card building logic into separate methods for clarity
 
   Widget _buildReferralCard(
     AsyncValue<ReferralStatsResponse> referralStatsAsync,
