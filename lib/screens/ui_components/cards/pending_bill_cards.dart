@@ -1,3 +1,5 @@
+// screens/ui_components/cards/pending_bill_cards.dart
+
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/bill_model.dart';
@@ -10,8 +12,7 @@ class PendingBillsCard extends StatelessWidget {
     required this.baseColor,
     this.height,
     this.width,
-    this.onBillTap, // <-- Kept the callback for tapping a single bill
-    // this.onViewAllTap, // <-- REMOVED
+    this.onBillTap,
   });
 
   final List<Bill> bills;
@@ -19,7 +20,6 @@ class PendingBillsCard extends StatelessWidget {
   final double? height;
   final double? width;
   final Function(Bill bill)? onBillTap;
-  // final VoidCallback? onViewAllTap; // <-- REMOVED
 
   Color backgroundColor(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -31,11 +31,6 @@ class PendingBillsCard extends StatelessWidget {
   Color importantTextColor(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark ? Colors.white : baseColor;
-  }
-
-  Color normalTextColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? Colors.white70 : Colors.black87;
   }
 
   Color subduedTextColor(BuildContext context) {
@@ -55,109 +50,107 @@ class PendingBillsCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final pendingBillsToShow = bills.take(10).toList();
 
-    return TintedContainer(
-      baseColor: baseColor,
-      width: width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // "Pending Bills" Title Pill
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? accentFillColor(context)
-                      : importantTextColor(context),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: const Text(
-                  "Pending Bills",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+    // NEW: Give the card a consistent height to align with other cards
+    return SizedBox(
+      height: 350,
+      child: TintedContainer(
+        baseColor: baseColor,
+        width: width,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                ),
-              ),
-
-              // --- REVERTED TO OLD DESIGN ---
-              // This is the original static pill
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: accentFillColor(context),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  "${pendingBillsToShow.length} Bills", // Shows count of visible bills
-                  style: TextStyle(
-                    color: importantTextColor(context),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? accentFillColor(context)
+                        : importantTextColor(context),
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Bills List (keeps the new item UI)
-          Expanded(
-            child: pendingBillsToShow.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.receipt_long_outlined,
-                          size: 128,
-                          color: importantTextColor(context),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "No pending bills found",
-                          style: TextStyle(
-                            color: importantTextColor(context),
-                            fontSize: 24,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                  child: const Text(
+                    "Pending Bills",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
-                  )
-                : ListView.separated(
-                    padding: EdgeInsets.zero,
-                    itemCount: pendingBillsToShow.length,
-                    separatorBuilder: (context, index) =>
-                        SizedBox(height: defaultHeight),
-                    itemBuilder: (context, index) {
-                      final bill = pendingBillsToShow[index];
-                      // Calls the new, interactive bill item
-                      return _buildBillItem(context, bill, index);
-                    },
                   ),
-          ),
-        ],
+                ),
+                const Spacer(), // Use Spacer to push the next item to the end
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: accentFillColor(context),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "${pendingBillsToShow.length} Bills",
+                    style: TextStyle(
+                      color: importantTextColor(context),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Bills List
+            Expanded(
+              child: pendingBillsToShow.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.check_circle_outline, // Changed Icon
+                            size: 80, // Adjusted size
+                            color: importantTextColor(context).withValues(alpha:  0.7),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "All bills cleared!", // Changed Text
+                            style: TextStyle(
+                              color: importantTextColor(
+                                context,
+                              ).withValues(alpha:  0.7),
+                              fontSize: 18, // Adjusted size
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: EdgeInsets.zero,
+                      itemCount: pendingBillsToShow.length,
+                      separatorBuilder: (context, index) =>
+                          SizedBox(height: defaultHeight),
+                      itemBuilder: (context, index) {
+                        final bill = pendingBillsToShow[index];
+                        return _buildBillItem(context, bill, index);
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // This is the new, improved item layout (tappable)
   Widget _buildBillItem(BuildContext context, Bill bill, int index) {
     final serviceName =
-        bill.diagnosisTypeOutput!["category"] +
-            " ${bill.diagnosisTypeOutput!["name"]} " ??
-        'N/A';
+        "${bill.diagnosisTypeOutput!["category"]} ${bill.diagnosisTypeOutput!["name"]}";
     final dateString = _formatDate(bill.dateOfBill);
     final doctorName = bill.referredByDoctorOutput?['full_name'];
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -169,7 +162,7 @@ class PendingBillsCard extends StatelessWidget {
     return GestureDetector(
       onTap: onBillTap != null ? () => onBillTap!(bill) : null,
       child: Container(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: backgroundColor(context),
           borderRadius: BorderRadius.circular(defaultRadius),
@@ -249,7 +242,6 @@ class PendingBillsCard extends StatelessWidget {
                   backgroundColor: accentFillColor(context),
                   foregroundColor: importantTextColor(context),
                 ),
-
                 _buildDetailChip(
                   context,
                   icon: Icons.calendar_today_outlined,
@@ -281,7 +273,6 @@ class PendingBillsCard extends StatelessWidget {
     );
   }
 
-  // New chip helper widget
   Widget _buildDetailChip(
     BuildContext context, {
     IconData? icon,
@@ -319,7 +310,6 @@ class PendingBillsCard extends StatelessWidget {
     );
   }
 
-  // New color logic method (no hard-coded colors)
   ({Color background, Color foreground}) _getBillStatusChipColors(
     BuildContext context,
     String status,
@@ -344,7 +334,6 @@ class PendingBillsCard extends StatelessWidget {
     }
   }
 
-  // Date formatter helper
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);

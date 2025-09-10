@@ -1,4 +1,5 @@
-// widgets/chart_stats_card.dart
+// screens/ui_components/cards/chart_stats_card.dart
+
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
@@ -25,10 +26,8 @@ class ChartStatsCard extends StatefulWidget {
 }
 
 class _ChartStatsCardState extends State<ChartStatsCard> {
-  /// Total bills across all data
   int get totalBills => widget.data.fold<int>(0, (sum, e) => sum + e.total);
 
-  /// Breakdown aggregation
   Map<String, int> get breakdown {
     final Map<String, int> agg = {
       'ECG': 0,
@@ -48,173 +47,156 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     return agg;
   }
 
-  // --- 🎨 Updated Color Logic ---
-
-  /// Background color
-  Color get backgroundColor {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Updated to use standard .withOpacity()
-    return isDark
-        ? widget.baseColor.withValues(alpha: 0.8) // darker bg in dark mode
-        : widget.baseColor.withValues(alpha: 0.1); // lighter bg in light mode
-  }
-
-  /// Text color - Use accent color at full opacity in light mode
   Color get importantTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (isDark) {
-      return Colors.white; // Keep white for dark mode
-    } else {
-      // Use accent color with guaranteed full opacity.
-      // Updated to use standard .withOpacity()
-      return widget.baseColor.withValues(alpha: 1.0);
-    }
-  }
-
-  Color get normalTextColor {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? Colors.white70 : Colors.black87;
+    return isDark ? Colors.white : widget.baseColor;
   }
 
   Color get accentFillColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Updated to use standard .withOpacity()
     return isDark
         ? widget.baseColor.withValues(alpha: 0.6)
         : widget.baseColor.withValues(alpha: 0.15);
   }
 
-  /// Bar color for the breakdown charts
-  Color get barColor {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Updated to use standard .withOpacity()
-    return isDark
-        ? Colors.white.withValues(alpha: 0.9)
-        : widget.baseColor; // Use accent color for bars in light mode
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = theme.brightness == Brightness.dark;
 
-    // 👇 This 'if (widget.data.isEmpty)' block is now removed.
-    // The code will now proceed to build the main card regardless of data.
-
-    // ✨ Updated to prevent division by zero when all breakdown values are 0.
     final calculatedMaxValue = (breakdown.values.isNotEmpty)
         ? breakdown.values.reduce((a, b) => a > b ? a : b)
         : 0;
     final maxValue = calculatedMaxValue > 0 ? calculatedMaxValue : 1;
 
-    return TintedContainer(
-      baseColor: widget.baseColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    // NEW: Set a minimum height for the card
+    return SizedBox(
+      height: 350,
+      child: TintedContainer(
+        baseColor: widget.baseColor,
+        // CHANGED: Make the card's content scrollable
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildBadge(context, isDark),
+              // Header
+              Row(
+                children: [
+                  _buildBadge(context, isDark),
+                  const SizedBox(width: 8), // Add a gap
+                  Expanded(
+                    // NEW: Make the title flexible
+                    child: Text(
+                      widget.title,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: importantTextColor,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end, // Align to the right
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: defaultHeight),
+
+              // Total Bills
+              _buildInfoTile(
+                Icons.receipt_long,
+                "Total Bills",
+                totalBills.toString(),
+              ),
+              SizedBox(height: defaultHeight),
+
+              // Breakdown
               Text(
-                widget.title,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
+                "Breakdown",
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
                   color: importantTextColor,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: defaultHeight),
+
+              // NEW: Use Column instead of mapping directly for better performance in a scroll view
+              Column(
+                children: [
+                  for (final entry in breakdown.entries)
+                    _buildBreakdownRow(entry, maxValue),
+                ],
               ),
             ],
           ),
-          SizedBox(height: defaultHeight),
+        ),
+      ),
+    );
+  }
 
-          // Total Bills
-          _buildInfoTile(
-            Icons.receipt_long,
-            "Total Bills",
-            totalBills
-                .toString(), // This will correctly show "0" when data is empty
-          ),
-          SizedBox(height: defaultHeight),
+  // NEW: Extracted breakdown row to its own method
+  Widget _buildBreakdownRow(MapEntry<String, int> entry, int maxValue) {
+    final label = entry.key;
+    final value = entry.value;
+    final barWidth = (value / maxValue);
 
-          // Breakdown
-          Text(
-            "Breakdown",
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: importantTextColor,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(
+              label.toUpperCase(),
+              style: TextStyle(color: importantTextColor),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          SizedBox(height: defaultHeight),
-
-          Column(
-            children: breakdown.entries.map((entry) {
-              final label = entry.key;
-              final value = entry.value;
-              final barWidth = (value / maxValue);
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        label.toUpperCase(),
-                        style: TextStyle(color: importantTextColor),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: 8,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: accentFillColor,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Stack(
-                              children: [
-                                Container(
-                                  height: 8,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: accentFillColor,
-                                  ),
-                                ),
-                                FractionallySizedBox(
-                                  widthFactor: barWidth,
-                                  child: Container(
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      color: importantTextColor,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                      FractionallySizedBox(
+                        widthFactor: barWidth,
+                        child: Container(
+                          height: 8,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: importantTextColor,
                           ),
-                          SizedBox(width: defaultWidth),
-                          Text(
-                            "$value",
-                            style: TextStyle(
-                              color: importantTextColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              );
-            }).toList(),
+                SizedBox(width: defaultWidth),
+                Text(
+                  "$value",
+                  style: TextStyle(
+                    color: importantTextColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
+  // CHANGED: Made the info tile responsive, identical to the one in ReferralCard
   Widget _buildInfoTile(IconData icon, String label, String value) {
     return Row(
       children: [
@@ -228,29 +210,34 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
           child: Icon(icon, color: importantTextColor, size: 40),
         ),
         const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              label,
-              style: TextStyle(color: importantTextColor, fontSize: 12),
-            ),
-            Text(
-              value,
-              style: TextStyle(
-                color: importantTextColor,
-                fontSize: 30,
-                fontWeight: FontWeight.w800,
+        Expanded(
+          // NEW: Allow the column to take the remaining space
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                label,
+                style: TextStyle(color: importantTextColor, fontSize: 12),
               ),
-            ),
-          ],
+              Text(
+                value,
+                style: TextStyle(
+                  color: importantTextColor,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w800,
+                ),
+                maxLines: 1, // NEW: Prevent wrapping
+                overflow:
+                    TextOverflow.ellipsis, // NEW: Add ellipsis if too long
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  /// Badge widget
   Widget _buildBadge(BuildContext context, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

@@ -1,3 +1,5 @@
+// screens/ui_components/cards/referral_card.dart
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
@@ -44,19 +46,6 @@ class _ReferralCardState extends State<ReferralCard> {
       );
     }
   }
-
-  // void _nextPage() {
-  //   final displayReferrers = _getDisplayReferrers();
-  //   if (_currentIndex < displayReferrers.length - 1) {
-  //     _goToPage(_currentIndex + 1);
-  //   }
-  // }
-
-  // void _previousPage() {
-  //   if (_currentIndex > 0) {
-  //     _goToPage(_currentIndex - 1);
-  //   }
-  // }
 
   List<ReferralStat> _getDisplayReferrers() {
     final sortedReferrers = List<ReferralStat>.from(widget.referrals)
@@ -123,14 +112,13 @@ class _ReferralCardState extends State<ReferralCard> {
     final displayReferrers = _getDisplayReferrers();
 
     return Stack(
-      alignment: Alignment.bottomCenter, // ✨ FIXED: Added alignment
+      alignment: Alignment.bottomCenter,
       children: [
-        // Main Card Content
         SizedBox(
-          height: widget.height ?? 302,
+          // NEW: Use a reasonable minimum height for the card
+          height: widget.height ?? 350,
           width: widget.width ?? double.infinity,
           child: PageView.builder(
-            // ✨ FIXED: Removed NeverScrollableScrollPhysics to enable manual swiping
             controller: _pageController,
             onPageChanged: (index) {
               setState(() {
@@ -145,12 +133,10 @@ class _ReferralCardState extends State<ReferralCard> {
           ),
         ),
 
-        // ✨ FIXED: Page Indicator Dots (matching BillStatsCard exactly)
         if (displayReferrers.length > 1)
-          Padding(
-            padding: const EdgeInsets.only(
-              bottom: 12.0,
-            ), // Same as BillStatsCard
+          Positioned(
+            // NEW: Use Positioned for better control
+            bottom: 12.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
@@ -170,7 +156,6 @@ class _ReferralCardState extends State<ReferralCard> {
     );
   }
 
-  /// ✨ FIXED: Indicator dot widget - exact copy from BillStatsCard
   Widget _buildIndicator({
     required bool isActive,
     required Color activeColor,
@@ -199,13 +184,11 @@ class _ReferralCardState extends State<ReferralCard> {
 
     return TintedContainer(
       baseColor: widget.baseColor,
-      // ✨ FIXED: Removed bottom padding since indicators are now positioned outside
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// Header
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -224,6 +207,7 @@ class _ReferralCardState extends State<ReferralCard> {
                   ),
                 ),
               ),
+              const SizedBox(width: 8), // Add a gap
               Expanded(
                 child: Text(
                   referrer.doctorFullName.isNotEmpty
@@ -243,18 +227,23 @@ class _ReferralCardState extends State<ReferralCard> {
           const SizedBox(height: 16),
 
           /// Totals
+          // CHANGED: This entire Row is now responsive
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildInfoTile(
-                Icons.receipt_long,
-                "Total Bills",
-                referrer.total.toString(),
+              Expanded(
+                child: _buildInfoTile(
+                  Icons.receipt_long,
+                  "Total Bills",
+                  referrer.total.toString(),
+                ),
               ),
-              _buildInfoTile(
-                Icons.currency_rupee,
-                "Total Incentives",
-                referrer.incentiveAmount.toString(),
+              const SizedBox(width: 16), // Add a gap between tiles
+              Expanded(
+                child: _buildInfoTile(
+                  Icons.currency_rupee,
+                  "Total Incentives",
+                  referrer.incentiveAmount.toString(),
+                ),
               ),
             ],
           ),
@@ -281,17 +270,19 @@ class _ReferralCardState extends State<ReferralCard> {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         flex: 3,
                         child: Text(
                           entry.key.toUpperCase(),
                           maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(color: importantTextColor),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Expanded(
+                        flex: 2, // Give more flex to this part
                         child: Row(
                           children: [
                             Expanded(
@@ -340,6 +331,7 @@ class _ReferralCardState extends State<ReferralCard> {
     );
   }
 
+  // CHANGED: Made the info tile itself responsive
   Widget _buildInfoTile(IconData icon, String label, String value) {
     return Row(
       children: [
@@ -353,23 +345,29 @@ class _ReferralCardState extends State<ReferralCard> {
           child: Icon(icon, color: importantTextColor, size: 40),
         ),
         const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              label,
-              style: TextStyle(color: importantTextColor, fontSize: 12),
-            ),
-            Text(
-              value,
-              style: TextStyle(
-                color: importantTextColor,
-                fontSize: 30,
-                fontWeight: FontWeight.w800,
+        Expanded(
+          // NEW: Allow the column to take the remaining space
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                label,
+                style: TextStyle(color: importantTextColor, fontSize: 12),
               ),
-            ),
-          ],
+              Text(
+                value,
+                style: TextStyle(
+                  color: importantTextColor,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w800,
+                ),
+                maxLines: 1, // NEW: Prevent wrapping
+                overflow:
+                    TextOverflow.ellipsis, // NEW: Add ellipsis if too long
+              ),
+            ],
+          ),
         ),
       ],
     );
