@@ -233,7 +233,11 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
           ),
           onPressed: () async {
             await navigatorKey.currentState?.push(
-              MaterialPageRoute(builder: (context) => AddBillScreen()),
+              MaterialPageRoute(
+                builder: (context) => AddBillScreen(
+                  themeColor: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
             );
             _refreshBillsData();
           },
@@ -294,8 +298,12 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                             ],
                           );
                         },
-                        loading: () =>
-                            Center(child: AnimatedLabProgressIndicator(firstColor: positiveColor,secondColor: negativeColor,)),
+                        loading: () => Center(
+                          child: AnimatedLabProgressIndicator(
+                            firstColor: positiveColor,
+                            secondColor: negativeColor,
+                          ),
+                        ),
                         error: (err, stack) => Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -451,7 +459,14 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
 
   void _navigateToBill(Bill bill) {
     navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => AddBillScreen(billData: bill)),
+      MaterialPageRoute(
+        builder: (_) => AddBillScreen(
+          billData: bill,
+          themeColor: bill.billStatus != "Fully Paid"
+              ? Theme.of(context).colorScheme.error
+              : Theme.of(context).colorScheme.secondary,
+        ),
+      ),
     );
   }
 }

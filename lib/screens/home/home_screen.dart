@@ -235,7 +235,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           onBillTap: (bill) {
             navigatorKey.currentState?.push(
               MaterialPageRoute(
-                builder: (context) => AddBillScreen(billData: bill),
+                builder: (context) => AddBillScreen(
+                  billData: bill,
+                  themeColor: Theme.of(context).colorScheme.error,
+                ),
               ),
             );
           },
