@@ -1,3 +1,4 @@
+// models/user_model.dart
 import 'package:labledger/models/center_detail_model_with_subscription.dart';
 
 class User {
@@ -9,6 +10,7 @@ class User {
   final String phoneNumber;
   final String address;
   final bool isAdmin;
+  final bool isLocked; // <-- ADDED
   final CenterDetail centerDetail;
 
   User({
@@ -20,6 +22,7 @@ class User {
     required this.phoneNumber,
     required this.address,
     required this.isAdmin,
+    required this.isLocked, // <-- ADDED
     required this.centerDetail,
   });
 
@@ -33,6 +36,7 @@ class User {
       phoneNumber: json['phone_number'],
       address: json['address'],
       isAdmin: json['is_admin'],
+      isLocked: json['is_locked'], // <-- ADDED
       centerDetail: CenterDetail.fromJson(json['center_detail']),
     );
   }
@@ -47,6 +51,7 @@ class User {
       'phone_number': phoneNumber,
       'address': address,
       'is_admin': isAdmin,
+      'is_locked': isLocked, // <-- ADDED
       'center_detail': centerDetail.toJson(),
     };
   }
@@ -60,6 +65,7 @@ class User {
     String? phoneNumber,
     String? address,
     bool? isAdmin,
+    bool? isLocked, // <-- ADDED
     CenterDetail? centerDetail,
   }) {
     return User(
@@ -71,6 +77,7 @@ class User {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       address: address ?? this.address,
       isAdmin: isAdmin ?? this.isAdmin,
+      isLocked: isLocked ?? this.isLocked, // <-- ADDED
       centerDetail: centerDetail ?? this.centerDetail,
     );
   }

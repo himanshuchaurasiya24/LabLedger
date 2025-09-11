@@ -2,14 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/authentication/handle_api_error.dart';
 import 'package:version/version.dart';
 import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:labledger/authentication/auth_repository.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
@@ -31,84 +29,54 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
   void initState() {
     super.initState();
     setWindowBehavior(isLoadingScreen: true);
-    _checkAuth();
+    _determineInitialRoute();
 
     Future.delayed(const Duration(milliseconds: 800), () {
-      if (mounted) {
-        setState(() {
-          _isContentVisible = true;
-        });
-      }
+      if (mounted) setState(() => _isContentVisible = true);
     });
   }
 
-  Future<void> _checkAuth() async {
+  Future<void> _determineInitialRoute() async {
+    // A minimum delay ensures the splash screen is visible briefly for a smooth UX.
+    await Future.delayed(const Duration(seconds: 3));
+
     try {
-      setState(() {
-        tileText = "Verifying session...";
-      });
-
-      // 1. Define all three asynchronous operations to run in parallel.
-      final authFuture = ref.read(verifyAuthProvider.future);
-      final versionFuture = AuthRepository.instance.fetchMinimumAppVersion();
-      final delayFuture = Future.delayed(const Duration(seconds: 3));
-
-      // 2. Wait for all three to complete.
-      final results = await Future.wait([
-        authFuture,
-        versionFuture,
-        delayFuture,
-      ]);
-
-      // 3. Extract the results.
-      final authResponse = results[0] as AuthResponse;
-      final requiredVersionString = results[1] as String;
-      // 4. Perform the version check.
+      setState(() => tileText = "Verifying app version...");
+      final requiredVersionString = await AuthRepository.instance.fetchMinimumAppVersion();
       final currentVersion = Version.parse(appVersion);
-
       final requiredVersion = Version.parse(requiredVersionString);
 
       if (currentVersion < requiredVersion) {
-        // VERSION IS OUTDATED. Navigate to LoginScreen which will show the update message.
-        if (mounted) {
-          navigatorKey.currentState?.pushReplacement(
-            MaterialPageRoute(
-              // The LoginScreen's internal logic will handle showing the update UI.
-              builder: (context) => const LoginScreen(),
-            ),
-          );
-        }
-        return; // Stop execution here.
+        // If version is outdated, navigate to the dedicated update screen.
+        _navigateTo(UpdateRequiredScreen(requiredVersion: requiredVersionString));
+        return;
       }
 
-      // 5. If version is OK, proceed to HomeScreen.
-      setState(() {
-        tileText = "Authentication successful!";
-      });
-
+      setState(() => tileText = "Verifying session...");
+      // If version is OK, try to verify the user's session.
+      final authResponse = await ref.read(verifyAuthProvider.future);
+      
+      // If session is valid, go to the home screen.
+      setState(() => tileText = "Authentication successful!");
       await Future.delayed(const Duration(milliseconds: 1000));
+      _navigateTo(HomeScreen(authResponse: authResponse));
 
-      if (mounted) {
-        navigatorKey.currentState?.pushReplacement(
-          MaterialPageRoute(
-            builder: (context) {
-              return HomeScreen(authResponse: authResponse,);
-            },
-          ),
-        );
-      }
     } on AuthException catch (e) {
-      // This will catch true auth failures (like an expired token).
-      handleApiError(e);
+      // If any auth error occurs (expired token, locked account), go to the login screen
+      // with a clear message explaining why.
+      _navigateTo(LoginScreen(initialErrorMessage: e.message));
     } catch (e) {
-      // Handle other errors (like network failure during the initial load).
-      // Navigate to LoginScreen without a message; its internal version check
-      // will run and show the appropriate error UI.
-      if (mounted) {
-        navigatorKey.currentState?.pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-      }
+      // For any other error (e.g., network failure during version check),
+      // go to the login screen with a generic error message.
+      _navigateTo(const LoginScreen(initialErrorMessage: "Network error. Please check your connection."));
+    }
+  }
+
+  void _navigateTo(Widget screen) {
+    if (mounted) {
+      navigatorKey.currentState?.pushReplacement(
+        MaterialPageRoute(builder: (context) => screen),
+      );
     }
   }
 
@@ -123,13 +91,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            appIconName(
-              context: context,
-              firstName: "Lab",
-              secondName: "Ledger",
-              fontSize: 100,
-              alignment: MainAxisAlignment.center,
-            ),
+            appIconName(context: context, firstName: "Lab", secondName: "Ledger", fontSize: 100, alignment: MainAxisAlignment.center),
             const SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
             const SizedBox(height: 10),
             Text(

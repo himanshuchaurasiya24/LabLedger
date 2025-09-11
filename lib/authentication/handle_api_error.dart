@@ -9,19 +9,21 @@ import 'package:labledger/screens/initials/login_screen.dart';
 void handleApiError(Object error) {
   String errorMessage;
 
-  // MODIFIED: Added ServerException to the list of critical errors.
+  // --- AMENDED LOGIC ---
   switch (error.runtimeType) {
     case const (TokenExpiredException):
       errorMessage = "Your session has expired. Please log in again.";
       break;
-    case const (SubscriptionInactiveException):
+    case const (AccountLockedException): // <-- ADDED THIS CASE
       errorMessage = "Your account is locked. Please contact support.";
+      break;
+    case const (SubscriptionInactiveException): // <-- MESSAGE UPDATED FOR CLARITY
+      errorMessage = "Your subscription is inactive. Please contact support.";
       break;
     case const (SubscriptionExpiredException):
       errorMessage = "Your subscription has expired. Please renew.";
       break;
     case const (ServerException):
-      // This will now catch errors like the "Invalid version format".
       errorMessage = "A server error occurred. Please try again later.";
       break;
     default:
@@ -29,7 +31,6 @@ void handleApiError(Object error) {
       return;
   }
 
-  // Now that ServerException is handled, this will be triggered correctly.
   navigatorKey.currentState?.pushAndRemoveUntil(
     MaterialPageRoute(
       builder: (context) => LoginScreen(initialErrorMessage: errorMessage),
