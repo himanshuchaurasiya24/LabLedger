@@ -71,7 +71,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
 
     // NEW: Set a minimum height for the card
     return SizedBox(
-      height: 350,
+      height: widget.height ?? 302,
       child: TintedContainer(
         baseColor: widget.baseColor,
         // CHANGED: Make the card's content scrollable

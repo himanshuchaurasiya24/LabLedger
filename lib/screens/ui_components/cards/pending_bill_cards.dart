@@ -52,7 +52,7 @@ class PendingBillsCard extends StatelessWidget {
 
     // NEW: Give the card a consistent height to align with other cards
     return SizedBox(
-      height: 350,
+      height: height ?? 302,
       child: TintedContainer(
         baseColor: baseColor,
         width: width,
@@ -115,7 +115,9 @@ class PendingBillsCard extends StatelessWidget {
                           Icon(
                             Icons.check_circle_outline, // Changed Icon
                             size: 80, // Adjusted size
-                            color: importantTextColor(context).withValues(alpha:  0.7),
+                            color: importantTextColor(
+                              context,
+                            ).withValues(alpha: 0.7),
                           ),
                           const SizedBox(height: 16),
                           Text(
@@ -123,7 +125,7 @@ class PendingBillsCard extends StatelessWidget {
                             style: TextStyle(
                               color: importantTextColor(
                                 context,
-                              ).withValues(alpha:  0.7),
+                              ).withValues(alpha: 0.7),
                               fontSize: 18, // Adjusted size
                               fontWeight: FontWeight.w500,
                             ),
