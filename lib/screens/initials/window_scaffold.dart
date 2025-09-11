@@ -18,6 +18,7 @@ class WindowScaffold extends StatefulWidget {
   final bool allowFullScreen;
   final bool isInitialScreen;
   final double? spaceAfterRow;
+  final Widget? floatingActionButton;
   final bool enableSlideTransition;
 
   const WindowScaffold({
@@ -29,7 +30,7 @@ class WindowScaffold extends StatefulWidget {
     this.allowFullScreen = true,
     this.isInitialScreen = false,
     this.spaceAfterRow,
-    this.enableSlideTransition = true,
+    this.enableSlideTransition = true, this.floatingActionButton,
   });
 
   @override
@@ -197,6 +198,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
       autofocus: true,
       onKeyEvent: _handleKeyEvent,
       child: Scaffold(
+        floatingActionButton: widget.floatingActionButton,
         body: Column(
           children: [
             SizedBox(
@@ -224,23 +226,27 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.circular(defaultRadius),
+                                    borderRadius: BorderRadius.circular(
+                                      defaultRadius,
+                                    ),
                                     color: isDark
-                                        ? Colors.red.withValues(alpha:  0.3)
-                                        : Colors.red.withValues(alpha:  0.8),
+                                        ? Colors.red.withValues(alpha: 0.3)
+                                        : Colors.red.withValues(alpha: 0.8),
                                   ),
                                   child: Center(
                                     child: Icon(
                                       CupertinoIcons.back,
                                       size: 24,
                                       color:
-                                          Theme.of(context).brightness == Brightness.dark
-                                              ? Colors.white.withValues(alpha:  0.95)
-                                              : Colors.white,
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.white.withValues(alpha: 0.95)
+                                          : Colors.white,
                                       shadows: [
                                         Shadow(
-                                          color: Colors.black.withValues(alpha:  0.3),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.3,
+                                          ),
                                           offset: const Offset(0, 1),
                                           blurRadius: 2,
                                         ),
@@ -300,8 +306,9 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                   ? LucideIcons.copy
                                   : LucideIcons.square,
                               onPressed: _handleMaximizeRestore,
-                              tooltip:
-                                  isMaximized ? 'Restore Down' : 'Maximize',
+                              tooltip: isMaximized
+                                  ? 'Restore Down'
+                                  : 'Maximize',
                               iconColor: _iconColor,
                               hoverColor: _hoverColor,
                               isClose: false,

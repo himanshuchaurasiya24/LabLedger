@@ -102,12 +102,12 @@ final createBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
 
   if (response.statusCode == 201 || response.statusCode == 200) {
     // Refresh stats AND our new main provider
-    ref.invalidate(paginatedBillsProvider);
     ref.invalidate(referralStatsProvider);
     ref.invalidate(billChartStatsProvider);
+    ref.invalidate(paginatedUnpaidPartialBillsProvider);
     ref.invalidate(billGrowthStatsProvider);
     ref.invalidate(billProvider);
-    ref.invalidate(paginatedUnpaidPartialBillsProvider);
+    ref.invalidate(paginatedBillsProvider);
 
     return Bill.fromJson(jsonDecode(response.body));
   } else {
@@ -129,13 +129,13 @@ final updateBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
 
   if (response.statusCode == 200) {
     // Refresh stats AND our new main provider
-    ref.invalidate(paginatedBillsProvider);
     ref.invalidate(referralStatsProvider);
     ref.invalidate(billChartStatsProvider);
-    ref.invalidate(billGrowthStatsProvider);
-    ref.invalidate(singleBillProvider(updatedBill.id!));
-    ref.invalidate(billProvider);
     ref.invalidate(paginatedUnpaidPartialBillsProvider);
+    ref.invalidate(billGrowthStatsProvider);
+    ref.invalidate(paginatedBillsProvider);
+    ref.invalidate(billProvider);
+    ref.invalidate(singleBillProvider(updatedBill.id!));
 
     return Bill.fromJson(jsonDecode(response.body));
   } else {
@@ -152,13 +152,13 @@ final deleteBillProvider = FutureProvider.autoDispose.family<void, int>((
 
   if (response.statusCode == 204) {
     // Refresh stats AND our new main provider
-    ref.invalidate(paginatedBillsProvider);
     ref.invalidate(referralStatsProvider);
     ref.invalidate(billChartStatsProvider);
-    ref.invalidate(billGrowthStatsProvider);
-    ref.invalidate(singleBillProvider(id));
-    ref.invalidate(billProvider);
     ref.invalidate(paginatedUnpaidPartialBillsProvider);
+    ref.invalidate(billGrowthStatsProvider);
+    ref.invalidate(paginatedBillsProvider);
+    ref.invalidate(billProvider);
+    ref.invalidate(singleBillProvider(id));
   } else {
     throw Exception("Failed to delete bill: ${response.body}");
   }

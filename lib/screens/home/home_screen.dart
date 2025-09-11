@@ -21,6 +21,7 @@ import 'package:labledger/screens/ui_components/cards/referral_card.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/profile/user_profile_widget.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.authResponse});
@@ -57,6 +58,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return WindowScaffold(
       allowFullScreen: true,
       isInitialScreen: true,
+      floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          foregroundColor: Colors.white,
+          elevation: 4.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(defaultRadius),
+          ),
+          onPressed: () async {
+ navigatorKey.currentState?.push(
+              MaterialPageRoute(
+                builder: (context) => AddBillScreen(
+                  themeColor: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            );
+          },
+          label: const Text(
+            "Add Bill",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          icon: const Icon(LucideIcons.plus),
+        ),
       child: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: defaultPadding),
