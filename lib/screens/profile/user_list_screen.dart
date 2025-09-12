@@ -8,67 +8,16 @@ import 'package:labledger/screens/profile/user_edit_screen.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class UserListScreen extends ConsumerStatefulWidget {
-  const UserListScreen({
-    super.key,
-    required this.baseColor,
-    required this.adminId,
-  });
-  final Color baseColor;
+  // 1. 'baseColor' has been removed from the constructor.
+  const UserListScreen({super.key, required this.adminId});
+
   final int adminId;
   @override
   ConsumerState<UserListScreen> createState() => _UserListScreenState();
 }
 
 class _UserListScreenState extends ConsumerState<UserListScreen> {
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  // --- 🎨 Updated Color Logic ---
-
-  /// Background color
-  Color get backgroundColor {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Updated to use standard .withOpacity()
-    return isDark
-        ? widget.baseColor.withValues(alpha: 0.8) // darker bg in dark mode
-        : widget.baseColor.withValues(alpha: 0.1); // lighter bg in light mode
-  }
-
-  /// Text color - Use accent color at full opacity in light mode
-  Color get importantTextColor {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (isDark) {
-      return Colors.white; // Keep white for dark mode
-    } else {
-      // Use accent color with guaranteed full opacity.
-      // Updated to use standard .withOpacity()
-      return widget.baseColor.withValues(alpha: 1.0);
-    }
-  }
-
-  Color get normalTextColor {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? Colors.white70 : Colors.black87;
-  }
-
-  Color get accentFillColor {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Updated to use standard .withOpacity()
-    return isDark
-        ? widget.baseColor.withValues(alpha: 0.6)
-        : widget.baseColor.withValues(alpha: 0.15);
-  }
-
-  /// Bar color for the breakdown charts
-  Color get barColor {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Updated to use standard .withOpacity()
-    return isDark
-        ? Colors.white.withValues(alpha: 0.9)
-        : widget.baseColor; // Use accent color for bars in light mode
-  }
+  // 2. The previous color getter methods have been removed.
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +27,7 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
       child: usersAsync.when(
         data: (users) {
           return GridView.builder(
+            // Original layout and spacing are preserved.
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
               childAspectRatio: size.width > initialWindowWidth ? 2.8 : 2.3,
@@ -86,22 +36,38 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
             ),
             itemCount: users.length,
             itemBuilder: (context, index) {
+              // --- 3. DYNAMIC COLOR LOGIC STARTS HERE ---
+              final user = users[index];
+              final theme = Theme.of(context);
+              final isDark = theme.brightness == Brightness.dark;
+
+              // The base color is now determined by the user's locked status.
+              final cardColor = user.isLocked
+                  ? Colors.red.shade700
+                  : theme.colorScheme.secondary;
+
+              // The text color is determined based on the theme for best readability.
+              final textColor = isDark ? Colors.white : cardColor;
+              // --- DYNAMIC COLOR LOGIC ENDS HERE ---
+
               return InkWell(
                 onTap: () {
                   navigatorKey.currentState?.push(
                     MaterialPageRoute(
                       builder: (context) {
                         return UserEditScreen(
-                          targetUserId: users[index].id,
+                          targetUserId: user.id,
                           isAdmin: true,
-                          themeColor: Theme.of(context).colorScheme.secondary,
+                          // Pass the dynamically determined color to the next screen.
+                          themeColor: cardColor,
                         );
                       },
                     ),
                   );
                 },
                 child: TintedContainer(
-                  baseColor: Colors.teal,
+                  // The container's base color is now dynamic and not hardcoded.
+                  baseColor: cardColor,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -109,26 +75,29 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            users[index].username,
+                            user.username,
                             style: TextStyle(
-                              color: importantTextColor,
+                              // Text color is now dynamic.
+                              color: textColor,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Container(
                             height: 30,
-                            width: 100,
+                            width: user.isLocked ? 150 : 100,
                             decoration: BoxDecoration(
-                              color: widget.baseColor.withValues(alpha: 0.9),
+                              // The badge color is now dynamic.
+                              color: cardColor.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(
                                 defaultRadius * 2,
                               ),
                             ),
                             child: Center(
                               child: Text(
-                                users[index].isAdmin ? "Admin" : "User",
-                                style: TextStyle(
+                                "${user.isAdmin ? "Admin" : "User"} ${user.isLocked ? "(Locked)" : ""}",
+                                style: const TextStyle(
+                                  // White provides good contrast against the dynamic color.
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -138,35 +107,35 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
                         ],
                       ),
                       Text(
-                        "${users[index].firstName} ${users[index].lastName}",
+                        "${user.firstName} ${user.lastName}",
                         style: TextStyle(
-                          color: importantTextColor,
+                          // Text color is now dynamic.
+                          color: textColor,
                           fontSize: 18,
-                          // fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        users[index].phoneNumber,
+                        user.phoneNumber,
                         style: TextStyle(
-                          color: importantTextColor,
+                          // Text color is now dynamic.
+                          color: textColor,
                           fontSize: 18,
-                          // fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        users[index].address,
+                        user.address,
                         style: TextStyle(
-                          color: importantTextColor,
+                          // Text color is now dynamic.
+                          color: textColor,
                           fontSize: 18,
-                          // fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        users[index].email,
+                        user.email,
                         style: TextStyle(
-                          color: importantTextColor,
+                          // Text color is now dynamic.
+                          color: textColor,
                           fontSize: 18,
-                          // fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],

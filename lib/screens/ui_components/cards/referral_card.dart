@@ -235,11 +235,13 @@ class _ReferralCardState extends State<ReferralCard> {
                 Icons.receipt_long,
                 "Total Bills",
                 referrer.total.toString(),
+                CrossAxisAlignment.start,
               ),
               _buildInfoTile(
                 Icons.currency_rupee,
                 "Total Incentives",
                 referrer.incentiveAmount.toString(),
+                CrossAxisAlignment.end,
               ),
             ],
           ),
@@ -328,7 +330,12 @@ class _ReferralCardState extends State<ReferralCard> {
   }
 
   // CHANGED: Made the info tile itself responsive
-  Widget _buildInfoTile(IconData icon, String label, String value) {
+  Widget _buildInfoTile(
+    IconData icon,
+    String label,
+    String value,
+    CrossAxisAlignment crossAxisAlignment,
+  ) {
     return Row(
       children: [
         Container(
@@ -342,7 +349,7 @@ class _ReferralCardState extends State<ReferralCard> {
         ),
         SizedBox(width: defaultWidth),
         Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: crossAxisAlignment,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(

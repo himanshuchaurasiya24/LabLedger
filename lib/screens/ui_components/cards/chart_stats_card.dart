@@ -106,6 +106,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
                 Icons.receipt_long,
                 "Total Bills",
                 totalBills.toString(),
+                CrossAxisAlignment.start,
               ),
               SizedBox(height: defaultHeight),
 
@@ -197,7 +198,12 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
   }
 
   // CHANGED: Made the info tile responsive, identical to the one in ReferralCard
-  Widget _buildInfoTile(IconData icon, String label, String value) {
+  Widget _buildInfoTile(
+    IconData icon,
+    String label,
+    String value,
+    CrossAxisAlignment crossAxisAlignment,
+  ) {
     return Row(
       children: [
         Container(
@@ -213,7 +219,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
         Expanded(
           // NEW: Allow the column to take the remaining space
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: crossAxisAlignment,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(

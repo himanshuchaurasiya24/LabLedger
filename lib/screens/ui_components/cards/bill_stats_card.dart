@@ -189,6 +189,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
                 data.totalBills.toString(),
                 colors.accent,
                 colors.text,
+                CrossAxisAlignment.start,
               ),
               Container(
                 padding: EdgeInsets.symmetric(
@@ -381,6 +382,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
     String value,
     Color accentColor,
     Color textColor,
+    CrossAxisAlignment crossAxisAlignment,
   ) {
     return Row(
       children: [
@@ -395,7 +397,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
         ),
         SizedBox(width: defaultWidth),
         Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: crossAxisAlignment,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(label, style: TextStyle(color: textColor, fontSize: 12)),
