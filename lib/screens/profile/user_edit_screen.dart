@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/main.dart';
 import 'package:labledger/models/user_model.dart';
 import 'package:labledger/providers/password_reset_provider.dart';
-import 'package:labledger/providers/user_provider.dart';
+import 'package:labledger/providers/user_provider.dart'; // Make sure this imports your updated providers file
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -14,7 +13,6 @@ class UserEditScreen extends ConsumerStatefulWidget {
     super.key,
     this.isAdmin = false,
     required this.targetUserId,
-    // The themeColor is now a required parameter with no default value.
     required this.themeColor,
   });
   final int targetUserId;
@@ -31,7 +29,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   final _formKey = GlobalKey<FormState>();
   final _passwordFormKey = GlobalKey<FormState>();
 
-  // Form controllers for user details
+  // Form controllers
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -39,7 +37,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
 
-  // Password form controllers
+  // Password controllers
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -49,7 +47,11 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   bool _isConfirmPasswordVisible = false;
   bool _isUpdating = false;
   bool _isResettingPassword = false;
-  bool _isControllersInitialized = false;
+  bool _isDataInitialized = false;
+
+  // State variables for Account Lock
+  bool _isLocking = false;
+  late bool _isAccountLocked;
 
   @override
   void initState() {
@@ -72,15 +74,16 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     super.dispose();
   }
 
-  void _initializeControllersWithUserData(User user) {
-    if (!_isControllersInitialized) {
+  void _initializeDataWithUserData(User user) {
+    if (!_isDataInitialized) {
       _usernameController.text = user.username;
       _emailController.text = user.email;
       _firstNameController.text = user.firstName;
       _lastNameController.text = user.lastName;
       _phoneController.text = user.phoneNumber;
       _addressController.text = user.address;
-      _isControllersInitialized = true;
+      _isAccountLocked = user.isLocked;
+      _isDataInitialized = true;
     }
   }
 
@@ -93,7 +96,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     return WindowScaffold(
       child: targetUserAsync.when(
         data: (targetUser) {
-          _initializeControllersWithUserData(targetUser);
+          _initializeDataWithUserData(targetUser);
           return _buildContent(targetUser, widget.isAdmin!);
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -106,16 +109,12 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   Widget _buildContent(User targetUser, bool isAdmin) {
     return Column(
       children: [
-        // User Header Card
         _buildUserHeaderCard(targetUser, isAdmin),
-        SizedBox(height: defaultHeight * 2),
-        // Content Area
+        const SizedBox(height: 24),
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final isLargeScreen = constraints.maxWidth > 900;
-
-              if (isLargeScreen) {
+              if (constraints.maxWidth > 900) {
                 return _buildLargeScreenLayout(targetUser, isAdmin);
               } else {
                 return Column(
@@ -136,7 +135,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    // A lighter shade is derived from the main theme color for gradients.
     final lightThemeColor = Color.lerp(
       widget.themeColor,
       isDark ? Colors.black : Colors.white,
@@ -152,7 +150,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
       elevationLevel: 2,
       child: Row(
         children: [
-          // Avatar Section
           Container(
             width: 80,
             height: 80,
@@ -165,7 +162,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: widget.themeColor.withValues(alpha: 0.3),
+                  color: widget.themeColor.withValues(alpha:  0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -182,10 +179,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
               ),
             ),
           ),
-
-          SizedBox(width: defaultWidth * 2),
-
-          // User Info Section
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,51 +192,52 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                     color: isDark ? Colors.white : theme.colorScheme.onSurface,
                   ),
                 ),
-                SizedBox(height: defaultHeight / 2),
+                const SizedBox(height: 4),
                 Text(
                   user.email,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark
                         ? Colors.white70
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha:  0.7),
                   ),
                 ),
-                SizedBox(height: defaultHeight),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     _buildStatusBadge(
                       user.isAdmin ? 'Admin' : 'Staff',
-                      // Staff badge uses the dynamic theme color.
                       user.isAdmin ? Colors.orange : widget.themeColor,
                     ),
                     if (isAdmin) ...[
                       const SizedBox(width: 8),
                       _buildStatusBadge('Edit Mode', Colors.purple),
                     ],
+                    if (_isAccountLocked) ...[
+                      const SizedBox(width: 8),
+                      _buildStatusBadge('Locked', theme.colorScheme.error),
+                    ],
                   ],
                 ),
               ],
             ),
           ),
-
-          // Center Info
           Container(
-            padding: EdgeInsets.all(defaultPadding),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: (widget.themeColor).withValues(alpha: 0.1),
+              color: (widget.themeColor).withValues(alpha:  0.1),
               borderRadius: BorderRadius.circular(defaultRadius),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.business, color: widget.themeColor, size: 20),
-                SizedBox(height: defaultHeight / 2),
+                const SizedBox(height: 4),
                 Text(
                   'Center',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: isDark
                         ? Colors.white70
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha:  0.7),
                   ),
                 ),
                 Text(
@@ -261,13 +256,139 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     );
   }
 
+  Widget _buildLockStatusToggle(User user) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withValues(alpha:  isDark ? 0.1 : 0.5),
+        borderRadius: BorderRadius.circular(defaultRadius),
+        border: Border.all(
+          color: widget.themeColor.withValues(alpha:  isDark ? 0.2 : 0.1),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Account Lock',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _isAccountLocked
+                      ? 'Account is locked. User cannot log in.'
+                      : 'Account is active.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha:  0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          if (_isLocking)
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: widget.themeColor,
+              ),
+            )
+          else
+            Switch(
+              value: _isAccountLocked,
+              onChanged: (value) => _toggleLockStatus(user),
+              activeThumbColor: theme.colorScheme.error,
+              inactiveTrackColor: Colors.green.withValues(alpha:  0.5),
+              activeTrackColor: theme.colorScheme.error.withValues(alpha:  0.5),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // --- [THIS IS THE KEY METHOD] ---
+  // It now calls the new, dedicated provider to handle the lock/unlock action.
+  Future<void> _toggleLockStatus(User user) async {
+    final bool newLockStatus = !_isAccountLocked;
+
+    setState(() {
+      _isLocking = true;
+      _isAccountLocked = newLockStatus; // Optimistic UI update
+    });
+
+    try {
+      // Call the new, dedicated provider for this action
+      await ref.read(
+        toggleUserLockStatusProvider((
+          userId: user.id,
+          isLocked: newLockStatus,
+        )).future,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  newLockStatus ? Icons.lock : Icons.lock_open,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'User account has been ${newLockStatus ? "locked" : "unlocked"}.',
+                ),
+              ],
+            ),
+            backgroundColor: newLockStatus
+                ? Theme.of(context).colorScheme.error
+                : Colors.green,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        // On failure, revert the UI change and show an error
+        setState(() {
+          _isAccountLocked = !newLockStatus;
+        });
+        _showErrorDialog(
+          'Operation Failed',
+          e.toString().replaceAll('Exception: ', ''),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLocking = false;
+        });
+      }
+    }
+  }
+
+  // Other methods (_updateUserDetails, _resetPassword, etc.) remain unchanged
+  // --- (No changes to the rest of the file) ---
+
   Widget _buildStatusBadge(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withValues(alpha:  0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        border: Border.all(color: color.withValues(alpha:  0.5)),
       ),
       child: Text(
         text,
@@ -291,7 +412,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+            color: Colors.black.withValues(alpha:  isDark ? 0.3 : 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -307,7 +428,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
         labelColor: Colors.white,
         unselectedLabelColor: isDark
             ? Colors.white70
-            : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            : theme.colorScheme.onSurface.withValues(alpha:  0.7),
         dividerColor: Colors.transparent,
         tabs: const [
           Tab(
@@ -342,7 +463,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
       controller: _tabController,
       children: [
         _buildPersonalDetailsCard(targetUser),
-        _buildSecurityCard(isAdmin),
+        _buildSecurityCard(targetUser, isAdmin),
       ],
     );
   }
@@ -352,8 +473,8 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(child: _buildPersonalDetailsCard(targetUser)),
-        SizedBox(width: defaultWidth * 2),
-        Expanded(child: _buildSecurityCard(isAdmin)),
+        const SizedBox(width: 24),
+        Expanded(child: _buildSecurityCard(targetUser, isAdmin)),
       ],
     );
   }
@@ -364,17 +485,16 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
 
     return TintedContainer(
       baseColor: widget.themeColor,
-      height: 530,
+      height: 520,
       radius: defaultRadius,
       intensity: isDark ? 0.1 : 0.05,
       elevationLevel: 1,
       child: Column(
         children: [
-          // Card Header
           Container(
-            padding: EdgeInsets.all(defaultPadding * 2),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: widget.themeColor.withValues(alpha: isDark ? 0.2 : 0.1),
+              color: widget.themeColor.withValues(alpha:  isDark ? 0.2 : 0.1),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(defaultRadius),
                 topRight: Radius.circular(defaultRadius),
@@ -383,9 +503,9 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
             child: Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(defaultPadding),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: widget.themeColor.withValues(alpha: 0.2),
+                    color: widget.themeColor.withValues(alpha:  0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.person, color: widget.themeColor, size: 20),
@@ -402,7 +522,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
             ),
           ),
           SizedBox(height: defaultHeight * 2),
-          // Scrollable Form Content
           Expanded(
             child: Form(
               key: _formKey,
@@ -419,7 +538,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                             tintColor: widget.themeColor,
                           ),
                         ),
-                        SizedBox(width: defaultWidth),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: CustomTextField(
                             label: 'Last Name',
@@ -470,8 +589,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                       tintColor: widget.themeColor,
                     ),
                     SizedBox(height: defaultHeight * 2),
-
-                    // Update Button
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -508,6 +625,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                         ),
                       ),
                     ),
+                    // SizedBox(height: defaultHeight*1.6),
                   ],
                 ),
               ),
@@ -518,7 +636,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     );
   }
 
-  Widget _buildSecurityCard(bool isAdmin) {
+  Widget _buildSecurityCard(User targetUser, bool isAdmin) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -526,15 +644,14 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
       baseColor: widget.themeColor,
       radius: defaultRadius,
       intensity: isDark ? 0.1 : 0.05,
-      height: 395,
+      height: isAdmin ? 520 : 395,
       elevationLevel: 1,
       child: Column(
         children: [
-          // Card Header
           Container(
-            padding: EdgeInsets.all(defaultPadding * 2),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: widget.themeColor.withValues(alpha: isDark ? 0.2 : 0.1),
+              color: widget.themeColor.withValues(alpha:  isDark ? 0.2 : 0.1),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(defaultRadius),
                 topRight: Radius.circular(defaultRadius),
@@ -543,9 +660,9 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
             child: Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(defaultPadding),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: widget.themeColor.withValues(alpha: 0.2),
+                    color: widget.themeColor.withValues(alpha:  0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -554,7 +671,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                     size: 20,
                   ),
                 ),
-                SizedBox(width: defaultWidth),
+                const SizedBox(width: 12),
                 Text(
                   'Security Settings',
                   style: theme.textTheme.titleMedium?.copyWith(
@@ -565,14 +682,19 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
               ],
             ),
           ),
-          SizedBox(height: defaultHeight * 2),
-          // Scrollable Form Content
+          const SizedBox(height: 24),
           Expanded(
             child: Form(
               key: _passwordFormKey,
               child: SingleChildScrollView(
                 child: Column(
                   children: [
+                    if (isAdmin) ...[
+                      _buildLockStatusToggle(targetUser),
+                      SizedBox(height: defaultHeight * 2),
+                      Divider(color: widget.themeColor.withValues(alpha:  0.2)),
+                      SizedBox(height: defaultHeight * 2),
+                    ],
                     if (!isAdmin) ...[
                       CustomTextField(
                         label: 'Current Password',
@@ -597,7 +719,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                       label: 'New Password',
                       controller: _newPasswordController,
                       obscureText: !_isNewPasswordVisible,
-                      isRequired: true,
+                      isRequired: false, // Not required for lock/unlock
                       tintColor: widget.themeColor,
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -610,10 +732,9 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                         ),
                       ),
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'New password is required';
-                        }
-                        if (value.length < 6) {
+                        if (value != null &&
+                            value.isNotEmpty &&
+                            value.length < 6) {
                           return 'Password must be at least 6 characters';
                         }
                         return null;
@@ -624,7 +745,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                       label: 'Confirm New Password',
                       controller: _confirmPasswordController,
                       obscureText: !_isConfirmPasswordVisible,
-                      isRequired: true,
+                      isRequired: false, // Not required for lock/unlock
                       tintColor: widget.themeColor,
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -644,48 +765,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                         return null;
                       },
                     ),
-                    SizedBox(height: defaultHeight * 2),
-
-                    // Info Card
-                    Container(
-                      padding: EdgeInsets.all(defaultPadding + 1),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.withValues(
-                          alpha: isDark ? 0.2 : 0.1,
-                        ),
-                        borderRadius: BorderRadius.circular(defaultRadius),
-                        border: Border.all(
-                          color: Colors.amber.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: Colors.amber.shade700,
-                            size: 20,
-                          ),
-                          SizedBox(width: defaultWidth),
-                          Expanded(
-                            child: Text(
-                              isAdmin
-                                  ? 'As an admin, you can reset this user\'s password without requiring their current password.'
-                                  : 'Make sure to use a strong password with at least 6 characters.',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: isDark
-                                    ? Colors.amber.shade200
-                                    : Colors.amber.shade800,
-                                height: 1.4,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: defaultHeight * 2),
-
-                    // Update Password Button
+                    const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -724,6 +804,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                         ),
                       ),
                     ),
+                    SizedBox(height: defaultHeight * 2),
                   ],
                 ),
               ),
@@ -734,71 +815,9 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     );
   }
 
-  Widget _buildErrorWidget(String message) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: TintedContainer(
-          baseColor: theme.colorScheme.error,
-          intensity: isDark ? 0.2 : 0.1,
-          elevationLevel: 2,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.error_outline,
-                size: 48,
-                color: theme.colorScheme.error,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Error Loading User',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  color: theme.colorScheme.error,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                message,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.error,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () {
-                  ref.invalidate(
-                    singleUserDetailsProvider(widget.targetUserId),
-                  );
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.error,
-                  foregroundColor: theme.colorScheme.onError,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Future<void> _updateUserDetails(User originalUser) async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isUpdating = true);
-
     try {
       final updatedUser = originalUser.copyWith(
         username: _usernameController.text.trim(),
@@ -808,9 +827,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
         phoneNumber: _phoneController.text.trim(),
         address: _addressController.text.trim(),
       );
-
       await ref.read(updateUserProvider(updatedUser).future);
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -825,7 +842,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            duration: const Duration(seconds: 3),
           ),
         );
         Navigator.pop(context, true);
@@ -843,10 +859,19 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
   }
 
   Future<void> _resetPassword(bool isAdmin) async {
+    if (_newPasswordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'New password field cannot be empty to update password.',
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
     if (!_passwordFormKey.currentState!.validate()) return;
-
     setState(() => _isResettingPassword = true);
-
     try {
       final Map<String, String> passwordData;
       if (isAdmin) {
@@ -857,14 +882,11 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
           'new_password': _newPasswordController.text.trim(),
         };
       }
-
       final input = PasswordResetInput(
         userId: widget.targetUserId,
         data: passwordData,
       );
-
       await ref.read(resetPasswordProvider(input).future);
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -879,17 +901,11 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            duration: const Duration(seconds: 3),
           ),
         );
-
         _currentPasswordController.clear();
         _newPasswordController.clear();
         _confirmPasswordController.clear();
-        ref.invalidate(usersDetailsProvider);
-        ref.invalidate(singleUserDetailsProvider(widget.targetUserId));
-        ref.invalidate(resetPasswordProvider);
-        navigatorKey.currentState?.pop();
       }
     } catch (e) {
       if (mounted) {
@@ -905,7 +921,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
 
   void _showErrorDialog(String title, String errorMessage) {
     final theme = Theme.of(context);
-
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -922,7 +937,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.error.withValues(alpha: 0.1),
+                    color: theme.colorScheme.error.withValues(alpha:  0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -931,7 +946,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                     size: 32,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: defaultHeight * 2),
                 Text(
                   title,
                   style: theme.textTheme.titleLarge?.copyWith(
@@ -944,12 +959,10 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.errorContainer.withValues(
-                      alpha: 0.3,
-                    ),
+                    color: theme.colorScheme.errorContainer.withValues(alpha:  0.3),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: theme.colorScheme.error.withValues(alpha: 0.2),
+                      color: theme.colorScheme.error.withValues(alpha:  0.2),
                     ),
                   ),
                   child: Text(
@@ -985,6 +998,65 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorWidget(String message) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: TintedContainer(
+          baseColor: theme.colorScheme.error,
+          intensity: isDark ? 0.2 : 0.1,
+          elevationLevel: 2,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: theme.colorScheme.error,
+              ),
+              SizedBox(height: defaultHeight * 2),
+              Text(
+                'Error Loading User',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: theme.colorScheme.error,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.invalidate(
+                    singleUserDetailsProvider(widget.targetUserId),
+                  );
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.error,
+                  foregroundColor: theme.colorScheme.onError,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

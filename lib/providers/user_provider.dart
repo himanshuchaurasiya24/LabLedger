@@ -1,4 +1,4 @@
-// user_provider.dart - FIXED VERSION
+// user_provider.dart - FINAL VERSION
 
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,7 +50,6 @@ final createUserProvider =
     ref.invalidate(usersDetailsProvider);
     return User.fromJson(jsonDecode(response.body));
   } else {
-    // Enhanced error handling for user creation
     try {
       final errorData = jsonDecode(response.body);
       if (errorData is Map<String, dynamic>) {
@@ -76,11 +75,11 @@ final createUserProvider =
   }
 });
 
-// --- UPDATE (FIXED) ---
+// --- UPDATE (User Profile Details) ---
 final updateUserProvider = FutureProvider.family.autoDispose<User, User>((ref, user) async {
   final endpoint = "$_staffsBaseUrl/${user.id}/";
   
-  // Create a map without password field for user details update
+  // This map is specifically for updating profile info, so we leave it as is.
   final updateData = {
     'username': user.username,
     'email': user.email,
@@ -103,7 +102,6 @@ final updateUserProvider = FutureProvider.family.autoDispose<User, User>((ref, u
     ref.invalidate(usersDetailsProvider);
     return User.fromJson(jsonDecode(response.body));
   } else {
-    // Enhanced error handling for user update
     try {
       final errorData = jsonDecode(response.body);
       if (errorData is Map<String, dynamic>) {
@@ -116,30 +114,15 @@ final updateUserProvider = FutureProvider.family.autoDispose<User, User>((ref, u
             fieldError = value.toString();
           }
           
-          // Make field names more user-friendly
           String friendlyFieldName = key;
           switch (key.toLowerCase()) {
-            case 'username':
-              friendlyFieldName = 'Username';
-              break;
-            case 'email':
-              friendlyFieldName = 'Email';
-              break;
-            case 'first_name':
-              friendlyFieldName = 'First Name';
-              break;
-            case 'last_name':
-              friendlyFieldName = 'Last Name';
-              break;
-            case 'phone_number':
-              friendlyFieldName = 'Phone Number';
-              break;
-            case 'address':
-              friendlyFieldName = 'Address';
-              break;
-            case 'non_field_errors':
-              friendlyFieldName = '';
-              break;
+            case 'username': friendlyFieldName = 'Username'; break;
+            case 'email': friendlyFieldName = 'Email'; break;
+            case 'first_name': friendlyFieldName = 'First Name'; break;
+            case 'last_name': friendlyFieldName = 'Last Name'; break;
+            case 'phone_number': friendlyFieldName = 'Phone Number'; break;
+            case 'address': friendlyFieldName = 'Address'; break;
+            case 'non_field_errors': friendlyFieldName = ''; break;
           }
           
           if (friendlyFieldName.isNotEmpty) {
@@ -183,5 +166,34 @@ final deleteUserProvider = FutureProvider.family.autoDispose<bool, int>((ref, id
       }
       throw Exception("Failed to delete user: ${response.statusCode}");
     }
+  }
+});
+
+
+// --- [NEW] UPDATE (Lock Status) ---
+// This new provider is dedicated to updating only the user's lock status.
+final toggleUserLockStatusProvider =
+    FutureProvider.family.autoDispose<User, ({int userId, bool isLocked})>((ref, params) async {
+  final endpoint = "$_staffsBaseUrl/${params.userId}/";
+  
+  // Using PATCH for partial updates is more efficient and semantically correct.
+  // It only sends the field that needs to be changed.
+  final response = await AuthHttpClient.put(
+    ref,
+    endpoint,
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({'is_locked': params.isLocked}),
+  );
+  
+  if (response.statusCode == 200) {
+    // Invalidate caches to refetch updated user data across the app
+    ref.invalidate(singleUserDetailsProvider(params.userId));
+    ref.invalidate(usersDetailsProvider);
+    return User.fromJson(jsonDecode(response.body));
+  } else {
+    // Handle potential errors during the update
+    final errorBody = jsonDecode(response.body);
+    final errorMessage = errorBody['detail'] ?? 'Failed to update lock status';
+    throw Exception('$errorMessage (Status: ${response.statusCode})');
   }
 });
