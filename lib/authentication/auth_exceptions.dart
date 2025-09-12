@@ -1,3 +1,5 @@
+// authentication/auth_exceptions.dart
+
 abstract class AuthException implements Exception {
   final String message;
   const AuthException(this.message);
@@ -7,11 +9,12 @@ abstract class AuthException implements Exception {
 }
 
 class InvalidCredentialsException extends AuthException {
-  const InvalidCredentialsException() : super("Invalid username or password");
+  const InvalidCredentialsException([String? message]) 
+    : super(message ?? "Invalid username or password");
 }
 
 class TokenExpiredException extends AuthException {
-  const TokenExpiredException() : super("Refresh token expired, please login again");
+  const TokenExpiredException() : super("Your session has expired. Please log in again");
 }
 
 class NetworkException extends AuthException {
@@ -23,7 +26,8 @@ class ServerException extends AuthException {
 }
 
 class AccountLockedException extends AuthException {
-  const AccountLockedException() : super("Your account has been locked. Please contact administrator.");
+  const AccountLockedException([String? message]) 
+    : super(message ?? "Your account is locked. Please contact administrator.");
 }
 
 class SubscriptionExpiredException extends AuthException {
@@ -34,7 +38,7 @@ class SubscriptionExpiredException extends AuthException {
 
 class SubscriptionInactiveException extends AuthException {
   const SubscriptionInactiveException() 
-    : super("Your subscription is inactive. Please contact administrator to activate your account.");
+    : super("Your subscription is inactive. Please contact administrator.");
 }
 
 class ValidationException extends AuthException {

@@ -87,12 +87,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
       if (mounted) {
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
-            builder: (context) => HomeScreen(authResponse: authResponse),
+            builder: (context) {
+              return HomeScreen(authResponse: authResponse);
+            },
           ),
         );
       }
     } on AuthException catch (e) {
-      // Catch any specific AuthException and use its friendly message.
+      // --- THIS IS THE KEY CHANGE ---
+      // Catch any specific AuthException and use its friendly message
+      // from the backend. This now handles all login error cases.
       setState(() {
         errorMessage = e.message;
       });

@@ -1,5 +1,3 @@
-// authentication/auth_repository.dart
-
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -19,7 +17,6 @@ class AuthRepository {
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  /// Login with username/password
   Future<AuthResponse> login(String username, String password) async {
     try {
       final response = await http
@@ -40,12 +37,18 @@ class AuthRepository {
         }
 
         return authResponse;
-      } else if (response.statusCode == 401) {
-        throw const InvalidCredentialsException();
-      } else if (response.statusCode == 403) { // <-- ADDED THIS CHECK
-        throw const AccountLockedException();
       } else {
-        throw ServerException("Login failed: ${response.body}");
+        // AMENDED: Centralized error parsing
+        final errorBody = jsonDecode(response.body);
+        final errorMessage = errorBody['detail'] as String?;
+
+        if (response.statusCode == 401) {
+          throw InvalidCredentialsException(errorMessage);
+        } else if (response.statusCode == 403) {
+          throw AccountLockedException(errorMessage);
+        } else {
+          throw ServerException(errorMessage ?? "Login failed: An unknown error occurred.");
+        }
       }
     } catch (e) {
       if (e is AuthException) rethrow;
@@ -53,7 +56,6 @@ class AuthRepository {
     }
   }
 
-  /// Verify current access token with backend
   Future<AuthResponse> verifyAuth() async {
     try {
       final accessToken = await getAccessToken();
@@ -72,9 +74,11 @@ class AuthRepository {
         return authResponse;
       } else if (response.statusCode == 401) {
         return await _retryWithRefresh();
-      } else if (response.statusCode == 403) { // <-- ADDED THIS CHECK
-        await logout(); // Clear tokens as the session is invalid
-        throw const AccountLockedException();
+      } else if (response.statusCode == 403) {
+        await logout();
+        final errorBody = jsonDecode(response.body);
+        final errorMessage = errorBody['detail'] as String?;
+        throw AccountLockedException(errorMessage);
       } else {
         throw ServerException("Verify auth failed: ${response.body}");
       }
@@ -84,7 +88,6 @@ class AuthRepository {
     }
   }
 
-  /// Helper method to retry verification with refresh token
   Future<AuthResponse> _retryWithRefresh() async {
     try {
       final refresh = await getRefreshToken();
@@ -104,14 +107,15 @@ class AuthRepository {
         final authResponse = AuthResponse.fromJson(jsonDecode(retryResponse.body));
         _validateSubscription(authResponse);
         return authResponse;
-      } else if (retryResponse.statusCode == 401) {
-        await logout();
-        throw const TokenExpiredException();
-      } else if (retryResponse.statusCode == 403) { // <-- ADDED THIS CHECK
-        await logout();
-        throw const AccountLockedException();
       } else {
-        throw ServerException("Verify auth retry failed: ${retryResponse.body}");
+        await logout();
+        if (retryResponse.statusCode == 403) {
+            final errorBody = jsonDecode(retryResponse.body);
+            final errorMessage = errorBody['detail'] as String?;
+            throw AccountLockedException(errorMessage);
+        }
+        // Any other failure after a refresh is a definitive session expiry.
+        throw const TokenExpiredException();
       }
     } catch (e) {
       if (e is AuthException) rethrow;
@@ -119,7 +123,6 @@ class AuthRepository {
     }
   }
 
-  /// Refresh access token
   Future<String?> refreshToken(String refreshToken) async {
     try {
       final response = await http
@@ -138,11 +141,9 @@ class AuthRepository {
           return newAccess;
         }
         return null;
-      } else if (response.statusCode == 401) {
+      } else {
         await logout();
         throw const TokenExpiredException();
-      } else {
-        throw ServerException("Token refresh failed: ${response.body}");
       }
     } catch (e) {
       if (e is AuthException) rethrow;
@@ -150,32 +151,25 @@ class AuthRepository {
     }
   }
 
-  // --- NO CHANGES BELOW THIS LINE ---
-
-  /// Validate subscription status
   void _validateSubscription(AuthResponse authResponse) {
     final subscription = authResponse.centerDetail.subscription;
     if (!subscription.isActive) throw const SubscriptionInactiveException();
     if (subscription.daysLeft <= 0) throw SubscriptionExpiredException(subscription.daysLeft);
   }
 
-  /// Logout
   Future<void> logout() async {
     await _storage.delete(key: "access_token");
     await _storage.delete(key: "refresh_token");
   }
 
-  /// Token getters
   Future<String?> getAccessToken() async => await _storage.read(key: "access_token");
   Future<String?> getRefreshToken() async => await _storage.read(key: "refresh_token");
 
-  /// Store tokens (public method)
   Future<void> storeTokens({required String accessToken, required String refreshToken}) async {
     await _storage.write(key: "access_token", value: accessToken);
     await _storage.write(key: "refresh_token", value: refreshToken);
   }
 
-  /// Debug method to check all storage contents
   Future<void> debugStorage() async {
     try { await _storage.readAll(); } catch (_) {}
   }
