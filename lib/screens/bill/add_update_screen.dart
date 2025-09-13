@@ -64,7 +64,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     "Unpaid",
   ];
 
-  bool _dataLoaded = false;
   bool _isControllersInitialized = false;
   bool _isSubmitting = false;
 
@@ -131,31 +130,57 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     List<FranchiseName> franchises,
     List<Doctor> doctors,
   ) {
-    if (widget.billData == null || _dataLoaded) return;
-    try {
-      _selectedDiagnosisType = diagnosisTypes.firstWhere(
-        (type) => type.id.toString() == diagnosisTypeController.text,
-      );
-      diagnosisTypeDisplayController.text =
-          '${_selectedDiagnosisType!.category} ${_selectedDiagnosisType!.name}';
+    if (widget.billData == null || !_isControllersInitialized) return;
 
-      if (franchiseNameController.text.isNotEmpty) {
-        _selectedFranchise = franchises.firstWhere(
-          (f) => f.franchiseName == franchiseNameController.text,
-        );
-        franchiseNameDisplayController.text =
-            "${_selectedFranchise!.franchiseName}, ${_selectedFranchise!.address}";
+    try {
+      // Update diagnosis type display
+      if (diagnosisTypeController.text.isNotEmpty) {
+        final diagnosisId = int.tryParse(diagnosisTypeController.text);
+        if (diagnosisId != null) {
+          _selectedDiagnosisType = diagnosisTypes.firstWhere(
+            (type) => type.id == diagnosisId,
+            orElse: () => throw Exception('Diagnosis type not found'),
+          );
+          diagnosisTypeDisplayController.text =
+              '${_selectedDiagnosisType!.category} ${_selectedDiagnosisType!.name}';
+        }
       }
 
-      _selectedDoctor = doctors.firstWhere(
-        (doc) => doc.id.toString() == refByDoctorController.text,
-      );
-      refByDoctorDisplayController.text =
-          '${_selectedDoctor!.firstName} ${_selectedDoctor!.lastName ?? ''}';
+      // Update doctor display
+      if (refByDoctorController.text.isNotEmpty) {
+        final doctorId = int.tryParse(refByDoctorController.text);
+        if (doctorId != null) {
+          _selectedDoctor = doctors.firstWhere(
+            (doc) => doc.id == doctorId,
+            orElse: () => throw Exception('Doctor not found'),
+          );
+          refByDoctorDisplayController.text =
+              '${_selectedDoctor!.firstName} ${_selectedDoctor!.lastName ?? ''}';
+        }
+      }
+
+      // Update franchise display if applicable
+      if (_selectedDiagnosisType?.category == 'Franchise Lab' &&
+          franchiseNameController.text.isNotEmpty) {
+        try {
+          _selectedFranchise = franchises.firstWhere(
+            (f) => f.franchiseName == franchiseNameController.text,
+            orElse: () => throw Exception('Franchise not found'),
+          );
+          franchiseNameDisplayController.text =
+              "${_selectedFranchise!.franchiseName}, ${_selectedFranchise!.address}";
+        } catch (e) {
+          debugPrint("Franchise not found: ${franchiseNameController.text}");
+        }
+      }
+
+      // Trigger rebuild to show updated values
+      if (mounted) {
+        setState(() {});
+      }
     } catch (e) {
       debugPrint("Error updating display controllers: $e");
     }
-    _dataLoaded = true;
   }
 
   @override
@@ -585,20 +610,19 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
             SizedBox(height: defaultHeight * 2),
             diagnosisTypesAsync.when(
               data: (types) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (doctorsAsync.hasValue &&
-                      franchiseNamesAsync.hasValue &&
-                      widget.billData != null &&
-                      !_dataLoaded) {
-                    setState(() {
-                      _updateDisplayControllers(
-                        types,
-                        franchiseNamesAsync.value!,
-                        doctorsAsync.value!,
-                      );
-                    });
-                  }
-                });
+                if (doctorsAsync.hasValue &&
+                    franchiseNamesAsync.hasValue &&
+                    widget.billData != null &&
+                    _isControllersInitialized) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _updateDisplayControllers(
+                      types,
+                      franchiseNamesAsync.value!,
+                      doctorsAsync.value!,
+                    );
+                  });
+                }
+
                 return _buildPopupMenuField<DiagnosisType>(
                   label: 'Diagnosis Type',
                   controller: diagnosisTypeDisplayController,
@@ -1134,8 +1158,11 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       'patient_age': int.parse(patientAgeController.text),
       'patient_sex': patientSexController.text,
       'diagnosis_type': int.parse(diagnosisTypeController.text),
-      'franchise_name': franchiseNameController.text,
+      'franchise_name': franchiseNameController.text.isEmpty
+          ? null
+          : franchiseNameController.text,
       'referred_by_doctor': int.parse(refByDoctorController.text),
+      'center_detail': 1, // Adjust this based on your requirements
       'date_of_test': selectedTestDateISO,
       'date_of_bill': selectedBillDateISO,
       'bill_status': billStatusController.text,

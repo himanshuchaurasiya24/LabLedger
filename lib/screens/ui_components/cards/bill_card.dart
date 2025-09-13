@@ -65,13 +65,13 @@ class BillCard extends StatelessWidget {
     Color baseColor;
     switch (_paymentStatus) {
       case PaymentStatus.fullPaid:
-        baseColor = fullyPaidColor ?? Colors.teal;
+        baseColor = fullyPaidColor ?? Theme.of(context).colorScheme.secondary;
         break;
       case PaymentStatus.partiallyPaid:
         baseColor = partiallyPaidColor ?? Colors.amber;
         break;
       case PaymentStatus.unpaid:
-        baseColor = unpaidColor ?? Colors.red;
+        baseColor = unpaidColor ?? Theme.of(context).colorScheme.error;
         break;
     }
 

@@ -42,25 +42,27 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
 
     try {
       setState(() => tileText = "Verifying app version...");
-      final requiredVersionString = await AuthRepository.instance.fetchMinimumAppVersion();
+      final requiredVersionString = await AuthRepository.instance
+          .fetchMinimumAppVersion();
       final currentVersion = Version.parse(appVersion);
       final requiredVersion = Version.parse(requiredVersionString);
 
       if (currentVersion < requiredVersion) {
         // If version is outdated, navigate to the dedicated update screen.
-        _navigateTo(UpdateRequiredScreen(requiredVersion: requiredVersionString));
+        _navigateTo(
+          UpdateRequiredScreen(requiredVersion: requiredVersionString),
+        );
         return;
       }
 
       setState(() => tileText = "Verifying session...");
       // If version is OK, try to verify the user's session.
       final authResponse = await ref.read(verifyAuthProvider.future);
-      
+
       // If session is valid, go to the home screen.
       setState(() => tileText = "Authentication successful!");
       await Future.delayed(const Duration(milliseconds: 1000));
-      _navigateTo(HomeScreen(authResponse: authResponse,));
-
+      _navigateTo(HomeScreen(authResponse: authResponse));
     } on AuthException catch (e) {
       // If any auth error occurs (expired token, locked account), go to the login screen
       // with a clear message explaining why.
@@ -68,7 +70,11 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     } catch (e) {
       // For any other error (e.g., network failure during version check),
       // go to the login screen with a generic error message.
-      _navigateTo(const LoginScreen(initialErrorMessage: "Network error. Please check your connection."));
+      _navigateTo(
+        const LoginScreen(
+          initialErrorMessage: "Network error. Please check your connection.",
+        ),
+      );
     }
   }
 
@@ -91,7 +97,13 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            appIconName(context: context, firstName: "Lab", secondName: "Ledger", fontSize: 100, alignment: MainAxisAlignment.center),
+            appIconName(
+              context: context,
+              firstName: "Lab",
+              secondName: "Ledger",
+              fontSize: 100,
+              alignment: MainAxisAlignment.center,
+            ),
             const SizedBox(width: 350, child: AnimatedLabProgressIndicator()),
             const SizedBox(height: 10),
             Text(

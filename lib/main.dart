@@ -117,6 +117,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 brightness: Brightness.light,
                 tertiary: const Color(0xFF2D2D2D), // Neutral dark text
                 tertiaryFixed: const Color(0xFFFFFFFF), // White
+                error: Colors.red
               ).copyWith(
                 surface: const Color(0xFFFDFDFD), // modern neutral bg
                 surfaceContainerHighest: const Color(
@@ -167,6 +168,8 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 secondary: Colors.teal,
                 tertiary: const Color(0xFFFFFFFF),
                 tertiaryFixed: const Color(0xFF121212),
+                error: Colors.red
+
               ).copyWith(
                 surface: const Color(0xFF1C1C1E),
                 surfaceContainerHighest: const Color(0xFF2A2A2C),

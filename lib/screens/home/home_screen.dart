@@ -62,7 +62,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       allowFullScreen: true,
       isInitialScreen: true,
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: widget.baseColor,
+        backgroundColor:
+            widget.baseColor ?? Theme.of(context).colorScheme.secondary,
         foregroundColor: Colors.white,
         elevation: 4.0,
         shape: RoundedRectangleBorder(
@@ -260,6 +261,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     AsyncValue<PaginatedBillsResponse> unpaidBillsAsync,
   ) {
     final accentColor = Theme.of(context).colorScheme.error;
+    // final accentColor = Colors.red;
     return unpaidBillsAsync.when(
       data: (unpaidBillsAsyncResponse) {
         return PendingBillsCard(
