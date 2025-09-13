@@ -156,7 +156,7 @@ class BillCard extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: defaultPadding,
-              vertical: defaultPadding / 4,
+              // vertical: defaultPadding,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,7 +200,7 @@ class BillCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: defaultHeight),
+                SizedBox(height: defaultHeight / 2),
                 // Patient Details Row
                 Row(
                   children: [
@@ -224,7 +224,7 @@ class BillCard extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(width: 16),
+                    SizedBox(width: defaultWidth / 2),
 
                     // Date
                     Row(
@@ -244,7 +244,7 @@ class BillCard extends StatelessWidget {
                   ],
                 ),
 
-                SizedBox(height: defaultHeight),
+                SizedBox(height: defaultHeight / 2),
 
                 // Doctor Name Row
                 Row(
@@ -269,7 +269,7 @@ class BillCard extends StatelessWidget {
                     ),
                     // Incentive Amount (if available)
                     if (bill.incentiveAmount > 0) ...[
-                      const SizedBox(height: 12),
+                      SizedBox(height: defaultHeight / 2),
                       Row(
                         children: [
                           Icon(Icons.card_giftcard, size: 16, color: textColor),
@@ -295,7 +295,7 @@ class BillCard extends StatelessWidget {
                   ],
                 ),
 
-                SizedBox(height: defaultHeight),
+                SizedBox(height: defaultHeight / 2),
 
                 // Diagnosis and Franchise Row
                 Row(
@@ -316,7 +316,7 @@ class BillCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: defaultHeight * 1.5),
+                SizedBox(height: defaultHeight / 2),
 
                 // Amount Information Row
                 Row(

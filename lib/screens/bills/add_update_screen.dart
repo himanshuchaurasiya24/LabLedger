@@ -196,7 +196,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         child: Column(
           children: [
             _buildBillHeaderCard(isEditing, color: finalThemeColor),
-            SizedBox(height: defaultHeight * 2),
+            SizedBox(height: defaultHeight),
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -268,7 +268,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               ),
             ),
           ),
-          SizedBox(width: defaultWidth * 2),
+          SizedBox(width: defaultWidth),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,7 +292,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                         : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
-                SizedBox(height: defaultHeight),
+                SizedBox(height: defaultHeight / 2),
                 Row(
                   children: [
                     _buildStatusBadge(
@@ -300,7 +300,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                       color,
                     ),
                     if (isEditing) ...[
-                      const SizedBox(width: 8),
+                      SizedBox(width: defaultWidth / 2),
                       _buildStatusBadge(
                         widget.billData?.billStatus ?? 'Unknown',
                         _getStatusColor(widget.billData?.billStatus),
@@ -344,7 +344,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                 ),
               ),
               if (isEditing) ...[
-                SizedBox(height: defaultHeight),
+                SizedBox(height: defaultHeight / 2),
                 OutlinedButton.icon(
                   onPressed: () => _deleteBill(widget.billData!.id!),
 
@@ -447,19 +447,19 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
           child: Column(
             children: [
               _buildPatientDetailsCard(defaultColor: color),
-              SizedBox(height: defaultHeight * 2),
+              SizedBox(height: defaultHeight),
               _buildDiagnosisDetailsCard(defaultColor: color),
               const Spacer(), // Pushes cards up
             ],
           ),
         ),
-        SizedBox(width: defaultWidth * 2),
+        SizedBox(width: defaultWidth),
         // Right Column
         Expanded(
           child: Column(
             children: [
               _buildBillingDetailsCard(defaultColor: color),
-              SizedBox(height: defaultHeight * 2),
+              SizedBox(height: defaultHeight),
               // The Amount card is conditionally visible
               AnimatedSize(
                 duration: const Duration(milliseconds: 400),
@@ -483,21 +483,21 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       children: [
         // Tab 1: Patient
         SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(defaultPadding),
           child: _buildPatientDetailsCard(defaultColor: color, height: 254),
         ),
         // Tab 2: Diagnosis
         SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(defaultPadding),
           child: _buildDiagnosisDetailsCard(defaultColor: color, height: 318),
         ),
         // Tab 3: Billing & Amount combined
         SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(defaultPadding),
           child: Column(
             children: [
               _buildBillingDetailsCard(defaultColor: color, height: 254),
-              SizedBox(height: defaultHeight * 2),
+              SizedBox(height: defaultHeight),
               AnimatedSize(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeInOutCubic,
@@ -538,14 +538,14 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               icon: Icons.person_outline,
               title: 'Patient Details',
             ),
-            SizedBox(height: defaultHeight * 2),
+            SizedBox(height: defaultHeight),
             CustomTextField(
               label: 'Patient Name',
               controller: patientNameController,
               isRequired: true,
               tintColor: color,
             ),
-            SizedBox(height: defaultHeight * 2),
+            SizedBox(height: defaultHeight),
             Row(
               children: [
                 Expanded(
@@ -560,7 +560,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                     validator: (v) => v!.isEmpty ? 'Please select sex' : null,
                   ),
                 ),
-                SizedBox(width: defaultWidth),
+                SizedBox(width: defaultWidth / 2),
                 Expanded(
                   child: CustomTextField(
                     label: 'Age',
@@ -607,13 +607,14 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               icon: Icons.medical_services_outlined,
               title: 'Diagnosis Details',
             ),
-            SizedBox(height: defaultHeight * 2),
+            SizedBox(height: defaultHeight),
             diagnosisTypesAsync.when(
               data: (types) {
                 if (doctorsAsync.hasValue &&
                     franchiseNamesAsync.hasValue &&
                     widget.billData != null &&
-                    _isControllersInitialized) {
+                    _isControllersInitialized &&
+                    diagnosisTypeDisplayController.text.isEmpty) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _updateDisplayControllers(
                       types,
@@ -635,7 +636,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                       _selectedDiagnosisType = selected;
                       diagnosisTypeController.text = selected.id.toString();
                       diagnosisTypeDisplayController.text =
-                          '${selected.category} ${selected.name}';
+                          '${selected.category} ${selected.name}, ₹${selected.price}';
                       if (selected.category != 'Franchise Lab') {
                         _selectedFranchise = null;
                         franchiseNameController.clear();
@@ -651,12 +652,12 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               error: (e, s) =>
                   _buildErrorField('Error loading diagnosis types'),
             ),
-            SizedBox(height: defaultHeight * 2),
+            SizedBox(height: defaultHeight),
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               child: _selectedDiagnosisType?.category == 'Franchise Lab'
                   ? Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
+                      padding: EdgeInsets.only(bottom: defaultPadding),
                       child: franchiseNamesAsync.when(
                         data: (franchises) => _buildPopupMenuField<FranchiseName>(
                           label: 'Franchise Name',
@@ -737,7 +738,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               icon: Icons.receipt_long,
               title: 'Billing Details',
             ),
-            SizedBox(height: defaultHeight * 2),
+            SizedBox(height: defaultHeight),
             Row(
               children: [
                 Expanded(
@@ -750,7 +751,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                         v!.isEmpty ? 'Test date is required' : null,
                   ),
                 ),
-                SizedBox(width: defaultWidth),
+                SizedBox(width: defaultWidth / 2),
                 Expanded(
                   child: _buildDateSelector(
                     label: 'Date of Bill',
@@ -763,7 +764,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                 ),
               ],
             ),
-            SizedBox(height: defaultHeight * 2),
+            SizedBox(height: defaultHeight),
             _buildPopupMenuField<String>(
               label: 'Bill Status',
               controller: billStatusController,
@@ -804,7 +805,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               icon: Icons.payments_rounded,
               title: 'Amount Details',
             ),
-            SizedBox(height: defaultHeight * 2),
+            SizedBox(height: defaultHeight),
             CustomTextField(
               label: 'Paid Amount',
               controller: paidAmountController,
@@ -814,7 +815,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               isNumeric: true,
               tintColor: color,
             ),
-            SizedBox(height: defaultHeight * 2),
+            SizedBox(height: defaultHeight),
             Row(
               children: [
                 Expanded(
@@ -827,7 +828,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                     isNumeric: true,
                   ),
                 ),
-                SizedBox(width: 16),
+                SizedBox(width: defaultWidth),
                 Expanded(
                   child: CustomTextField(
                     label: "Center's Discount",
@@ -875,7 +876,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: defaultWidth / 2),
           Text(
             title,
             style: theme.textTheme.titleMedium?.copyWith(
@@ -1046,15 +1047,15 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         color: Theme.of(
           context,
         ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       ),
-      child: const Center(
+      child: Center(
         child: SizedBox(
-          width: 20,
-          height: 20,
+          width: defaultWidth,
+          height: defaultHeight,
           child: CircularProgressIndicator(strokeWidth: 2),
         ),
       ),
@@ -1065,7 +1066,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     final theme = Theme.of(context);
     return Container(
       height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: defaultPadding),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: theme.colorScheme.errorContainer.withValues(alpha: 0.2),
@@ -1082,7 +1083,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               color: theme.colorScheme.error,
               size: 20,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: defaultWidth),
             Expanded(
               child: Text(
                 message,
@@ -1115,10 +1116,13 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
 
   Widget _buildStatusBadge(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: defaultPadding / 0.75,
+        vertical: defaultPadding / 3,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
@@ -1254,7 +1258,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   : Icons.error,
               color: Colors.white,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: defaultWidth / 2),
             Expanded(child: Text(message)),
           ],
         ),
@@ -1323,7 +1327,7 @@ class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(defaultPadding),
             child: TextField(
               onChanged: _filterItems,
               autofocus: true,
@@ -1331,16 +1335,16 @@ class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>> {
                 hintText: 'Search...',
                 prefixIcon: Icon(Icons.search, size: 18, color: widget.color),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 12,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: defaultHeight / 2,
+                  horizontal: defaultWidth / 2,
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(defaultRadius),
                   borderSide: BorderSide(color: widget.menuBorderColor),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(defaultRadius),
                   borderSide: BorderSide(color: widget.color, width: 1.5),
                 ),
               ),

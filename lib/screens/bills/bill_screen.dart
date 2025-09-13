@@ -30,7 +30,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   String _selectedView = 'grid'; // default view
   Timer? _debounce;
-  double aspectRatio = 2.0;
 
   @override
   void initState() {
@@ -209,6 +208,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   Widget build(BuildContext context) {
     final asyncResponse = ref.watch(paginatedBillsProvider);
     final currentQuery = ref.watch(currentSearchQueryProvider);
+    final size = MediaQuery.of(context).size;
 
     const Color positiveColor = Colors.teal;
     const Color negativeColor = Colors.red;
@@ -346,7 +346,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                     ...groupedBills.entries.map((entry) {
                       final category = entry.key;
                       final categoryBills = entry.value;
-
                       final headerTitle = isSearching
                           ? 'Search Results for: "$currentQuery"'
                           : category; // "Bills List"
@@ -363,7 +362,9 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 4,
-                                    childAspectRatio: aspectRatio,
+                                    childAspectRatio: size.width > 1600
+                                        ? 2.4
+                                        : 2.0,
                                     crossAxisSpacing: defaultWidth,
                                     mainAxisSpacing: defaultHeight,
                                   ),

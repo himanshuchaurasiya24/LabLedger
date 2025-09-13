@@ -178,7 +178,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(isDark, colors.accent, colors.text),
-          SizedBox(height: defaultHeight),
+          SizedBox(height: defaultHeight / 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -359,7 +359,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
                     ],
                   ),
                 ),
-                SizedBox(width: defaultWidth),
+                SizedBox(width: defaultWidth / 2),
                 Text(
                   "$value",
                   style: TextStyle(
@@ -394,7 +394,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
           ),
           child: Icon(icon, color: textColor, size: 32),
         ),
-        SizedBox(width: defaultWidth),
+        SizedBox(width: defaultWidth / 2),
         Column(
           crossAxisAlignment: crossAxisAlignment,
           mainAxisAlignment: MainAxisAlignment.center,

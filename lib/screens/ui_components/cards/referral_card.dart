@@ -111,9 +111,7 @@ class _ReferralCardState extends State<ReferralCard> {
       alignment: Alignment.bottomCenter,
       children: [
         SizedBox(
-          // NEW: Use a reasonable minimum height for the card
           height: tintedContainerHeight,
-          // width: widget.width ?? double.infinity,
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (index) {
@@ -220,7 +218,7 @@ class _ReferralCardState extends State<ReferralCard> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: defaultHeight / 2),
 
           /// Totals
           // CHANGED: This entire Row is now responsive
@@ -241,7 +239,7 @@ class _ReferralCardState extends State<ReferralCard> {
               ),
             ],
           ),
-          SizedBox(height: defaultHeight),
+          SizedBox(height: defaultHeight / 2),
 
           /// Breakdown
           Text(
@@ -251,7 +249,7 @@ class _ReferralCardState extends State<ReferralCard> {
               color: importantTextColor,
             ),
           ),
-          SizedBox(height: defaultHeight),
+          SizedBox(height: defaultHeight / 2),
 
           /// Breakdown List
           Expanded(
@@ -343,7 +341,7 @@ class _ReferralCardState extends State<ReferralCard> {
           ),
           child: Icon(icon, color: importantTextColor, size: 40),
         ),
-        SizedBox(width: defaultWidth),
+        SizedBox(width: defaultWidth / 2),
         Column(
           crossAxisAlignment: crossAxisAlignment,
           mainAxisAlignment: MainAxisAlignment.center,

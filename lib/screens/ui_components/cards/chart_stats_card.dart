@@ -93,7 +93,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
                 ),
               ],
             ),
-            SizedBox(height: defaultHeight),
+            SizedBox(height: defaultHeight / 2),
 
             // Total Bills
             _buildInfoTile(
@@ -102,7 +102,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
               totalBills.toString(),
               CrossAxisAlignment.start,
             ),
-            SizedBox(height: defaultHeight),
+            SizedBox(height: defaultHeight / 2),
 
             // Breakdown
             Text(
@@ -112,7 +112,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
                 color: importantTextColor,
               ),
             ),
-            SizedBox(height: defaultHeight),
+            SizedBox(height: defaultHeight / 2),
 
             // NEW: Use Column instead of mapping directly for better performance in a scroll view
             Column(

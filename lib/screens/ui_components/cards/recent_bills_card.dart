@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/screens/bills/add_update_screen.dart';
@@ -61,18 +62,18 @@ class RecentBillsCard extends StatelessWidget {
         children: [
           // --- Enhanced Header ---
           Container(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: EdgeInsets.only(bottom: defaultPadding),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
                     color: baseColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.history, color: baseColor, size: 20),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: defaultWidth / 2),
                 Text(
                   'Recent Bills',
                   style: theme.textTheme.titleLarge?.copyWith(
@@ -129,7 +130,7 @@ class RecentBillsCard extends StatelessWidget {
               color: baseColor.withValues(alpha: 0.6),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: defaultHeight / 2),
           Text(
             'No recent bills',
             style: theme.textTheme.titleMedium?.copyWith(
@@ -177,7 +178,7 @@ class RecentBillsCard extends StatelessWidget {
                 radius: 20,
                 child: Icon(statusInfo.icon, color: statusInfo.color, size: 20),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: defaultWidth),
 
               // --- Bill Details (Left Side) ---
               Expanded(
@@ -270,7 +271,7 @@ Widget buildRecentBillsCard(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: defaultWidth / 2),
               Container(
                 width: 100,
                 height: 20,
@@ -281,7 +282,7 @@ Widget buildRecentBillsCard(
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: defaultHeight),
           // Content shimmer
           Expanded(
             child: Center(
@@ -301,12 +302,12 @@ Widget buildRecentBillsCard(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.error_outline_rounded, color: errorColor, size: 32),
-          const SizedBox(height: 12),
+          SizedBox(height: defaultHeight / 2),
           Text(
             "Failed to load bills",
             style: TextStyle(color: errorColor, fontWeight: FontWeight.w500),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: defaultHeight / 2),
           Text(
             "Tap to retry",
             style: TextStyle(

@@ -30,7 +30,7 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
             // Original layout and spacing are preserved.
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
-              childAspectRatio: size.width > initialWindowWidth ? 2.8 : 2.3,
+              childAspectRatio: size.width > initialWindowWidth ? 2.7 : 2.3,
               crossAxisSpacing: defaultWidth,
               mainAxisSpacing: defaultHeight,
             ),

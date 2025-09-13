@@ -96,7 +96,7 @@ class PendingBillsCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: defaultHeight / 2),
 
           // Bills List
           Expanded(
@@ -112,7 +112,7 @@ class PendingBillsCard extends StatelessWidget {
                             context,
                           ).withValues(alpha: 0.7),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: defaultHeight / 2),
                         Text(
                           "All bills cleared!", // Changed Text
                           style: TextStyle(
@@ -130,7 +130,7 @@ class PendingBillsCard extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     itemCount: pendingBillsToShow.length,
                     separatorBuilder: (context, index) =>
-                        SizedBox(height: defaultHeight),
+                        SizedBox(height: defaultHeight / 2),
                     itemBuilder: (context, index) {
                       final bill = pendingBillsToShow[index];
                       return _buildBillItem(context, bill, index);
@@ -181,7 +181,7 @@ class PendingBillsCard extends StatelessWidget {
                     size: 28,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: defaultWidth / 2),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,7 +207,7 @@ class PendingBillsCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: defaultWidth / 2),
                 Text(
                   "₹${bill.totalAmount}",
                   style: TextStyle(
@@ -218,7 +218,7 @@ class PendingBillsCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: defaultHeight / 2),
             Wrap(
               spacing: 8,
               runSpacing: 8,
