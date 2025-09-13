@@ -20,6 +20,8 @@ class WindowScaffold extends StatefulWidget {
   final double? spaceAfterRow;
   final Widget? floatingActionButton;
   final bool enableSlideTransition;
+  final Color? baseColor;
+  final Color? primaryColor;
 
   const WindowScaffold({
     super.key,
@@ -30,7 +32,10 @@ class WindowScaffold extends StatefulWidget {
     this.allowFullScreen = true,
     this.isInitialScreen = false,
     this.spaceAfterRow,
-    this.enableSlideTransition = true, this.floatingActionButton,
+    this.enableSlideTransition = true,
+    this.floatingActionButton,
+    this.baseColor,
+    this.primaryColor,
   });
 
   @override
@@ -193,6 +198,10 @@ class _WindowScaffoldState extends State<WindowScaffold>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor =
+        widget.baseColor ?? Theme.of(context).colorScheme.secondary;
+    final primaryColor =
+        widget.primaryColor ?? Theme.of(context).colorScheme.primary;
     return KeyboardListener(
       focusNode: focusNode,
       autofocus: true,
@@ -274,6 +283,8 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                       context: context,
                                       firstName: "Lab",
                                       secondName: "Ledger",
+                                      primaryColor: primaryColor,
+                                      secondaryColor: baseColor,
                                       fontSize: 35,
                                     ),
                             ),

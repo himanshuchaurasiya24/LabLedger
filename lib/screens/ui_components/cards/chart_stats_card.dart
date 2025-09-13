@@ -70,65 +70,63 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     final maxValue = calculatedMaxValue > 0 ? calculatedMaxValue : 1;
 
     // NEW: Set a minimum height for the card
-    return SizedBox(
+    return TintedContainer(
       height: widget.height ?? 302,
-      child: TintedContainer(
-        baseColor: widget.baseColor,
-        // CHANGED: Make the card's content scrollable
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                children: [
-                  _buildBadge(context, isDark),
-                  const SizedBox(width: 8), // Add a gap
-                  Expanded(
-                    // NEW: Make the title flexible
-                    child: Text(
-                      widget.title,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: importantTextColor,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.end, // Align to the right
+      baseColor: widget.baseColor,
+      // CHANGED: Make the card's content scrollable
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                _buildBadge(context, isDark),
+                const SizedBox(width: 8), // Add a gap
+                Expanded(
+                  // NEW: Make the title flexible
+                  child: Text(
+                    widget.title,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: importantTextColor,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end, // Align to the right
                   ),
-                ],
-              ),
-              SizedBox(height: defaultHeight),
-
-              // Total Bills
-              _buildInfoTile(
-                Icons.receipt_long,
-                "Total Bills",
-                totalBills.toString(),
-                CrossAxisAlignment.start,
-              ),
-              SizedBox(height: defaultHeight),
-
-              // Breakdown
-              Text(
-                "Breakdown",
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: importantTextColor,
                 ),
-              ),
-              SizedBox(height: defaultHeight),
+              ],
+            ),
+            SizedBox(height: defaultHeight),
 
-              // NEW: Use Column instead of mapping directly for better performance in a scroll view
-              Column(
-                children: [
-                  for (final entry in breakdown.entries)
-                    _buildBreakdownRow(entry, maxValue),
-                ],
+            // Total Bills
+            _buildInfoTile(
+              Icons.receipt_long,
+              "Total Bills",
+              totalBills.toString(),
+              CrossAxisAlignment.start,
+            ),
+            SizedBox(height: defaultHeight),
+
+            // Breakdown
+            Text(
+              "Breakdown",
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: importantTextColor,
               ),
-            ],
-          ),
+            ),
+            SizedBox(height: defaultHeight),
+
+            // NEW: Use Column instead of mapping directly for better performance in a scroll view
+            Column(
+              children: [
+                for (final entry in breakdown.entries)
+                  _buildBreakdownRow(entry, maxValue),
+              ],
+            ),
+          ],
         ),
       ),
     );

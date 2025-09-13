@@ -59,7 +59,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       // If session is valid, go to the home screen.
       setState(() => tileText = "Authentication successful!");
       await Future.delayed(const Duration(milliseconds: 1000));
-      _navigateTo(HomeScreen(authResponse: authResponse));
+      _navigateTo(HomeScreen(authResponse: authResponse,));
 
     } on AuthException catch (e) {
       // If any auth error occurs (expired token, locked account), go to the login screen

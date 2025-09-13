@@ -14,28 +14,56 @@ final currentPageProvider = StateProvider.autoDispose<int>((ref) => 1);
 final currentSearchQueryProvider = StateProvider.autoDispose<String>(
   (ref) => '',
 );
-final paginatedUnpaidPartialBillsProvider =
-    FutureProvider.autoDispose<PaginatedBillsResponse>((ref) async {
-  final page = ref.watch(currentPageProvider);
-  final query = ref.watch(currentSearchQueryProvider);
+final latestBillsProvider = 
+    FutureProvider.autoDispose<List<Bill>>((ref) async {
 
+  // We explicitly ask for page 1 and set the page size to 10.
+  // 'page_size' is a standard parameter for Django's pagination.
   final queryParams = {
-    'page': page.toString(),
-    'unpaid_or_partial': 'true', // ✅ filter from backend
-    'ordering': '-date_of_bill', // ✅ sort by recent bills first
-    if (query.isNotEmpty) 'search': query,
+    'page': '1',
+    'page_size': '10', // Requesting only 10 items
   };
 
+  // Replace 'billsEndpoint' with your actual endpoint variable
   final uri = Uri.parse(billsEndpoint).replace(queryParameters: queryParams);
-
   final response = await AuthHttpClient.get(ref, uri.toString());
 
   if (response.statusCode == 200) {
-    return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
+    // We parse the paginated response but only care about the 'results' list.
+    final data = jsonDecode(response.body);
+    final List<dynamic> jsonList = data['results'];
+    
+    return jsonList.map((item) => Bill.fromJson(item)).toList();
   } else {
-    throw Exception("Failed to fetch unpaid/partial bills: ${response.body}");
+    throw Exception("Failed to fetch latest bills: ${response.body}");
   }
 });
+final paginatedUnpaidPartialBillsProvider =
+    FutureProvider.autoDispose<PaginatedBillsResponse>((ref) async {
+      final page = ref.watch(currentPageProvider);
+      final query = ref.watch(currentSearchQueryProvider);
+
+      final queryParams = {
+        'page': page.toString(),
+        'unpaid_or_partial': 'true', // ✅ filter from backend
+        'ordering': '-date_of_bill', // ✅ sort by recent bills first
+        if (query.isNotEmpty) 'search': query,
+      };
+
+      final uri = Uri.parse(
+        billsEndpoint,
+      ).replace(queryParameters: queryParams);
+
+      final response = await AuthHttpClient.get(ref, uri.toString());
+
+      if (response.statusCode == 200) {
+        return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
+      } else {
+        throw Exception(
+          "Failed to fetch unpaid/partial bills: ${response.body}",
+        );
+      }
+    });
 
 final paginatedBillsProvider =
     FutureProvider.autoDispose<PaginatedBillsResponse>((ref) async {

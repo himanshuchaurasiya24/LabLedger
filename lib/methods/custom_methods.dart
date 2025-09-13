@@ -197,7 +197,6 @@ Future<void> setWindowBehavior({
   });
 }
 
-
 Widget customBar({
   required BuildContext context,
   required String barText,
@@ -404,6 +403,8 @@ class SummaryCard extends StatelessWidget {
 Widget appIconName({
   required BuildContext context,
   double? fontSize,
+  Color? secondaryColor,
+  Color? primaryColor,
   required String firstName,
   required String secondName,
   MainAxisAlignment? alignment,
@@ -416,7 +417,7 @@ Widget appIconName({
         style: TextStyle(
           fontSize: fontSize ?? 40,
           fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.primary,
+          color: primaryColor ?? Theme.of(context).colorScheme.primary,
         ),
       ),
       Text(
@@ -424,7 +425,7 @@ Widget appIconName({
         style: TextStyle(
           fontSize: fontSize ?? 40,
           fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.secondary,
+          color: secondaryColor ?? Theme.of(context).colorScheme.secondary,
         ),
       ),
     ],

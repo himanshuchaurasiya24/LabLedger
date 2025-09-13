@@ -88,7 +88,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
             builder: (context) {
-              return HomeScreen(authResponse: authResponse);
+              return HomeScreen(authResponse: authResponse,);
             },
           ),
         );

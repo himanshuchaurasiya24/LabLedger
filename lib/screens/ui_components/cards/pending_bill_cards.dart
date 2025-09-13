@@ -51,101 +51,99 @@ class PendingBillsCard extends StatelessWidget {
     final pendingBillsToShow = bills.take(10).toList();
 
     // NEW: Give the card a consistent height to align with other cards
-    return SizedBox(
+    return TintedContainer(
       height: height ?? 302,
-      child: TintedContainer(
-        baseColor: baseColor,
-        width: width,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? accentFillColor(context)
-                        : importantTextColor(context),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const Text(
-                    "Pending Bills",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+      baseColor: baseColor,
+      width: width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? accentFillColor(context)
+                      : importantTextColor(context),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: const Text(
+                  "Pending Bills",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
                 ),
-                const Spacer(), // Use Spacer to push the next item to the end
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: accentFillColor(context),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    "${pendingBillsToShow.length} Bills",
-                    style: TextStyle(
-                      color: importantTextColor(context),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
+              ),
+              const Spacer(), // Use Spacer to push the next item to the end
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: accentFillColor(context),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "${pendingBillsToShow.length} Bills",
+                  style: TextStyle(
+                    color: importantTextColor(context),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
 
-            // Bills List
-            Expanded(
-              child: pendingBillsToShow.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.check_circle_outline, // Changed Icon
-                            size: 80, // Adjusted size
+          // Bills List
+          Expanded(
+            child: pendingBillsToShow.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline, // Changed Icon
+                          size: 80, // Adjusted size
+                          color: importantTextColor(
+                            context,
+                          ).withValues(alpha: 0.7),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          "All bills cleared!", // Changed Text
+                          style: TextStyle(
                             color: importantTextColor(
                               context,
                             ).withValues(alpha: 0.7),
+                            fontSize: 18, // Adjusted size
+                            fontWeight: FontWeight.w500,
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "All bills cleared!", // Changed Text
-                            style: TextStyle(
-                              color: importantTextColor(
-                                context,
-                              ).withValues(alpha: 0.7),
-                              fontSize: 18, // Adjusted size
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.separated(
-                      padding: EdgeInsets.zero,
-                      itemCount: pendingBillsToShow.length,
-                      separatorBuilder: (context, index) =>
-                          SizedBox(height: defaultHeight),
-                      itemBuilder: (context, index) {
-                        final bill = pendingBillsToShow[index];
-                        return _buildBillItem(context, bill, index);
-                      },
+                        ),
+                      ],
                     ),
-            ),
-          ],
-        ),
+                  )
+                : ListView.separated(
+                    padding: EdgeInsets.zero,
+                    itemCount: pendingBillsToShow.length,
+                    separatorBuilder: (context, index) =>
+                        SizedBox(height: defaultHeight),
+                    itemBuilder: (context, index) {
+                      final bill = pendingBillsToShow[index];
+                      return _buildBillItem(context, bill, index);
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }

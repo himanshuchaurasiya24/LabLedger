@@ -117,7 +117,7 @@ class _ReferralCardState extends State<ReferralCard> {
         SizedBox(
           // NEW: Use a reasonable minimum height for the card
           height: widget.height ?? 302,
-          width: widget.width ?? double.infinity,
+          // width: widget.width ?? double.infinity,
           child: PageView.builder(
             controller: _pageController,
             onPageChanged: (index) {
