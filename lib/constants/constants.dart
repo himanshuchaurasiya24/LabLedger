@@ -8,4 +8,4 @@ final double defaultWidth = 20;
 final double initialWindowWidth = 1600;
 final double initialWindowHeight = 900;
 final double minimalBorderRadius = 6;
-final double tintedContainerHeight = 302;
+final double tintedContainerHeight = 304;

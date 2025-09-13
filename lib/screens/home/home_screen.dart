@@ -20,7 +20,7 @@ import 'package:labledger/screens/incentives/incentive_generation_screen.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/profile/user_list_screen.dart';
 import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
-import 'package:labledger/screens/ui_components/cards/latest_bills_card.dart';
+import 'package:labledger/screens/ui_components/cards/recent_bills_card.dart';
 import 'package:labledger/screens/ui_components/cards/pending_bill_cards.dart';
 import 'package:labledger/screens/ui_components/cards/referral_card.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
@@ -561,7 +561,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final Color errorColor = Theme.of(context).colorScheme.error;
     return recentBillsAsync.when(
       data: (bills) {
-        return LatestBillsCard(bills: bills, baseColor: accentColor);
+        return RecentBillsCard(bills: bills, baseColor: accentColor);
       },
       // --- Loading and Error States ---
       loading: () => TintedContainer(

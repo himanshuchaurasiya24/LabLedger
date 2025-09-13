@@ -5,8 +5,8 @@ import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/screens/bills/add_update_screen.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
-class LatestBillsCard extends StatelessWidget {
-  const LatestBillsCard({
+class RecentBillsCard extends StatelessWidget {
+  const RecentBillsCard({
     super.key,
     required this.baseColor,
     required this.bills,
@@ -74,7 +74,7 @@ class LatestBillsCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Latest Bills',
+                  'Recent Bills',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface,
@@ -242,17 +242,17 @@ class LatestBillsCard extends StatelessWidget {
 }
 
 // Enhanced builder function
-Widget buildLatestBillsCard(
-  AsyncValue<List<Bill>> latestBillsAsync,
+Widget buildRecentBillsCard(
+  AsyncValue<List<Bill>> recentBillsAsync,
   Color? baseColor,
   BuildContext context,
 ) {
   final Color accentColor = baseColor ?? Theme.of(context).colorScheme.primary;
   final Color errorColor = Theme.of(context).colorScheme.error;
 
-  return latestBillsAsync.when(
+  return recentBillsAsync.when(
     data: (bills) {
-      return LatestBillsCard(bills: bills, baseColor: accentColor);
+      return RecentBillsCard(bills: bills, baseColor: accentColor);
     },
     loading: () => TintedContainer(
       baseColor: accentColor,
