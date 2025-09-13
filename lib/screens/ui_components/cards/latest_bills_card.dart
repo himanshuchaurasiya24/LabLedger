@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/bill_model.dart';
-import 'package:labledger/screens/bill/add_update_screen.dart';
+import 'package:labledger/screens/bills/add_update_screen.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class LatestBillsCard extends StatelessWidget {

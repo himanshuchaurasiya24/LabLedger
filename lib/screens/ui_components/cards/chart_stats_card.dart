@@ -9,16 +9,12 @@ class ChartStatsCard extends StatefulWidget {
   final String title;
   final List<ChartData> data;
   final Color baseColor;
-  final double? height;
-  final double? width;
 
   const ChartStatsCard({
     super.key,
     required this.title,
     required this.data,
     required this.baseColor,
-    this.height,
-    this.width,
   });
 
   @override
@@ -71,7 +67,6 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
 
     // NEW: Set a minimum height for the card
     return TintedContainer(
-      height: widget.height ?? 302,
       baseColor: widget.baseColor,
       // CHANGED: Make the card's content scrollable
       child: SingleChildScrollView(

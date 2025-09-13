@@ -8,7 +8,7 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/bills_provider.dart';
-import 'package:labledger/screens/bill/add_update_screen.dart';
+import 'package:labledger/screens/bills/add_update_screen.dart';
 import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
 import 'package:labledger/screens/ui_components/cards/bill_card.dart';
@@ -253,7 +253,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
             Visibility(
               visible: currentQuery.isEmpty,
               child: Container(
-                height: 310,
+                height: tintedContainerHeight,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(defaultRadius),

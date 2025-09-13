@@ -142,13 +142,12 @@ class _BillStatsCardState extends State<BillStatsCard> {
                 title: "Previous Period",
                 data: [chartDataObject],
                 baseColor: baseColor,
-                height: 350,
               );
             }
           },
         ),
         Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
+          padding: EdgeInsets.only(bottom: defaultPadding),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -179,7 +178,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(isDark, colors.accent, colors.text),
-          const SizedBox(height: 12),
+          SizedBox(height: defaultHeight),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

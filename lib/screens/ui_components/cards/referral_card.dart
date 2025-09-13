@@ -11,15 +11,11 @@ class ReferralCard extends StatefulWidget {
     super.key,
     required this.referrals,
     required this.selectedPeriod,
-    this.width,
-    this.height,
     required this.baseColor,
   });
 
   final List<ReferralStat> referrals;
   final String selectedPeriod;
-  final double? width;
-  final double? height;
   final Color baseColor;
 
   @override
@@ -116,7 +112,7 @@ class _ReferralCardState extends State<ReferralCard> {
       children: [
         SizedBox(
           // NEW: Use a reasonable minimum height for the card
-          height: widget.height ?? 302,
+          height: tintedContainerHeight,
           // width: widget.width ?? double.infinity,
           child: PageView.builder(
             controller: _pageController,

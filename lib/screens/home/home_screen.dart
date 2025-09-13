@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/auth_response_model.dart';
@@ -10,8 +11,12 @@ import 'package:labledger/models/referral_and_bill_chart_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/secure_storage_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
-import 'package:labledger/screens/bill/add_update_screen.dart';
-import 'package:labledger/screens/bill/bill_screen.dart';
+import 'package:labledger/screens/bills/add_update_screen.dart';
+import 'package:labledger/screens/bills/bill_screen.dart';
+import 'package:labledger/screens/diagnosis_types/diagnosis_types_list_screen.dart';
+import 'package:labledger/screens/doctors/doctors_list_screen.dart';
+import 'package:labledger/screens/franchise_labs/franchise_labs_list_screen.dart';
+import 'package:labledger/screens/incentives/incentive_generation_screen.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/profile/user_list_screen.dart';
 import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
@@ -55,7 +60,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final baseColor =
         widget.baseColor ?? Theme.of(context).colorScheme.secondary;
     final unpaidBillsAsync = ref.watch(paginatedUnpaidPartialBillsProvider);
-    final latestBillAsync = ref.watch(latestBillsProvider);
+    final recentBillsAsync = ref.watch(latestBillsProvider);
     const double cardBreakpoint = 1100.0;
 
     return WindowScaffold(
@@ -195,29 +200,71 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: _buildLatestBillsCard(
-                          latestBillAsync,
+                        child: _buildRecentBillsCard(
+                          recentBillsAsync,
                           baseColor,
                         ),
                       ),
                       SizedBox(width: defaultWidth),
                       Expanded(
-                        child: _buildLatestBillsCard(
-                          latestBillAsync,
-                          baseColor,
+                        child: _buildOptionColumn(
+                          baseColor: baseColor,
+                          firstIcon: FontAwesomeIcons.userDoctor,
+                          secondIcon: FontAwesomeIcons.buildingColumns,
+                          firstLabel: "Doctors",
+                          secondLabel: "Franchise Labs",
+                          firstOnTap: () {
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return DoctorsListScreen();
+                                },
+                              ),
+                            );
+                          },
+                          secondOnTap: () {
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return FranchiseLabScreen();
+                                },
+                              ),
+                            );
+                          },
                         ),
                       ),
                       SizedBox(width: defaultWidth),
                       Expanded(
-                        child: _buildLatestBillsCard(
-                          latestBillAsync,
-                          baseColor,
+                        child: _buildOptionColumn(
+                          baseColor: baseColor,
+                          firstIcon: FontAwesomeIcons.microscope,
+                          secondIcon: Icons.currency_rupee_rounded,
+                          firstLabel: "Diagnosis Types",
+                          secondLabel: "Incentives",
+                          firstOnTap: () {
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return DiagnosisTypesListScreen();
+                                },
+                              ),
+                            );
+                          },
+                          secondOnTap: () {
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return IncentiveGenerationScreen();
+                                },
+                              ),
+                            );
+                          },
                         ),
                       ),
                       SizedBox(width: defaultWidth),
                       Expanded(
-                        child: _buildLatestBillsCard(
-                          latestBillAsync,
+                        child: _buildRecentBillsCard(
+                          recentBillsAsync,
                           baseColor,
                         ),
                       ),
@@ -226,14 +273,61 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 } else {
                   return Column(
                     children: [
-                      _buildLatestBillsCard(latestBillAsync, baseColor),
+                      _buildRecentBillsCard(recentBillsAsync, baseColor),
                       SizedBox(height: defaultHeight),
-                      _buildLatestBillsCard(latestBillAsync, baseColor),
+                      _buildOptionColumn(
+                        baseColor: baseColor,
+                        firstIcon: FontAwesomeIcons.userDoctor,
+                        secondIcon: FontAwesomeIcons.buildingColumns,
+                        firstLabel: "Doctors",
+                        secondLabel: "Franchise Labs",
+                        firstOnTap: () {
+                          navigatorKey.currentState?.push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return DoctorsListScreen();
+                              },
+                            ),
+                          );
+                        },
+                        secondOnTap: () {
+                          navigatorKey.currentState?.push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return FranchiseLabScreen();
+                              },
+                            ),
+                          );
+                        },
+                      ),
                       SizedBox(height: defaultHeight),
-                      _buildLatestBillsCard(latestBillAsync, baseColor),
-
+                      _buildOptionColumn(
+                        baseColor: baseColor,
+                        firstIcon: FontAwesomeIcons.microscope,
+                        secondIcon: Icons.currency_rupee_outlined,
+                        firstLabel: "Diagnosis Types",
+                        secondLabel: "Incentives",
+                        firstOnTap: () {
+                          navigatorKey.currentState?.push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return DiagnosisTypesListScreen();
+                              },
+                            ),
+                          );
+                        },
+                        secondOnTap: () {
+                          navigatorKey.currentState?.push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return IncentiveGenerationScreen();
+                              },
+                            ),
+                          );
+                        },
+                      ),
                       SizedBox(height: defaultHeight),
-                      _buildLatestBillsCard(latestBillAsync, baseColor),
+                      _buildRecentBillsCard(recentBillsAsync, baseColor),
                     ],
                   );
                 }
@@ -242,6 +336,75 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildOptionColumn({
+    required Color? baseColor,
+    required IconData firstIcon,
+    required IconData secondIcon,
+    required String firstLabel,
+    required String secondLabel,
+    required VoidCallback firstOnTap,
+    required VoidCallback secondOnTap,
+  }) {
+    final accentColor = baseColor ?? Theme.of(context).colorScheme.secondary;
+    return Column(
+      children: [
+        InkWell(
+          onTap: firstOnTap,
+          child: TintedContainer(
+            height: (tintedContainerHeight / 2 - defaultHeight / 2),
+            baseColor: accentColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Icon(firstIcon, color: accentColor, size: 50),
+                Text(
+                  firstLabel,
+                  style: TextStyle(
+                    color: accentColor,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_outlined,
+                  color: accentColor,
+                  size: 30,
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: defaultHeight),
+        InkWell(
+          onTap: secondOnTap,
+          child: TintedContainer(
+            height: (tintedContainerHeight / 2 - defaultHeight / 2),
+            baseColor: accentColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Icon(secondIcon, color: accentColor, size: 50),
+                Text(
+                  secondLabel,
+                  style: TextStyle(
+                    color: accentColor,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_outlined,
+                  color: accentColor,
+                  size: 30,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -388,15 +551,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   /// Builds a card that displays a list of the latest bills.
-  Widget _buildLatestBillsCard(
-    AsyncValue<List<Bill>> latestBillsAsync,
+  Widget _buildRecentBillsCard(
+    AsyncValue<List<Bill>> recentBillsAsync,
     Color? baseColor,
   ) {
     // A way to get context if needed
     final Color accentColor =
         baseColor ?? Theme.of(context).colorScheme.secondary;
     final Color errorColor = Theme.of(context).colorScheme.error;
-    return latestBillsAsync.when(
+    return recentBillsAsync.when(
       data: (bills) {
         return LatestBillsCard(bills: bills, baseColor: accentColor);
       },

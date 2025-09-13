@@ -12,3 +12,4 @@ final double initialWindowHeight = 900;
 final double minimalBorderRadius = 6;
 final Color lightTextFieldFillColor = Color.fromARGB(255, 240, 240, 240);
 final Color darkTextFieldFillColor = Color(0xFF020711);
+final double tintedContainerHeight = 302;

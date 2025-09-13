@@ -138,7 +138,7 @@ class TintedContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: height ?? 302,
+      height: height ?? tintedContainerHeight,
       width: width,
       padding: disablePadding ? null : EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(

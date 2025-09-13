@@ -10,15 +10,11 @@ class PendingBillsCard extends StatelessWidget {
     super.key,
     required this.bills,
     required this.baseColor,
-    this.height,
-    this.width,
     this.onBillTap,
   });
 
   final List<Bill> bills;
   final Color baseColor;
-  final double? height;
-  final double? width;
   final Function(Bill bill)? onBillTap;
 
   Color backgroundColor(BuildContext context) {
@@ -52,9 +48,7 @@ class PendingBillsCard extends StatelessWidget {
 
     // NEW: Give the card a consistent height to align with other cards
     return TintedContainer(
-      height: height ?? 302,
       baseColor: baseColor,
-      width: width,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
