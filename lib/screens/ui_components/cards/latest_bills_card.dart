@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/screens/bill/add_update_screen.dart';
@@ -10,56 +11,85 @@ class LatestBillsCard extends StatelessWidget {
     required this.baseColor,
     required this.bills,
   });
+
   final Color baseColor;
   final List<Bill> bills;
-  // Helper to get a corresponding icon and color for the bill status
-  ({IconData icon, Color color}) _getStatusIcon(
+
+  // Enhanced status icon with consistent color theming
+  ({IconData icon, Color color, String label}) _getStatusInfo(
     String status,
     BuildContext context,
   ) {
     switch (status.toLowerCase()) {
       case 'fully paid':
-        return (icon: Icons.check_circle, color: baseColor);
+        return (
+          icon: Icons.check_circle_rounded,
+          color: baseColor, // Use base color for fully paid
+          label: 'Paid',
+        );
       case 'unpaid':
-        return (icon: Icons.error, color: Theme.of(context).colorScheme.error);
-      case 'partially paid': // Assuming you might have this status
-        return (icon: Icons.hourglass_bottom, color: Colors.orange.shade700);
+        return (
+          icon: Icons.error_rounded,
+          color: Colors.red.shade600, // Red for unpaid
+          label: 'Pending',
+        );
+      case 'partially paid':
+        return (
+          icon: Icons.hourglass_bottom_rounded,
+          color: Colors.amber.shade700, // Amber for partially paid
+          label: 'Partial',
+        );
       default:
-        return (icon: Icons.receipt, color: baseColor);
+        return (
+          icon: Icons.receipt_rounded,
+          color: baseColor,
+          label: 'Unknown',
+        );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final context =
-        navigatorKey.currentContext!; // A way to get context if needed
     final theme = Theme.of(context);
+
     return TintedContainer(
       baseColor: baseColor,
+      elevationLevel: 2,
+      useGradient: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- Card Header ---
-          Row(
-            children: [
-              Icon(Icons.history, color: baseColor),
-              const SizedBox(width: 12),
-              Text(
-                'Latest Bills',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.textTheme.bodyLarge?.color,
+          // --- Enhanced Header ---
+          Container(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: baseColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.history, color: baseColor, size: 20),
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Text(
+                  'Latest Bills',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
           ),
 
-          // --- Bills List ---
+          // --- Enhanced Bills List ---
           Expanded(
             child: bills.isEmpty
-                ? const Center(child: Text('No recent bills to display.'))
-                // Use ListView.separated for dividers between items
+                ? _buildEmptyState(context)
                 : ListView.separated(
+                    padding: EdgeInsets.zero,
                     itemCount: bills.length,
                     separatorBuilder: (context, index) => Divider(
                       color: baseColor.withValues(alpha: 0.2),
@@ -67,59 +97,12 @@ class LatestBillsCard extends StatelessWidget {
                     ),
                     itemBuilder: (context, index) {
                       final bill = bills[index];
-                      final status = _getStatusIcon(bill.billStatus, context);
-
-                      return InkWell(
-                        onTap: () {
-                          navigatorKey.currentState?.push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return AddBillScreen(
-                                  themeColor: status.color,
-                                  billData: bill,
-                                );
-                              },
-                            ),
-                          );
-                        },
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 6.0,
-                            horizontal: 4.0,
-                          ),
-                          leading: CircleAvatar(
-                            backgroundColor: status.color.withValues(
-                              alpha: 0.15,
-                            ),
-                            child: Icon(
-                              status.icon,
-                              color: status.color,
-                              size: 20,
-                            ),
-                          ),
-                          title: Text(
-                            bill.patientName,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: status.color,
-                            ),
-                          ),
-                          subtitle: Text(
-                            bill.diagnosisTypeOutput!["name"], // Using the nested object
-                            style: TextStyle(
-                              color: status.color.withValues(alpha: 0.7),
-                            ),
-                          ),
-                          trailing: Text(
-                            '₹${bill.totalAmount.toStringAsFixed(0)}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: status.color,
-                            ),
-                          ),
-                        ),
+                      final statusInfo = _getStatusInfo(
+                        bill.billStatus,
+                        context,
                       );
+
+                      return _buildBillItem(context, bill, statusInfo, theme);
                     },
                   ),
           ),
@@ -127,4 +110,212 @@ class LatestBillsCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildEmptyState(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: baseColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.receipt_outlined,
+              size: 32,
+              color: baseColor.withValues(alpha: 0.6),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No recent bills',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Bills will appear here once created',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBillItem(
+    BuildContext context,
+    Bill bill,
+    ({IconData icon, Color color, String label}) statusInfo,
+    ThemeData theme,
+  ) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) =>
+                  AddBillScreen(themeColor: statusInfo.color, billData: bill),
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
+          child: Row(
+            children: [
+              // --- Status Icon ---
+              CircleAvatar(
+                backgroundColor: statusInfo.color.withValues(alpha: 0.15),
+                radius: 20,
+                child: Icon(statusInfo.icon, color: statusInfo.color, size: 20),
+              ),
+              const SizedBox(width: 12),
+
+              // --- Bill Details (Left Side) ---
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Patient Name
+                    Text(
+                      bill.patientName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: statusInfo.color,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    // Diagnosis Type
+                    Text(
+                      bill.diagnosisTypeOutput?["name"] ?? 'Unknown Test',
+                      style: TextStyle(
+                        color: statusInfo.color.withValues(alpha: 0.7),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // --- Amount (Right Side) ---
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '₹${bill.totalAmount}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: statusInfo.color,
+                    ),
+                  ),
+                  // Show pending amount for unpaid or partially paid bills
+                  if ((bill.paidAmount +
+                          bill.discByCenter +
+                          bill.discByDoctor) <
+                      bill.totalAmount)
+                    Text(
+                      '₹${bill.totalAmount - bill.paidAmount - bill.discByCenter - bill.discByDoctor} pending',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: statusInfo.color.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Enhanced builder function
+Widget buildLatestBillsCard(
+  AsyncValue<List<Bill>> latestBillsAsync,
+  Color? baseColor,
+  BuildContext context,
+) {
+  final Color accentColor = baseColor ?? Theme.of(context).colorScheme.primary;
+  final Color errorColor = Theme.of(context).colorScheme.error;
+
+  return latestBillsAsync.when(
+    data: (bills) {
+      return LatestBillsCard(bills: bills, baseColor: accentColor);
+    },
+    loading: () => TintedContainer(
+      baseColor: accentColor,
+      elevationLevel: 2,
+      child: Column(
+        children: [
+          // Header shimmer
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                width: 100,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Content shimmer
+          Expanded(
+            child: Center(
+              child: CircularProgressIndicator(
+                color: accentColor,
+                strokeWidth: 2,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+    error: (err, _) => TintedContainer(
+      baseColor: errorColor,
+      elevationLevel: 1,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline_rounded, color: errorColor, size: 32),
+          const SizedBox(height: 12),
+          Text(
+            "Failed to load bills",
+            style: TextStyle(color: errorColor, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Tap to retry",
+            style: TextStyle(
+              color: errorColor.withValues(alpha: 0.7),
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

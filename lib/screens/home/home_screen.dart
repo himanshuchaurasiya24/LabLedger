@@ -188,7 +188,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
             ),
             SizedBox(height: defaultHeight),
-            _buildLatestBillsCard(latestBillAsync, baseColor),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth > cardBreakpoint) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: _buildLatestBillsCard(
+                          latestBillAsync,
+                          baseColor,
+                        ),
+                      ),
+                      SizedBox(width: defaultWidth),
+                      Expanded(
+                        child: _buildLatestBillsCard(
+                          latestBillAsync,
+                          baseColor,
+                        ),
+                      ),
+                      SizedBox(width: defaultWidth),
+                      Expanded(
+                        child: _buildLatestBillsCard(
+                          latestBillAsync,
+                          baseColor,
+                        ),
+                      ),
+                      SizedBox(width: defaultWidth),
+                      Expanded(
+                        child: _buildLatestBillsCard(
+                          latestBillAsync,
+                          baseColor,
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  return Column(
+                    children: [
+                      _buildLatestBillsCard(latestBillAsync, baseColor),
+                      SizedBox(height: defaultHeight),
+                      _buildLatestBillsCard(latestBillAsync, baseColor),
+                      SizedBox(height: defaultHeight),
+                      _buildLatestBillsCard(latestBillAsync, baseColor),
+
+                      SizedBox(height: defaultHeight),
+                      _buildLatestBillsCard(latestBillAsync, baseColor),
+                    ],
+                  );
+                }
+              },
+            ),
           ],
         ),
       ),

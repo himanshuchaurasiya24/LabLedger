@@ -136,6 +136,8 @@ final createBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
     ref.invalidate(billGrowthStatsProvider);
     ref.invalidate(billProvider);
     ref.invalidate(paginatedBillsProvider);
+    ref.invalidate(latestBillsProvider);
+
 
     return Bill.fromJson(jsonDecode(response.body));
   } else {
@@ -164,6 +166,8 @@ final updateBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
     ref.invalidate(paginatedBillsProvider);
     ref.invalidate(billProvider);
     ref.invalidate(singleBillProvider(updatedBill.id!));
+    ref.invalidate(latestBillsProvider);
+
 
     return Bill.fromJson(jsonDecode(response.body));
   } else {
@@ -187,6 +191,8 @@ final deleteBillProvider = FutureProvider.autoDispose.family<void, int>((
     ref.invalidate(paginatedBillsProvider);
     ref.invalidate(billProvider);
     ref.invalidate(singleBillProvider(id));
+    ref.invalidate(latestBillsProvider);
+
   } else {
     throw Exception("Failed to delete bill: ${response.body}");
   }
