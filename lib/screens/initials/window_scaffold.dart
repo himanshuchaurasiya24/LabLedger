@@ -352,7 +352,11 @@ class _WindowScaffoldState extends State<WindowScaffold>
                 ],
               ),
             ),
-            SizedBox(height: widget.isInitialScreen ? 0 : 7),
+            SizedBox(
+              height: widget.isInitialScreen
+                  ? defaultHeight/2
+                  : defaultHeight,
+            ),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: defaultPadding),

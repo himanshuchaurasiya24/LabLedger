@@ -158,7 +158,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ],
             ),
-            SizedBox(height: defaultHeight),
+            SizedBox(height: defaultHeight ),
             LayoutBuilder(
               builder: (context, constraints) {
                 if (constraints.maxWidth > cardBreakpoint) {
