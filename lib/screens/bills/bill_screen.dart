@@ -6,7 +6,6 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
-import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/screens/bills/add_update_screen.dart';
 import 'package:labledger/methods/pagination_controls.dart';
@@ -223,21 +222,20 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
         onSearch: _onSearchChanged,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         elevation: 4.0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(defaultRadius),
         ),
         onPressed: () async {
-          await navigatorKey.currentState?.push(
+          navigatorKey.currentState?.push(
             MaterialPageRoute(
               builder: (context) => AddBillScreen(
                 themeColor: Theme.of(context).colorScheme.secondary,
               ),
             ),
           );
-          _refreshBillsData();
         },
         label: const Text(
           "Add Bill",

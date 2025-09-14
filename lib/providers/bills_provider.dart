@@ -2,18 +2,29 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/bill_model.dart';
+import 'package:labledger/models/bill_stats_model.dart';
 import 'package:labledger/models/paginated_response.dart'; // Import new model
-import 'package:labledger/providers/bill_status_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 import '../authentication/auth_http_client.dart'; // Import the utility client
 
 String billsEndpoint = "${globalBaseUrl}diagnosis/bills/bill/";
+String billGrowthStatsEndpoint = "${globalBaseUrl}diagnosis/bills/growth-stats/";
 
 final currentPageProvider = StateProvider.autoDispose<int>((ref) => 1);
 
 final currentSearchQueryProvider = StateProvider.autoDispose<String>(
   (ref) => '',
 );
+final billGrowthStatsProvider = FutureProvider.autoDispose((ref) async {
+  final response = await AuthHttpClient.get(ref, billGrowthStatsEndpoint);
+
+  if (response.statusCode == 200) {
+    return BillStats.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception("Failed to get bill stats: ${response.body}");
+  }
+});
+
 final latestBillsProvider = 
     FutureProvider.autoDispose<List<Bill>>((ref) async {
 
@@ -40,14 +51,9 @@ final latestBillsProvider =
 });
 final paginatedUnpaidPartialBillsProvider =
     FutureProvider.autoDispose<PaginatedBillsResponse>((ref) async {
-      final page = ref.watch(currentPageProvider);
-      final query = ref.watch(currentSearchQueryProvider);
-
       final queryParams = {
-        'page': page.toString(),
         'unpaid_or_partial': 'true', // ✅ filter from backend
         'ordering': '-date_of_bill', // ✅ sort by recent bills first
-        if (query.isNotEmpty) 'search': query,
       };
 
       final uri = Uri.parse(

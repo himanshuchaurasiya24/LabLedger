@@ -68,7 +68,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       isInitialScreen: true,
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor:
-            widget.baseColor ?? Theme.of(context).colorScheme.secondary,
+            widget.baseColor ?? Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         elevation: 4.0,
         shape: RoundedRectangleBorder(
@@ -158,7 +158,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ],
             ),
-            SizedBox(height: defaultHeight ),
+            SizedBox(height: defaultHeight),
             LayoutBuilder(
               builder: (context, constraints) {
                 if (constraints.maxWidth > cardBreakpoint) {
