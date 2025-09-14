@@ -10,6 +10,16 @@ import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+class MyScrollBehavior extends ScrollBehavior {
+  @override
+  Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
+    // Return a scrollbar that does not occupy space.
+    return Scrollbar(
+      controller: details.controller,
+      child: child,
+    );
+  }
+}
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
@@ -92,7 +102,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
         themeMode: themeMode,
-
+scrollBehavior: MyScrollBehavior(),
         // 🌞 LIGHT THEME
         theme: ThemeData(
           hoverColor: Colors.transparent,
