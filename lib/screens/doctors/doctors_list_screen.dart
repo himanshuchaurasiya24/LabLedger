@@ -61,7 +61,7 @@ class DoctorsListScreen extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
     final effectiveColor = baseColor ?? colorScheme.secondary;
     final doctorsAsync = ref.watch(doctorsProvider);
-
+    debugPrint(MediaQuery.of(context).size.width.toString());
     return WindowScaffold(
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: baseColor ?? Theme.of(context).colorScheme.primary,
