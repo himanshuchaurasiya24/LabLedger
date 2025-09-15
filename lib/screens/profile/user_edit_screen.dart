@@ -487,7 +487,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
       baseColor: widget.themeColor,
       height: 510,
       radius: defaultRadius,
-      intensity: isDark ? 0.1 : 0.05,
       elevationLevel: 1,
       child: Column(
         children: [

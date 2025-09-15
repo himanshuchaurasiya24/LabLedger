@@ -20,19 +20,14 @@ final doctorsProvider = FutureProvider.autoDispose<List<Doctor>>((ref) async {
   }
 });
 
-/// ✅ Fetch a single doctor by ID
+/// ✅ Fetch a single doctor by their ID
 final singleDoctorProvider =
     FutureProvider.autoDispose.family<Doctor, int>((ref, id) async {
-  final response = await AuthHttpClient.get(
-    ref,
-    "$doctorsEndpoint$id/?list_format=true",
-  );
-
+  final response = await AuthHttpClient.get(ref, "$doctorsEndpoint$id/");
   if (response.statusCode == 200) {
-    final List data = jsonDecode(response.body);
-    return Doctor.fromJson(data.first);
+    return Doctor.fromJson(jsonDecode(response.body));
   } else {
-    throw Exception("Failed to fetch doctor: ${response.body}");
+    throw Exception('Failed to load doctor details');
   }
 });
 

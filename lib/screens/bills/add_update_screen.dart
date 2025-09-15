@@ -237,9 +237,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       baseColor: color,
       height: 160,
       radius: defaultRadius,
-      intensity: isDark ? 0.15 : 0.08,
-      useGradient: true,
-      elevationLevel: 2,
+      elevationLevel: 1,
       child: Row(
         children: [
           Container(
@@ -526,7 +524,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       baseColor: color,
       height: height ?? 254,
       radius: defaultRadius,
-      intensity: isDark ? 0.1 : 0.05,
+      // intensity: isDark ? 0.1 : 0.05,
       elevationLevel: 1,
       child: SingleChildScrollView(
         child: Column(
@@ -595,7 +593,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       baseColor: color,
       height: height ?? 318,
       radius: defaultRadius,
-      intensity: isDark ? 0.1 : 0.05,
+      // intensity: isDark ? 0.1 : 0.05,
       elevationLevel: 1,
       child: SingleChildScrollView(
         child: Column(
@@ -726,7 +724,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       baseColor: color,
       height: height ?? 254,
       radius: defaultRadius,
-      intensity: isDark ? 0.1 : 0.05,
+      // intensity: isDark ? 0.1 : 0.05,
       elevationLevel: 1,
       child: SingleChildScrollView(
         child: Column(
@@ -793,7 +791,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       baseColor: color,
       height: height ?? 318,
       radius: defaultRadius,
-      intensity: isDark ? 0.1 : 0.05,
+      // intensity: isDark ? 0.1 : 0.05,
       elevationLevel: 1,
       child: SingleChildScrollView(
         child: Column(

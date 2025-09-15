@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/doctor_provider.dart';
+import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -61,7 +63,6 @@ class DoctorsListScreen extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
     final effectiveColor = baseColor ?? colorScheme.secondary;
     final doctorsAsync = ref.watch(doctorsProvider);
-    debugPrint(MediaQuery.of(context).size.width.toString());
     return WindowScaffold(
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: baseColor ?? Theme.of(context).colorScheme.primary,
@@ -71,13 +72,13 @@ class DoctorsListScreen extends ConsumerWidget {
           borderRadius: BorderRadius.circular(defaultRadius),
         ),
         onPressed: () async {
-          // navigatorKey.currentState?.push(
-          //   MaterialPageRoute(
-          //     builder: (context) => AddBillScreen(
-          //       themeColor: Theme.of(context).colorScheme.secondary,
-          //     ),
-          //   ),
-          // );
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) => DoctorEditScreen(
+                themeColor: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+          );
         },
         label: const Text(
           "Add Doctor",
@@ -115,7 +116,15 @@ class DoctorsListScreen extends ConsumerWidget {
       ),
       itemCount: doctors.length,
       itemBuilder: (context, index) {
-        return _buildDoctorCard(context, doctors[index], effectiveColor);
+        return _buildDoctorCard(context, doctors[index], effectiveColor, () {
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) {
+                return DoctorEditScreen(doctorId: doctors[index].id);
+              },
+            ),
+          );
+        });
       },
     );
   }
@@ -124,6 +133,7 @@ class DoctorsListScreen extends ConsumerWidget {
     BuildContext context,
     Doctor doctor,
     Color effectiveColor,
+    VoidCallback onTap,
   ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -135,9 +145,7 @@ class DoctorsListScreen extends ConsumerWidget {
       baseColor: effectiveColor,
       child: InkWell(
         borderRadius: BorderRadius.circular(defaultRadius),
-        onTap: () {
-          // Navigate to doctor details
-        },
+        onTap: onTap,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
