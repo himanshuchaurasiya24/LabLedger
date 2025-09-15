@@ -72,9 +72,7 @@ class UserListScreen extends ConsumerWidget {
         onPressed: () async {
           // navigatorKey.currentState?.push(
           //   MaterialPageRoute(
-          //     builder: (context) => AddBillScreen(
-          //       themeColor: Theme.of(context).colorScheme.secondary,
-          //     ),
+          //     builder: (context) => UserEditScreen(targetUserId: targetUserId, themeColor: themeColor),
           //   ),
           // );
         },
@@ -102,7 +100,6 @@ class UserListScreen extends ConsumerWidget {
     }
 
     return GridView.builder(
-      padding: EdgeInsets.all(defaultPadding),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: getCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,

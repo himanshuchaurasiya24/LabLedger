@@ -107,7 +107,6 @@ class DoctorsListScreen extends ConsumerWidget {
     }
 
     return GridView.builder(
-      padding: EdgeInsets.all(defaultPadding),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: getCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
@@ -221,7 +220,6 @@ class DoctorsListScreen extends ConsumerWidget {
     final shimmerColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
 
     return GridView.builder(
-      padding: EdgeInsets.all(defaultPadding),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: getCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
