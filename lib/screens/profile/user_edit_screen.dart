@@ -120,7 +120,9 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
                 return Column(
                   children: [
                     _buildTabBar(),
+                    SizedBox(height: defaultHeight),
                     Expanded(child: _buildTabContent(targetUser, isAdmin)),
+                    SizedBox(height: defaultHeight),
                   ],
                 );
               }
@@ -260,7 +262,7 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(defaultPadding * 2),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface.withValues(alpha: isDark ? 0.1 : 0.5),
         borderRadius: BorderRadius.circular(defaultRadius),
@@ -308,8 +310,10 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
               value: _isAccountLocked,
               onChanged: (value) => _toggleLockStatus(user),
               activeThumbColor: theme.colorScheme.error,
-              inactiveTrackColor: Colors.green.withValues(alpha: 0.5),
-              activeTrackColor: theme.colorScheme.error.withValues(alpha: 0.5),
+              inactiveTrackColor: theme.colorScheme.secondary.withValues(
+                alpha: 0.3,
+              ),
+              activeTrackColor: theme.colorScheme.error.withValues(alpha: 0.3),
             ),
         ],
       ),
@@ -406,10 +410,9 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
@@ -641,7 +644,6 @@ class _UserEditScreenState extends ConsumerState<UserEditScreen>
     return TintedContainer(
       baseColor: widget.themeColor,
       radius: defaultRadius,
-      intensity: isDark ? 0.1 : 0.05,
       height: isAdmin ? 510 : 395,
       elevationLevel: 1,
       child: Column(
