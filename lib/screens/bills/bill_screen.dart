@@ -7,7 +7,7 @@ import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
-import 'package:labledger/screens/bills/add_update_screen.dart';
+import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
 import 'package:labledger/screens/ui_components/cards/bill_card.dart';

@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/main.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/models/doctors_model.dart';
@@ -12,10 +12,11 @@ import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_provider.dart';
+import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
+import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
-
 class AddBillScreen extends ConsumerStatefulWidget {
   final Bill? billData;
   final Color themeColor;
@@ -133,51 +134,34 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     if (widget.billData == null || !_isControllersInitialized) return;
 
     try {
-      // Update diagnosis type display
       if (diagnosisTypeController.text.isNotEmpty) {
         final diagnosisId = int.tryParse(diagnosisTypeController.text);
         if (diagnosisId != null) {
-          _selectedDiagnosisType = diagnosisTypes.firstWhere(
-            (type) => type.id == diagnosisId,
-            orElse: () => throw Exception('Diagnosis type not found'),
-          );
+          _selectedDiagnosisType =
+              diagnosisTypes.firstWhere((type) => type.id == diagnosisId);
           diagnosisTypeDisplayController.text =
               '${_selectedDiagnosisType!.category} ${_selectedDiagnosisType!.name}';
         }
       }
 
-      // Update doctor display
       if (refByDoctorController.text.isNotEmpty) {
         final doctorId = int.tryParse(refByDoctorController.text);
         if (doctorId != null) {
-          _selectedDoctor = doctors.firstWhere(
-            (doc) => doc.id == doctorId,
-            orElse: () => throw Exception('Doctor not found'),
-          );
+          _selectedDoctor = doctors.firstWhere((doc) => doc.id == doctorId);
           refByDoctorDisplayController.text =
               '${_selectedDoctor!.firstName} ${_selectedDoctor!.lastName ?? ''}';
         }
       }
 
-      // Update franchise display if applicable
       if (_selectedDiagnosisType?.category == 'Franchise Lab' &&
           franchiseNameController.text.isNotEmpty) {
-        try {
-          _selectedFranchise = franchises.firstWhere(
-            (f) => f.franchiseName == franchiseNameController.text,
-            orElse: () => throw Exception('Franchise not found'),
-          );
-          franchiseNameDisplayController.text =
-              "${_selectedFranchise!.franchiseName}, ${_selectedFranchise!.address}";
-        } catch (e) {
-          debugPrint("Franchise not found: ${franchiseNameController.text}");
-        }
+        _selectedFranchise = franchises
+            .firstWhere((f) => f.franchiseName == franchiseNameController.text);
+        franchiseNameDisplayController.text =
+            "${_selectedFranchise!.franchiseName}, ${_selectedFranchise!.address}";
       }
 
-      // Trigger rebuild to show updated values
-      if (mounted) {
-        setState(() {});
-      }
+      if (mounted) setState(() {});
     } catch (e) {
       debugPrint("Error updating display controllers: $e");
     }
@@ -187,33 +171,23 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
   Widget build(BuildContext context) {
     final isEditing = widget.billData != null;
     final isLargeScreen = MediaQuery.of(context).size.width > 1200;
-    final Color finalThemeColor = widget.themeColor;
-
     return WindowScaffold(
       child: Form(
-        // Wrap the entire content in a Form
         key: _formKey,
         child: Column(
           children: [
-            _buildBillHeaderCard(isEditing, color: finalThemeColor),
+            _buildBillHeaderCard(isEditing, color: widget.themeColor),
             SizedBox(height: defaultHeight),
             Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  if (isLargeScreen) {
-                    return _buildLargeScreenLayout(color: finalThemeColor);
-                  } else {
-                    return Column(
+              child: isLargeScreen
+                  ? _buildLargeScreenLayout(color: widget.themeColor)
+                  : Column(
                       children: [
-                        _buildTabBar(color: finalThemeColor),
+                        _buildTabBar(color: widget.themeColor),
                         Expanded(
-                          child: _buildTabContent(color: finalThemeColor),
-                        ),
+                            child: _buildTabContent(color: widget.themeColor)),
                       ],
-                    );
-                  }
-                },
-              ),
+                    ),
             ),
           ],
         ),
@@ -221,10 +195,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  // --- UI BUILDING BLOCKS ---
-
   Widget _buildBillHeaderCard(bool isEditing, {required Color color}) {
-    // This widget remains the same as before
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final lightThemeColor = Color.lerp(
@@ -252,7 +223,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: color.withValues(alpha: 0.3),
+                  color: color.withValues(alpha:  0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -274,10 +245,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               children: [
                 Text(
                   isEditing ? 'Edit Bill' : 'Create New Bill',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
-                  ),
+                 style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                ),
                 ),
                 SizedBox(height: defaultHeight / 2),
                 Text(
@@ -287,7 +258,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark
                         ? Colors.white70
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha:  0.7),
                   ),
                 ),
                 SizedBox(height: defaultHeight / 2),
@@ -315,7 +286,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               ElevatedButton.icon(
                 onPressed: _isSubmitting ? null : _saveBill,
                 style: ElevatedButton.styleFrom(
-                  fixedSize: Size(160, 50),
+                  fixedSize: const Size(160, 50),
                   backgroundColor: color,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -338,17 +309,15 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   _isSubmitting
                       ? 'Saving...'
                       : (isEditing ? 'Update Bill' : 'Create Bill'),
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ),
               if (isEditing) ...[
                 SizedBox(height: defaultHeight / 2),
                 OutlinedButton.icon(
                   onPressed: () => _deleteBill(widget.billData!.id!),
-
                   style: OutlinedButton.styleFrom(
-                    fixedSize: Size(160, 50),
-
+                    fixedSize: const Size(160, 50),
                     foregroundColor: Colors.red,
                     side: const BorderSide(color: Colors.red),
                     shape: RoundedRectangleBorder(
@@ -367,7 +336,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
   }
 
   Widget _buildTabBar({required Color color}) {
-    // This widget remains the same
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -378,7 +346,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+            color: Colors.black.withValues(alpha:  isDark ? 0.3 : 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -394,7 +362,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         labelColor: Colors.white,
         unselectedLabelColor: isDark
             ? Colors.white70
-            : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            : theme.colorScheme.onSurface.withValues(alpha:  0.7),
         dividerColor: Colors.transparent,
         tabs: const [
           Tab(
@@ -435,30 +403,26 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  /// **NEW:** The 2x2 grid layout for large screens.
   Widget _buildLargeScreenLayout({required Color color}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Left Column
         Expanded(
           child: Column(
             children: [
               _buildPatientDetailsCard(defaultColor: color),
               SizedBox(height: defaultHeight),
               _buildDiagnosisDetailsCard(defaultColor: color),
-              const Spacer(), // Pushes cards up
+              const Spacer(),
             ],
           ),
         ),
         SizedBox(width: defaultWidth),
-        // Right Column
         Expanded(
           child: Column(
             children: [
               _buildBillingDetailsCard(defaultColor: color),
               SizedBox(height: defaultHeight),
-              // The Amount card is conditionally visible
               AnimatedSize(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeInOutCubic,
@@ -466,7 +430,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                     ? _buildAmountDetailsCard(defaultColor: color)
                     : const SizedBox.shrink(),
               ),
-              const Spacer(), // Pushes cards up
+              const Spacer(),
             ],
           ),
         ),
@@ -474,22 +438,18 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  /// **UPDATED:** Tab content for small screens.
   Widget _buildTabContent({required Color color}) {
     return TabBarView(
       controller: _tabController,
       children: [
-        // Tab 1: Patient
         SingleChildScrollView(
           padding: EdgeInsets.all(defaultPadding),
           child: _buildPatientDetailsCard(defaultColor: color, height: 254),
         ),
-        // Tab 2: Diagnosis
         SingleChildScrollView(
           padding: EdgeInsets.all(defaultPadding),
           child: _buildDiagnosisDetailsCard(defaultColor: color, height: 318),
         ),
-        // Tab 3: Billing & Amount combined
         SingleChildScrollView(
           padding: EdgeInsets.all(defaultPadding),
           child: Column(
@@ -510,47 +470,36 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  // --- FORM CARDS ---
-
-  Widget _buildPatientDetailsCard({
-    required Color defaultColor,
-    double? height,
-  }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final color = defaultColor;
-
+  Widget _buildPatientDetailsCard(
+      {required Color defaultColor, double? height}) {
     return TintedContainer(
-      baseColor: color,
+      baseColor: defaultColor,
       height: height ?? 254,
       radius: defaultRadius,
       elevationLevel: 1,
       child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 16),
         child: Column(
           children: [
             _buildCardHeader(
-              theme: theme,
-              color: color,
-              isDark: isDark,
-              icon: Icons.person_outline,
-              title: 'Patient Details',
-            ),
+                icon: Icons.person_outline,
+                title: 'Patient Details',
+                color: defaultColor),
             SizedBox(height: defaultHeight),
             CustomTextField(
-              label: 'Patient Name',
-              controller: patientNameController,
-              isRequired: true,
-              tintColor: color,
-            ),
+                label: 'Patient Name',
+                controller: patientNameController,
+                isRequired: true,
+                tintColor: defaultColor),
             SizedBox(height: defaultHeight),
             Row(
               children: [
                 Expanded(
-                  child: _buildPopupMenuField<String>(
+                  child: SearchableDropdownField<String>(
                     label: 'Select Sex',
                     controller: patientSexController,
                     items: sexDropDownList,
-                    color: color,
+                    color: defaultColor,
                     onSelected: (value) =>
                         setState(() => patientSexController.text = value),
                     valueMapper: (item) => item,
@@ -560,14 +509,13 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                 SizedBox(width: defaultWidth / 2),
                 Expanded(
                   child: CustomTextField(
-                    label: 'Age',
-                    controller: patientAgeController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    isRequired: true,
-                    isNumeric: true,
-                    tintColor: color,
-                  ),
+                      label: 'Age',
+                      controller: patientAgeController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      isRequired: true,
+                      isNumeric: true,
+                      tintColor: defaultColor),
                 ),
               ],
             ),
@@ -577,32 +525,25 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  Widget _buildDiagnosisDetailsCard({
-    required Color defaultColor,
-    double? height,
-  }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final color = defaultColor;
+  Widget _buildDiagnosisDetailsCard(
+      {required Color defaultColor, double? height}) {
     final diagnosisTypesAsync = ref.watch(diagnosisTypeProvider);
-    final franchiseNamesAsync = ref.watch(franchiseNamesProvider);
+    final franchiseNamesAsync = ref.watch(franchiseProvider);
     final doctorsAsync = ref.watch(doctorsProvider);
 
     return TintedContainer(
-      baseColor: color,
+      baseColor: defaultColor,
       height: height ?? 318,
       radius: defaultRadius,
       elevationLevel: 1,
       child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 16),
         child: Column(
           children: [
             _buildCardHeader(
-              theme: theme,
-              color: color,
-              isDark: isDark,
-              icon: Icons.medical_services_outlined,
-              title: 'Diagnosis Details',
-            ),
+                icon: Icons.medical_services_outlined,
+                title: 'Diagnosis Details',
+                color: defaultColor),
             SizedBox(height: defaultHeight),
             diagnosisTypesAsync.when(
               data: (types) {
@@ -612,19 +553,15 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                     _isControllersInitialized &&
                     diagnosisTypeDisplayController.text.isEmpty) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _updateDisplayControllers(
-                      types,
-                      franchiseNamesAsync.value!,
-                      doctorsAsync.value!,
-                    );
+                    _updateDisplayControllers(types, franchiseNamesAsync.value!,
+                        doctorsAsync.value!);
                   });
                 }
-
-                return _buildPopupMenuField<DiagnosisType>(
+                return SearchableDropdownField<DiagnosisType>(
                   label: 'Diagnosis Type',
                   controller: diagnosisTypeDisplayController,
                   items: types,
-                  color: color,
+                  color: defaultColor,
                   valueMapper: (item) =>
                       '${item.category} ${item.name}, ₹${item.price}',
                   onSelected: (selected) {
@@ -655,11 +592,12 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   ? Padding(
                       padding: EdgeInsets.only(bottom: defaultPadding),
                       child: franchiseNamesAsync.when(
-                        data: (franchises) => _buildPopupMenuField<FranchiseName>(
+                        data: (franchises) =>
+                            SearchableDropdownField<FranchiseName>(
                           label: 'Franchise Name',
                           controller: franchiseNameDisplayController,
                           items: franchises,
-                          color: color,
+                          color: defaultColor,
                           valueMapper: (item) =>
                               "${item.franchiseName}, ${item.address}",
                           onSelected: (selected) {
@@ -682,11 +620,11 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   : const SizedBox.shrink(),
             ),
             doctorsAsync.when(
-              data: (doctors) => _buildPopupMenuField<Doctor>(
+              data: (doctors) => SearchableDropdownField<Doctor>(
                 label: 'Referred By Doctor',
                 controller: refByDoctorDisplayController,
                 items: doctors,
-                color: color,
+                color: defaultColor,
                 valueMapper: (item) =>
                     '${item.firstName} ${item.lastName ?? ''}, ${item.address ?? ""}',
                 onSelected: (selected) {
@@ -709,31 +647,21 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  /// **UPDATED:** Now only contains billing info.
-  Widget _buildBillingDetailsCard({
-    required Color defaultColor,
-    double? height,
-  }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final color = defaultColor;
-
+  Widget _buildBillingDetailsCard(
+      {required Color defaultColor, double? height}) {
     return TintedContainer(
-      baseColor: color,
+      baseColor: defaultColor,
       height: height ?? 254,
       radius: defaultRadius,
-      // intensity: isDark ? 0.1 : 0.05,
       elevationLevel: 1,
       child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 16),
         child: Column(
           children: [
             _buildCardHeader(
-              theme: theme,
-              color: color,
-              isDark: isDark,
-              icon: Icons.receipt_long,
-              title: 'Billing Details',
-            ),
+                icon: Icons.receipt_long,
+                title: 'Billing Details',
+                color: defaultColor),
             SizedBox(height: defaultHeight),
             Row(
               children: [
@@ -741,7 +669,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   child: _buildDateSelector(
                     label: 'Date of Test',
                     controller: dateOfTestController,
-                    color: color,
+                    color: defaultColor,
                     onDateSelected: (iso) => selectedTestDateISO = iso,
                     validator: (v) =>
                         v!.isEmpty ? 'Test date is required' : null,
@@ -752,7 +680,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   child: _buildDateSelector(
                     label: 'Date of Bill',
                     controller: dateOfBillController,
-                    color: color,
+                    color: defaultColor,
                     onDateSelected: (iso) => selectedBillDateISO = iso,
                     validator: (v) =>
                         v!.isEmpty ? 'Bill date is required' : null,
@@ -761,11 +689,11 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               ],
             ),
             SizedBox(height: defaultHeight),
-            _buildPopupMenuField<String>(
+            SearchableDropdownField<String>(
               label: 'Bill Status',
               controller: billStatusController,
               items: billStatusList,
-              color: color,
+              color: defaultColor,
               valueMapper: (item) => item,
               onSelected: (value) =>
                   setState(() => billStatusController.text = value),
@@ -777,63 +705,55 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  /// **NEW:** Card dedicated to amount fields.
-  Widget _buildAmountDetailsCard({
-    required Color defaultColor,
-    double? height,
-  }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final color = defaultColor;
+  Widget _buildAmountDetailsCard(
+      {required Color defaultColor, double? height}) {
     return TintedContainer(
-      baseColor: color,
+      baseColor: defaultColor,
       height: height ?? 318,
       radius: defaultRadius,
-      // intensity: isDark ? 0.1 : 0.05,
       elevationLevel: 1,
       child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 16),
         child: Column(
           children: [
             _buildCardHeader(
-              theme: theme,
-              color: color,
-              isDark: isDark,
-              icon: Icons.payments_rounded,
-              title: 'Amount Details',
-            ),
+                icon: Icons.payments_rounded,
+                title: 'Amount Details',
+                color: defaultColor),
             SizedBox(height: defaultHeight),
             CustomTextField(
-              label: 'Paid Amount',
-              controller: paidAmountController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              isRequired: true,
-              isNumeric: true,
-              tintColor: color,
-            ),
+                label: 'Paid Amount',
+                controller: paidAmountController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                isRequired: true,
+                isNumeric: true,
+                tintColor: defaultColor),
             SizedBox(height: defaultHeight),
             Row(
               children: [
                 Expanded(
                   child: CustomTextField(
-                    label: "Doctor's Discount",
-                    controller: discByDoctorController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    tintColor: color,
-                    isNumeric: true,
-                  ),
+                      label: "Doctor's Discount",
+                      controller: discByDoctorController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
+                      tintColor: defaultColor,
+                      isNumeric: true),
                 ),
                 SizedBox(width: defaultWidth),
                 Expanded(
                   child: CustomTextField(
-                    label: "Center's Discount",
-                    controller: discByCenterController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    tintColor: color,
-                    isNumeric: true,
-                  ),
+                      label: "Center's Discount",
+                      controller: discByCenterController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
+                      tintColor: defaultColor,
+                      isNumeric: true),
                 ),
               ],
             ),
@@ -843,20 +763,147 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  // --- HELPER WIDGETS ---
+  // --- FORM ACTIONS AND HELPERS ---
 
-  Widget _buildCardHeader({
-    required ThemeData theme,
-    required Color color,
-    required bool isDark,
-    required IconData icon,
-    required String title,
-  }) {
-    // This widget remains the same
+  Future<void> _saveBill() async {
+    if (billStatusController.text == "Unpaid") {
+      paidAmountController.text = "0";
+      discByCenterController.text = "0";
+      discByDoctorController.text = "0";
+    }
+
+    if (discByCenterController.text.isEmpty) discByCenterController.text = "0";
+    if (discByDoctorController.text.isEmpty) discByDoctorController.text = "0";
+
+    if (!_formKey.currentState!.validate()) {
+      _showErrorDialog("Form Not Valid", "Please correct the errors in the form before saving.");
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    final billDataMap = {
+      'patient_name': patientNameController.text,
+      'patient_age': int.parse(patientAgeController.text),
+      'patient_sex': patientSexController.text,
+      'diagnosis_type': int.parse(diagnosisTypeController.text),
+      'franchise_name': franchiseNameController.text.isEmpty
+          ? null
+          : franchiseNameController.text,
+      'referred_by_doctor': int.parse(refByDoctorController.text),
+      'center_detail': 1,
+      'date_of_test': selectedTestDateISO,
+      'date_of_bill': selectedBillDateISO,
+      'bill_status': billStatusController.text,
+      'paid_amount': int.parse(paidAmountController.text),
+      'disc_by_center': int.parse(discByCenterController.text),
+      'disc_by_doctor': int.parse(discByDoctorController.text),
+      'total_amount':
+          _selectedDiagnosisType?.price ?? widget.billData?.totalAmount ?? 0,
+      'incentive_amount': 0,
+    };
+
+    final bill = Bill.fromJson({...billDataMap, 'id': widget.billData?.id});
+
+    try {
+      if (widget.billData != null) {
+        final updatedBill = await ref.read(updateBillProvider(bill).future);
+        if (!mounted) return;
+        _showSuccessSnackBar(message: 
+            'Bill updated successfully: #${updatedBill.billNumber}');
+        Navigator.pop(context, updatedBill);
+      } else {
+        final newBill = await ref.read(createBillProvider(bill).future);
+        if (!mounted) return;
+        _showSuccessSnackBar(message: 
+            'Bill created successfully: #${newBill.billNumber}');
+        Navigator.pop(context, newBill);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      _showErrorDialog('Failed to Save Bill', e.toString());
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _deleteBill(int id) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Bill'),
+        content: const Text(
+          'Are you sure you want to delete this bill? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+    if (shouldDelete == true) {
+      try {
+        await ref.read(deleteBillProvider(id).future);
+        if (mounted) {
+          _showSuccessSnackBar(message:  "Bill deleted successfully");
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          _showErrorDialog('Delete Failed', e.toString());
+        }
+      }
+    }
+  }
+
+  // --- UI HELPER METHODS ---
+
+  void _showErrorDialog(String title, String errorMessage) {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (context) => ErrorDialog(
+        title: title,
+        errorMessage: errorMessage,
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar({required String message}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: defaultWidth / 2),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.green,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  Widget _buildCardHeader(
+      {required IconData icon,
+      required String title,
+      required Color color}) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Container(
-      padding: EdgeInsets.all(defaultPadding * 2),
+      padding: EdgeInsets.all(defaultPadding * 1.5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: isDark ? 0.2 : 0.1),
+        color: color.withValues(alpha:  isDark ? 0.2 : 0.1),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(defaultRadius),
           topRight: Radius.circular(defaultRadius),
@@ -867,7 +914,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
           Container(
             padding: EdgeInsets.all(defaultPadding),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
+              color: color.withValues(alpha:  0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -877,7 +924,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
             title,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : theme.colorScheme.onSurface,
             ),
           ),
         ],
@@ -885,112 +931,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  /// A unified, searchable popup menu field.
-  Widget _buildPopupMenuField<T>({
-    required String label,
-    required TextEditingController controller,
-    required List<T> items,
-    required String Function(T) valueMapper,
-    required Function(T) onSelected,
-    required Color color,
-    String? Function(String?)? validator,
-  }) {
-    final GlobalKey key = GlobalKey();
-
-    return InkWell(
-      key: key,
-      borderRadius: BorderRadius.circular(12),
-      onTap: () {
-        if (items.isEmpty) return;
-        HapticFeedback.selectionClick();
-        _showSearchableMenu<T>(
-          context: context,
-          anchorKey: key,
-          color: color,
-          items: items,
-          valueMapper: valueMapper,
-          onSelected: onSelected,
-        );
-      },
-      child: AbsorbPointer(
-        child: CustomTextField(
-          label: label,
-          controller: controller,
-          readOnly: true,
-          validator: validator,
-          tintColor: color,
-          suffixIcon: Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: color.withValues(alpha: 0.7),
-            size: 24,
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// **FIXED:** Shows a popup menu with a working search field.
-  Future<void> _showSearchableMenu<T>({
-    required BuildContext context,
-    required GlobalKey anchorKey,
-    required Color color,
-    required List<T> items,
-    required String Function(T) valueMapper,
-    required Function(T) onSelected,
-  }) async {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    final RenderBox renderBox =
-        anchorKey.currentContext!.findRenderObject() as RenderBox;
-    final size = renderBox.size;
-    final position = renderBox.localToGlobal(Offset.zero);
-
-    final RelativeRect menuPosition = RelativeRect.fromLTRB(
-      position.dx,
-      position.dy + size.height + 4,
-      position.dx + size.width,
-      position.dy,
-    );
-
-    final Color menuBackgroundColor = isDark
-        ? Color.alphaBlend(
-            color.withValues(alpha: 0.25),
-            theme.colorScheme.surface,
-          )
-        : Color.alphaBlend(
-            color.withValues(alpha: 0.1),
-            theme.colorScheme.surface,
-          );
-    final Color menuBorderColor = color.withValues(alpha: isDark ? 0.5 : 0.4);
-
-    await showMenu<T>(
-      context: context,
-      position: menuPosition,
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.2),
-      color: menuBackgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: menuBorderColor, width: 1),
-      ),
-      items: [
-        PopupMenuItem<T>(
-          enabled: false,
-          child: _SearchableMenuContent<T>(
-            items: items,
-            valueMapper: valueMapper,
-            onSelected: onSelected,
-            color: color,
-            parentSize: size,
-            menuBorderColor: menuBorderColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Other helper widgets (_buildDateSelector, _buildLoadingField, etc.) remain the same...
   Widget _buildDateSelector({
     required String label,
     required TextEditingController controller,
@@ -1032,7 +972,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
           suffixIcon: Icon(
             Icons.calendar_month_rounded,
             size: 22,
-            color: color.withValues(alpha: 0.9),
+            color: color.withValues(alpha:  0.9),
           ),
         ),
       ),
@@ -1044,14 +984,12 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(defaultRadius),
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha:  0.5),
       ),
-      child: Center(
+      child: const Center(
         child: SizedBox(
-          width: defaultWidth,
-          height: defaultHeight,
+          width: 20,
+          height: 20,
           child: CircularProgressIndicator(strokeWidth: 2),
         ),
       ),
@@ -1065,27 +1003,21 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       padding: EdgeInsets.symmetric(horizontal: defaultPadding),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: theme.colorScheme.errorContainer.withValues(alpha: 0.2),
-        border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha: 0.4),
-        ),
+        color: theme.colorScheme.errorContainer.withValues(alpha:  0.2),
+        border: Border.all(color: theme.colorScheme.error.withValues(alpha:  0.4)),
       ),
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline_rounded,
-              color: theme.colorScheme.error,
-              size: 20,
-            ),
+            Icon(Icons.error_outline_rounded,
+                color: theme.colorScheme.error, size: 20),
             SizedBox(width: defaultWidth),
             Expanded(
               child: Text(
                 message,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
-                ),
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: theme.colorScheme.error),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -1094,8 +1026,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       ),
     );
   }
-
-  // --- FORM ACTIONS AND HELPERS ---
 
   Color _getStatusColor(String? status) {
     switch (status) {
@@ -1113,13 +1043,13 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
   Widget _buildStatusBadge(String text, Color color) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding / 0.75,
-        vertical: defaultPadding / 3,
+        horizontal: defaultPadding * 1.25,
+        vertical: defaultPadding * 0.5,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withValues(alpha:  0.2),
         borderRadius: BorderRadius.circular(defaultRadius),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        border: Border.all(color: color.withValues(alpha:  0.5)),
       ),
       child: Text(
         text,
@@ -1128,244 +1058,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
           color: color,
           fontWeight: FontWeight.w600,
         ),
-      ),
-    );
-  }
-
-  Future<void> _saveBill() async {
-    // This function remains the same
-    if (billStatusController.text == "Unpaid") {
-      paidAmountController.text = "0";
-      discByCenterController.text = "0";
-      discByDoctorController.text = "0";
-    }
-
-    if (discByCenterController.text.isEmpty) discByCenterController.text = "0";
-    if (discByDoctorController.text.isEmpty) discByDoctorController.text = "0";
-
-    if (!_formKey.currentState!.validate()) {
-      _showSnackBar(
-        message: "Please correct the errors in the form.",
-        backgroundColor: Colors.red,
-      );
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-
-    final billDataMap = {
-      'patient_name': patientNameController.text,
-      'patient_age': int.parse(patientAgeController.text),
-      'patient_sex': patientSexController.text,
-      'diagnosis_type': int.parse(diagnosisTypeController.text),
-      'franchise_name': franchiseNameController.text.isEmpty
-          ? null
-          : franchiseNameController.text,
-      'referred_by_doctor': int.parse(refByDoctorController.text),
-      'center_detail': 1, // Adjust this based on your requirements
-      'date_of_test': selectedTestDateISO,
-      'date_of_bill': selectedBillDateISO,
-      'bill_status': billStatusController.text,
-      'paid_amount': int.parse(paidAmountController.text),
-      'disc_by_center': int.parse(discByCenterController.text),
-      'disc_by_doctor': int.parse(discByDoctorController.text),
-      'total_amount':
-          _selectedDiagnosisType?.price ?? widget.billData?.totalAmount ?? 0,
-      'incentive_amount': 0,
-    };
-
-    final bill = Bill.fromJson({...billDataMap, 'id': widget.billData?.id});
-
-    try {
-      if (widget.billData != null) {
-        final updatedBill = await ref.read(updateBillProvider(bill).future);
-        if (!mounted) return;
-        _showSnackBar(
-          message: 'Bill updated successfully: ${updatedBill.billNumber}',
-          backgroundColor: Colors.green,
-        );
-        Navigator.pop(context, updatedBill);
-      } else {
-        final newBill = await ref.read(createBillProvider(bill).future);
-        if (!mounted) return;
-        _showSnackBar(
-          message: 'Bill created successfully: ${newBill.billNumber}',
-          backgroundColor: Colors.green,
-        );
-        Navigator.pop(context, newBill);
-      }
-    } catch (e) {
-      if (!mounted) return;
-      _showSnackBar(
-        message: 'Failed to save bill: $e',
-        backgroundColor: Colors.red,
-      );
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
-  }
-
-  Future<void> _deleteBill(int id) async {
-    // This function remains the same
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Bill'),
-        content: const Text(
-          'Are you sure you want to delete this bill? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-    if (shouldDelete == true) {
-      ref.read(deleteBillProvider(id));
-      if (mounted) {
-        _showSnackBar(
-          message: "Bill deleted successfully",
-          backgroundColor: Colors.red.withValues(alpha: 0.9),
-        );
-        navigatorKey.currentState?.pop();
-      }
-    }
-  }
-
-  void _showSnackBar({
-    required String message,
-    required Color backgroundColor,
-  }) {
-    // This function remains the same
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              backgroundColor == Colors.green
-                  ? Icons.check_circle
-                  : Icons.error,
-              color: Colors.white,
-            ),
-            SizedBox(width: defaultWidth / 2),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: backgroundColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-}
-
-/// **NEW WIDGET:** A dedicated StatefulWidget to manage the search state.
-/// This is more robust than using a StatefulBuilder for this task.
-class _SearchableMenuContent<T> extends StatefulWidget {
-  const _SearchableMenuContent({
-    super.key,
-    required this.items,
-    required this.valueMapper,
-    required this.onSelected,
-    required this.color,
-    required this.parentSize,
-    required this.menuBorderColor,
-  });
-
-  final List<T> items;
-  final String Function(T) valueMapper;
-  final Function(T) onSelected;
-  final Color color;
-  final Size parentSize;
-  final Color menuBorderColor;
-
-  @override
-  State<_SearchableMenuContent<T>> createState() =>
-      _SearchableMenuContentState<T>();
-}
-
-class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>> {
-  List<T> _filteredItems = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _filteredItems = widget.items;
-  }
-
-  void _filterItems(String query) {
-    setState(() {
-      _filteredItems = widget.items
-          .where(
-            (item) => widget
-                .valueMapper(item)
-                .toLowerCase()
-                .contains(query.toLowerCase()),
-          )
-          .toList();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return SizedBox(
-      width: widget.parentSize.width,
-      height: 300,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(defaultPadding),
-            child: TextField(
-              onChanged: _filterItems,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                prefixIcon: Icon(Icons.search, size: 18, color: widget.color),
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: defaultHeight / 2,
-                  horizontal: defaultWidth / 2,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(defaultRadius),
-                  borderSide: BorderSide(color: widget.menuBorderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(defaultRadius),
-                  borderSide: BorderSide(color: widget.color, width: 1.5),
-                ),
-              ),
-            ),
-          ),
-          const Divider(height: 1),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _filteredItems.length,
-              itemBuilder: (context, index) {
-                final item = _filteredItems[index];
-                return ListTile(
-                  title: Text(
-                    widget.valueMapper(item),
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  onTap: () {
-                    widget.onSelected(item);
-                    Navigator.of(context).pop();
-                  },
-                );
-              },
-            ),
-          ),
-        ],
       ),
     );
   }

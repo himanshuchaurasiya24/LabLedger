@@ -365,7 +365,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
   Widget _buildPersonalDetailsCard(Color color, User? user) {
     return TintedContainer(
       baseColor: color,
-      height: 510,
+      height: 450,
       radius: defaultRadius,
       elevationLevel: 1,
       child: Column(
@@ -451,7 +451,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
   Widget _buildSecurityCard(Color color, bool currentUserIsAdmin, User? user) {
     return TintedContainer(
       baseColor: color,
-      height: 510,
+      height: 450,
       radius: defaultRadius,
       elevationLevel: 1,
       child: Column(
@@ -816,7 +816,14 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
       ),
       child: Row(
         children: [
-          Icon(icon, color: color, size: 20),
+          Container(
+            padding: EdgeInsets.all(defaultPadding),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
           SizedBox(width: defaultWidth / 2),
           Text(title, style: theme.textTheme.titleMedium),
         ],

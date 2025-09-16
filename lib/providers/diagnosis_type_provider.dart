@@ -11,51 +11,49 @@ final String diagnosisTypeEndpoint =
 /// Fetches all Diagnosis Types.
 final diagnosisTypeProvider =
     FutureProvider.autoDispose<List<DiagnosisType>>((ref) async {
-  // AuthHttpClient handles all errors. If we get a response, it's successful.
   final response = await AuthHttpClient.get(ref, diagnosisTypeEndpoint);
   final List data = jsonDecode(response.body);
   return data.map((e) => DiagnosisType.fromJson(e)).toList();
 });
 
-/// Adds a new Diagnosis Type.
+/// Adds a new Diagnosis Type and returns the created object.
 final addDiagnosisTypeProvider =
-    FutureProvider.autoDispose.family<bool, DiagnosisType>((ref, diagnosis) async {
-  await AuthHttpClient.post(
+    FutureProvider.autoDispose.family<DiagnosisType, DiagnosisType>((ref, diagnosis) async {
+  final response = await AuthHttpClient.post(
     ref,
     diagnosisTypeEndpoint,
     headers: {"Content-Type": "application/json"},
     body: jsonEncode(diagnosis.toJson()),
   );
-  // On success, invalidate the list and return true.
+  // On success, invalidate the list.
   ref.invalidate(diagnosisTypeProvider);
-  return true;
+  // Return the newly created DiagnosisType object from the server's response.
+  return DiagnosisType.fromJson(jsonDecode(response.body));
 });
 
-/// Updates an existing Diagnosis Type.
+/// Updates an existing Diagnosis Type using the model object directly.
 final updateDiagnosisTypeProvider =
-    FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, input) async {
-  final int id = input['id'];
-  final Map<String, dynamic> updatedData = input['data'];
+    FutureProvider.autoDispose.family<DiagnosisType, DiagnosisType>((ref, updatedDiagnosis) async {
+  final int id = updatedDiagnosis.id!; 
 
   final response = await AuthHttpClient.put(
     ref,
     "$diagnosisTypeEndpoint$id/",
     headers: {"Content-Type": "application/json"},
-    body: jsonEncode(updatedData),
+    body: jsonEncode(updatedDiagnosis.toJson()),
   );
-  // On success, invalidate the list and return the updated data.
+  
   ref.invalidate(diagnosisTypeProvider);
-  return jsonDecode(response.body);
+  return DiagnosisType.fromJson(jsonDecode(response.body));
 });
 
 /// Deletes a Diagnosis Type.
 final deleteDiagnosisTypeProvider =
-    FutureProvider.autoDispose.family<bool, int>((ref, id) async {
+    FutureProvider.autoDispose.family<void, int>((ref, id) async {
   await AuthHttpClient.delete(
     ref,
     "$diagnosisTypeEndpoint$id/",
   );
-  // On success, invalidate the list and return true.
+  // On success, simply invalidate the list.
   ref.invalidate(diagnosisTypeProvider);
-  return true;
 });

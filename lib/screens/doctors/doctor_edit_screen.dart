@@ -6,6 +6,7 @@ import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
@@ -144,157 +145,164 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   }
 
   Widget _buildDoctorHeaderCard(bool isAdmin, Color color, Doctor? doctor) {
-  final theme = Theme.of(context);
-  final isDark = theme.brightness == Brightness.dark;
-  final title = _isEditMode
-      ? '${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}'
-      : 'New Doctor Profile';
-  final subtitle = _isEditMode
-      ? doctor?.hospitalName ?? ''
-      : 'Enter doctor details below';
-  final initials = _isEditMode
-      ? '${doctor?.firstName?.isNotEmpty == true ? doctor!.firstName![0].toUpperCase() : 'D'}${doctor?.lastName?.isNotEmpty == true ? doctor!.lastName![0].toUpperCase() : 'R'}'
-      : 'DR';
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final title = _isEditMode
+        ? '${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}'
+        : 'New Doctor Profile';
+    final subtitle = _isEditMode
+        ? doctor?.hospitalName ?? ''
+        : 'Enter doctor details below';
+    final initials = _isEditMode
+        ? '${doctor?.firstName?.isNotEmpty == true ? doctor!.firstName![0].toUpperCase() : 'D'}${doctor?.lastName?.isNotEmpty == true ? doctor!.lastName![0].toUpperCase() : 'R'}'
+        : 'DR';
 
-  final lightThemeColor = Color.lerp(
-    color,
-    isDark ? Colors.black : Colors.white,
-    isDark ? 0.3 : 0.2,
-  )!;
+    final lightThemeColor = Color.lerp(
+      color,
+      isDark ? Colors.black : Colors.white,
+      isDark ? 0.3 : 0.2,
+    )!;
 
-  return TintedContainer(
-    baseColor: color,
-    height: 160,
-    radius: defaultRadius,
-    intensity: isDark ? 0.15 : 0.08,
-    useGradient: true,
-    elevationLevel: 2,
-    child: Row(
-      children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [color, lightThemeColor],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha:  0.3), // Using withValues alpha:  for simplicity
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+    return TintedContainer(
+      baseColor: color,
+      height: 160,
+      radius: defaultRadius,
+      intensity: isDark ? 0.15 : 0.08,
+      useGradient: true,
+      elevationLevel: 2,
+      child: Row(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [color, lightThemeColor],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              initials,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(
+                    alpha: 0.3,
+                  ), // Using withValues alpha:  for simplicity
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          ),
-        ),
-        SizedBox(width: defaultWidth / 2),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: theme.textTheme.headlineSmall?.copyWith(
+            child: Center(
+              child: Text(
+                initials,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : theme.colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: isDark
-                      ? Colors.white70
-                      : theme.colorScheme.onSurface.withValues(alpha:  0.7), // Using withValues alpha:  for simplicity
-                ),
-              ),
-              SizedBox(height: defaultHeight / 2),
-              Row(
-                children: [
-                  if (isAdmin && _isEditMode) ...[
-                    _buildStatusBadge('Admin Edit Mode', Colors.purple),
-                    SizedBox(width: defaultWidth / 2),
-                  ],
-                  _buildStatusBadge(
-                    _isEditMode ? 'Edit Mode' : 'Create Mode',
-                    _isEditMode ? Colors.blue : Colors.green,
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
-        // ✅ Conditional visibility for the entire button column
-        if (!_isEditMode || isAdmin)
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                onPressed: _isSaving ? null : () => _handleSave(doctor),
-                style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(180, 60),
-                  backgroundColor: color,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(defaultRadius),
+          SizedBox(width: defaultWidth / 2),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
                   ),
                 ),
-                icon: _isSaving
-                    ? SizedBox(
-                        height: defaultHeight,
-                        width: defaultWidth,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : Icon(_isEditMode ? Icons.update : Icons.save),
-                label: Text(
-                  _isSaving
-                      ? 'Saving...'
-                      : (_isEditMode ? 'Update Doctor' : 'Create Doctor'),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: isDark
+                        ? Colors.white70
+                        : theme.colorScheme.onSurface.withValues(
+                            alpha: 0.7,
+                          ), // Using withValues alpha:  for simplicity
+                  ),
                 ),
-              ),
-              // ✅ The delete button is now conditional on BOTH edit mode AND admin status
-              if (_isEditMode && isAdmin) ...[
                 SizedBox(height: defaultHeight / 2),
-                OutlinedButton.icon(
-                  onPressed: () => _handleDelete(doctor!),
-                  style: OutlinedButton.styleFrom(
+                Row(
+                  children: [
+                    if (isAdmin && _isEditMode) ...[
+                      _buildStatusBadge('Admin Edit Mode', Colors.purple),
+                      SizedBox(width: defaultWidth / 2),
+                    ],
+                    _buildStatusBadge(
+                      _isEditMode ? 'Edit Mode' : 'Create Mode',
+                      _isEditMode ? Colors.blue : Colors.green,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // ✅ Conditional visibility for the entire button column
+          if (!_isEditMode || isAdmin)
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _isSaving ? null : () => _handleSave(doctor),
+                  style: ElevatedButton.styleFrom(
                     fixedSize: const Size(180, 60),
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
+                    backgroundColor: color,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(defaultRadius),
                     ),
                   ),
-                  icon: const Icon(Icons.delete_outline),
-                  label: const Text('Delete'),
+                  icon: _isSaving
+                      ? SizedBox(
+                          height: defaultHeight,
+                          width: defaultWidth,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Icon(_isEditMode ? Icons.update : Icons.save),
+                  label: Text(
+                    _isSaving
+                        ? 'Saving...'
+                        : (_isEditMode ? 'Update Doctor' : 'Create Doctor'),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
+                // ✅ The delete button is now conditional on BOTH edit mode AND admin status
+                if (_isEditMode && isAdmin) ...[
+                  SizedBox(height: defaultHeight / 2),
+                  OutlinedButton.icon(
+                    onPressed: () => _handleDelete(doctor!),
+                    style: OutlinedButton.styleFrom(
+                      fixedSize: const Size(180, 60),
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(defaultRadius),
+                      ),
+                    ),
+                    icon: const Icon(Icons.delete_outline),
+                    label: const Text('Delete'),
+                  ),
+                ],
               ],
-            ],
-          ),
-      ],
-    ),
-  );
-}
+            ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildTabBar(Color color) {
     final theme = Theme.of(context);
@@ -933,93 +941,10 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   }
 
   void _showErrorDialog(String title, String errorMessage) {
-    final theme = Theme.of(context);
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-        ),
-        child: TintedContainer(
-          baseColor: theme.colorScheme.error,
-          intensity: 0.05,
-          // disablePadding: true,
-          child: Padding(
-            padding: EdgeInsets.all(defaultPadding * 2),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(defaultPadding),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.error.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.error_outline,
-                    color: theme.colorScheme.error,
-                    size: 32,
-                  ),
-                ),
-                SizedBox(height: defaultHeight),
-                Text(
-                  title,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: theme.colorScheme.error,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: defaultHeight / 2),
-                Container(
-                  padding: EdgeInsets.all(defaultPadding),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.errorContainer.withValues(
-                      alpha: 0.3,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: theme.colorScheme.error.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Text(
-                    errorMessage,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.error,
-                      height: 1.4,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(height: defaultHeight),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          widget.themeColor ??
-                          Theme.of(context).colorScheme.secondary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Got it',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      builder: (context) =>
+          ErrorDialog(title: title, errorMessage: errorMessage),
     );
   }
 

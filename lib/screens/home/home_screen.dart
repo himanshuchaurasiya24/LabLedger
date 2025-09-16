@@ -11,7 +11,7 @@ import 'package:labledger/models/referral_and_bill_chart_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/secure_storage_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
-import 'package:labledger/screens/bills/add_update_screen.dart';
+import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/bills/bill_screen.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_types_list_screen.dart';
 import 'package:labledger/screens/doctors/doctors_list_screen.dart';

@@ -147,7 +147,7 @@ class DoctorsListScreen extends ConsumerWidget {
         onTap: onTap,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CircleAvatar(
               radius: 40,
@@ -161,52 +161,56 @@ class DoctorsListScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${doctor.firstName ?? ''} ${doctor.lastName ?? ''}',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    // Applied identical text color logic
-                    color: textColor,
-                    fontSize: 22,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (doctor.hospitalName != null) ...[
+            SizedBox(width: defaultWidth),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   Text(
-                    doctor.hospitalName!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    '${doctor.firstName ?? ''} ${doctor.lastName ?? ''}',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                       // Applied identical text color logic
                       color: textColor,
-                      fontSize: 16,
+                      fontSize: 22,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ],
-                if (doctor.phoneNumber != null) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      // Icon color matches the text color logic
-                      Icon(Icons.phone, size: 16, color: textColor),
-                      const SizedBox(width: 4),
-                      Text(
-                        doctor.phoneNumber!,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          // Applied identical text color logic
-                          color: textColor,
-                          fontSize: 16,
-                        ),
+                  if (doctor.hospitalName != null) ...[
+                    Text(
+                      doctor.hospitalName!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        // Applied identical text color logic
+                        color: textColor,
+                        fontSize: 16,
                       ),
-                    ],
-                  ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  if (doctor.phoneNumber != null) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        // Icon color matches the text color logic
+                        Icon(Icons.phone, size: 16, color: textColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          doctor.phoneNumber!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            // Applied identical text color logic
+                            color: textColor,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ],
         ),

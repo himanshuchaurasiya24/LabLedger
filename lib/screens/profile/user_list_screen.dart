@@ -71,9 +71,7 @@ class UserListScreen extends ConsumerWidget {
         ),
         onPressed: () async {
           navigatorKey.currentState?.push(
-            MaterialPageRoute(
-              builder: (context) => UserAddEditScreen(),
-            ),
+            MaterialPageRoute(builder: (context) => UserAddEditScreen()),
           );
         },
         label: const Text(
@@ -133,16 +131,14 @@ class UserListScreen extends ConsumerWidget {
           navigatorKey.currentState?.push(
             MaterialPageRoute(
               builder: (context) {
-                return UserAddEditScreen(
-                  targetUserId: user.id,
-                );
+                return UserAddEditScreen(targetUserId: user.id);
               },
             ),
           );
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CircleAvatar(
               radius: 40,

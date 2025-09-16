@@ -6,6 +6,7 @@ import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
@@ -269,7 +270,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
       baseColor: color,
       radius: defaultRadius,
       elevationLevel: 1,
-      height: 340,
+      height: 330,
       child: Column(
         children: [
           Container(
@@ -516,90 +517,10 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
   }
 
   void _showErrorDialog(String title, String errorMessage) {
-    final theme = Theme.of(context);
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: TintedContainer(
-          baseColor: theme.colorScheme.error,
-          intensity: 0.05,
-          child: Padding(
-            padding: EdgeInsets.all(defaultPadding * 2),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.error.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.error_outline,
-                    color: theme.colorScheme.error,
-                    size: 32,
-                  ),
-                ),
-                SizedBox(height: defaultHeight),
-                Text(
-                  title,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: theme.colorScheme.error,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: defaultHeight / 2),
-                Container(
-                  padding: EdgeInsets.all(defaultPadding),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.errorContainer.withValues(
-                      alpha: 0.3,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: theme.colorScheme.error.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Text(
-                    errorMessage,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.error,
-                      height: 1.4,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(height: defaultHeight),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          widget.themeColor ??
-                          Theme.of(context).colorScheme.secondary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Got it',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      builder: (context) =>
+          ErrorDialog(title: title, errorMessage: errorMessage),
     );
   }
 

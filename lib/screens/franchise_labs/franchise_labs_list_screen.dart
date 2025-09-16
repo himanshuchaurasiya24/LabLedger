@@ -151,7 +151,7 @@ class FranchiseListScreen extends ConsumerWidget {
         onTap: onTap,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CircleAvatar(
               radius: 40,
@@ -166,55 +166,53 @@ class FranchiseListScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            SizedBox(width: defaultWidth),
             // Use Expanded to prevent text overflow issues with long names/addresses
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    franchise.franchiseName ?? 'Unnamed Lab',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                      fontSize: 22,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (franchise.address != null &&
+                      franchise.address!.isNotEmpty) ...[
                     Text(
-                      franchise.franchiseName ?? 'Unnamed Lab',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                      franchise.address!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         color: textColor,
-                        fontSize: 22,
+                        fontSize: 16,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (franchise.address != null &&
-                        franchise.address!.isNotEmpty) ...[
-                      Text(
-                        franchise.address!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: textColor,
-                          fontSize: 16,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                    if (franchise.phoneNumber != null &&
-                        franchise.phoneNumber!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(LucideIcons.phone, size: 16, color: textColor),
-                          const SizedBox(width: 4),
-                          Text(
-                            franchise.phoneNumber!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: textColor,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
                   ],
-                ),
+                  if (franchise.phoneNumber != null &&
+                      franchise.phoneNumber!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(LucideIcons.phone, size: 16, color: textColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          franchise.phoneNumber!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: textColor,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
             ),
           ],
@@ -250,9 +248,10 @@ class FranchiseListScreen extends ConsumerWidget {
     // This is identical to the DoctorsListScreen skeleton loader
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         CircleAvatar(radius: 40, backgroundColor: shimmerColor),
+        SizedBox(width: defaultWidth),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
