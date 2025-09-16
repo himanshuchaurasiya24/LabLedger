@@ -70,11 +70,11 @@ class UserListScreen extends ConsumerWidget {
           borderRadius: BorderRadius.circular(defaultRadius),
         ),
         onPressed: () async {
-          // navigatorKey.currentState?.push(
-          //   MaterialPageRoute(
-          //     builder: (context) => UserEditScreen(targetUserId: targetUserId, themeColor: themeColor),
-          //   ),
-          // );
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) => UserAddEditScreen(),
+            ),
+          );
         },
         label: const Text(
           "Add User",
@@ -133,10 +133,8 @@ class UserListScreen extends ConsumerWidget {
           navigatorKey.currentState?.push(
             MaterialPageRoute(
               builder: (context) {
-                return UserEditScreen(
+                return UserAddEditScreen(
                   targetUserId: user.id,
-                  isAdmin: true,
-                  themeColor: cardColor,
                 );
               },
             ),
