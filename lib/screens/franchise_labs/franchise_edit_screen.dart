@@ -58,19 +58,21 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
         widget.themeColor ?? Theme.of(context).colorScheme.secondary;
 
     final content = _isEditMode
-        ? ref.watch(singleFranchiseProvider(widget.franchiseId!)).when(
-              data: (franchise) {
-                _initializeData(franchise);
-                return _buildContent(
-                  isAdmin,
-                  effectiveThemeColor,
-                  franchise: franchise,
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, st) =>
-                  _buildErrorWidget("Error loading franchise lab: $err"),
-            )
+        ? ref
+              .watch(singleFranchiseProvider(widget.franchiseId!))
+              .when(
+                data: (franchise) {
+                  _initializeData(franchise);
+                  return _buildContent(
+                    isAdmin,
+                    effectiveThemeColor,
+                    franchise: franchise,
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, st) =>
+                    _buildErrorWidget("Error loading franchise lab: $err"),
+              )
         : _buildContent(isAdmin, effectiveThemeColor);
 
     return WindowScaffold(child: content);
@@ -81,21 +83,24 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
       children: [
         _buildFranchiseHeaderCard(isAdmin, color, franchise),
         SizedBox(height: defaultHeight),
-        Expanded(
-          child: _buildFranchiseDetailsCard(color, franchise: franchise),
-        ),
+        _buildFranchiseDetailsCard(color, franchise: franchise),
       ],
     );
   }
 
   Widget _buildFranchiseHeaderCard(
-      bool isAdmin, Color color, FranchiseName? franchise) {
+    bool isAdmin,
+    Color color,
+    FranchiseName? franchise,
+  ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final title =
-        _isEditMode ? franchise?.franchiseName ?? '' : 'New Franchise Lab';
-    final subtitle =
-        _isEditMode ? franchise?.address ?? '' : 'Enter lab details below';
+    final title = _isEditMode
+        ? franchise?.franchiseName ?? ''
+        : 'New Franchise Lab';
+    final subtitle = _isEditMode
+        ? franchise?.address ?? ''
+        : 'Enter lab details below';
 
     final initials = _isEditMode
         ? _getInitials(franchise?.franchiseName)
@@ -128,7 +133,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: color.withValues(alpha:  0.3),
+                  color: color.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -164,7 +169,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark
                         ? Colors.white70
-                        : theme.colorScheme.onSurface.withValues(alpha:  0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 SizedBox(height: defaultHeight / 2),
@@ -183,56 +188,74 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
               ],
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton.icon(
-                onPressed: _isSaving ? null : () => _handleSave(franchise),
-                style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(180, 60),
-                  backgroundColor: color,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(defaultRadius),
-                  ),
-                ),
-                icon: _isSaving
-                    ? SizedBox(
-                        height: defaultHeight,
-                        width: defaultWidth,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                    : Icon(_isEditMode ? Icons.update : Icons.save),
-                label: Text(
-                  _isSaving
-                      ? 'Saving...'
-                      : (_isEditMode ? 'Update Lab' : 'Create Lab'),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ),
-              if (_isEditMode && isAdmin) ...[
-                SizedBox(height: defaultHeight / 2),
-                OutlinedButton.icon(
-                  onPressed: _isDeleting ? null : () => _handleDelete(franchise!),
-                  style: OutlinedButton.styleFrom(
+          // ✅ Conditional visibility for the entire button column.
+          // It will only show if it's "create mode" OR if the user is an admin.
+          if (!_isEditMode || isAdmin)
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _isSaving ? null : () => _handleSave(franchise),
+                  style: ElevatedButton.styleFrom(
                     fixedSize: const Size(180, 60),
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
+                    backgroundColor: color,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(defaultRadius),
                     ),
                   ),
-                  icon: _isDeleting ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.red,)) : const Icon(Icons.delete_outline),
-                  label: Text(_isDeleting ? 'Deleting...' : 'Delete'),
+                  icon: _isSaving
+                      ? SizedBox(
+                          height: defaultHeight,
+                          width: defaultWidth,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Icon(_isEditMode ? Icons.update : Icons.save),
+                  label: Text(
+                    _isSaving
+                        ? 'Saving...'
+                        : (_isEditMode ? 'Update Lab' : 'Create Lab'),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
+                // The delete button is now conditional on BOTH edit mode AND admin status.
+                if (_isEditMode && isAdmin) ...[
+                  SizedBox(height: defaultHeight / 2),
+                  OutlinedButton.icon(
+                    onPressed: _isDeleting
+                        ? null
+                        : () => _handleDelete(franchise!),
+                    style: OutlinedButton.styleFrom(
+                      fixedSize: const Size(180, 60),
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(defaultRadius),
+                      ),
+                    ),
+                    icon: _isDeleting
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.red,
+                            ),
+                          )
+                        : const Icon(Icons.delete_outline),
+                    label: Text(_isDeleting ? 'Deleting...' : 'Delete'),
+                  ),
+                ],
               ],
-            ],
-          ),
+            ),
         ],
       ),
     );
@@ -246,12 +269,13 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
       baseColor: color,
       radius: defaultRadius,
       elevationLevel: 1,
+      height: 340,
       child: Column(
         children: [
           Container(
             padding: EdgeInsets.all(defaultPadding * 1.5),
             decoration: BoxDecoration(
-              color: color.withValues(alpha:  isDark ? 0.2 : 0.1),
+              color: color.withValues(alpha: isDark ? 0.2 : 0.1),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(defaultRadius),
                 topRight: Radius.circular(defaultRadius),
@@ -262,7 +286,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                 Container(
                   padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha:  0.2),
+                    color: color.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -467,9 +491,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
           ],
         ),
         backgroundColor: Colors.green,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -478,9 +500,9 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:  0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha:  0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         text,
@@ -510,7 +532,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.error.withValues(alpha:  0.1),
+                    color: theme.colorScheme.error.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -532,12 +554,12 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                 Container(
                   padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.errorContainer.withValues(alpha:  
-                      0.3,
+                    color: theme.colorScheme.errorContainer.withValues(
+                      alpha: 0.3,
                     ),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: theme.colorScheme.error.withValues(alpha:  0.2),
+                      color: theme.colorScheme.error.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Text(
@@ -624,7 +646,8 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                 onPressed: () {
                   if (widget.franchiseId != null) {
                     ref.invalidate(
-                        singleFranchiseProvider(widget.franchiseId!));
+                      singleFranchiseProvider(widget.franchiseId!),
+                    );
                   }
                 },
                 icon: const Icon(Icons.refresh),

@@ -121,7 +121,8 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
   Widget _buildContent(Color color, bool currentUserIsAdmin, {User? user}) {
     return Column(
       children: [
-        _buildUserHeaderCard(color, user),
+        // After
+        _buildUserHeaderCard(color, currentUserIsAdmin, user),
         SizedBox(height: defaultHeight),
         Expanded(
           child: LayoutBuilder(
@@ -155,7 +156,11 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
     );
   }
 
-  Widget _buildUserHeaderCard(Color color, User? user) {
+  Widget _buildUserHeaderCard(
+    Color color,
+    bool currentUserIsAdmin,
+    User? user,
+  ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final title = _isEditMode
@@ -224,7 +229,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark
                         ? Colors.white70
-                        : theme.colorScheme.onSurface.withValues(alpha:  0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 SizedBox(height: defaultHeight / 2),
@@ -235,6 +240,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
               ],
             ),
           ),
+          // ✅ CORRECTED LOGIC: The Column is now always visible.
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -264,7 +270,8 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
                       : (_isEditMode ? 'Update User' : 'Create User'),
                 ),
               ),
-              if (_isEditMode) ...[
+              // ✅ The delete button's visibility is the only part that is conditional.
+              if (_isEditMode && currentUserIsAdmin) ...[
                 SizedBox(height: defaultHeight / 2),
                 OutlinedButton.icon(
                   onPressed: _isDeleting ? null : () => _handleDelete(user!),
@@ -364,7 +371,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
       child: Column(
         children: [
           _buildCardHeader('Personal Information', Icons.person_outline, color),
-          SizedBox(height: defaultHeight,),
+          SizedBox(height: defaultHeight),
           Expanded(
             child: Form(
               key: _detailsFormKey,
@@ -450,7 +457,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
       child: Column(
         children: [
           _buildCardHeader('Security Settings', Icons.security, color),
-          SizedBox(height: defaultHeight,),
+          SizedBox(height: defaultHeight),
           Expanded(
             child: Form(
               key: _passwordFormKey,
@@ -485,7 +492,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
                       ],
                       Divider(
                         height: defaultHeight * 2,
-                        color: color.withValues(alpha:  0.2),
+                        color: color.withValues(alpha: 0.2),
                       ),
                     ],
 
@@ -760,7 +767,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(defaultRadius),
-        border: Border.all(color: color.withValues(alpha:  0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -801,7 +808,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:  0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
@@ -821,9 +828,9 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:  0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha:  0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         text,
@@ -853,19 +860,97 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
     );
   }
 
+  // Place this method inside your _UserAddEditScreenState class
+
   void _showErrorDialog(String title, String errorMessage) {
     if (!mounted) return;
+    final theme = Theme.of(context);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(errorMessage.replaceAll('Exception: ', '')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(defaultRadius),
+        ),
+        child: TintedContainer(
+          baseColor: theme.colorScheme.error,
+          intensity: 0.05,
+          child: Padding(
+            padding: EdgeInsets.all(defaultPadding * 2),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(defaultPadding),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.error.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.error_outline,
+                    color: theme.colorScheme.error,
+                    size: 32,
+                  ),
+                ),
+                SizedBox(height: defaultHeight),
+                Text(
+                  title,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: theme.colorScheme.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: defaultHeight / 2),
+                Container(
+                  padding: EdgeInsets.all(defaultPadding),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.errorContainer.withValues(
+                      alpha: 0.3,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: theme.colorScheme.error.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Text(
+                    // We still clean the message here for robustness
+                    errorMessage.replaceAll('Exception: ', ''),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onErrorContainer,
+                      height: 1.4,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: defaultHeight),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          widget
+                              .baseColor ?? // Using baseColor from this screen
+                          Theme.of(context).colorScheme.secondary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Got it',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
