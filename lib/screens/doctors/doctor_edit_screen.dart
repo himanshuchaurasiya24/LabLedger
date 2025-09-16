@@ -845,7 +845,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(defaultRadius),
+        ),
         title: Row(
           children: [
             Icon(
@@ -934,7 +936,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(defaultRadius),
+        ),
         child: TintedContainer(
           baseColor: theme.colorScheme.error,
           intensity: 0.05,
@@ -945,7 +949,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.error.withValues(alpha: 0.1),
                     shape: BoxShape.circle,

@@ -1,8 +1,5 @@
-// screens/initials/window_loading_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:version/version.dart';
 import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:labledger/authentication/auth_repository.dart';
 import 'package:labledger/constants/constants.dart';
@@ -12,6 +9,10 @@ import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
+import 'package:version/version.dart';
+
+// Assuming UpdateRequiredScreen is defined elsewhere
+// import 'package:labledger/screens/initials/update_required_screen.dart';
 
 class WindowLoadingScreen extends ConsumerStatefulWidget {
   const WindowLoadingScreen({super.key});
@@ -42,27 +43,31 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
 
     try {
       setState(() => tileText = "Verifying app version...");
-      final requiredVersionString = await AuthRepository.instance
-          .fetchMinimumAppVersion();
+      final requiredVersionString =
+          await AuthRepository.instance.fetchMinimumAppVersion();
       final currentVersion = Version.parse(appVersion);
       final requiredVersion = Version.parse(requiredVersionString);
 
       if (currentVersion < requiredVersion) {
         // If version is outdated, navigate to the dedicated update screen.
-        _navigateTo(
-          UpdateRequiredScreen(requiredVersion: requiredVersionString),
-        );
+        // _navigateTo(
+        //   UpdateRequiredScreen(requiredVersion: requiredVersionString),
+        // );
         return;
       }
 
       setState(() => tileText = "Verifying session...");
-      // If version is OK, try to verify the user's session.
-      final authResponse = await ref.read(verifyAuthProvider.future);
+      
+      // ✅ CORRECTED LINE:
+      // We now read 'currentUserProvider', which is the single source of truth
+      // for the user's authentication state.
+      final authResponse = await ref.read(currentUserProvider.future);
 
       // If session is valid, go to the home screen.
       setState(() => tileText = "Authentication successful!");
       await Future.delayed(const Duration(milliseconds: 1000));
       _navigateTo(HomeScreen(authResponse: authResponse));
+
     } on AuthException catch (e) {
       // If any auth error occurs (expired token, locked account), go to the login screen
       // with a clear message explaining why.

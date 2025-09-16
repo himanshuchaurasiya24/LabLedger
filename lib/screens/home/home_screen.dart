@@ -226,7 +226,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             navigatorKey.currentState?.push(
                               MaterialPageRoute(
                                 builder: (context) {
-                                  return FranchiseLabScreen();
+                                  return FranchiseListScreen();
                                 },
                               ),
                             );
@@ -294,7 +294,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           navigatorKey.currentState?.push(
                             MaterialPageRoute(
                               builder: (context) {
-                                return FranchiseLabScreen();
+                                return FranchiseListScreen();
                               },
                             ),
                           );

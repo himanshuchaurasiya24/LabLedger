@@ -1,5 +1,3 @@
-// screens/initials/login_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_exceptions.dart';
@@ -20,7 +18,8 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderStateMixin {
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with TickerProviderStateMixin {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -34,7 +33,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    // This is a custom method you have, keeping it as is.
     setWindowBehavior(isForLogin: true);
 
     if (widget.initialErrorMessage != null) {
@@ -78,6 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
     });
 
     try {
+      // ✅ KEY CHANGE: Reverted to using the LoginCredentials class constructor.
       final credentials = LoginCredentials(
         username: usernameController.text.trim(),
         password: passwordController.text,
@@ -87,21 +86,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
       if (mounted) {
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
-            builder: (context) {
-              return HomeScreen(authResponse: authResponse,);
-            },
+            builder: (context) => HomeScreen(authResponse: authResponse),
           ),
         );
       }
-    } on AuthException catch (e) {
-      // --- THIS IS THE KEY CHANGE ---
-      // Catch any specific AuthException and use its friendly message
-      // from the backend. This now handles all login error cases.
+    } on AppException catch (e) {
+      // This robust error handling correctly catches all custom API exceptions.
       setState(() {
         errorMessage = e.message;
       });
     } catch (e) {
-      // Catch any other unexpected errors.
+      // Fallback for any other unexpected errors.
       setState(() {
         errorMessage = "An unexpected error occurred. Please try again.";
       });
@@ -117,6 +112,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    // Assuming ColorValues extension is defined elsewhere
+    Color errorContainerColor = theme.colorScheme.errorContainer.withValues(alpha:  0.8);
+    Color errorBorderColor = theme.colorScheme.error.withValues(alpha:  0.3);
+    Color footerTextColor = theme.colorScheme.onSurfaceVariant.withValues(alpha:  0.7);
 
     return Scaffold(
       body: FadeTransition(
@@ -138,25 +138,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          appIconName(context: context, firstName: "Lab", secondName: "ledger"),
+                          appIconName(
+                              context: context,
+                              firstName: "Lab",
+                              secondName: "ledger"),
                           SizedBox(height: defaultHeight),
                           if (errorMessage.isNotEmpty) ...[
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.errorContainer.withValues(alpha:  0.8),
+                                color: errorContainerColor,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: theme.colorScheme.error.withValues(alpha:  0.3)),
+                                border: Border.all(color: errorBorderColor),
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.error_outline, color: theme.colorScheme.error, size: 20),
+                                  Icon(Icons.error_outline,
+                                      color: theme.colorScheme.error, size: 20),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
                                       errorMessage,
                                       style: TextStyle(
-                                        color: theme.colorScheme.onErrorContainer,
+                                        color:
+                                            theme.colorScheme.onErrorContainer,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -170,7 +175,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
                           CustomTextField(
                             controller: usernameController,
                             label: 'Username',
-                            prefixIcon: const Icon(Icons.person_outline, size: 20),
+                            prefixIcon:
+                                const Icon(Icons.person_outline, size: 20),
                             keyboardType: TextInputType.text,
                             validator: _validateUsername,
                             tintColor: theme.colorScheme.primary,
@@ -179,14 +185,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
                           CustomTextField(
                             controller: passwordController,
                             label: 'Password',
-                            prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                            prefixIcon:
+                                const Icon(Icons.lock_outline, size: 20),
                             obscureText: _isPasswordObscured,
                             validator: _validatePassword,
                             onSubmitted: (_) => !isLoading ? _login() : null,
                             tintColor: theme.colorScheme.primary,
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _isPasswordObscured ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                _isPasswordObscured
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
                                 size: 20,
                               ),
                               onPressed: () {
@@ -205,9 +214,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
                                 variant: ButtonVariant.text,
                                 onPressed: !isLoading
                                     ? () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           const SnackBar(
-                                            content: Text('Contact administrator to reset password'),
+                                            content: Text(
+                                                'Contact administrator to reset password'),
                                           ),
                                         );
                                       }
@@ -233,7 +244,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with TickerProviderSt
                             "$appName $appVersion | $appDescription",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: theme.colorScheme.onSurfaceVariant.withValues(alpha:  0.7),
+                              color: footerTextColor,
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                             ),
@@ -271,11 +282,13 @@ class UpdateRequiredScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.system_update_alt, size: 50, color: theme.colorScheme.primary),
+                Icon(Icons.system_update_alt,
+                    size: 50, color: theme.colorScheme.primary),
                 const SizedBox(height: 24),
                 Text(
                   'Update Required',
-                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),

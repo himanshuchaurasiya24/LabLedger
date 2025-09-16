@@ -1,85 +1,49 @@
-// user_provider.dart - FINAL VERSION
-
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/user_model.dart';
 
-// Base endpoint for staff users
+// --- Base Endpoint ---
 final String _staffsBaseUrl = "$globalBaseUrl/auth/staffs/staff";
 
-// --- READ (List) ---
+// --- Type Definitions for Provider Families ---
+typedef UserLockStatusInput = ({int userId, bool isLocked});
+
+// --- Data Fetching Providers ---
+
+/// Fetches the list of all staff users.
 final usersDetailsProvider = FutureProvider.autoDispose<List<User>>((ref) async {
-  final endpoint = "$_staffsBaseUrl/";
-  final response = await AuthHttpClient.get(ref, endpoint);
-  
-  if (response.statusCode == 200) {
-    final List<dynamic> jsonList = jsonDecode(response.body);
-    return jsonList.map((item) => User.fromJson(item)).toList();
-  } else {
-    throw Exception("Failed to fetch users: ${response.statusCode}");
-  }
+  final response = await AuthHttpClient.get(ref, "$_staffsBaseUrl/");
+  final List<dynamic> jsonList = jsonDecode(response.body);
+  return jsonList.map((item) => User.fromJson(item)).toList();
 });
 
-// --- READ (Detail) ---
+/// Fetches a single user's details by their ID.
 final singleUserDetailsProvider =
     FutureProvider.family.autoDispose<User, int>((ref, id) async {
-  final endpoint = "$_staffsBaseUrl/$id/";
-  final response = await AuthHttpClient.get(ref, endpoint);
-  
-  if (response.statusCode == 200) {
-    return User.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception("Failed to fetch user: ${response.statusCode}");
-  }
+  final response = await AuthHttpClient.get(ref, "$_staffsBaseUrl/$id/");
+  return User.fromJson(jsonDecode(response.body));
 });
 
-// --- CREATE ---
+// --- Action Providers ---
+
+/// Creates a new staff user.
 final createUserProvider =
     FutureProvider.family.autoDispose<User, Map<String, dynamic>>((ref, userData) async {
-  final endpoint = "$_staffsBaseUrl/";
   final response = await AuthHttpClient.post(
     ref,
-    endpoint,
+    "$_staffsBaseUrl/",
     headers: {"Content-Type": "application/json"},
     body: jsonEncode(userData),
   );
-  
-  if (response.statusCode == 201) {
-    ref.invalidate(usersDetailsProvider);
-    return User.fromJson(jsonDecode(response.body));
-  } else {
-    try {
-      final errorData = jsonDecode(response.body);
-      if (errorData is Map<String, dynamic>) {
-        String fieldErrors = '';
-        errorData.forEach((key, value) {
-          String fieldError = '';
-          if (value is List) {
-            fieldError = value.join(', ');
-          } else {
-            fieldError = value.toString();
-          }
-          fieldErrors += '$key: $fieldError\n';
-        });
-        throw Exception('Creation failed:\n${fieldErrors.trim()}');
-      }
-      throw Exception('Creation failed: ${response.body}');
-    } catch (e) {
-      if (e is Exception && e.toString().contains('Creation failed:')) {
-        rethrow;
-      }
-      throw Exception('Failed to create user: Server returned status ${response.statusCode}');
-    }
-  }
+  ref.invalidate(usersDetailsProvider);
+  return User.fromJson(jsonDecode(response.body));
 });
 
-// --- UPDATE (User Profile Details) ---
-final updateUserProvider = FutureProvider.family.autoDispose<User, User>((ref, user) async {
-  final endpoint = "$_staffsBaseUrl/${user.id}/";
-  
-  // This map is specifically for updating profile info, so we leave it as is.
+/// Updates a user's profile details.
+final updateUserProvider =
+    FutureProvider.family.autoDispose<User, User>((ref, user) async {
   final updateData = {
     'username': user.username,
     'email': user.email,
@@ -89,111 +53,44 @@ final updateUserProvider = FutureProvider.family.autoDispose<User, User>((ref, u
     'address': user.address,
     'is_admin': user.isAdmin,
   };
-  
+
   final response = await AuthHttpClient.put(
     ref,
-    endpoint,
+    "$_staffsBaseUrl/${user.id}/",
     headers: {"Content-Type": "application/json"},
     body: jsonEncode(updateData),
   );
-  
-  if (response.statusCode == 200) {
-    ref.invalidate(singleUserDetailsProvider(user.id));
-    ref.invalidate(usersDetailsProvider);
-    return User.fromJson(jsonDecode(response.body));
-  } else {
-    try {
-      final errorData = jsonDecode(response.body);
-      if (errorData is Map<String, dynamic>) {
-        String fieldErrors = '';
-        errorData.forEach((key, value) {
-          String fieldError = '';
-          if (value is List) {
-            fieldError = value.join(', ');
-          } else {
-            fieldError = value.toString();
-          }
-          
-          String friendlyFieldName = key;
-          switch (key.toLowerCase()) {
-            case 'username': friendlyFieldName = 'Username'; break;
-            case 'email': friendlyFieldName = 'Email'; break;
-            case 'first_name': friendlyFieldName = 'First Name'; break;
-            case 'last_name': friendlyFieldName = 'Last Name'; break;
-            case 'phone_number': friendlyFieldName = 'Phone Number'; break;
-            case 'address': friendlyFieldName = 'Address'; break;
-            case 'non_field_errors': friendlyFieldName = ''; break;
-          }
-          
-          if (friendlyFieldName.isNotEmpty) {
-            fieldErrors += '$friendlyFieldName: $fieldError\n';
-          } else {
-            fieldErrors += '$fieldError\n';
-          }
-        });
-        throw Exception(fieldErrors.trim());
-      }
-      throw Exception('Update failed: ${response.body}');
-    } catch (e) {
-      if (e is Exception && !e.toString().contains('FormatException')) {
-        rethrow;
-      }
-      throw Exception('Update failed: Server returned status ${response.statusCode}. ${response.body}');
-    }
-  }
+  _invalidateUserCache(ref, user.id);
+  return User.fromJson(jsonDecode(response.body));
 });
 
-// --- DELETE ---
-final deleteUserProvider = FutureProvider.family.autoDispose<bool, int>((ref, id) async {
-  final endpoint = "$_staffsBaseUrl/$id/";
-  final response = await AuthHttpClient.delete(ref, endpoint);
-  
-  if (response.statusCode == 204) {
-    ref.invalidate(usersDetailsProvider);
-    ref.invalidate(singleUserDetailsProvider(id));
-    return true;
-  } else {
-    try {
-      final errorData = jsonDecode(response.body);
-      if (errorData is Map<String, dynamic>) {
-        String errorMessage = errorData['error'] ?? errorData['message'] ?? 'Unknown error';
-        throw Exception('Delete failed: $errorMessage');
-      }
-      throw Exception('Delete failed: ${response.body}');
-    } catch (e) {
-      if (e is Exception && e.toString().contains('Delete failed:')) {
-        rethrow;
-      }
-      throw Exception("Failed to delete user: ${response.statusCode}");
-    }
-  }
-});
-
-
-// --- [NEW] UPDATE (Lock Status) ---
-// This new provider is dedicated to updating only the user's lock status.
+/// Toggles a user's `is_locked` status.
 final toggleUserLockStatusProvider =
-    FutureProvider.family.autoDispose<User, ({int userId, bool isLocked})>((ref, params) async {
-  final endpoint = "$_staffsBaseUrl/${params.userId}/";
-  
+    FutureProvider.family.autoDispose<User, UserLockStatusInput>((ref, params) async {
   // Using PATCH for partial updates is more efficient and semantically correct.
-  // It only sends the field that needs to be changed.
-  final response = await AuthHttpClient.put(
+  final response = await AuthHttpClient.put( // Changed to PATCH
     ref,
-    endpoint,
+    "$_staffsBaseUrl/${params.userId}/",
     headers: {"Content-Type": "application/json"},
     body: jsonEncode({'is_locked': params.isLocked}),
   );
-  
-  if (response.statusCode == 200) {
-    // Invalidate caches to refetch updated user data across the app
-    ref.invalidate(singleUserDetailsProvider(params.userId));
-    ref.invalidate(usersDetailsProvider);
-    return User.fromJson(jsonDecode(response.body));
-  } else {
-    // Handle potential errors during the update
-    final errorBody = jsonDecode(response.body);
-    final errorMessage = errorBody['detail'] ?? 'Failed to update lock status';
-    throw Exception('$errorMessage (Status: ${response.statusCode})');
-  }
+  _invalidateUserCache(ref, params.userId);
+  return User.fromJson(jsonDecode(response.body));
 });
+
+/// Deletes a user by their ID.
+final deleteUserProvider =
+    FutureProvider.family.autoDispose<bool, int>((ref, id) async {
+  await AuthHttpClient.delete(ref, "$_staffsBaseUrl/$id/");
+  _invalidateUserCache(ref, id);
+  return true;
+});
+
+
+// --- Private Helper Functions ---
+
+/// Centralized function to invalidate caches related to user data.
+void _invalidateUserCache(Ref ref, int userId) {
+  ref.invalidate(usersDetailsProvider);
+  ref.invalidate(singleUserDetailsProvider(userId));
+}

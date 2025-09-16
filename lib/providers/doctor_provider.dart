@@ -1,37 +1,28 @@
-// PROVIDERS & MODEL HANDLING - doctors_provider.dart
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/doctors_model.dart';
 
-/// ✅ Base API Endpoint
+/// Base API Endpoint
 final String doctorsEndpoint = "${globalBaseUrl}diagnosis/doctors/doctor/";
 
-/// ✅ Fetch all doctors
+/// Fetches all doctors.
 final doctorsProvider = FutureProvider.autoDispose<List<Doctor>>((ref) async {
+  // AuthHttpClient now handles all errors. If we get a response, it's successful.
   final response = await AuthHttpClient.get(ref, doctorsEndpoint);
-
-  if (response.statusCode == 200) {
-    final List data = jsonDecode(response.body);
-    return data.map((e) => Doctor.fromJson(e)).toList().cast<Doctor>();
-  } else {
-    throw Exception("Failed to fetch doctors: ${response.body}");
-  }
+  final List data = jsonDecode(response.body);
+  return data.map((e) => Doctor.fromJson(e)).toList();
 });
 
-/// ✅ Fetch a single doctor by their ID
+/// Fetches a single doctor by their ID.
 final singleDoctorProvider =
     FutureProvider.autoDispose.family<Doctor, int>((ref, id) async {
   final response = await AuthHttpClient.get(ref, "$doctorsEndpoint$id/");
-  if (response.statusCode == 200) {
-    return Doctor.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Failed to load doctor details');
-  }
+  return Doctor.fromJson(jsonDecode(response.body));
 });
 
-/// ✅ Create a new doctor
+/// Creates a new doctor.
 final createDoctorProvider =
     FutureProvider.autoDispose.family<Doctor, Doctor>((ref, newDoctor) async {
   final response = await AuthHttpClient.post(
@@ -40,16 +31,12 @@ final createDoctorProvider =
     headers: {"Content-Type": "application/json"},
     body: jsonEncode(newDoctor.toJson()),
   );
-
-  if (response.statusCode == 201) {
-    ref.invalidate(doctorsProvider);
-    return Doctor.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception("Failed to create doctor: ${response.body}");
-  }
+  // On success, invalidate the list so it re-fetches with the new doctor.
+  ref.invalidate(doctorsProvider);
+  return Doctor.fromJson(jsonDecode(response.body));
 });
 
-/// ✅ Update an existing doctor
+/// Updates an existing doctor.
 final updateDoctorProvider = FutureProvider.autoDispose
     .family<Map<String, dynamic>, Map<String, dynamic>>((ref, input) async {
   final int id = input['id'];
@@ -61,26 +48,18 @@ final updateDoctorProvider = FutureProvider.autoDispose
     headers: {"Content-Type": "application/json"},
     body: jsonEncode(updatedData),
   );
-
-  if (response.statusCode == 200) {
-    ref.invalidate(doctorsProvider);
-    return jsonDecode(response.body);
-  } else {
-    throw Exception("Failed to update doctor: ${response.body}");
-  }
+  // On success, invalidate the list to reflect the changes.
+  ref.invalidate(doctorsProvider);
+  return jsonDecode(response.body);
 });
 
-/// ✅ Delete a doctor
+/// Deletes a doctor by their ID.
 final deleteDoctorProvider =
     FutureProvider.autoDispose.family<void, int>((ref, id) async {
-  final response = await AuthHttpClient.delete(
+  await AuthHttpClient.delete(
     ref,
     "$doctorsEndpoint$id/",
   );
-
-  if (response.statusCode == 204) {
-    ref.invalidate(doctorsProvider);
-  } else {
-    throw Exception("Failed to delete doctor: ${response.body}");
-  }
+  // On success, invalidate the list to remove the deleted doctor.
+  ref.invalidate(doctorsProvider);
 });

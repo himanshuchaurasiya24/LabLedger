@@ -1,46 +1,32 @@
-// providers/referral_providers.dart
-
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 
-String get billsEndpoint => "${globalBaseUrl}diagnosis/bills/bill/";
-String get referralStatsEndpoint =>
+// --- Endpoints ---
+final String referralStatsEndpoint =
     "${globalBaseUrl}diagnosis/referral-stats/referral-stat/";
-String get chartStatsEndpoint =>
+final String chartStatsEndpoint =
     "${globalBaseUrl}diagnosis/referral-stats/bill-chart-stat/";
 
+/// Fetches referral statistics for the dashboard.
 final referralStatsProvider =
     FutureProvider.autoDispose<ReferralStatsResponse>((ref) async {
-  final http.Response response =
-      await AuthHttpClient.get(ref, referralStatsEndpoint);
-
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> json = jsonDecode(response.body);
-    return ReferralStatsResponse.fromJson(json);
-  } else {
-    throw Exception(
-      "Failed to fetch referral stats: ${response.statusCode} ${response.body}",
-    );
-  }
+  // AuthHttpClient now handles all errors. If we get a response, it's successful.
+  final response = await AuthHttpClient.get(ref, referralStatsEndpoint);
+  final Map<String, dynamic> json = jsonDecode(response.body);
+  return ReferralStatsResponse.fromJson(json);
 });
 
+/// Fetches chart statistics for the dashboard.
 final billChartStatsProvider =
     FutureProvider.autoDispose<ChartStatsResponse>((ref) async {
-  final http.Response response =
-      await AuthHttpClient.get(ref, chartStatsEndpoint);
-
-  if (response.statusCode == 200) {
-    final Map<String, dynamic> json = jsonDecode(response.body);
-    return ChartStatsResponse.fromJson(json);
-  } else {
-    throw Exception(
-      "Failed to fetch chart stats: ${response.statusCode} ${response.body}",
-    );
-  }
+  // No need to check status codes; AuthHttpClient manages failures.
+  final response = await AuthHttpClient.get(ref, chartStatsEndpoint);
+  final Map<String, dynamic> json = jsonDecode(response.body);
+  return ChartStatsResponse.fromJson(json);
 });
 
-final selectedTimePeriodProvider = StateProvider<String>((ref) => 'This Month');
+/// Holds the currently selected time period for filtering stats (e.g., "This Month").
+final selectedTimePeriodProvider = StateProvider.autoDispose<String>((ref) => 'This Month');

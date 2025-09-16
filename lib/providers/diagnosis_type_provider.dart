@@ -4,46 +4,36 @@ import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 
-/// ✅ Base API Endpoint
+/// Base API Endpoint
 final String diagnosisTypeEndpoint =
     "${globalBaseUrl}diagnosis/diagnosis-types/diagnosis-type/";
 
-/// ✅ Fetch all Diagnosis Types
+/// Fetches all Diagnosis Types.
 final diagnosisTypeProvider =
     FutureProvider.autoDispose<List<DiagnosisType>>((ref) async {
+  // AuthHttpClient handles all errors. If we get a response, it's successful.
   final response = await AuthHttpClient.get(ref, diagnosisTypeEndpoint);
-
-  if (response.statusCode == 200) {
-    final List data = jsonDecode(response.body);
-    return data.map((e) => DiagnosisType.fromJson(e)).toList();
-  } else {
-    throw Exception('Failed to load Diagnosis Types: ${response.body}');
-  }
+  final List data = jsonDecode(response.body);
+  return data.map((e) => DiagnosisType.fromJson(e)).toList();
 });
 
-/// ✅ Add a Diagnosis Type
+/// Adds a new Diagnosis Type.
 final addDiagnosisTypeProvider =
-    FutureProvider.autoDispose.family<bool, DiagnosisType>(
-  (ref, diagnosis) async {
-    final response = await AuthHttpClient.post(
-      ref,
-      diagnosisTypeEndpoint,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(diagnosis.toJson()),
-    );
+    FutureProvider.autoDispose.family<bool, DiagnosisType>((ref, diagnosis) async {
+  await AuthHttpClient.post(
+    ref,
+    diagnosisTypeEndpoint,
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode(diagnosis.toJson()),
+  );
+  // On success, invalidate the list and return true.
+  ref.invalidate(diagnosisTypeProvider);
+  return true;
+});
 
-    if (response.statusCode == 201) {
-      ref.invalidate(diagnosisTypeProvider); // refresh list
-      return true;
-    } else {
-      throw Exception('Failed to add Diagnosis Type: ${response.body}');
-    }
-  },
-);
-
-/// ✅ Update a Diagnosis Type
-final updateDiagnosisTypeProvider = FutureProvider.autoDispose
-    .family<Map<String, dynamic>, Map<String, dynamic>>((ref, input) async {
+/// Updates an existing Diagnosis Type.
+final updateDiagnosisTypeProvider =
+    FutureProvider.autoDispose.family<Map<String, dynamic>, Map<String, dynamic>>((ref, input) async {
   final int id = input['id'];
   final Map<String, dynamic> updatedData = input['data'];
 
@@ -53,27 +43,19 @@ final updateDiagnosisTypeProvider = FutureProvider.autoDispose
     headers: {"Content-Type": "application/json"},
     body: jsonEncode(updatedData),
   );
-
-  if (response.statusCode == 200) {
-    ref.invalidate(diagnosisTypeProvider);
-    return jsonDecode(response.body);
-  } else {
-    throw Exception("Failed to update Diagnosis Type: ${response.body}");
-  }
+  // On success, invalidate the list and return the updated data.
+  ref.invalidate(diagnosisTypeProvider);
+  return jsonDecode(response.body);
 });
 
-/// ✅ Delete a Diagnosis Type
+/// Deletes a Diagnosis Type.
 final deleteDiagnosisTypeProvider =
     FutureProvider.autoDispose.family<bool, int>((ref, id) async {
-  final response = await AuthHttpClient.delete(
+  await AuthHttpClient.delete(
     ref,
     "$diagnosisTypeEndpoint$id/",
   );
-
-  if (response.statusCode == 204) {
-    ref.invalidate(diagnosisTypeProvider); // refresh list
-    return true;
-  } else {
-    throw Exception('Failed to delete Diagnosis Type: ${response.body}');
-  }
+  // On success, invalidate the list and return true.
+  ref.invalidate(diagnosisTypeProvider);
+  return true;
 });
