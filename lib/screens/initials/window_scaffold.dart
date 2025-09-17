@@ -22,6 +22,9 @@ class WindowScaffold extends StatefulWidget {
   final bool enableSlideTransition;
   final Color? baseColor;
   final Color? primaryColor;
+  final CrossAxisAlignment? crossAxisAlignment;
+  final MainAxisAlignment? mainAxisAlignment;
+  final MainAxisSize? mainAxisSize;
 
   const WindowScaffold({
     super.key,
@@ -36,6 +39,9 @@ class WindowScaffold extends StatefulWidget {
     this.floatingActionButton,
     this.baseColor,
     this.primaryColor,
+    this.crossAxisAlignment,
+    this.mainAxisAlignment,
+    this.mainAxisSize,
   });
 
   @override
@@ -209,6 +215,11 @@ class _WindowScaffoldState extends State<WindowScaffold>
       child: Scaffold(
         floatingActionButton: widget.floatingActionButton,
         body: Column(
+          crossAxisAlignment:
+              widget.crossAxisAlignment ?? CrossAxisAlignment.start,
+          mainAxisAlignment:
+              widget.mainAxisAlignment ?? MainAxisAlignment.start,
+          mainAxisSize: widget.mainAxisSize ?? MainAxisSize.min,
           children: [
             SizedBox(
               height: 50,
@@ -354,7 +365,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
             ),
             SizedBox(
               height: widget.isInitialScreen
-                  ? defaultHeight/2
+                  ? defaultHeight / 2
                   : defaultHeight,
             ),
             Expanded(

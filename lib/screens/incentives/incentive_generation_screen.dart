@@ -6,10 +6,15 @@ class IncentiveGenerationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WindowScaffold(child: Column(
-      children: [
-        //
-      ],
-    ));
+    return WindowScaffold(
+      child: Column(
+        children: [
+          Text(
+            "Incentive Generation Page",
+            style: Theme.of(context).textTheme.headlineLarge,
+          ),
+        ],
+      ),
+    );
   }
 }
