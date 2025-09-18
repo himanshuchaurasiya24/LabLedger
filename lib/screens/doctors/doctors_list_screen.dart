@@ -4,6 +4,7 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/doctor_provider.dart';
+import 'package:labledger/screens/doctors/doctor_dashboard_screen.dart';
 import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -119,7 +120,8 @@ class DoctorsListScreen extends ConsumerWidget {
           navigatorKey.currentState?.push(
             MaterialPageRoute(
               builder: (context) {
-                return DoctorEditScreen(doctorId: doctors[index].id);
+                // return DoctorEditScreen(doctorId: doctors[index].id);
+                return DoctorDashboardScreen(doctorId: doctors[index].id!);
               },
             ),
           );
