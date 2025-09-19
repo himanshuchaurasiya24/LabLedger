@@ -76,7 +76,6 @@ final paginatedDoctorBillProvider = FutureProvider.autoDispose
         queryParameters: {
           "page": page.toString(),
           if (query.isNotEmpty) 'search': query,
-
           "referred_by_doctor": id.toString(),
         },
       );
