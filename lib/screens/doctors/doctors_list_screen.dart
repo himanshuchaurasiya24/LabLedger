@@ -120,8 +120,11 @@ class DoctorsListScreen extends ConsumerWidget {
           navigatorKey.currentState?.push(
             MaterialPageRoute(
               builder: (context) {
-                // return DoctorEditScreen(doctorId: doctors[index].id);
-                return DoctorDashboardScreen(doctorId: doctors[index].id!);
+                return DoctorDashboardScreen(
+                  doctorId: doctors[index].id!,
+                  doctorName:
+                      "${doctors[index].firstName!} ${doctors[index].lastName!}",
+                );
               },
             ),
           );

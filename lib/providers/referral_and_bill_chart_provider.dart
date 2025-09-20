@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/models/bill_stats_model.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 
@@ -30,3 +31,14 @@ final billChartStatsProvider =
 
 /// Holds the currently selected time period for filtering stats (e.g., "This Month").
 final selectedTimePeriodProvider = StateProvider.autoDispose<String>((ref) => 'This Month');
+
+/// Fetches bill growth statistics for a specific doctor.
+final doctorGrowthStatsProvider =
+    FutureProvider.autoDispose.family<BillStats, int>((ref, doctorId) async {
+  // Construct the new endpoint URL
+  final String doctorGrowthStatsEndpoint =
+      "${globalBaseUrl}diagnosis/doctors/$doctorId/growth-stats/";
+
+  final response = await AuthHttpClient.get(ref, doctorGrowthStatsEndpoint);
+  return BillStats.fromJson(jsonDecode(response.body));
+});

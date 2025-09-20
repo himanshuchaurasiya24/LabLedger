@@ -41,10 +41,13 @@ class BillStats {
 class BillPeriodStats {
   final int totalBills;
   final Map<String, int> diagnosisCounts;
+  // ✅ 1. Add the new incentive field
+  final int totalIncentive;
 
   BillPeriodStats({
     required this.totalBills,
     required this.diagnosisCounts,
+    required this.totalIncentive, // ✅ 2. Add to the constructor
   });
 
   factory BillPeriodStats.fromJson(Map<String, dynamic> json) {
@@ -57,7 +60,9 @@ class BillPeriodStats {
 
     return BillPeriodStats(
       totalBills: json['total_bills'] ?? 0,
-      diagnosisCounts: diagnosisMap,
+      diagnosisCounts: diagnosisMap, // This already defaults to empty
+      // ✅ 3. Parse 'total_incentive', defaulting to 0 if it's not in the JSON
+      totalIncentive: json['total_incentive'] ?? 0,
     );
   }
 
@@ -65,6 +70,7 @@ class BillPeriodStats {
     return {
       'total_bills': totalBills,
       'diagnosis_counts': diagnosisCounts,
+      'total_incentive': totalIncentive, // ✅ 4. Add to the toJson method
     };
   }
 }

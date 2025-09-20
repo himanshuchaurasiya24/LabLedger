@@ -145,9 +145,9 @@ final deleteBillProvider = FutureProvider.autoDispose.family<void, int>((
 void _invalidateBillCache(Ref ref) {
   ref.invalidate(referralStatsProvider);
   ref.invalidate(billChartStatsProvider);
+  ref.invalidate(doctorGrowthStatsProvider);
   ref.invalidate(billGrowthStatsProvider);
   ref.invalidate(latestBillsProvider);
   ref.invalidate(paginatedUnpaidPartialBillsProvider);
   ref.invalidate(paginatedBillsProvider);
 }
-
