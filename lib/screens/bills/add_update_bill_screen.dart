@@ -17,6 +17,7 @@ import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+
 class AddBillScreen extends ConsumerStatefulWidget {
   final Bill? billData;
   final Color themeColor;
@@ -104,27 +105,53 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     refByDoctorDisplayController.dispose();
     super.dispose();
   }
-
   void _preFillData() {
-    if (widget.billData == null || _isControllersInitialized) return;
-    final bill = widget.billData!;
-    final dateFormat = DateFormat('dd-MM-yyyy');
-    patientNameController.text = bill.patientName;
-    patientAgeController.text = bill.patientAge.toString();
-    patientSexController.text = bill.patientSex;
-    diagnosisTypeController.text = bill.diagnosisType.toString();
-    franchiseNameController.text = bill.franchiseName ?? '';
-    refByDoctorController.text = bill.referredByDoctor.toString();
-    dateOfTestController.text = dateFormat.format(bill.dateOfTest);
-    dateOfBillController.text = dateFormat.format(bill.dateOfBill);
-    selectedTestDateISO = bill.dateOfTest.toIso8601String();
-    selectedBillDateISO = bill.dateOfBill.toIso8601String();
-    billStatusController.text = bill.billStatus;
-    paidAmountController.text = bill.paidAmount.toString();
-    discByDoctorController.text = bill.discByDoctor.toString();
-    discByCenterController.text = bill.discByCenter.toString();
-    _isControllersInitialized = true;
+  if (widget.billData == null || _isControllersInitialized) return;
+  final bill = widget.billData!;
+  final dateFormat = DateFormat('dd-MM-yyyy');
+
+  // Basic info
+  patientNameController.text = bill.patientName;
+  patientAgeController.text = bill.patientAge.toString();
+  patientSexController.text = bill.patientSex;
+  dateOfTestController.text = dateFormat.format(bill.dateOfTest);
+  dateOfBillController.text = dateFormat.format(bill.dateOfBill);
+  selectedTestDateISO = bill.dateOfTest.toIso8601String();
+  selectedBillDateISO = bill.dateOfBill.toIso8601String();
+  billStatusController.text = bill.billStatus;
+  paidAmountController.text = bill.paidAmount.toString();
+  discByDoctorController.text = bill.discByDoctor.toString();
+  discByCenterController.text = bill.discByCenter.toString();
+
+  // ✅ CORRECTED: Initialize the state variables from the bill's map data
+  // This is the missing step that controls the UI logic.
+  if (bill.diagnosisTypeOutput != null) {
+    // We assume you have a DiagnosisType.fromJson constructor
+    _selectedDiagnosisType = DiagnosisType.fromJson(bill.diagnosisTypeOutput!);
   }
+  if (bill.referredByDoctorOutput != null) {
+    // We assume you have a Doctor.fromJson constructor
+    _selectedDoctor = Doctor.fromJson(bill.referredByDoctorOutput!);
+  }
+  if (bill.franchiseNameOutput != null) {
+    // We assume you have a FranchiseName.fromJson constructor
+    _selectedFranchise = FranchiseName.fromJson(bill.franchiseNameOutput!);
+  }
+
+  // Populate the ID controllers
+  diagnosisTypeController.text = bill.diagnosisType.toString();
+  refByDoctorController.text = bill.referredByDoctor.toString();
+  franchiseNameController.text = bill.franchiseName?.toString() ?? '';
+  
+  // Populate the display controllers
+  diagnosisTypeDisplayController.text =
+      '${bill.diagnosisTypeOutput?['category']} ${bill.diagnosisTypeOutput?['name']}';
+  refByDoctorDisplayController.text =
+      '${bill.referredByDoctorOutput?['first_name']} ${bill.referredByDoctorOutput?['last_name']}';
+  franchiseNameDisplayController.text = bill.franchiseNameOutput?['franchise_name'] ?? '';
+
+  _isControllersInitialized = true;
+}
 
   void _updateDisplayControllers(
     List<DiagnosisType> diagnosisTypes,
@@ -137,8 +164,9 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       if (diagnosisTypeController.text.isNotEmpty) {
         final diagnosisId = int.tryParse(diagnosisTypeController.text);
         if (diagnosisId != null) {
-          _selectedDiagnosisType =
-              diagnosisTypes.firstWhere((type) => type.id == diagnosisId);
+          _selectedDiagnosisType = diagnosisTypes.firstWhere(
+            (type) => type.id == diagnosisId,
+          );
           diagnosisTypeDisplayController.text =
               '${_selectedDiagnosisType!.category} ${_selectedDiagnosisType!.name}';
         }
@@ -155,8 +183,9 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
 
       if (_selectedDiagnosisType?.category == 'Franchise Lab' &&
           franchiseNameController.text.isNotEmpty) {
-        _selectedFranchise = franchises
-            .firstWhere((f) => f.franchiseName == franchiseNameController.text);
+        _selectedFranchise = franchises.firstWhere(
+          (f) => f.franchiseName == franchiseNameController.text,
+        );
         franchiseNameDisplayController.text =
             "${_selectedFranchise!.franchiseName}, ${_selectedFranchise!.address}";
       }
@@ -185,7 +214,8 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                       children: [
                         _buildTabBar(color: widget.themeColor),
                         Expanded(
-                            child: _buildTabContent(color: widget.themeColor)),
+                          child: _buildTabContent(color: widget.themeColor),
+                        ),
                       ],
                     ),
             ),
@@ -223,7 +253,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: color.withValues(alpha:  0.3),
+                  color: color.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -245,10 +275,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
               children: [
                 Text(
                   isEditing ? 'Edit Bill' : 'Create New Bill',
-                 style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : theme.colorScheme.onSurface,
-                ),
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                  ),
                 ),
                 SizedBox(height: defaultHeight / 2),
                 Text(
@@ -258,7 +288,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark
                         ? Colors.white70
-                        : theme.colorScheme.onSurface.withValues(alpha:  0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 SizedBox(height: defaultHeight / 2),
@@ -346,7 +376,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:  isDark ? 0.3 : 0.1),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -362,7 +392,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         labelColor: Colors.white,
         unselectedLabelColor: isDark
             ? Colors.white70
-            : theme.colorScheme.onSurface.withValues(alpha:  0.7),
+            : theme.colorScheme.onSurface.withValues(alpha: 0.7),
         dividerColor: Colors.transparent,
         tabs: const [
           Tab(
@@ -470,8 +500,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  Widget _buildPatientDetailsCard(
-      {required Color defaultColor, double? height}) {
+  Widget _buildPatientDetailsCard({
+    required Color defaultColor,
+    double? height,
+  }) {
     return TintedContainer(
       baseColor: defaultColor,
       height: height ?? 254,
@@ -482,15 +514,17 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         child: Column(
           children: [
             _buildCardHeader(
-                icon: Icons.person_outline,
-                title: 'Patient Details',
-                color: defaultColor),
+              icon: Icons.person_outline,
+              title: 'Patient Details',
+              color: defaultColor,
+            ),
             SizedBox(height: defaultHeight),
             CustomTextField(
-                label: 'Patient Name',
-                controller: patientNameController,
-                isRequired: true,
-                tintColor: defaultColor),
+              label: 'Patient Name',
+              controller: patientNameController,
+              isRequired: true,
+              tintColor: defaultColor,
+            ),
             SizedBox(height: defaultHeight),
             Row(
               children: [
@@ -509,13 +543,14 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                 SizedBox(width: defaultWidth / 2),
                 Expanded(
                   child: CustomTextField(
-                      label: 'Age',
-                      controller: patientAgeController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      isRequired: true,
-                      isNumeric: true,
-                      tintColor: defaultColor),
+                    label: 'Age',
+                    controller: patientAgeController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    isRequired: true,
+                    isNumeric: true,
+                    tintColor: defaultColor,
+                  ),
                 ),
               ],
             ),
@@ -525,8 +560,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  Widget _buildDiagnosisDetailsCard(
-      {required Color defaultColor, double? height}) {
+  Widget _buildDiagnosisDetailsCard({
+    required Color defaultColor,
+    double? height,
+  }) {
     final diagnosisTypesAsync = ref.watch(diagnosisTypeProvider);
     final franchiseNamesAsync = ref.watch(franchiseProvider);
     final doctorsAsync = ref.watch(doctorsProvider);
@@ -541,9 +578,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         child: Column(
           children: [
             _buildCardHeader(
-                icon: Icons.medical_services_outlined,
-                title: 'Diagnosis Details',
-                color: defaultColor),
+              icon: Icons.medical_services_outlined,
+              title: 'Diagnosis Details',
+              color: defaultColor,
+            ),
             SizedBox(height: defaultHeight),
             diagnosisTypesAsync.when(
               data: (types) {
@@ -553,8 +591,11 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                     _isControllersInitialized &&
                     diagnosisTypeDisplayController.text.isEmpty) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _updateDisplayControllers(types, franchiseNamesAsync.value!,
-                        doctorsAsync.value!);
+                    _updateDisplayControllers(
+                      types,
+                      franchiseNamesAsync.value!,
+                      doctorsAsync.value!,
+                    );
                   });
                 }
                 return SearchableDropdownField<DiagnosisType>(
@@ -592,8 +633,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   ? Padding(
                       padding: EdgeInsets.only(bottom: defaultPadding),
                       child: franchiseNamesAsync.when(
-                        data: (franchises) =>
-                            SearchableDropdownField<FranchiseName>(
+                        data: (franchises) => SearchableDropdownField<FranchiseName>(
                           label: 'Franchise Name',
                           controller: franchiseNameDisplayController,
                           items: franchises,
@@ -603,10 +643,12 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                           onSelected: (selected) {
                             setState(() {
                               _selectedFranchise = selected;
-                              franchiseNameController.text =
-                                  selected.franchiseName!;
+                              // ✅ CORRECTED: Save the ID to the main controller for saving
+                              franchiseNameController.text = selected.id
+                                  .toString();
+                              // ✅ Save the name to the display controller for the UI
                               franchiseNameDisplayController.text =
-                                  "${selected.franchiseName}, ${selected.address}";
+                                  selected.franchiseName ?? '';
                             });
                           },
                           validator: (v) =>
@@ -647,8 +689,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  Widget _buildBillingDetailsCard(
-      {required Color defaultColor, double? height}) {
+  Widget _buildBillingDetailsCard({
+    required Color defaultColor,
+    double? height,
+  }) {
     return TintedContainer(
       baseColor: defaultColor,
       height: height ?? 254,
@@ -659,9 +703,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         child: Column(
           children: [
             _buildCardHeader(
-                icon: Icons.receipt_long,
-                title: 'Billing Details',
-                color: defaultColor),
+              icon: Icons.receipt_long,
+              title: 'Billing Details',
+              color: defaultColor,
+            ),
             SizedBox(height: defaultHeight),
             Row(
               children: [
@@ -705,8 +750,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  Widget _buildAmountDetailsCard(
-      {required Color defaultColor, double? height}) {
+  Widget _buildAmountDetailsCard({
+    required Color defaultColor,
+    double? height,
+  }) {
     return TintedContainer(
       baseColor: defaultColor,
       height: height ?? 318,
@@ -717,43 +764,43 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         child: Column(
           children: [
             _buildCardHeader(
-                icon: Icons.payments_rounded,
-                title: 'Amount Details',
-                color: defaultColor),
+              icon: Icons.payments_rounded,
+              title: 'Amount Details',
+              color: defaultColor,
+            ),
             SizedBox(height: defaultHeight),
             CustomTextField(
-                label: 'Paid Amount',
-                controller: paidAmountController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                isRequired: true,
-                isNumeric: true,
-                tintColor: defaultColor),
+              label: 'Paid Amount',
+              controller: paidAmountController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              isRequired: true,
+              isNumeric: true,
+              tintColor: defaultColor,
+            ),
             SizedBox(height: defaultHeight),
             Row(
               children: [
                 Expanded(
                   child: CustomTextField(
-                      label: "Doctor's Discount",
-                      controller: discByDoctorController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      tintColor: defaultColor,
-                      isNumeric: true),
+                    label: "Doctor's Discount",
+                    controller: discByDoctorController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    tintColor: defaultColor,
+                    isNumeric: true,
+                  ),
                 ),
                 SizedBox(width: defaultWidth),
                 Expanded(
                   child: CustomTextField(
-                      label: "Center's Discount",
-                      controller: discByCenterController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      tintColor: defaultColor,
-                      isNumeric: true),
+                    label: "Center's Discount",
+                    controller: discByCenterController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    tintColor: defaultColor,
+                    isNumeric: true,
+                  ),
                 ),
               ],
             ),
@@ -765,58 +812,78 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
 
   // --- FORM ACTIONS AND HELPERS ---
 
+  // In _AddBillScreenState
+
   Future<void> _saveBill() async {
+    // --- Pre-validation logic (remains the same) ---
     if (billStatusController.text == "Unpaid") {
       paidAmountController.text = "0";
       discByCenterController.text = "0";
       discByDoctorController.text = "0";
     }
-
     if (discByCenterController.text.isEmpty) discByCenterController.text = "0";
     if (discByDoctorController.text.isEmpty) discByDoctorController.text = "0";
 
     if (!_formKey.currentState!.validate()) {
-      _showErrorDialog("Form Not Valid", "Please correct the errors in the form before saving.");
+      _showErrorDialog(
+        "Form Not Valid",
+        "Please correct the errors before saving.",
+      );
       return;
     }
 
     setState(() => _isSubmitting = true);
 
-    final billDataMap = {
-      'patient_name': patientNameController.text,
-      'patient_age': int.parse(patientAgeController.text),
-      'patient_sex': patientSexController.text,
-      'diagnosis_type': int.parse(diagnosisTypeController.text),
-      'franchise_name': franchiseNameController.text.isEmpty
-          ? null
-          : franchiseNameController.text,
-      'referred_by_doctor': int.parse(refByDoctorController.text),
-      'center_detail': 1,
-      'date_of_test': selectedTestDateISO,
-      'date_of_bill': selectedBillDateISO,
-      'bill_status': billStatusController.text,
-      'paid_amount': int.parse(paidAmountController.text),
-      'disc_by_center': int.parse(discByCenterController.text),
-      'disc_by_doctor': int.parse(discByDoctorController.text),
-      'total_amount':
-          _selectedDiagnosisType?.price ?? widget.billData?.totalAmount ?? 0,
-      'incentive_amount': 0,
-    };
+    // ✅ Construct the Bill object using the simple integer ID fields for writing.
+    final billToSave = Bill(
+      id: widget.billData?.id,
+      patientName: patientNameController.text,
+      patientAge: int.parse(patientAgeController.text),
+      patientSex: patientSexController.text,
+      dateOfTest: DateTime.parse(selectedTestDateISO),
+      dateOfBill: DateTime.parse(selectedBillDateISO),
+      billStatus: billStatusController.text,
+      paidAmount: int.parse(paidAmountController.text),
+      discByCenter: int.parse(discByCenterController.text),
+      discByDoctor: int.parse(discByDoctorController.text),
 
-    final bill = Bill.fromJson({...billDataMap, 'id': widget.billData?.id});
+      // Use the controllers that hold the IDs
+      diagnosisType: int.parse(diagnosisTypeController.text),
+      referredByDoctor: int.parse(refByDoctorController.text),
+      franchiseName: franchiseNameController.text.isNotEmpty
+          ? int.parse(franchiseNameController.text)
+          : null,
+
+      // The ...Output fields are not needed for saving, so we can omit them
+      // or provide the existing data if available. The backend will ignore them anyway.
+      diagnosisTypeOutput: widget.billData?.diagnosisTypeOutput,
+      referredByDoctorOutput: widget.billData?.referredByDoctorOutput,
+      franchiseNameOutput: widget.billData?.franchiseNameOutput,
+      testDoneBy: widget.billData?.testDoneBy,
+      centerDetail: widget.billData?.centerDetail,
+
+      // Backend-generated fields are not needed for saving.
+      billNumber: null,
+      totalAmount: 0,
+      incentiveAmount: 0,
+    );
 
     try {
       if (widget.billData != null) {
-        final updatedBill = await ref.read(updateBillProvider(bill).future);
+        final updatedBill = await ref.read(
+          updateBillProvider(billToSave).future,
+        );
         if (!mounted) return;
-        _showSuccessSnackBar(message: 
-            'Bill updated successfully: #${updatedBill.billNumber}');
+        _showSuccessSnackBar(
+          message: 'Bill updated successfully: #${updatedBill.billNumber}',
+        );
         Navigator.pop(context, updatedBill);
       } else {
-        final newBill = await ref.read(createBillProvider(bill).future);
+        final newBill = await ref.read(createBillProvider(billToSave).future);
         if (!mounted) return;
-        _showSuccessSnackBar(message: 
-            'Bill created successfully: #${newBill.billNumber}');
+        _showSuccessSnackBar(
+          message: 'Bill created successfully: #${newBill.billNumber}',
+        );
         Navigator.pop(context, newBill);
       }
     } catch (e) {
@@ -852,7 +919,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       try {
         await ref.read(deleteBillProvider(id).future);
         if (mounted) {
-          _showSuccessSnackBar(message:  "Bill deleted successfully");
+          _showSuccessSnackBar(message: "Bill deleted successfully");
           Navigator.of(context).pop();
         }
       } catch (e) {
@@ -869,10 +936,8 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     if (!mounted) return;
     showDialog(
       context: context,
-      builder: (context) => ErrorDialog(
-        title: title,
-        errorMessage: errorMessage,
-      ),
+      builder: (context) =>
+          ErrorDialog(title: title, errorMessage: errorMessage),
     );
   }
 
@@ -894,16 +959,17 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  Widget _buildCardHeader(
-      {required IconData icon,
-      required String title,
-      required Color color}) {
+  Widget _buildCardHeader({
+    required IconData icon,
+    required String title,
+    required Color color,
+  }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.all(defaultPadding * 1.5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:  isDark ? 0.2 : 0.1),
+        color: color.withValues(alpha: isDark ? 0.2 : 0.1),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(defaultRadius),
           topRight: Radius.circular(defaultRadius),
@@ -914,7 +980,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
           Container(
             padding: EdgeInsets.all(defaultPadding),
             decoration: BoxDecoration(
-              color: color.withValues(alpha:  0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -972,7 +1038,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
           suffixIcon: Icon(
             Icons.calendar_month_rounded,
             size: 22,
-            color: color.withValues(alpha:  0.9),
+            color: color.withValues(alpha: 0.9),
           ),
         ),
       ),
@@ -984,7 +1050,9 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(defaultRadius),
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha:  0.5),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
       ),
       child: const Center(
         child: SizedBox(
@@ -1003,21 +1071,27 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       padding: EdgeInsets.symmetric(horizontal: defaultPadding),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: theme.colorScheme.errorContainer.withValues(alpha:  0.2),
-        border: Border.all(color: theme.colorScheme.error.withValues(alpha:  0.4)),
+        color: theme.colorScheme.errorContainer.withValues(alpha: 0.2),
+        border: Border.all(
+          color: theme.colorScheme.error.withValues(alpha: 0.4),
+        ),
       ),
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline_rounded,
-                color: theme.colorScheme.error, size: 20),
+            Icon(
+              Icons.error_outline_rounded,
+              color: theme.colorScheme.error,
+              size: 20,
+            ),
             SizedBox(width: defaultWidth),
             Expanded(
               child: Text(
                 message,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.error),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -1047,9 +1121,9 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
         vertical: defaultPadding * 0.5,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:  0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(defaultRadius),
-        border: Border.all(color: color.withValues(alpha:  0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         text,

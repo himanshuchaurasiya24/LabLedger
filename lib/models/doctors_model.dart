@@ -31,24 +31,9 @@ class TopReferrerModel {
     required this.allTime,
   });
 }
+// lib/models/doctors_model.dart
 
 class Doctor {
-  Doctor({
-    this.id, // 👈 make optional
-    required this.firstName,
-    required this.lastName,
-    required this.hospitalName,
-    required this.address,
-    required this.phoneNumber,
-    this.email, // nullable
-    required this.ultrasoundPercentage,
-    required this.pathologyPercentage,
-    required this.ecgPercentage,
-    required this.xrayPercentage,
-    required this.franchiseLabPercentage,
-    this.centerDetail, // 👈 make optional
-  });
-
   final int? id;
   final String? firstName;
   final String? lastName;
@@ -61,40 +46,21 @@ class Doctor {
   final int? ecgPercentage;
   final int? xrayPercentage;
   final int? franchiseLabPercentage;
-  final int? centerDetail; // backend auto-fills
 
-  Doctor copyWith({
-    int? id,
-    String? firstName,
-    String? lastName,
-    String? hospitalName,
-    String? address,
-    String? phoneNumber,
-    String? email,
-    int? ultrasoundPercentage,
-    int? pathologyPercentage,
-    int? ecgPercentage,
-    int? xrayPercentage,
-    int? franchiseLabPercentage,
-    int? centerDetail,
-  }) {
-    return Doctor(
-      id: id ?? this.id,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      hospitalName: hospitalName ?? this.hospitalName,
-      address: address ?? this.address,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      email: email ?? this.email,
-      ultrasoundPercentage: ultrasoundPercentage ?? this.ultrasoundPercentage,
-      pathologyPercentage: pathologyPercentage ?? this.pathologyPercentage,
-      ecgPercentage: ecgPercentage ?? this.ecgPercentage,
-      xrayPercentage: xrayPercentage ?? this.xrayPercentage,
-      franchiseLabPercentage:
-          franchiseLabPercentage ?? this.franchiseLabPercentage,
-      centerDetail: centerDetail ?? this.centerDetail,
-    );
-  }
+  Doctor({
+    this.id,
+    this.firstName,
+    this.lastName,
+    this.hospitalName,
+    this.address,
+    this.phoneNumber,
+    this.email,
+    this.ultrasoundPercentage,
+    this.pathologyPercentage,
+    this.ecgPercentage,
+    this.xrayPercentage,
+    this.franchiseLabPercentage,
+  });
 
   factory Doctor.fromJson(Map<String, dynamic> json) {
     return Doctor(
@@ -110,7 +76,7 @@ class Doctor {
       ecgPercentage: json["ecg_percentage"],
       xrayPercentage: json["xray_percentage"],
       franchiseLabPercentage: json["franchise_lab_percentage"],
-      centerDetail: json["center_detail"],
+      // The "center_detail" key from the JSON is now simply ignored.
     );
   }
 
@@ -129,15 +95,10 @@ class Doctor {
       "franchise_lab_percentage": franchiseLabPercentage,
     };
 
-    // Only include id if updating
-    if (id != null) data["id"] = id;
+    if (id != null) {
+      data["id"] = id;
+    }
 
-    // Don't send center_detail, backend will set it
     return data;
-  }
-
-  @override
-  String toString() {
-    return "$id, $firstName, $lastName, $hospitalName, $address, $phoneNumber, $email, $ultrasoundPercentage, $pathologyPercentage, $ecgPercentage, $xrayPercentage, $franchiseLabPercentage, $centerDetail";
   }
 }
