@@ -243,14 +243,15 @@ class PendingBillsCard extends StatelessWidget {
                   backgroundColor: accentFillColor(context),
                   foregroundColor: importantTextColor(context),
                 ),
-                if (bill.incentiveAmount > 0)
-                  _buildDetailChip(
-                    context,
-                    icon: Icons.pending_outlined,
-                    label: "₹${bill.incentiveAmount}",
-                    backgroundColor: solidChipBg,
-                    foregroundColor: solidChipFg,
-                  ),
+                // if (bill.incentiveAmount > 0)
+                _buildDetailChip(
+                  context,
+                  icon: Icons.pending_outlined,
+                  label:
+                      "Pending ₹${(bill.totalAmount - bill.paidAmount - bill.discByCenter - bill.discByDoctor)}",
+                  backgroundColor: solidChipBg,
+                  foregroundColor: solidChipFg,
+                ),
                 if (doctorName != null)
                   _buildDetailChip(
                     context,
