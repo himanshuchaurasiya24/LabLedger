@@ -1,30 +1,30 @@
-class CenterDetailForFranchise {
-  final int id;
-  final String centerName;
-  final String address;
+// class CenterDetailForFranchise {
+//   final int id;
+//   final String centerName;
+//   final String address;
 
-  CenterDetailForFranchise({
-    required this.id,
-    required this.centerName,
-    required this.address,
-  });
+//   CenterDetailForFranchise({
+//     required this.id,
+//     required this.centerName,
+//     required this.address,
+//   });
 
-  factory CenterDetailForFranchise.fromJson(Map<String, dynamic> json) {
-    return CenterDetailForFranchise(
-      id: json['id'],
-      centerName: json['center_name'],
-      address: json['address'],
-    );
-  }
+//   factory CenterDetailForFranchise.fromJson(Map<String, dynamic> json) {
+//     return CenterDetailForFranchise(
+//       id: json['id'],
+//       centerName: json['center_name'],
+//       address: json['address'],
+//     );
+//   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'center_name': centerName,
-      'address': address,
-    };
-  }
-}
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'id': id,
+//       'center_name': centerName,
+//       'address': address,
+//     };
+//   }
+// }
 class Bill {
   final int? id; // Nullable for creating new bills
   final String? billNumber;

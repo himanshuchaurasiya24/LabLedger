@@ -1,5 +1,4 @@
 
-// models/subscription_model.dart
 class Subscription {
   final int id;
   final int center;
