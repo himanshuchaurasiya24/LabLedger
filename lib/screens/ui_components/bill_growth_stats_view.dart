@@ -1,36 +1,32 @@
-// Create a new file: labledger/screens/ui_components/doctor_stats_view.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
+import 'package:labledger/models/bill_stats_model.dart';
 import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
-import 'package:labledger/screens/ui_components/cards/bill_stats_card.dart'; // Assuming you reuse this card
+import 'package:labledger/screens/ui_components/cards/bill_stats_card.dart';
 import 'package:labledger/constants/constants.dart';
 
-class DoctorStatsView extends ConsumerWidget {
-  final int doctorId;
+class BillGrowthStatsView extends StatelessWidget {
+  final AsyncValue<BillStats> statsProvider;
+  final VoidCallback onRetry;
 
-  const DoctorStatsView({
+  const BillGrowthStatsView({
     super.key,
-    required this.doctorId,
+    required this.statsProvider,
+    required this.onRetry,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Watch the new family provider with the doctor's ID
-    final statsAsync = ref.watch(doctorGrowthStatsProvider(doctorId));
-
-    // Define colors for the cards
+  Widget build(BuildContext context) {
     const Color positiveColor = Colors.teal;
     const Color negativeColor = Colors.red;
 
     return Container(
-      height: tintedContainerHeight, // From your constants
+      height: tintedContainerHeight,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(defaultRadius),
       ),
-      child: statsAsync.when(
+      child: statsProvider.when(
         data: (stats) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -74,22 +70,13 @@ class DoctorStatsView extends ConsumerWidget {
           ),
         ),
         error: (err, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Error loading stats: ${err.toString()}",
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(doctorGrowthStatsProvider(doctorId)),
-                  child: const Text("Retry"),
-                ),
-              ],
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Error loading stats: $err"),
+              const SizedBox(height: 10),
+              ElevatedButton(onPressed: onRetry, child: const Text("Retry")),
+            ],
           ),
         ),
       ),

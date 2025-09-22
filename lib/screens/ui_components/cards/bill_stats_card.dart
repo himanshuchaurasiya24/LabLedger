@@ -87,8 +87,8 @@ class _BillStatsCardState extends State<BillStatsCard> {
     final isPositive = currentBills >= previousBills;
     final baseColor = isPositive ? widget.positiveColor : widget.negativeColor;
 
-    final currentServicesCount = widget.currentPeriod.diagnosisCounts.length;
-    final previousServicesCount = widget.previousPeriod.diagnosisCounts.length;
+    final currentServicesCount = widget.currentPeriod.totalBills;
+    final previousServicesCount = widget.previousPeriod.totalBills;
     final servicesGrowth = previousServicesCount == 0
         ? (currentServicesCount > 0 ? 100.0 : 0.0)
         : ((currentServicesCount - previousServicesCount) /

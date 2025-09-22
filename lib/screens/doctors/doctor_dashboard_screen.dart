@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -6,27 +7,23 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
+import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
+import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
-import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
-import 'package:labledger/screens/doctors/doctor_stats_view.dart';
-import 'package:labledger/screens/ui_components/cards/bill_card.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/bill_growth_stats_view.dart';
+import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 
 class DoctorDashboardScreen extends ConsumerStatefulWidget {
-  final int doctorId;
-  final String doctorName;
+  final Doctor doctor;
 
-  const DoctorDashboardScreen({
-    super.key,
-    required this.doctorId,
-    required this.doctorName,
-  });
+  const DoctorDashboardScreen({super.key, required this.doctor});
 
   @override
   ConsumerState<DoctorDashboardScreen> createState() =>
@@ -38,7 +35,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
   final FlutterSecureStorage storage = const FlutterSecureStorage();
-  String _selectedView = 'grid'; // default view
+  String _selectedView = 'grid';
   Timer? _debounce;
 
   @override
@@ -61,9 +58,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
   Future<void> _loadSavedView() async {
     final savedView = await storage.read(key: 'bill_view');
     if (savedView != null && mounted) {
-      setState(() {
-        _selectedView = savedView;
-      });
+      setState(() => _selectedView = savedView);
     }
   }
 
@@ -76,91 +71,247 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
     _debounce = Timer(const Duration(milliseconds: 300), () {
       ref.read(currentSearchQueryProvider.notifier).state = query.trim();
       ref.read(currentPageProvider.notifier).state = 1;
-      // The paginatedDoctorBillProvider will auto-refresh
     });
   }
 
-  void _refreshBillsData() {
-    // Invalidate the family provider with the correct doctorId
-    ref.invalidate(paginatedDoctorBillProvider(widget.doctorId));
-  }
-
-  Map<String, List<Bill>> _groupBillsByReason(List<Bill> bills) {
-    // This grouping is simple for this screen, but we keep the structure
-    // for layout consistency with BillsScreen.
-    return {'Referred Bills': bills};
-  }
-
   void _showViewMenu() async {
-    // This method is copied directly and remains unchanged.
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final Color baseColor = theme.colorScheme.secondary;
-    final Color menuBackgroundColor = (baseColor is MaterialColor)
-        ? (isDark
-              ? baseColor.shade900.withValues(alpha: 0.95)
-              : baseColor.shade50)
-        : (isDark
-              ? Color.alphaBlend(
-                  baseColor.withValues(alpha: 0.4),
-                  theme.colorScheme.surface,
-                )
-              : Color.alphaBlend(
-                  baseColor.withValues(alpha: 0.1),
-                  theme.colorScheme.surface,
-                ));
-    final Color menuBorderColor = (baseColor is MaterialColor)
-        ? (isDark ? baseColor.shade200 : baseColor.shade600)
-        : HSLColor.fromColor(baseColor).withLightness(0.5).toColor();
-
     final selected = await showMenu<String>(
       context: context,
       position: RelativeRect.fromLTRB(200, 420, defaultPadding, 100),
-      color: menuBackgroundColor,
-      elevation: 0,
-      shadowColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(defaultRadius),
-        side: BorderSide(color: menuBorderColor.withValues(alpha: 0.3)),
-      ),
       items: [
-        PopupMenuItem(
-          value: 'list',
-          child: Row(
-            children: [
-              Icon(Icons.list, color: theme.colorScheme.secondary),
-              SizedBox(width: defaultWidth),
-              Text(
-                "List View",
-                style: TextStyle(color: theme.colorScheme.onSurface),
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 'grid',
-          child: Row(
-            children: [
-              Icon(Icons.grid_on_rounded, color: theme.colorScheme.secondary),
-              SizedBox(width: defaultWidth),
-              Text(
-                "Grid View",
-                style: TextStyle(color: theme.colorScheme.onSurface),
-              ),
-            ],
-          ),
-        ),
+        PopupMenuItem(value: 'list', child: Text("List View")),
+        PopupMenuItem(value: 'grid', child: Text("Grid View")),
       ],
     );
-
     if (selected != null) {
       setState(() => _selectedView = selected);
       _saveView(selected);
     }
   }
 
+  void _navigateToBill(Bill bill) {
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(
+        builder: (_) => AddBillScreen(
+          billData: bill,
+          themeColor: bill.billStatus != "Fully Paid"
+              ? Theme.of(context).colorScheme.error
+              : Theme.of(context).colorScheme.secondary,
+        ),
+      ),
+    );
+  }
+
+  // ✅ New method to show the delete confirmation dialog
+  Future<void> _confirmDeleteDoctor() async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Doctor'),
+        content: Text(
+          'All the records for Dr. ${widget.doctor.firstName} ${widget.doctor.lastName} will be deleted including bills.\nThis action cannot be undone.\nAre you sure?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true) {
+      try {
+        await ref.read(deleteDoctorProvider(widget.doctor.id!).future);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Doctor deleted successfully"),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Pop back to the previous screen
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Failed to delete doctor: $e"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final asyncBills = ref.watch(
+      paginatedDoctorBillProvider(widget.doctor.id!),
+    );
+    final asyncStats = ref.watch(doctorGrowthStatsProvider(widget.doctor.id!));
+    final currentQuery = ref.watch(currentSearchQueryProvider);
+
+    return WindowScaffold(
+      centerWidget: CenterSearchBar(
+        controller: searchController,
+        searchFocusNode: searchFocusNode,
+        hintText: "Search bills for Dr. ${widget.doctor.firstName}...",
+        width: 400,
+        onSearch: _onSearchChanged,
+      ),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            Visibility(
+              visible: searchController.text.isEmpty,
+              child: Column(
+                children: [
+                  _buildDoctorHeader(), // ✅ Call the restored header
+                  SizedBox(height: defaultHeight),
+                  BillGrowthStatsView(
+                    statsProvider: asyncStats,
+                    onRetry: () => ref.invalidate(
+                      doctorGrowthStatsProvider(widget.doctor.id!),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: defaultHeight),
+            _buildSectionHeader(
+              context,
+              currentQuery.isNotEmpty
+                  ? 'Search Results for: "$currentQuery"'
+                  : "Referred Bills",
+            ),
+            PaginatedBillsView(
+              billsProvider: asyncBills,
+              selectedView: _selectedView,
+              headerTitle: currentQuery.isNotEmpty
+                  ? 'Search Results for: "$currentQuery"'
+                  : "Referred Bills",
+              emptyListMessage: currentQuery.isEmpty
+                  ? 'No bills found for this doctor.'
+                  : 'No bills found for "$currentQuery"',
+              onPageChanged: (newPage) {
+                ref.read(currentPageProvider.notifier).state = newPage;
+              },
+              onBillTap: _navigateToBill,
+              onRetry: () => ref.invalidate(
+                paginatedDoctorBillProvider(widget.doctor.id!),
+              ),
+            ),
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ✅ Restored header widget
+  Widget _buildDoctorHeader() {
+    final theme = Theme.of(context);
+    const Color positiveColor = Colors.teal; // Or any color you prefer
+
+    return TintedContainer(
+      baseColor: positiveColor,
+      height: 100,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: positiveColor,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Center(
+                  child: Text(
+                    "${widget.doctor.firstName![0].toUpperCase()}${widget.doctor.lastName![0].toUpperCase()}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "${widget.doctor.firstName} ${widget.doctor.lastName}",
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      "Active",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  navigatorKey.currentState?.push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          DoctorEditScreen(doctorId: widget.doctor.id),
+                    ),
+                  );
+                },
+                icon: Icon(LucideIcons.edit, color: theme.colorScheme.primary),
+                tooltip: 'Edit Doctor',
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed:
+                    _confirmDeleteDoctor, // ✅ Call the confirmation method
+                icon: Icon(LucideIcons.trash2, color: theme.colorScheme.error),
+                tooltip: 'Delete Doctor',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSectionHeader(BuildContext context, String title) {
-    // This method is copied directly and remains unchanged.
     final theme = Theme.of(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: defaultPadding),
@@ -194,301 +345,6 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // ✅ Main Change: Watch the family provider with the specific doctorId
-    final asyncResponse = ref.watch(
-      paginatedDoctorBillProvider(widget.doctorId),
-    );
-    final currentQuery = ref.watch(currentSearchQueryProvider);
-    final size = MediaQuery.of(context).size;
-
-    const Color positiveColor = Colors.teal;
-    const Color negativeColor = Colors.red;
-    const Color neutralColor = Colors.amber;
-
-    return WindowScaffold(
-      centerWidget: CenterSearchBar(
-        controller: searchController,
-        searchFocusNode: searchFocusNode,
-        hintText: "Search Dr. ${widget.doctorName} Bills...",
-        width: 400,
-        onSearch: _onSearchChanged,
-      ),
-      // ❌ FloatingActionButton and BillStatsCards are removed.
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            TintedContainer(
-              baseColor: positiveColor,
-              height: 100,
-
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: positiveColor,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Center(
-                          child: Text(
-                            widget.doctorName[0].toUpperCase(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Dr. ${widget.doctorName}",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              "Active",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            navigatorKey.currentState?.push(
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return DoctorEditScreen(
-                                    doctorId: widget.doctorId,
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          child: Icon(
-                            LucideIcons.edit,
-                            size: 20,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.error.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            ref.read(deleteDoctorProvider(widget.doctorId));
-                          },
-                          child: Icon(
-                            LucideIcons.trash2,
-                            size: 20,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: defaultHeight),
-            DoctorStatsView(doctorId: widget.doctorId),
-            SizedBox(height: defaultHeight),
-
-            asyncResponse.when(
-              data: (response) {
-                final bills = response.bills;
-
-                if (bills.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 50),
-                      child: Text(
-                        currentQuery.isEmpty
-                            ? 'No bills found for this doctor.'
-                            : 'No bills found for "$currentQuery"',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                    ),
-                  );
-                }
-
-                final groupedBills = _groupBillsByReason(bills);
-                final isSearching = currentQuery.isNotEmpty;
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ...groupedBills.entries.map((entry) {
-                      final category = entry.key;
-                      final categoryBills = entry.value;
-                      final headerTitle = isSearching
-                          ? 'Search Results for: "$currentQuery"'
-                          : '$category by ${widget.doctorName}'; // "Referred Bills"
-
-                      return Column(
-                        children: [
-                          _buildSectionHeader(context, headerTitle),
-                          SizedBox(height: defaultHeight),
-                          if (_selectedView == "grid")
-                            GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    childAspectRatio: size.width > 1600
-                                        ? 2.4
-                                        : 2.0,
-                                    crossAxisSpacing: defaultWidth,
-                                    mainAxisSpacing: defaultHeight,
-                                  ),
-                              itemCount: categoryBills.length,
-                              itemBuilder: (ctx, index) {
-                                final bill = categoryBills[index];
-                                return BillCard(
-                                  bill: bill,
-                                  onTap: () => _navigateToBill(bill),
-                                  fullyPaidColor: positiveColor,
-                                  partiallyPaidColor: neutralColor,
-                                  unpaidColor: negativeColor,
-                                );
-                              },
-                            ),
-                          if (_selectedView == "list")
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const BouncingScrollPhysics(),
-                              itemCount: categoryBills.length,
-                              separatorBuilder: (_, _) =>
-                                  SizedBox(height: defaultHeight),
-                              itemBuilder: (ctx, index) {
-                                final bill = categoryBills[index];
-                                return BillCard(
-                                  bill: bill,
-                                  onTap: () => _navigateToBill(bill),
-                                  fullyPaidColor: positiveColor,
-                                  partiallyPaidColor: neutralColor,
-                                  unpaidColor: negativeColor,
-                                );
-                              },
-                            ),
-                          const SizedBox(height: 20),
-                        ],
-                      );
-                    }),
-                    PaginationControls(
-                      totalItems: response.count,
-                      itemsPerPage: 40, // Should match your API's page_size
-                      currentPage: ref.watch(currentPageProvider),
-                      onPageChanged: (newPage) {
-                        ref.read(currentPageProvider.notifier).state = newPage;
-                      },
-                    ),
-                  ],
-                );
-              },
-              loading: () => const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(50.0),
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-              error: (err, stack) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 50.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.error_outline, size: 48),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Failed to load doctor's bills",
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(err.toString(), textAlign: TextAlign.center),
-                        const SizedBox(height: 20),
-                        ElevatedButton.icon(
-                          onPressed: _refreshBillsData,
-                          icon: const Icon(Icons.refresh),
-                          label: const Text("Retry"),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 80),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _navigateToBill(Bill bill) {
-    // This method is copied directly and remains unchanged.
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(
-        builder: (_) => AddBillScreen(
-          billData: bill,
-          themeColor: bill.billStatus != "Fully Paid"
-              ? Theme.of(context).colorScheme.error
-              : Theme.of(context).colorScheme.secondary,
-        ),
       ),
     );
   }
