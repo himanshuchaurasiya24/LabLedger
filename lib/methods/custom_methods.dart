@@ -5,7 +5,6 @@ import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:window_manager/window_manager.dart';
-
 final containerLightColor = Color(0xFFEEEEEE);
 final containerDarkColor = Color(0xFF212121);
 
