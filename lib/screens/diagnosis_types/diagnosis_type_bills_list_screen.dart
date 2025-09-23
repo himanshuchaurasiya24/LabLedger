@@ -7,30 +7,28 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
-import 'package:labledger/models/doctors_model.dart';
+import 'package:labledger/models/diagnosis_type_model.dart'; // You will need to import your DiagnosisType model
 import 'package:labledger/providers/bills_provider.dart';
-import 'package:labledger/providers/doctor_provider.dart';
-import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
+import 'package:labledger/providers/diagnosis_type_provider.dart'; // You will need a provider to fetch and delete diagnosis types
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
-import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
+import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/bill_growth_stats_view.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 
-class DoctorDashboardScreen extends ConsumerStatefulWidget {
-  final Doctor doctor;
-
-  const DoctorDashboardScreen({super.key, required this.doctor});
+class DiagnosisTypeBillsListScreen extends ConsumerStatefulWidget {
+  const DiagnosisTypeBillsListScreen({super.key, required this.id});
+  final int id;
 
   @override
-  ConsumerState<DoctorDashboardScreen> createState() =>
-      _DoctorDashboardScreenState();
+  ConsumerState<DiagnosisTypeBillsListScreen> createState() =>
+      _DiagnosisTypeBillsListScreenState();
 }
 
-class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
+class _DiagnosisTypeBillsListScreenState
+    extends ConsumerState<DiagnosisTypeBillsListScreen>
     with WindowListener {
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
@@ -77,10 +75,10 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
   void _showViewMenu() async {
     final selected = await showMenu<String>(
       context: context,
-      position: RelativeRect.fromLTRB(200, 420, defaultPadding, 100),
+      position: RelativeRect.fromLTRB(200, 200, defaultPadding, 100),
       items: [
-        PopupMenuItem(value: 'list', child: Text("List View")),
-        PopupMenuItem(value: 'grid', child: Text("Grid View")),
+        const PopupMenuItem(value: 'list', child: Text("List View")),
+        const PopupMenuItem(value: 'grid', child: Text("Grid View")),
       ],
     );
     if (selected != null) {
@@ -102,14 +100,14 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
     );
   }
 
-  // ✅ New method to show the delete confirmation dialog
-  Future<void> _confirmDeleteDoctor() async {
+  // Confirmation dialog for deleting the diagnosis type
+  Future<void> _confirmDeleteDiagnosisType(DiagnosisType diagnosisType) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Doctor'),
+        title: const Text('Delete Diagnosis Type'),
         content: Text(
-          'All the records for Dr. ${widget.doctor.firstName} ${widget.doctor.lastName} will be deleted including bills.\nThis action cannot be undone.\nAre you sure?',
+          'All bills associated with "${diagnosisType.name}" will also be updated.\nThis action cannot be undone.\nAre you sure?',
         ),
         actions: [
           TextButton(
@@ -130,22 +128,22 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
 
     if (shouldDelete == true) {
       try {
-        await ref.read(deleteDoctorProvider(widget.doctor.id!).future);
+        // Assumes you have a `deleteDiagnosisTypeProvider`
+        await ref.read(deleteDiagnosisTypeProvider(widget.id).future);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Doctor deleted successfully"),
+              content: Text("Diagnosis Type deleted successfully"),
               backgroundColor: Colors.green,
             ),
           );
-          // Pop back to the previous screen
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(); // Go back to the previous screen
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Failed to delete doctor: $e"),
+              content: Text("Failed to delete Diagnosis Type: $e"),
               backgroundColor: Colors.red,
             ),
           );
@@ -156,63 +154,56 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    final asyncBills = ref.watch(
-      paginatedDoctorBillProvider(widget.doctor.id!),
+    // Provider to fetch paginated bills for this diagnosis type
+    final perDiagnosisTypeBillsAsync = ref.watch(
+      paginatedDiagnosisTypeBillProvider(widget.id),
     );
-    final asyncStats = ref.watch(doctorGrowthStatsProvider(widget.doctor.id!));
+    // Provider to get the details of the diagnosis type itself (e.g., its name)
+    // Assumes you have a `diagnosisTypeDetailProvider`
+    final diagnosisTypeAsync = ref.watch(
+      diagnosisTypeDetailProvider(widget.id),
+    );
     final currentQuery = ref.watch(currentSearchQueryProvider);
 
     return WindowScaffold(
-      centerWidget: CenterSearchBar(
-        controller: searchController,
-        searchFocusNode: searchFocusNode,
-        hintText: "Search bills for Dr. ${widget.doctor.firstName}...",
-        width: 400,
-        onSearch: _onSearchChanged,
+      centerWidget: diagnosisTypeAsync.when(
+        data: (diagnosisType) => CenterSearchBar(
+          controller: searchController,
+          searchFocusNode: searchFocusNode,
+          hintText: "Search bills for ${diagnosisType.name}...",
+          width: 400,
+          onSearch: _onSearchChanged,
+        ),
+        loading: () => const SizedBox(),
+        error: (_, _) => const SizedBox(),
       ),
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            Visibility(
-              visible: searchController.text.isEmpty,
-              child: Column(
-                children: [
-                  _buildDoctorHeader(), // ✅ Call the restored header
-                  SizedBox(height: defaultHeight),
-                  BillGrowthStatsView(
-                    statsProvider: asyncStats,
-                    onRetry: () => ref.invalidate(
-                      doctorGrowthStatsProvider(widget.doctor.id!),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildDiagnosisTypeHeader(diagnosisTypeAsync),
             SizedBox(height: defaultHeight),
             _buildSectionHeader(
               context,
               currentQuery.isNotEmpty
                   ? 'Search Results for: "$currentQuery"'
-                  : "Referred Bills",
+                  : "Bills",
             ),
-
             PaginatedBillsView(
-              billsProvider: asyncBills,
+              billsProvider: perDiagnosisTypeBillsAsync,
               selectedView: _selectedView,
               headerTitle: currentQuery.isNotEmpty
                   ? 'Search Results for: "$currentQuery"'
-                  : "Referred Bills",
+                  : "Bills",
               emptyListMessage: currentQuery.isEmpty
-                  ? 'No bills found for this doctor.'
+                  ? 'No bills found for this diagnosis type.'
                   : 'No bills found for "$currentQuery"',
               onPageChanged: (newPage) {
                 ref.read(currentPageProvider.notifier).state = newPage;
               },
               onBillTap: _navigateToBill,
-              onRetry: () => ref.invalidate(
-                paginatedDoctorBillProvider(widget.doctor.id!),
-              ),
+              onRetry: () =>
+                  ref.invalidate(paginatedDiagnosisTypeBillProvider(widget.id)),
             ),
             const SizedBox(height: 80),
           ],
@@ -221,97 +212,110 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
     );
   }
 
-  // ✅ Restored header widget
-  Widget _buildDoctorHeader() {
+  // Header widget to show diagnosis type details and actions
+  Widget _buildDiagnosisTypeHeader(
+    AsyncValue<DiagnosisType> diagnosisTypeAsync,
+  ) {
     final theme = Theme.of(context);
-    const Color positiveColor = Colors.teal; // Or any color you prefer
-
-    return TintedContainer(
-      baseColor: positiveColor,
-      height: 100,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: positiveColor,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Center(
-                  child: Text(
-                    "${widget.doctor.firstName![0].toUpperCase()}${widget.doctor.lastName![0].toUpperCase()}",
-                    style: const TextStyle(
+    Color headerColor = Theme.of(context).colorScheme.secondary;
+    return diagnosisTypeAsync.when(
+      data: (diagnosisType) => TintedContainer(
+        baseColor: headerColor,
+        height: 100,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: headerColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      LucideIcons.syringe,
                       color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
+                      size: 30,
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "${widget.doctor.firstName} ${widget.doctor.lastName}",
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      "${widget.doctor.hospitalName} ${widget.doctor.address}",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: theme.colorScheme.primary,
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      diagnosisType.name,
+                      style: const TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  navigatorKey.currentState?.push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          DoctorEditScreen(doctorId: widget.doctor.id),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        diagnosisType.category,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
                     ),
-                  );
-                },
-                icon: Icon(LucideIcons.edit, color: theme.colorScheme.primary),
-                tooltip: 'Edit Doctor',
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                onPressed:
-                    _confirmDeleteDoctor, // ✅ Call the confirmation method
-                icon: Icon(LucideIcons.trash2, color: theme.colorScheme.error),
-                tooltip: 'Delete Doctor',
-              ),
-            ],
-          ),
-        ],
+                  ],
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    // Assumes you have an EditDiagnosisTypeScreen
+                    navigatorKey.currentState?.push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DiagnosisTypeEditScreen(diagnosisTypeId: widget.id),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    LucideIcons.edit,
+                    color: theme.colorScheme.primary,
+                  ),
+                  tooltip: 'Edit Diagnosis Type',
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: () => _confirmDeleteDiagnosisType(diagnosisType),
+                  icon: Icon(
+                    LucideIcons.trash2,
+                    color: theme.colorScheme.error,
+                  ),
+                  tooltip: 'Delete Diagnosis Type',
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) =>
+          Center(child: Text('Failed to load diagnosis type: $err')),
     );
   }
 
+  // Section header for the bills list
   Widget _buildSectionHeader(BuildContext context, String title) {
     final theme = Theme.of(context);
     return Padding(

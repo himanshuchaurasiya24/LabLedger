@@ -240,7 +240,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                 left: defaultPadding,
                                 top: defaultPadding / 2,
                               ),
-                              child: GestureDetector(
+                              child: InkWell(
                                 onTap: _handleBackButton,
                                 child: Container(
                                   width: 40,
@@ -274,6 +274,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                     ),
                                   ),
                                 ),
+                                // tooltip: "Go Back",
                               ),
                             ),
                           GestureDetector(

@@ -83,6 +83,21 @@ final paginatedDoctorBillProvider = FutureProvider.autoDispose
       return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
     });
 
+  final paginatedDiagnosisTypeBillProvider = FutureProvider.autoDispose
+    .family<PaginatedBillsResponse, int>((ref, id) async {
+      final page = ref.watch(currentPageProvider);
+      final query = ref.watch(currentSearchQueryProvider);
+      final uri = Uri.parse(billsEndpoint).replace(
+        queryParameters: {
+          "page": page.toString(),
+          if (query.isNotEmpty) 'search': query,
+          "diagnosis_type": id.toString(),
+        },
+      );
+      final response = await AuthHttpClient.get(ref, uri.toString());
+      return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
+    });
+
 /// Fetches a single bill by its ID.
 final singleBillProvider = FutureProvider.autoDispose.family<Bill, int>((
   ref,

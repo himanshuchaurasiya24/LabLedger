@@ -80,7 +80,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
       _saveView(selected);
     }
   }
-  
+
   void _navigateToBill(Bill bill) {
     navigatorKey.currentState?.push(
       MaterialPageRoute(
@@ -159,7 +159,12 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
             ),
           );
         },
-        label: const Text("Add Bill", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+        label: const Text(
+          "Add Bill",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         icon: const Icon(LucideIcons.plus),
       ),
       child: SingleChildScrollView(

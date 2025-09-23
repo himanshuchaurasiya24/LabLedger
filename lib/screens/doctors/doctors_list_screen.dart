@@ -10,7 +10,6 @@ import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-// Assuming ColorValues extension is defined elsewhere in your project
 extension ColorValues on Color {
   Color withValues({double? alpha, double? red, double? green, double? blue}) {
     Color updatedColor = this;

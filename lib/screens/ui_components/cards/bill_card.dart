@@ -133,7 +133,7 @@ class BillCard extends StatelessWidget {
       color: textColor,
     );
 
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(

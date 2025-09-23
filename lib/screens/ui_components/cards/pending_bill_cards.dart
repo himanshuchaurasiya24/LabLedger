@@ -153,7 +153,7 @@ class PendingBillsCard extends StatelessWidget {
     final solidChipBg = importantTextColor(context);
     final solidChipFg = isDark ? baseColor : Colors.white;
 
-    return GestureDetector(
+    return InkWell(
       onTap: onBillTap != null ? () => onBillTap!(bill) : null,
       child: Container(
         padding: const EdgeInsets.all(8),

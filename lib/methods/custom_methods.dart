@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:window_manager/window_manager.dart';
 
 final containerLightColor = Color(0xFFEEEEEE);
@@ -44,116 +44,12 @@ class CenterSearchBar extends StatelessWidget {
     return SizedBox(
       height: 48,
       width: width,
-      child: Container(
-        decoration: BoxDecoration(
-          // Gradient background for modern look
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(context).brightness == Brightness.light
-                  ? Colors.white
-                  : const Color(0xFF2A2A2A),
-              Theme.of(context).brightness == Brightness.light
-                  ? const Color(0xFFF8F9FA)
-                  : const Color(0xFF1E1E1E),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(12),
-          // Enhanced shadow
-          boxShadow: [
-            BoxShadow(
-              color: Theme.of(context).brightness == Brightness.light
-                  ? Colors.black.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.3),
-              offset: const Offset(0, 2),
-              blurRadius: 8,
-              spreadRadius: 0,
-            ),
-            // Inner shadow for depth
-            BoxShadow(
-              color: Theme.of(context).brightness == Brightness.light
-                  ? Colors.white.withValues(alpha: 0.8)
-                  : Colors.white.withValues(alpha: 0.05),
-              offset: const Offset(0, -1),
-              blurRadius: 1,
-              spreadRadius: 0,
-            ),
-          ],
-          // Subtle border
-          border: Border.all(
-            color: Theme.of(context).brightness == Brightness.light
-                ? Colors.grey.withValues(alpha: 0.2)
-                : Colors.grey.withValues(alpha: 0.3),
-            width: 0.5,
-          ),
-        ),
-        child: TextField(
-          focusNode: searchFocusNode,
-          controller: controller,
-          style: TextStyle(
-            fontSize: 15,
-            color: Theme.of(context).brightness == Brightness.light
-                ? const Color(0xFF2C2C2C)
-                : Colors.white.withValues(alpha: 0.9),
-            fontWeight: FontWeight.w500,
-          ),
-          decoration: InputDecoration(
-            fillColor: Colors.transparent,
-            filled: true,
-            border: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 0.5,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            hintText: hintText,
-            hintStyle: TextStyle(
-              color: Theme.of(context).brightness == Brightness.light
-                  ? Colors.grey.withValues(alpha: 0.6)
-                  : Colors.grey.withValues(alpha: 0.5),
-              fontSize: 15,
-              fontWeight: FontWeight.w400,
-            ),
-            // Search icon
-            prefixIcon: Icon(
-              CupertinoIcons.search,
-              size: 20,
-              color: Theme.of(context).brightness == Brightness.light
-                  ? Colors.grey.withValues(alpha: 0.7)
-                  : Colors.grey.withValues(alpha: 0.6),
-            ),
-            // Clear button when text is present
-            suffixIcon: controller.text.isNotEmpty
-                ? IconButton(
-                    icon: Icon(
-                      CupertinoIcons.clear_circled_solid,
-                      size: 18,
-                      color: Colors.grey.withValues(alpha: 0.6),
-                    ),
-                    onPressed: () {
-                      controller.clear();
-                      onSearch('');
-                      if (onClear != null) onClear!();
-                    },
-                  )
-                : null,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-          ),
-          onChanged: onSearch,
-        ),
+      child: CustomTextField(
+        focusNode: searchFocusNode,
+        controller: controller,
+        label: hintText,
+        onChanged: onSearch,
+        tintColor: Theme.of(context).colorScheme.secondary,
       ),
     );
   }

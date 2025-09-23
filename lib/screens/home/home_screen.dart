@@ -67,14 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       allowFullScreen: true,
       isInitialScreen: true,
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor:
-            widget.baseColor ?? Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 4.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-        ),
-        onPressed: () async {
+        onPressed: () {
           navigatorKey.currentState?.push(
             MaterialPageRoute(
               builder: (context) => AddBillScreen(
@@ -83,6 +76,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           );
         },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
         label: const Text(
           "Add Bill",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -446,7 +441,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return chartStatsAsync.when(
       data: (chartResponse) {
         final chartData = chartResponse.getDataForPeriod(selectedPeriod);
-        return GestureDetector(
+        return InkWell(
           onTap: () {
             navigatorKey.currentState?.push(
               MaterialPageRoute(builder: (context) => const BillsScreen()),

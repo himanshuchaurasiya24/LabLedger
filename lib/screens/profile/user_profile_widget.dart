@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
@@ -94,7 +95,7 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
         "${widget.authResponse.firstName} ${widget.authResponse.lastName}";
     final String initials = _getInitials(userName);
 
-    return GestureDetector(
+    return InkWell(
       onTap: () => _showCustomMenu(context),
       child: Container(
         decoration: BoxDecoration(
@@ -270,10 +271,10 @@ class _CustomDropdownMenu extends ConsumerWidget {
         child: Stack(
           children: [
             Positioned(
-              left: offset.dx - 230 + size.width,
-              top: offset.dy + size.height + 8,
+              left: offset.dx - 250 + size.width,
+              top: offset.dy + size.height + 10,
               child: Material(
-                elevation: 8,
+                elevation: 100,
                 shadowColor: Colors.black.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(16),
                 color: isDark ? Colors.grey.shade900 : Colors.white,
@@ -292,7 +293,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // User Info Header
-                      GestureDetector(
+                      InkWell(
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -306,7 +307,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                           onDismiss();
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(defaultPadding),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -324,7 +325,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: defaultWidth / 2),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:

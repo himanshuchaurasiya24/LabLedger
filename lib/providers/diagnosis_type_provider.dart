@@ -16,6 +16,17 @@ final diagnosisTypeProvider =
   return data.map((e) => DiagnosisType.fromJson(e)).toList();
 });
 
+// ✅ New Provider Added Below
+/// Fetches a single Diagnosis Type by its ID.
+final diagnosisTypeDetailProvider =
+    FutureProvider.autoDispose.family<DiagnosisType, int>((ref, id) async {
+  final response = await AuthHttpClient.get(
+    ref,
+    "$diagnosisTypeEndpoint$id/",
+  );
+  return DiagnosisType.fromJson(jsonDecode(response.body));
+});
+
 /// Adds a new Diagnosis Type and returns the created object.
 final addDiagnosisTypeProvider =
     FutureProvider.autoDispose.family<DiagnosisType, DiagnosisType>((ref, diagnosis) async {
@@ -34,7 +45,7 @@ final addDiagnosisTypeProvider =
 /// Updates an existing Diagnosis Type using the model object directly.
 final updateDiagnosisTypeProvider =
     FutureProvider.autoDispose.family<DiagnosisType, DiagnosisType>((ref, updatedDiagnosis) async {
-  final int id = updatedDiagnosis.id!; 
+  final int id = updatedDiagnosis.id!;
 
   final response = await AuthHttpClient.put(
     ref,
@@ -43,7 +54,9 @@ final updateDiagnosisTypeProvider =
     body: jsonEncode(updatedDiagnosis.toJson()),
   );
   
+  // Invalidate providers that depend on this specific instance
   ref.invalidate(diagnosisTypeProvider);
+  ref.invalidate(diagnosisTypeDetailProvider(id));
   return DiagnosisType.fromJson(jsonDecode(response.body));
 });
 
@@ -54,6 +67,7 @@ final deleteDiagnosisTypeProvider =
     ref,
     "$diagnosisTypeEndpoint$id/",
   );
-  // On success, simply invalidate the list.
+  // On success, invalidate relevant providers.
   ref.invalidate(diagnosisTypeProvider);
+  ref.invalidate(diagnosisTypeDetailProvider(id));
 });

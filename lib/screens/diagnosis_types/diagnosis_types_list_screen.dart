@@ -4,6 +4,7 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
+import 'package:labledger/screens/diagnosis_types/diagnosis_type_bills_list_screen.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -111,6 +112,7 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
               ),
             );
           },
+          types[index].id!,
         );
       },
     );
@@ -121,6 +123,7 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
     DiagnosisType diagnosis, // Updated model type
     Color effectiveColor,
     VoidCallback onTap,
+    int id,
   ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -182,6 +185,19 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
+            IconButton(
+              onPressed: () {
+                navigatorKey.currentState?.push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return DiagnosisTypeBillsListScreen(id: id);
+                    },
+                  ),
+                );
+              },
+              icon: Icon(Icons.trending_up_rounded, color: textColor),
+              tooltip: "See bills with this diagnosis type",
             ),
           ],
         ),
