@@ -5,6 +5,7 @@ import 'package:labledger/main.dart';
 import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/screens/franchise_labs/franchise_edit_screen.dart';
+import 'package:labledger/screens/franchise_labs/franchise_lab_bills_list_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -124,7 +125,7 @@ class FranchiseListScreen extends ConsumerWidget {
             navigatorKey.currentState?.push(
               MaterialPageRoute(
                 builder: (context) {
-                  return FranchiseEditScreen(franchiseId: franchises[index].id);
+                  return FranchiseBillsListScreen(id: franchises[index].id!);
                 },
               ),
             );
@@ -215,6 +216,7 @@ class FranchiseListScreen extends ConsumerWidget {
                 ],
               ),
             ),
+           
           ],
         ),
       ),

@@ -83,7 +83,7 @@ final paginatedDoctorBillProvider = FutureProvider.autoDispose
       return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
     });
 
-  final paginatedDiagnosisTypeBillProvider = FutureProvider.autoDispose
+final paginatedDiagnosisTypeBillProvider = FutureProvider.autoDispose
     .family<PaginatedBillsResponse, int>((ref, id) async {
       final page = ref.watch(currentPageProvider);
       final query = ref.watch(currentSearchQueryProvider);
@@ -92,6 +92,20 @@ final paginatedDoctorBillProvider = FutureProvider.autoDispose
           "page": page.toString(),
           if (query.isNotEmpty) 'search': query,
           "diagnosis_type": id.toString(),
+        },
+      );
+      final response = await AuthHttpClient.get(ref, uri.toString());
+      return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
+    });
+final paginatedFranchiseBillProvider = FutureProvider.autoDispose
+    .family<PaginatedBillsResponse, int>((ref, id) async {
+      final page = ref.watch(currentPageProvider);
+      final query = ref.watch(currentSearchQueryProvider);
+      final uri = Uri.parse(billsEndpoint).replace(
+        queryParameters: {
+          "page": page.toString(),
+          if (query.isNotEmpty) "search": query,
+          "franchise_name_id": id.toString(),
         },
       );
       final response = await AuthHttpClient.get(ref, uri.toString());

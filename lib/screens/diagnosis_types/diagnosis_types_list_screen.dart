@@ -105,14 +105,11 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
             navigatorKey.currentState?.push(
               MaterialPageRoute(
                 builder: (context) {
-                  return DiagnosisTypeEditScreen(
-                    diagnosisTypeId: types[index].id,
-                  );
+                  return DiagnosisTypeBillsListScreen(id: types[index].id!);
                 },
               ),
             );
           },
-          types[index].id!,
         );
       },
     );
@@ -123,7 +120,6 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
     DiagnosisType diagnosis, // Updated model type
     Color effectiveColor,
     VoidCallback onTap,
-    int id,
   ) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -186,19 +182,7 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            IconButton(
-              onPressed: () {
-                navigatorKey.currentState?.push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return DiagnosisTypeBillsListScreen(id: id);
-                    },
-                  ),
-                );
-              },
-              icon: Icon(Icons.trending_up_rounded, color: textColor),
-              tooltip: "See bills with this diagnosis type",
-            ),
+            
           ],
         ),
       ),

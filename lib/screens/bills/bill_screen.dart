@@ -11,6 +11,7 @@ import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/bill_growth_stats_view.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
+import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -66,21 +67,6 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
     });
   }
 
-  void _showViewMenu() async {
-    final selected = await showMenu<String>(
-      context: context,
-      position: RelativeRect.fromLTRB(200, 420, defaultPadding, 100),
-      items: [
-        PopupMenuItem(value: 'list', child: Text("List View")),
-        PopupMenuItem(value: 'grid', child: Text("Grid View")),
-      ],
-    );
-    if (selected != null) {
-      setState(() => _selectedView = selected);
-      _saveView(selected);
-    }
-  }
-
   void _navigateToBill(Bill bill) {
     navigatorKey.currentState?.push(
       MaterialPageRoute(
@@ -97,10 +83,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   Widget _buildSectionHeader(BuildContext context, String title) {
     final theme = Theme.of(context);
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding * 1.5,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: defaultPadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -112,23 +95,13 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
               color: theme.colorScheme.onSurface,
             ),
           ),
-          Material(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(defaultRadius),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(defaultRadius),
-              onTap: _showViewMenu,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(
-                  _selectedView == "grid"
-                      ? LucideIcons.layoutGrid
-                      : LucideIcons.list,
-                  color: theme.colorScheme.onSurface,
-                  size: 24,
-                ),
-              ),
-            ),
+          ViewSwitcherMenu(
+            initialView: _selectedView,
+            onViewChanged: (value) {
+              setState(() => _selectedView = value);
+              _saveView(value);
+            },
+            position: RelativeRect.fromLTRB(200, 434, defaultPadding, 100),
           ),
         ],
       ),
@@ -173,9 +146,14 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
           children: [
             Visibility(
               visible: currentQuery.isEmpty,
-              child: BillGrowthStatsView(
-                statsProvider: asyncStats,
-                onRetry: () => ref.invalidate(billGrowthStatsProvider),
+              child: Column(
+                children: [
+                  BillGrowthStatsView(
+                    statsProvider: asyncStats,
+                    onRetry: () => ref.invalidate(billGrowthStatsProvider),
+                  ),
+                  SizedBox(height: defaultHeight / 2),
+                ],
               ),
             ),
             _buildSectionHeader(
@@ -184,6 +162,8 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
                   ? 'Search Results for: "$currentQuery"'
                   : 'All Bills',
             ),
+            SizedBox(height: defaultHeight / 2),
+
             PaginatedBillsView(
               billsProvider: asyncBills,
               selectedView: _selectedView,

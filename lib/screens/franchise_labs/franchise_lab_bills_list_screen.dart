@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -7,11 +6,11 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
-import 'package:labledger/models/diagnosis_type_model.dart'; // You will need to import your DiagnosisType model
+import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
-import 'package:labledger/providers/diagnosis_type_provider.dart'; // You will need a provider to fetch and delete diagnosis types
+import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
-import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
+import 'package:labledger/screens/franchise_labs/franchise_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -19,17 +18,17 @@ import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 
-class DiagnosisTypeBillsListScreen extends ConsumerStatefulWidget {
-  const DiagnosisTypeBillsListScreen({super.key, required this.id});
+class FranchiseBillsListScreen extends ConsumerStatefulWidget {
+  const FranchiseBillsListScreen({super.key, required this.id});
   final int id;
 
   @override
-  ConsumerState<DiagnosisTypeBillsListScreen> createState() =>
-      _DiagnosisTypeBillsListScreenState();
+  ConsumerState<FranchiseBillsListScreen> createState() =>
+      _FranchiseBillsListScreenState();
 }
 
-class _DiagnosisTypeBillsListScreenState
-    extends ConsumerState<DiagnosisTypeBillsListScreen>
+class _FranchiseBillsListScreenState
+    extends ConsumerState<FranchiseBillsListScreen>
     with WindowListener {
   final TextEditingController searchController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
@@ -86,14 +85,14 @@ class _DiagnosisTypeBillsListScreenState
     );
   }
 
-  // Confirmation dialog for deleting the diagnosis type
-  Future<void> _confirmDeleteDiagnosisType(DiagnosisType diagnosisType) async {
+  // Confirmation dialog for deleting the franchise
+  Future<void> _confirmDeleteFranchise(FranchiseName franchise) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Diagnosis Type'),
+        title: const Text('Delete Franchise'),
         content: Text(
-          'All bills associated with "${diagnosisType.name}" will also be deleted.\nThis action cannot be undone.\nAre you sure?',
+          'All bills associated with "${franchise.franchiseName}" will be deleted.\nThis action cannot be undone.\nAre you sure?',
         ),
         actions: [
           TextButton(
@@ -114,12 +113,12 @@ class _DiagnosisTypeBillsListScreenState
 
     if (shouldDelete == true) {
       try {
-        // Assumes you have a `deleteDiagnosisTypeProvider`
-        await ref.read(deleteDiagnosisTypeProvider(widget.id).future);
+        // Assumes you have a `deleteFranchiseProvider`
+        await ref.read(deleteFranchiseProvider(widget.id).future);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Diagnosis Type deleted successfully"),
+              content: Text("Franchise deleted successfully"),
               backgroundColor: Colors.green,
             ),
           );
@@ -129,7 +128,7 @@ class _DiagnosisTypeBillsListScreenState
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Failed to delete Diagnosis Type: $e"),
+              content: Text("Failed to delete franchise: $e"),
               backgroundColor: Colors.red,
             ),
           );
@@ -140,23 +139,19 @@ class _DiagnosisTypeBillsListScreenState
 
   @override
   Widget build(BuildContext context) {
-    // Provider to fetch paginated bills for this diagnosis type
-    final perDiagnosisTypeBillsAsync = ref.watch(
-      paginatedDiagnosisTypeBillProvider(widget.id),
+    final franchiseBillsAsync = ref.watch(
+      paginatedFranchiseBillProvider(widget.id),
     );
-    // Provider to get the details of the diagnosis type itself (e.g., its name)
-    // Assumes you have a `diagnosisTypeDetailProvider`
-    final diagnosisTypeAsync = ref.watch(
-      diagnosisTypeDetailProvider(widget.id),
-    );
+    // Assumes you have a `franchiseDetailProvider` to get the franchise's details
+    final franchiseAsync = ref.watch(singleFranchiseProvider(widget.id));
     final currentQuery = ref.watch(currentSearchQueryProvider);
 
     return WindowScaffold(
-      centerWidget: diagnosisTypeAsync.when(
-        data: (diagnosisType) => CenterSearchBar(
+      centerWidget: franchiseAsync.when(
+        data: (franchise) => CenterSearchBar(
           controller: searchController,
           searchFocusNode: searchFocusNode,
-          hintText: "Search bills for ${diagnosisType.name}...",
+          hintText: "Search bills for ${franchise.franchiseName}...",
           width: 400,
           onSearch: _onSearchChanged,
         ),
@@ -167,29 +162,29 @@ class _DiagnosisTypeBillsListScreenState
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            _buildDiagnosisTypeHeader(diagnosisTypeAsync),
+            _buildFranchiseHeader(franchiseAsync),
             SizedBox(height: defaultHeight),
             _buildSectionHeader(
               context,
               currentQuery.isNotEmpty
                   ? 'Search Results for: "$currentQuery"'
-                  : "Bills",
+                  : "Franchise Bills",
             ),
             PaginatedBillsView(
-              billsProvider: perDiagnosisTypeBillsAsync,
+              billsProvider: franchiseBillsAsync,
               selectedView: _selectedView,
               headerTitle: currentQuery.isNotEmpty
                   ? 'Search Results for: "$currentQuery"'
-                  : "Bills",
+                  : "Franchise Bills",
               emptyListMessage: currentQuery.isEmpty
-                  ? 'No bills found for this diagnosis type.'
+                  ? 'No bills found for this franchise.'
                   : 'No bills found for "$currentQuery"',
               onPageChanged: (newPage) {
                 ref.read(currentPageProvider.notifier).state = newPage;
               },
               onBillTap: _navigateToBill,
               onRetry: () =>
-                  ref.invalidate(paginatedDiagnosisTypeBillProvider(widget.id)),
+                  ref.invalidate(paginatedFranchiseBillProvider(widget.id)),
             ),
             const SizedBox(height: 80),
           ],
@@ -198,14 +193,13 @@ class _DiagnosisTypeBillsListScreenState
     );
   }
 
-  // Header widget to show diagnosis type details and actions
-  Widget _buildDiagnosisTypeHeader(
-    AsyncValue<DiagnosisType> diagnosisTypeAsync,
-  ) {
+  // Header widget to show franchise details and actions
+  Widget _buildFranchiseHeader(AsyncValue<FranchiseName> franchiseAsync) {
     final theme = Theme.of(context);
     Color headerColor = Theme.of(context).colorScheme.primary;
-    return diagnosisTypeAsync.when(
-      data: (diagnosisType) => TintedContainer(
+
+    return franchiseAsync.when(
+      data: (franchise) => TintedContainer(
         baseColor: headerColor,
         height: 100,
         child: Row(
@@ -222,7 +216,7 @@ class _DiagnosisTypeBillsListScreenState
                   ),
                   child: const Center(
                     child: Icon(
-                      LucideIcons.syringe,
+                      LucideIcons.building2,
                       color: Colors.white,
                       size: 30,
                     ),
@@ -234,7 +228,7 @@ class _DiagnosisTypeBillsListScreenState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      diagnosisType.name,
+                      franchise.franchiseName!,
                       style: const TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
@@ -251,7 +245,7 @@ class _DiagnosisTypeBillsListScreenState
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        diagnosisType.category,
+                        "${franchise.address!}, ${franchise.phoneNumber}",
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -267,11 +261,11 @@ class _DiagnosisTypeBillsListScreenState
               children: [
                 IconButton(
                   onPressed: () {
-                    // Assumes you have an EditDiagnosisTypeScreen
+                    // Assumes you have an EditFranchiseScreen
                     navigatorKey.currentState?.push(
                       MaterialPageRoute(
                         builder: (context) =>
-                            DiagnosisTypeEditScreen(diagnosisTypeId: widget.id),
+                            FranchiseEditScreen(franchiseId: widget.id),
                       ),
                     );
                   },
@@ -279,16 +273,16 @@ class _DiagnosisTypeBillsListScreenState
                     LucideIcons.edit,
                     color: theme.colorScheme.primary,
                   ),
-                  tooltip: 'Edit Diagnosis Type',
+                  tooltip: 'Edit Franchise',
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  onPressed: () => _confirmDeleteDiagnosisType(diagnosisType),
+                  onPressed: () => _confirmDeleteFranchise(franchise),
                   icon: Icon(
                     LucideIcons.trash2,
                     color: theme.colorScheme.error,
                   ),
-                  tooltip: 'Delete Diagnosis Type',
+                  tooltip: 'Delete Franchise',
                 ),
               ],
             ),
@@ -297,7 +291,7 @@ class _DiagnosisTypeBillsListScreenState
       ),
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) =>
-          Center(child: Text('Failed to load diagnosis type: $err')),
+          Center(child: Text('Failed to load franchise details: $err')),
     );
   }
 
