@@ -7,9 +7,9 @@ import 'package:labledger/authentication/auth_http_client.dart';
 
 // --- Endpoints ---
 final String referralStatsEndpoint =
-    "${globalBaseUrl}diagnosis/referral-stats/referral-stat/";
+    "${globalBaseUrl}diagnosis/referral-stat/";
 final String chartStatsEndpoint =
-    "${globalBaseUrl}diagnosis/referral-stats/bill-chart-stat/";
+    "${globalBaseUrl}diagnosis/bill-chart-stat/";
 
 /// Fetches referral statistics for the dashboard.
 final referralStatsProvider =

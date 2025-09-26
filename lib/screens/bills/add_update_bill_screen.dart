@@ -105,53 +105,57 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     refByDoctorDisplayController.dispose();
     super.dispose();
   }
+
   void _preFillData() {
-  if (widget.billData == null || _isControllersInitialized) return;
-  final bill = widget.billData!;
-  final dateFormat = DateFormat('dd-MM-yyyy');
+    if (widget.billData == null || _isControllersInitialized) return;
+    final bill = widget.billData!;
+    final dateFormat = DateFormat('dd-MM-yyyy');
 
-  // Basic info
-  patientNameController.text = bill.patientName;
-  patientAgeController.text = bill.patientAge.toString();
-  patientSexController.text = bill.patientSex;
-  dateOfTestController.text = dateFormat.format(bill.dateOfTest);
-  dateOfBillController.text = dateFormat.format(bill.dateOfBill);
-  selectedTestDateISO = bill.dateOfTest.toIso8601String();
-  selectedBillDateISO = bill.dateOfBill.toIso8601String();
-  billStatusController.text = bill.billStatus;
-  paidAmountController.text = bill.paidAmount.toString();
-  discByDoctorController.text = bill.discByDoctor.toString();
-  discByCenterController.text = bill.discByCenter.toString();
+    // Basic info
+    patientNameController.text = bill.patientName;
+    patientAgeController.text = bill.patientAge.toString();
+    patientSexController.text = bill.patientSex;
+    dateOfTestController.text = dateFormat.format(bill.dateOfTest);
+    dateOfBillController.text = dateFormat.format(bill.dateOfBill);
+    selectedTestDateISO = bill.dateOfTest.toIso8601String();
+    selectedBillDateISO = bill.dateOfBill.toIso8601String();
+    billStatusController.text = bill.billStatus;
+    paidAmountController.text = bill.paidAmount.toString();
+    discByDoctorController.text = bill.discByDoctor.toString();
+    discByCenterController.text = bill.discByCenter.toString();
 
-  // ✅ CORRECTED: Initialize the state variables from the bill's map data
-  // This is the missing step that controls the UI logic.
-  if (bill.diagnosisTypeOutput != null) {
-    // We assume you have a DiagnosisType.fromJson constructor
-    _selectedDiagnosisType = DiagnosisType.fromJson(bill.diagnosisTypeOutput!);
+    // ✅ CORRECTED: Initialize the state variables from the bill's map data
+    // This is the missing step that controls the UI logic.
+    if (bill.diagnosisTypeOutput != null) {
+      // We assume you have a DiagnosisType.fromJson constructor
+      _selectedDiagnosisType = DiagnosisType.fromJson(
+        bill.diagnosisTypeOutput!,
+      );
+    }
+    if (bill.referredByDoctorOutput != null) {
+      // We assume you have a Doctor.fromJson constructor
+      _selectedDoctor = Doctor.fromJson(bill.referredByDoctorOutput!);
+    }
+    if (bill.franchiseNameOutput != null) {
+      // We assume you have a FranchiseName.fromJson constructor
+      _selectedFranchise = FranchiseName.fromJson(bill.franchiseNameOutput!);
+    }
+
+    // Populate the ID controllers
+    diagnosisTypeController.text = bill.diagnosisType.toString();
+    refByDoctorController.text = bill.referredByDoctor.toString();
+    franchiseNameController.text = bill.franchiseName?.toString() ?? '';
+
+    // Populate the display controllers
+    diagnosisTypeDisplayController.text =
+        '${bill.diagnosisTypeOutput?['category']} ${bill.diagnosisTypeOutput?['name']}';
+    refByDoctorDisplayController.text =
+        '${bill.referredByDoctorOutput?['first_name']} ${bill.referredByDoctorOutput?['last_name']}';
+    franchiseNameDisplayController.text =
+        bill.franchiseNameOutput?['franchise_name'] ?? '';
+
+    _isControllersInitialized = true;
   }
-  if (bill.referredByDoctorOutput != null) {
-    // We assume you have a Doctor.fromJson constructor
-    _selectedDoctor = Doctor.fromJson(bill.referredByDoctorOutput!);
-  }
-  if (bill.franchiseNameOutput != null) {
-    // We assume you have a FranchiseName.fromJson constructor
-    _selectedFranchise = FranchiseName.fromJson(bill.franchiseNameOutput!);
-  }
-
-  // Populate the ID controllers
-  diagnosisTypeController.text = bill.diagnosisType.toString();
-  refByDoctorController.text = bill.referredByDoctor.toString();
-  franchiseNameController.text = bill.franchiseName?.toString() ?? '';
-  
-  // Populate the display controllers
-  diagnosisTypeDisplayController.text =
-      '${bill.diagnosisTypeOutput?['category']} ${bill.diagnosisTypeOutput?['name']}';
-  refByDoctorDisplayController.text =
-      '${bill.referredByDoctorOutput?['first_name']} ${bill.referredByDoctorOutput?['last_name']}';
-  franchiseNameDisplayController.text = bill.franchiseNameOutput?['franchise_name'] ?? '';
-
-  _isControllersInitialized = true;
-}
 
   void _updateDisplayControllers(
     List<DiagnosisType> diagnosisTypes,
@@ -283,7 +287,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                 SizedBox(height: defaultHeight / 2),
                 Text(
                   isEditing
-                      ? 'Bill #${widget.billData?.billNumber ?? 'N/A'}'
+                      ? 'Bill #${widget.billData?.billNumber ?? 'N/A'} ${widget.billData!.id.toString()}'
                       : 'Fill in the details to create a new bill',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark

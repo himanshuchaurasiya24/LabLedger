@@ -5,7 +5,7 @@ import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/doctors_model.dart';
 
 /// Base API Endpoint
-final String doctorsEndpoint = "${globalBaseUrl}diagnosis/doctors/doctor/";
+final String doctorsEndpoint = "${globalBaseUrl}diagnosis/doctor/";
 
 /// Fetches all doctors.
 final doctorsProvider = FutureProvider.autoDispose<List<Doctor>>((ref) async {

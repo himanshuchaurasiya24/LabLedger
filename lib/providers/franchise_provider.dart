@@ -6,7 +6,7 @@ import 'package:labledger/models/franchise_model.dart';
 
 /// ✅ Base API Endpoint
 final String franchiseEndpoint =
-    "${globalBaseUrl}diagnosis/franchise-names/franchise-name/";
+    "${globalBaseUrl}diagnosis/franchise-name/";
 
 /// ✅ Fetch all franchises
 final franchiseProvider =

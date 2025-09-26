@@ -6,7 +6,7 @@ import 'package:labledger/models/diagnosis_type_model.dart';
 
 /// Base API Endpoint
 final String diagnosisTypeEndpoint =
-    "${globalBaseUrl}diagnosis/diagnosis-types/diagnosis-type/";
+    "${globalBaseUrl}diagnosis/diagnosis-type/";
 
 /// Fetches all Diagnosis Types.
 final diagnosisTypeProvider =

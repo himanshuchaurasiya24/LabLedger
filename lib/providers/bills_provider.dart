@@ -8,7 +8,7 @@ import 'package:labledger/models/paginated_response.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 
 // --- Base Endpoint ---
-final String billsEndpoint = "${globalBaseUrl}diagnosis/bills/bill/";
+final String billsEndpoint = "${globalBaseUrl}diagnosis/bill/";
 final String billGrowthStatsEndpoint =
     "${globalBaseUrl}diagnosis/bills/growth-stats/";
 
