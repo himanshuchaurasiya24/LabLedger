@@ -57,7 +57,7 @@ class _IncentiveGenerationScreenState
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
-          SizedBox(height: defaultPadding * 1.5),
+          SizedBox(height: defaultHeight * 1.5),
 
           // Main Content
           Expanded(
@@ -66,15 +66,15 @@ class _IncentiveGenerationScreenState
               children: [
                 // Left Panel: Filters
                 Expanded(flex: 2, child: _FilterPanel()),
-                SizedBox(width: defaultPadding),
+                SizedBox(width: defaultWidth),
                 // Right Panel: Action Area & Quick Stats
                 Expanded(
                   flex: 1,
                   child: Column(
                     children: [
                       _QuickStatsPanel(),
-                      SizedBox(height: defaultPadding),
-                      Expanded(child: _ActionPanel()),
+                      SizedBox(height: defaultHeight),
+                      _ActionPanel(),
                     ],
                   ),
                 ),
@@ -113,7 +113,7 @@ class _FilterPanel extends ConsumerWidget {
                       size: 20,
                       color: Colors.blue.shade700,
                     ),
-                    SizedBox(width: 8),
+                    SizedBox(width: 6),
                     Text(
                       "Date Range",
                       style: TextStyle(
@@ -129,7 +129,7 @@ class _FilterPanel extends ConsumerWidget {
               ],
             ),
           ),
-          SizedBox(height: defaultPadding),
+          SizedBox(height: defaultHeight),
 
           // Filters Grid
           Row(
@@ -139,7 +139,7 @@ class _FilterPanel extends ConsumerWidget {
               Expanded(
                 child: doctorsAsync.when(
                   data: (doctors) => TintedContainer(
-                    height: 120,
+                    height: 128,
                     baseColor: Theme.of(context).colorScheme.secondary,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,13 +185,13 @@ class _FilterPanel extends ConsumerWidget {
                   ),
                 ),
               ),
-              SizedBox(width: defaultPadding),
+              SizedBox(width: defaultWidth),
               // Franchise Filter
               Expanded(
                 child: franchisesAsync.when(
                   data: (franchises) => TintedContainer(
                     baseColor: Theme.of(context).colorScheme.error,
-                    height: 120,
+                    height: 128,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -213,6 +213,18 @@ class _FilterPanel extends ConsumerWidget {
                             ),
                           ],
                         ),
+                        SizedBox(height: defaultHeight / 2),
+                        Text(
+                          "   Select this only if you want to filter by labs otherwise leave it blank",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.error.withValues(alpha: 0.7),
+                          ),
+                        ),
+                        SizedBox(height: defaultHeight / 2),
+
                         Spacer(),
                         _CompactMultiSelectDropdown<int>(
                           items: {
@@ -237,7 +249,7 @@ class _FilterPanel extends ConsumerWidget {
               ),
             ],
           ),
-          SizedBox(height: defaultPadding),
+          SizedBox(height: defaultHeight),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -288,7 +300,7 @@ class _FilterPanel extends ConsumerWidget {
                   ),
                 ),
               ),
-              SizedBox(width: defaultPadding),
+              SizedBox(width: defaultWidth),
               // Bill Status Filter
               Expanded(
                 child: TintedContainer(
@@ -348,14 +360,14 @@ class _QuickStatsPanel extends ConsumerWidget {
     final selectedFranchises = ref.watch(selectedFranchiseIdsProvider);
     final selectedDiagnosisTypes = ref.watch(selectedDiagnosisTypeIdsProvider);
     final selectedBillStatuses = ref.watch(selectedBillStatusesProvider);
-
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         Row(
           children: [
             Expanded(
               child: TintedContainer(
-                baseColor: Colors.blue,
+                baseColor: colorScheme.secondary,
                 height: 80,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -365,24 +377,24 @@ class _QuickStatsPanel extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                        color: colorScheme.secondary,
                       ),
                     ),
                     Text(
                       "Doctors Selected",
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.blue.shade700,
+                        color: colorScheme.secondary,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(width: defaultPadding / 2),
+            SizedBox(width: defaultWidth),
             Expanded(
               child: TintedContainer(
-                baseColor: Colors.green,
+                baseColor: colorScheme.error,
                 height: 80,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -392,15 +404,12 @@ class _QuickStatsPanel extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.green,
+                        color: colorScheme.error,
                       ),
                     ),
                     Text(
                       "Labs Selected",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.green.shade700,
-                      ),
+                      style: TextStyle(fontSize: 12, color: colorScheme.error),
                     ),
                   ],
                 ),
@@ -408,12 +417,12 @@ class _QuickStatsPanel extends ConsumerWidget {
             ),
           ],
         ),
-        SizedBox(height: defaultPadding / 2),
+        SizedBox(height: defaultHeight),
         Row(
           children: [
             Expanded(
               child: TintedContainer(
-                baseColor: Colors.purple,
+                baseColor: colorScheme.secondary,
                 height: 80,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -423,24 +432,24 @@ class _QuickStatsPanel extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.purple,
+                        color: colorScheme.secondary,
                       ),
                     ),
                     Text(
                       "Diagnosis Types",
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.purple.shade700,
+                        color: colorScheme.secondary,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(width: defaultPadding / 2),
+            SizedBox(width: defaultWidth),
             Expanded(
               child: TintedContainer(
-                baseColor: Colors.orange,
+                baseColor: colorScheme.secondary,
                 height: 80,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -450,14 +459,14 @@ class _QuickStatsPanel extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.orange,
+                        color: colorScheme.secondary,
                       ),
                     ),
                     Text(
                       "Bill Statuses",
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.orange.shade700,
+                        color: colorScheme.secondary,
                       ),
                     ),
                   ],
@@ -489,9 +498,9 @@ class _ActionPanel extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return TintedContainer(
-      baseColor: Colors.indigo,
+      height: 238,
+      baseColor: Theme.of(context).colorScheme.primary,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
@@ -511,7 +520,7 @@ class _ActionPanel extends ConsumerWidget {
               ),
             ],
           ),
-          SizedBox(height: defaultPadding),
+          SizedBox(height: defaultHeight / 2),
           Text(
             "Review your selected filters and generate the detailed incentive report with comprehensive analytics and breakdowns.",
             style: TextStyle(
@@ -522,52 +531,38 @@ class _ActionPanel extends ConsumerWidget {
           Spacer(),
           Container(
             width: double.infinity,
-            height: 56,
+            height: 52,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.indigo.shade600, Colors.indigo.shade800],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(defaultRadius),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.indigo.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: Offset(0, 4),
-                ),
-              ],
             ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(defaultRadius),
-                onTap: () {
-                  navigatorKey.currentState?.push(
-                    MaterialPageRoute(
-                      builder: (context) => IncentiveDetailScreen(),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(defaultRadius),
+              onTap: () {
+                navigatorKey.currentState?.push(
+                  MaterialPageRoute(
+                    builder: (context) => IncentiveDetailScreen(),
+                  ),
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(LucideIcons.fileText, color: Colors.white, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    "Generate Report",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(LucideIcons.fileText, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      "Generate Report",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
-          SizedBox(height: defaultPadding),
+          SizedBox(height: defaultHeight / 2),
           SizedBox(
             width: double.infinity,
             height: 48,
@@ -594,7 +589,6 @@ class _ActionPanel extends ConsumerWidget {
               ),
             ),
           ),
-          Spacer(),
         ],
       ),
     );
@@ -618,50 +612,47 @@ class _DateRangePicker extends ConsumerWidget {
               borderRadius: BorderRadius.circular(defaultRadius),
               border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
             ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(defaultRadius),
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: startDate,
-                    firstDate: DateTime(2020),
-                    lastDate: endDate,
-                  );
-                  if (picked != null) {
-                    ref.read(reportStartDateProvider.notifier).state = picked;
-                  }
-                },
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Start Date",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.blue.shade600,
-                          fontWeight: FontWeight.w500,
-                        ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(defaultRadius),
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: startDate,
+                  firstDate: DateTime(2020),
+                  lastDate: endDate,
+                );
+                if (picked != null) {
+                  ref.read(reportStartDateProvider.notifier).state = picked;
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.all(defaultPadding * 1.5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Start Date",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue.shade600,
+                        fontWeight: FontWeight.w500,
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        DateFormat.yMMMd().format(startDate),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      DateFormat.yMMMd().format(startDate),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
         ),
-        SizedBox(width: defaultPadding),
+        SizedBox(width: defaultWidth),
         Expanded(
           child: Container(
             decoration: BoxDecoration(
@@ -669,44 +660,41 @@ class _DateRangePicker extends ConsumerWidget {
               borderRadius: BorderRadius.circular(defaultRadius),
               border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
             ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(defaultRadius),
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: endDate,
-                    firstDate: startDate,
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) {
-                    ref.read(reportEndDateProvider.notifier).state = picked;
-                  }
-                },
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "End Date",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.blue.shade600,
-                          fontWeight: FontWeight.w500,
-                        ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(defaultRadius),
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: endDate,
+                  firstDate: startDate,
+                  lastDate: DateTime(2100),
+                );
+                if (picked != null) {
+                  ref.read(reportEndDateProvider.notifier).state = picked;
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.all(defaultPadding * 1.5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "End Date",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue.shade600,
+                        fontWeight: FontWeight.w500,
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        DateFormat.yMMMd().format(endDate),
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      DateFormat.yMMMd().format(endDate),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
