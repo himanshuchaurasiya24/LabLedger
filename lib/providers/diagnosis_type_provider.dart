@@ -16,8 +16,6 @@ final diagnosisTypeProvider =
   return data.map((e) => DiagnosisType.fromJson(e)).toList();
 });
 
-// ✅ New Provider Added Below
-/// Fetches a single Diagnosis Type by its ID.
 final diagnosisTypeDetailProvider =
     FutureProvider.autoDispose.family<DiagnosisType, int>((ref, id) async {
   final response = await AuthHttpClient.get(

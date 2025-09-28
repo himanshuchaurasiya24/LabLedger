@@ -850,6 +850,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       paidAmount: int.parse(paidAmountController.text),
       discByCenter: int.parse(discByCenterController.text),
       discByDoctor: int.parse(discByDoctorController.text),
+      patientPhoneNumber: "0000000000",
 
       // Use the controllers that hold the IDs
       diagnosisType: int.parse(diagnosisTypeController.text),
