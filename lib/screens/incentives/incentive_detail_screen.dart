@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,15 +11,15 @@ import 'package:labledger/models/incentive_model.dart';
 import 'package:labledger/providers/incenitve_generator_provider.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/incentives/pdf_api.dart';
+import 'package:labledger/screens/incentives/report_generation_dialog.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
+import 'package:open_file_plus/open_file_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
-
-// Main Screen Widget
+import "package:path/path.dart" as p;
 class IncentiveDetailScreen extends ConsumerStatefulWidget {
   const IncentiveDetailScreen({super.key});
 
@@ -36,8 +38,6 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     super.dispose();
   }
 
-  // --- PDF Generation and Dialog Logic ---
-
   Future<void> _showReportGenerationDialog(BuildContext context) async {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
@@ -47,16 +47,25 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       },
     );
 
-    if (result != null && result['generate'] == true) {
-      final selectedFields = result['selectedFields'] as Map<String, bool>;
-      final reportTitle = result['reportTitle'] as String;
+    if (result == null || result['generate'] != true) {
+      return; // Exit if the user cancelled or closed the dialog
+    }
 
-      _showProgressDialog();
+    final selectedFields = result['selectedFields'] as Map<String, bool>;
 
-      await _generatePDFReport(selectedFields, reportTitle);
+    _showProgressDialog();
 
-      // ignore: use_build_context_synchronously
-      Navigator.of(context, rootNavigator: true).pop();
+    try {
+      await _generatePDFReport(selectedFields);
+    } catch (e) {
+      _showSnackBar('An unexpected error occurred: $e', isError: true);
+    } finally {
+      if (Navigator.of(
+        navigatorKey.currentContext!,
+        rootNavigator: true,
+      ).canPop()) {
+        Navigator.of(navigatorKey.currentContext!, rootNavigator: true).pop();
+      }
     }
   }
 
@@ -82,10 +91,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     );
   }
 
-  Future<void> _generatePDFReport(
-    Map<String, bool> selectedFields,
-    String reportTitle,
-  ) async {
+  Future<void> _generatePDFReport(Map<String, bool> selectedFields) async {
     try {
       final reportAsync = ref.read(incentiveReportProvider);
 
@@ -114,19 +120,31 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
           final pdfBytes = await createPDF(
             reports: filteredReports,
             selectedFields: selectedFields,
-            reportTitle: reportTitle,
             ref: ref,
           );
 
           if (kIsWeb) {
-            _downloadPdfWeb(pdfBytes, reportTitle);
+            _downloadPdfWeb(pdfBytes);
           } else {
-            await Printing.layoutPdf(
-              onLayout: (PdfPageFormat format) async => pdfBytes,
-              name: '${reportTitle.replaceAll(' ', '_')}.pdf',
-            );
+            final directory = await getApplicationDocumentsDirectory();
+            final fileName =
+                "LabLedger Incentive Report ${DateFormat("dd MMM yyyy hh:mm:ss").format(DateTime.now())}";
+            final filePath = p.join(directory.path, fileName);
+            final file = File(filePath);
+            await file.writeAsBytes(pdfBytes);
+            final result = await OpenFile.open(filePath);
+            if (result.type == ResultType.error) {
+              _showSnackBar(
+                'Failed to open PDF: ${result.message}',
+                isError: true,
+              );
+            } else {
+              _showSnackBar(
+                'Report generated and opening now...',
+                isError: false,
+              );
+            }
           }
-          _showSnackBar('Report generated successfully!', isError: false);
         },
         loading: () =>
             _showSnackBar('Please wait for data to load', isError: false),
@@ -138,13 +156,14 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     }
   }
 
-  void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
+  void _downloadPdfWeb(Uint8List pdfBytes) {
     final blob = html.Blob([pdfBytes], 'application/pdf');
     final url = html.Url.createObjectUrlFromBlob(blob);
     final anchor = html.document.createElement('a') as html.AnchorElement
       ..href = url
       ..style.display = 'none'
-      ..download = '${reportTitle.replaceAll(' ', '_')}.pdf';
+      ..download =
+          '${"LabLedger Incentive Report ${DateFormat("dd_MM_YYYY_hh:mm:ss").format(DateTime.now())}".replaceAll(' ', '_')}.pdf';
     html.document.body!.children.add(anchor);
     anchor.click();
     html.document.body!.children.remove(anchor);
@@ -159,7 +178,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
           content: Text(message),
           backgroundColor: isError
               ? Theme.of(context).colorScheme.error
-              : Colors.green,
+              : Theme.of(context).colorScheme.secondary,
         ),
       );
     }
