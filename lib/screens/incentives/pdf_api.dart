@@ -1,7 +1,8 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/center_detail_model_with_subscription.dart';
 import 'package:labledger/models/incentive_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
@@ -9,7 +10,6 @@ import 'package:labledger/providers/incenitve_generator_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-// --- Main PDF Creation Function ---
 Future<Uint8List> createPDF({
   required List<DoctorReport> reports,
   required Map<String, bool> selectedFields,
@@ -17,33 +17,40 @@ Future<Uint8List> createPDF({
   required WidgetRef ref,
 }) async {
   final pdf = pw.Document();
-  final currentUser = await ref.read(currentUserProvider.future);
-  final centerDetail = currentUser.centerDetail;
+
+  // Load a font that supports the Rupee symbol
+  final liteFont = await rootBundle.load(
+    "assets/fonts/GoogleSansDisplay-Regular.ttf",
+  );
+  final ttf = pw.Font.ttf(liteFont);
+
+  final boldFont = await rootBundle.load(
+    "assets/fonts/GoogleSansDisplay-Bold.ttf",
+  );
+  final boldTTF = pw.Font.ttf(boldFont);
+  // Get center details
+  final authResponse = await ref.read(currentUserProvider.future);
+  final centerDetail = authResponse.centerDetail;
 
   pdf.addPage(
     pw.MultiPage(
-      pageFormat: PdfPageFormat.a4.landscape,
-      margin: const pw.EdgeInsets.all(25),
+      pageFormat: PdfPageFormat.a4.portrait,
+      margin: pw.EdgeInsets.all(defaultPadding / 2),
       build: (pw.Context context) {
         return reports.map((doctorReport) {
           return pw.Column(
+            mainAxisAlignment: pw.MainAxisAlignment.start,
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              _buildDoctorSummaryCard(doctorReport, ref, centerDetail, reportTitle),
-              pw.SizedBox(height: 15),
-              pw.Text(
-                'Bill Details (${doctorReport.bills.length} bills)',
-                style: pw.TextStyle(
-                  fontSize: 12,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.grey800,
-                ),
+              _buildBillsTable(
+                doctorReport,
+                selectedFields,
+                ref,
+                ttf,
+                boldTTF,
+                centerDetail,
               ),
               pw.SizedBox(height: 5),
-              // Pass the entire report object to the table builder
-              _buildBillsTable(doctorReport, selectedFields),
-              _buildDoctorReportFooter(),
-              pw.SizedBox(height: 30), // Space between doctor sections
             ],
           );
         }).toList();
@@ -54,107 +61,16 @@ Future<Uint8List> createPDF({
   return pdf.save();
 }
 
-// --- PDF Page Components ---
-
-pw.Widget _buildDoctorSummaryCard(
-  DoctorReport doctorReport,
-  WidgetRef ref,
-  CenterDetail centerDetail,
-  String reportTitle,
-) {
-  const tealColor = PdfColor.fromInt(0xFF008080);
-  const lightTealColor = PdfColor.fromInt(0xFFE0F2F1);
-
-  final firstName = doctorReport.doctor.firstName ?? '';
-  final lastName = doctorReport.doctor.lastName ?? '';
-  
-  return pw.Container(
-    padding: const pw.EdgeInsets.all(12),
-    decoration: pw.BoxDecoration(
-      color: lightTealColor,
-      borderRadius: pw.BorderRadius.circular(6),
-      border: pw.Border.all(color: tealColor, width: 0.5),
-    ),
-    child: pw.Column(
-      children: [
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(
-              "$firstName $lastName",
-              style: pw.TextStyle(
-                fontSize: 20,
-                fontWeight: pw.FontWeight.bold,
-                color: tealColor,
-              ),
-            ),
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.end,
-              children: [
-                pw.Text(
-                  "Total Incentive",
-                  style: const pw.TextStyle(
-                    fontSize: 10,
-                    color: PdfColors.grey700,
-                  ),
-                ),
-                pw.SizedBox(height: 2),
-                pw.Text(
-                  "₹${NumberFormat.decimalPattern('en_IN').format(doctorReport.totalIncentive)}",
-                  style: pw.TextStyle(
-                    fontSize: 20,
-                    fontWeight: pw.FontWeight.bold,
-                    color: PdfColors.green700,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        pw.Divider(color: tealColor.shade(0.5), height: 15, thickness: 0.5),
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text(
-                  "${centerDetail.centerName}, ${centerDetail.address}",
-                  style: const pw.TextStyle(
-                    fontSize: 9,
-                    color: PdfColors.blueGrey500,
-                  ),
-                ),
-                pw.SizedBox(height: 3),
-                pw.Text(
-                  "Report Period: ${DateFormat("dd MMM yyyy").format(ref.read(reportStartDateProvider))} to ${DateFormat("dd MMM yyyy").format(ref.read(reportEndDateProvider))}",
-                  style: const pw.TextStyle(
-                    fontSize: 9,
-                    color: PdfColors.grey700,
-                  ),
-                ),
-              ],
-            ),
-            pw.Text(
-              "Total Bills: ${doctorReport.bills.length}",
-              style: pw.TextStyle(
-                fontSize: 9,
-                color: PdfColors.grey700,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
 pw.Widget _buildBillsTable(
   DoctorReport doctorReport,
   Map<String, bool> selectedFields,
+  WidgetRef ref,
+  pw.Font font,
+  pw.Font boldFont,
+  CenterDetail centerDetail,
 ) {
+  const lightBlueColor = PdfColor.fromInt(0xFFE3F2FD);
+
   final headers = <String>[];
   final Map<int, pw.TableColumnWidth> columnWidths = {};
   final bills = doctorReport.bills;
@@ -162,7 +78,7 @@ pw.Widget _buildBillsTable(
   // Dynamically build headers based on user selection
   int colIndex = 0;
   if (selectedFields['dateOfBill'] ?? false) {
-    headers.add('Date');
+    headers.add('Date Of Bill');
     columnWidths[colIndex++] = const pw.FixedColumnWidth(55);
   }
   if (selectedFields['patientName'] ?? false) {
@@ -170,19 +86,19 @@ pw.Widget _buildBillsTable(
     columnWidths[colIndex++] = const pw.FlexColumnWidth(2);
   }
   if (selectedFields['ageAndSex'] ?? false) {
-    headers.add('Age/Sex');
+    headers.add('Age Sex');
     columnWidths[colIndex++] = const pw.FixedColumnWidth(40);
   }
   if (selectedFields['billStatus'] ?? false) {
-    headers.add('Status');
-    columnWidths[colIndex++] = const pw.FixedColumnWidth(45);
+    headers.add('Payment Status');
+    columnWidths[colIndex++] = const pw.FixedColumnWidth(60);
   }
   if (selectedFields['diagnosisTypeOutput'] ?? false) {
     headers.add('Diagnosis');
     columnWidths[colIndex++] = const pw.FlexColumnWidth(2.5);
   }
   if (selectedFields['franchiseNameOutput'] ?? false) {
-    headers.add('Franchise');
+    headers.add('Franchise Lab');
     columnWidths[colIndex++] = const pw.FlexColumnWidth(2);
   }
   if (selectedFields['totalAmount'] ?? false) {
@@ -194,123 +110,283 @@ pw.Widget _buildBillsTable(
     columnWidths[colIndex++] = const pw.FixedColumnWidth(45);
   }
   if (selectedFields['discByDoctor'] ?? false) {
-    headers.add('Doc Disc');
-    columnWidths[colIndex++] = const pw.FixedColumnWidth(35);
+    headers.add("Doctor's Discount");
+    columnWidths[colIndex++] = const pw.FixedColumnWidth(50);
   }
   if (selectedFields['discByCenter'] ?? false) {
-    headers.add('Cen Disc');
-    columnWidths[colIndex++] = const pw.FixedColumnWidth(35);
+    headers.add("Center's Discount");
+    columnWidths[colIndex++] = const pw.FixedColumnWidth(50);
   }
   if (selectedFields['incentivePercentage'] ?? false) {
-    headers.add('Inc %');
-    columnWidths[colIndex++] = const pw.FixedColumnWidth(30);
+    headers.add('Incentive %');
+    columnWidths[colIndex++] = const pw.FixedColumnWidth(45);
   }
   if (selectedFields['incentiveAmount'] ?? false) {
     headers.add('Incentive');
-    columnWidths[colIndex++] = const pw.FixedColumnWidth(45);
+    columnWidths[colIndex++] = const pw.FixedColumnWidth(50);
   }
   if (selectedFields['billNumber'] ?? false) {
-    headers.add('Bill #');
+    headers.add('Bill Number');
     columnWidths[colIndex++] = const pw.FlexColumnWidth(1.5);
   }
 
   if (headers.isEmpty) return pw.Container();
-
-  return pw.Table(
-    border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
-    columnWidths: columnWidths,
-    children: [
-      pw.TableRow(
-        decoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFF0072B5)),
-        children: headers
-            .map(
-              (header) => pw.Container(
-                padding: const pw.EdgeInsets.all(4),
-                child: pw.Text(
-                  header,
-                  style: pw.TextStyle(
-                    fontSize: 7,
-                    fontWeight: pw.FontWeight.bold,
-                    color: PdfColors.white,
-                  ),
-                  textAlign: pw.TextAlign.center,
-                ),
-              ),
-            )
-            .toList(),
-      ),
-      ...bills.asMap().entries.map((entry) {
-        final bill = entry.value;
-        final isEvenRow = entry.key % 2 == 0;
-        final cells = <pw.Widget>[];
-
-        if (selectedFields['dateOfBill'] ?? false) {
-          cells.add(_buildTableCell(DateFormat('dd-MM-yy').format(bill.dateOfBill), 6));
-        }
-        if (selectedFields['patientName'] ?? false) {
-          cells.add(_buildTableCell(bill.patientName, 6));
-        }
-        if (selectedFields['ageAndSex'] ?? false) {
-          cells.add(_buildTableCell("${bill.patientAge}y ${bill.patientSex}", 6));
-        }
-        if (selectedFields['billStatus'] ?? false) {
-          cells.add(_buildPaymentStatusCell(bill.billStatus));
-        }
-        if (selectedFields['diagnosisTypeOutput'] ?? false) {
-          cells.add(_buildTableCell(_formatDiagnosis(bill), 6));
-        }
-        if (selectedFields['franchiseNameOutput'] ?? false) {
-          cells.add(_buildTableCell(_formatFranchise(bill), 6));
-        }
-        if (selectedFields['totalAmount'] ?? false) {
-          cells.add(_buildTableCell("₹${NumberFormat.decimalPattern('en_IN').format(bill.totalAmount)}", 6));
-        }
-        if (selectedFields['paidAmount'] ?? false) {
-          cells.add(_buildTableCell("₹${NumberFormat.decimalPattern('en_IN').format(bill.paidAmount)}", 6));
-        }
-        if (selectedFields['discByDoctor'] ?? false) {
-          cells.add(_buildTableCell("₹${NumberFormat.decimalPattern('en_IN').format(bill.discByDoctor)}", 6));
-        }
-        if (selectedFields['discByCenter'] ?? false) {
-          cells.add(_buildTableCell("₹${NumberFormat.decimalPattern('en_IN').format(bill.discByCenter)}", 6));
-        }
-        if (selectedFields['incentivePercentage'] ?? false) {
-          // 🌟 CORRECTED: Pass the doctor and the bill to get the percentage
-          cells.add(_buildTableCell(_getIncentivePercentage(doctorReport.doctor, bill), 6));
-        }
-        if (selectedFields['incentiveAmount'] ?? false) {
-          cells.add(_buildIncentiveCell(bill.incentiveAmount));
-        }
-        if (selectedFields['billNumber'] ?? false) {
-          cells.add(_buildTableCell(bill.billNumber, 5));
-        }
-
-        return pw.TableRow(
-          decoration: pw.BoxDecoration(
-            color: isEvenRow ? PdfColors.white : PdfColors.grey50,
+  double containerBorderRadius = 8;
+  return pw.Container(
+    decoration: pw.BoxDecoration(
+      borderRadius: pw.BorderRadius.circular(containerBorderRadius),
+      border: pw.Border.all(color: PdfColor.fromHex("#0072B5"), width: 0.6),
+    ),
+    child: pw.Column(
+      children: [
+        pw.Container(
+          padding: pw.EdgeInsets.only(
+            left: defaultPadding,
+            right: defaultPadding,
+            top: defaultPadding / 2,
           ),
-          children: cells,
-        );
-      }),
-    ],
+          decoration: pw.BoxDecoration(
+            borderRadius: pw.BorderRadius.only(
+              topLeft: pw.Radius.circular(containerBorderRadius),
+              topRight: pw.Radius.circular(containerBorderRadius),
+            ),
+          ),
+          child: pw.Column(
+            children: [
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Row(
+                    children: [
+                      pw.Container(
+                        width: 36,
+                        height: 36,
+                        decoration: pw.BoxDecoration(
+                          color: lightBlueColor,
+                          shape: pw.BoxShape.circle,
+                        ),
+                        child: pw.Center(
+                          child: pw.Text(
+                            "${doctorReport.doctor.firstName!.isNotEmpty ? doctorReport.doctor.firstName!.substring(0, 1).toUpperCase() : ''}${doctorReport.doctor.lastName!.isNotEmpty ? doctorReport.doctor.lastName!.substring(0, 1).toUpperCase() : ''}",
+                            style: pw.TextStyle(
+                              font: boldFont,
+                              fontSize: 14,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColor.fromHex("#0072B5"),
+                            ),
+                          ),
+                        ),
+                      ),
+                      pw.SizedBox(width: 12),
+                      pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text(
+                            "${doctorReport.doctor.firstName} ${doctorReport.doctor.lastName}",
+                            style: pw.TextStyle(
+                              font: boldFont,
+                              fontSize: 14,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.grey900,
+                            ),
+                          ),
+                          pw.SizedBox(height: 2),
+                          pw.Text(
+                            "${doctorReport.bills.length} bills • Total ₹${doctorReport.totalIncentive}• From ${DateFormat("dd MMM yyyy").format(ref.read(reportStartDateProvider))} to ${DateFormat("dd MMM yyyy").format(ref.read(reportEndDateProvider))}",
+                            style: pw.TextStyle(
+                              font: font,
+                              fontSize: 8,
+                              color: PdfColors.grey600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  pw.Container(
+                    padding: const pw.EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: pw.BoxDecoration(
+                      color: lightBlueColor,
+                      borderRadius: pw.BorderRadius.circular(6),
+                    ),
+
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                        pw.Text(
+                          centerDetail.centerName,
+                          style: pw.TextStyle(
+                            font: boldFont,
+                            fontSize: 10,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColor.fromHex("#0072B5"),
+                          ),
+                        ),
+                        pw.SizedBox(height: 4),
+                        pw.Text(
+                          centerDetail.address,
+                          style: pw.TextStyle(
+                            font: font,
+                            fontSize: 8,
+                            color: PdfColors.grey700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: defaultHeight / 2),
+            ],
+          ),
+        ),
+        pw.Padding(
+          padding: pw.EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+          child: pw.Table(
+            border: pw.TableBorder.all(color: PdfColors.grey300, width: 1),
+            columnWidths: columnWidths,
+            children: [
+              pw.TableRow(
+                decoration: pw.BoxDecoration(color: lightBlueColor),
+                children: headers
+                    .map(
+                      (header) => pw.Center(
+                        child: pw.Padding(
+                          padding: pw.EdgeInsets.symmetric(
+                            horizontal: defaultPadding / 2,
+                            vertical: defaultPadding / 4,
+                          ),
+                          child: pw.Text(
+                            header,
+                            style: pw.TextStyle(
+                              font: boldFont,
+                              fontSize: 7.5,
+                              // fontWeight: pw.FontWeight.bold,
+                              color: PdfColor.fromHex("#0072B5"),
+                            ),
+                            textAlign: pw.TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+              ...bills.asMap().entries.map((entry) {
+                final bill = entry.value;
+                final cells = <pw.Widget>[];
+
+                if (selectedFields['dateOfBill'] ?? false) {
+                  cells.add(
+                    _buildTableCell(
+                      DateFormat('dd MMM yyyy').format(bill.dateOfBill),
+                      7,
+                      font,
+                    ),
+                  );
+                }
+                if (selectedFields['patientName'] ?? false) {
+                  cells.add(_buildTableCell(bill.patientName, 7, font));
+                }
+                if (selectedFields['ageAndSex'] ?? false) {
+                  cells.add(
+                    _buildTableCell(
+                      "${bill.patientAge}y ${bill.patientSex}",
+                      7,
+                      font,
+                    ),
+                  );
+                }
+                if (selectedFields['billStatus'] ?? false) {
+                  cells.add(_buildPaymentStatusCell(bill.billStatus, font));
+                }
+                if (selectedFields['diagnosisTypeOutput'] ?? false) {
+                  cells.add(_buildTableCell(_formatDiagnosis(bill), 7, font));
+                }
+                if (selectedFields['franchiseNameOutput'] ?? false) {
+                  cells.add(_buildTableCell(_formatFranchise(bill), 7, font));
+                }
+                if (selectedFields['totalAmount'] ?? false) {
+                  cells.add(
+                    _buildTableCell(
+                      "₹${NumberFormat('#,##,###').format(bill.totalAmount)}",
+                      7,
+                      font,
+                    ),
+                  );
+                }
+                if (selectedFields['paidAmount'] ?? false) {
+                  cells.add(
+                    _buildTableCell(
+                      "₹${NumberFormat('#,##,###').format(bill.paidAmount)}",
+                      7,
+                      font,
+                    ),
+                  );
+                }
+                if (selectedFields['discByDoctor'] ?? false) {
+                  cells.add(
+                    _buildTableCell(
+                      "₹${NumberFormat('#,##,###').format(bill.discByDoctor)}",
+                      7,
+                      font,
+                    ),
+                  );
+                }
+                if (selectedFields['discByCenter'] ?? false) {
+                  cells.add(
+                    _buildTableCell(
+                      "₹${NumberFormat('#,##,###').format(bill.discByCenter)}",
+                      7,
+                      font,
+                    ),
+                  );
+                }
+                if (selectedFields['incentivePercentage'] ?? false) {
+                  cells.add(
+                    _buildTableCell(
+                      _getIncentivePercentage(doctorReport.doctor, bill),
+                      7,
+                      font,
+                    ),
+                  );
+                }
+                if (selectedFields['incentiveAmount'] ?? false) {
+                  cells.add(_buildIncentiveCell(bill.incentiveAmount, font));
+                }
+                if (selectedFields['billNumber'] ?? false) {
+                  cells.add(_buildTableCell(bill.billNumber, 6.5, font));
+                }
+                return pw.TableRow(children: cells);
+              }),
+            ],
+          ),
+        ),
+        _buildLabLedgerBrandingFooter(font),
+      ],
+    ),
   );
 }
 
-pw.Widget _buildDoctorReportFooter() {
-  return pw.Container(
-    padding: const pw.EdgeInsets.only(top: 8),
-    margin: const pw.EdgeInsets.only(top: 8),
-    decoration: const pw.BoxDecoration(
-      border: pw.Border(
-        top: pw.BorderSide(color: PdfColors.grey300, width: 0.5),
-      ),
+pw.Widget _buildLabLedgerBrandingFooter(pw.Font font) {
+  return pw.Padding(
+    padding: pw.EdgeInsets.symmetric(
+      horizontal: defaultPadding / 2,
+      vertical: defaultPadding / 2,
     ),
     child: pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.end,
       children: [
         pw.Text(
-          'Generated by LabLedger on ${DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.now())}',
-          style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
+          'Generated using LabLedger Software on ${DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.now())}',
+          style: pw.TextStyle(
+            font: font,
+            fontSize: 7,
+            color: PdfColors.grey600,
+          ),
         ),
       ],
     ),
@@ -319,37 +395,43 @@ pw.Widget _buildDoctorReportFooter() {
 
 // --- Helper Functions and Widgets ---
 
-pw.Widget _buildTableCell(String text, double fontSize) => pw.Container(
-      padding: const pw.EdgeInsets.all(3),
+pw.Widget _buildTableCell(String text, double fontSize, pw.Font font) =>
+    pw.Container(
+      padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
       child: pw.Text(
         text,
-        style: pw.TextStyle(fontSize: fontSize, color: PdfColors.grey800),
+        style: pw.TextStyle(
+          font: font,
+          fontSize: fontSize,
+          color: PdfColors.grey800,
+        ),
         textAlign: pw.TextAlign.center,
         maxLines: 2,
         overflow: pw.TextOverflow.clip,
       ),
     );
 
-pw.Widget _buildPaymentStatusCell(String status) {
+pw.Widget _buildPaymentStatusCell(String status, pw.Font font) {
   final colors = {
-    'fully paid': const [PdfColors.green100, PdfColors.green800],
-    'partially paid': const [PdfColors.amber100, PdfColors.amber800],
-    'unpaid': const [PdfColors.red100, PdfColors.red800],
+    'fully paid': const [PdfColors.green50, PdfColors.green700],
+    'partially paid': const [PdfColors.amber50, PdfColors.amber700],
+    'unpaid': const [PdfColors.red50, PdfColors.red700],
   };
   final colorPair =
       colors[status.toLowerCase()] ?? [PdfColors.grey100, PdfColors.grey800];
   return pw.Container(
-    padding: const pw.EdgeInsets.all(3),
+    padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
     child: pw.Container(
-      padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: pw.BoxDecoration(
         color: colorPair[0],
-        borderRadius: pw.BorderRadius.circular(8),
+        borderRadius: pw.BorderRadius.circular(12),
       ),
       child: pw.Text(
         status,
         style: pw.TextStyle(
-          fontSize: 5.5,
+          font: font,
+          fontSize: 6.5,
           fontWeight: pw.FontWeight.bold,
           color: colorPair[1],
         ),
@@ -359,18 +441,19 @@ pw.Widget _buildPaymentStatusCell(String status) {
   );
 }
 
-pw.Widget _buildIncentiveCell(int amount) => pw.Container(
-      padding: const pw.EdgeInsets.all(3),
-      child: pw.Text(
-        "₹${NumberFormat.decimalPattern('en_IN').format(amount)}",
-        style: pw.TextStyle(
-          fontSize: 6,
-          fontWeight: pw.FontWeight.bold,
-          color: PdfColors.green800,
-        ),
-        textAlign: pw.TextAlign.center,
-      ),
-    );
+pw.Widget _buildIncentiveCell(int amount, pw.Font font) => pw.Container(
+  padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+  child: pw.Text(
+    "₹${NumberFormat('#,##,###').format(amount)}",
+    style: pw.TextStyle(
+      font: font,
+      fontSize: 7,
+      fontWeight: pw.FontWeight.bold,
+      color: PdfColors.green700,
+    ),
+    textAlign: pw.TextAlign.center,
+  ),
+);
 
 String _formatDiagnosis(IncentiveBill bill) {
   final name = bill.diagnosisType.name;
@@ -382,7 +465,6 @@ String _formatFranchise(IncentiveBill bill) {
   return bill.franchiseName?.franchiseName ?? 'N/A';
 }
 
-// 🌟 CORRECTED: This function now receives the Doctor object directly
 String _getIncentivePercentage(Doctor doctor, IncentiveBill bill) {
   final category = bill.diagnosisType.category.toLowerCase();
 

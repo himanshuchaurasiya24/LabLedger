@@ -55,9 +55,7 @@ class DoctorReport {
 
   factory DoctorReport.fromJson(Map<String, dynamic> json) {
     final billsListFromJson = json['bills'] as List? ?? [];
-    
-    // 🌟 RENAMED: Parsing now uses IncentiveBill.fromJson.
-    final List<IncentiveBill> parsedBills = billsListFromJson
+        final List<IncentiveBill> parsedBills = billsListFromJson
         .map((billJson) => IncentiveBill.fromJson(billJson as Map<String, dynamic>))
         .toList();
 
