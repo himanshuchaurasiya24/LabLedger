@@ -12,7 +12,7 @@ import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/providers/incenitve_generator_provider.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
-import 'package:labledger/screens/incentives/report_generation_code.dart';
+import 'package:labledger/screens/incentives/pdf_api.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -21,6 +21,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:universal_html/html.dart' as html;
 
+// Main Screen Widget
 class IncentiveDetailScreen extends ConsumerStatefulWidget {
   const IncentiveDetailScreen({super.key});
 
@@ -39,110 +40,130 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     super.dispose();
   }
 
-  void _showReportGenerationDialog(BuildContext context) {
+  // --- PDF Generation and Dialog Logic ---
+
+  Future<void> _showReportGenerationDialog(BuildContext context) async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return ReportGenerationDialog(); // 🌟 This widget now comes from pdf_api.dart
+      },
+    );
+
+    if (result != null && result['generate'] == true) {
+      final selectedFields = result['selectedFields'] as Map<String, bool>;
+      final reportTitle = result['reportTitle'] as String;
+
+      _showProgressDialog();
+
+      await _generatePDFReport(selectedFields, reportTitle);
+
+      // ignore: use_build_context_synchronously
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+  }
+
+  void _showProgressDialog() {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return ReportGenerationDialog(
-          onGenerateReport: (selectedFields, includeGraphs, reportTitle) {
-            generatePDFReport(
-              selectedFields,
-              includeGraphs,
-              reportTitle,
-            );
-          },
-        );
-      },
-    );
-  }
-
-Future<void> generatePDFReport(
-  List<String> selectedFields,
-  bool includeGraphs,
-  String reportTitle,
-) async {
-  try {
-    final reportAsync = ref.read(incentiveReportProvider);
-    
-    await reportAsync.when(
-      data: (report) async {
-        if (report.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('No data available for report generation'),
-              backgroundColor: Theme.of(context).colorScheme.error,
+        return const Dialog(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Generating Report..."),
+              ],
             ),
-          );
-          return;
-        }
-
-        // Filter reports based on search query
-        final filteredReports = report.where((doctor) {
-          final fullName = '${doctor.firstName} ${doctor.lastName}'.toLowerCase();
-          return fullName.contains(searchQuery);
-        }).toList();
-
-        final pdfBytes = await createPDF(filteredReports, selectedFields, includeGraphs, reportTitle,ref);
-        
-        if (kIsWeb) {
-          // For web platform
-          _downloadPdfWeb(pdfBytes, reportTitle);
-        } else {
-          // For mobile/desktop platforms
-          await Printing.layoutPdf(
-            onLayout: (PdfPageFormat format) async => pdfBytes,
-            name: '${reportTitle.replaceAll(' ', '_')}_${DateFormat('yyyy_MM_dd').format(DateTime.now())}.pdf',
-          );
-        }
-
-        ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-          SnackBar(
-            content: Text('Report generated successfully!'),
-            backgroundColor: Colors.green,
           ),
         );
       },
-      loading: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Please wait for data to load'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      },
-      error: (error, stack) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error generating report: $error'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      },
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-      SnackBar(
-        content: Text('Failed to generate report: $e'),
-        backgroundColor: Theme.of(navigatorKey.currentContext!).colorScheme.error,
-      ),
     );
   }
-}
 
-void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
-  if (kIsWeb) {
+  Future<void> _generatePDFReport(
+    Map<String, bool> selectedFields,
+    String reportTitle,
+  ) async {
+    try {
+      final reportAsync = ref.read(incentiveReportProvider);
+
+       reportAsync.when(
+        data: (report) async {
+          if (report.isEmpty) {
+            _showSnackBar('No data available for report generation', isError: true);
+            return;
+          }
+
+          final filteredReports = report.where((doctor) {
+            final fullName =
+                '${doctor.firstName} ${doctor.lastName}'.toLowerCase();
+            return fullName.contains(searchQuery);
+          }).toList();
+
+          if (filteredReports.isEmpty) {
+            _showSnackBar('No filtered data to generate report', isError: true);
+            return;
+          }
+          
+          // 🌟 Call the createPDF function from pdf_api.dart
+          final pdfBytes = await createPDF(
+            reports: filteredReports,
+            selectedFields: selectedFields,
+            reportTitle: reportTitle,
+            ref: ref,
+          );
+
+          if (kIsWeb) {
+            _downloadPdfWeb(pdfBytes, reportTitle);
+          } else {
+            await Printing.layoutPdf(
+              onLayout: (PdfPageFormat format) async => pdfBytes,
+              name: '${reportTitle.replaceAll(' ', '_')}.pdf',
+            );
+          }
+          _showSnackBar('Report generated successfully!', isError: false);
+        },
+        loading: () =>
+            _showSnackBar('Please wait for data to load', isError: false),
+        error: (err, stack) =>
+            _showSnackBar('Error generating report: $err', isError: true),
+      );
+    } catch (e) {
+      _showSnackBar('Failed to generate report: $e', isError: true);
+    }
+  }
+
+  void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
     final blob = html.Blob([pdfBytes], 'application/pdf');
     final url = html.Url.createObjectUrlFromBlob(blob);
     final anchor = html.document.createElement('a') as html.AnchorElement
       ..href = url
       ..style.display = 'none'
-      ..download = '${reportTitle.replaceAll(' ', '_')}_${DateFormat('yyyy_MM_dd').format(DateTime.now())}.pdf';
+      ..download = '${reportTitle.replaceAll(' ', '_')}.pdf';
     html.document.body!.children.add(anchor);
     anchor.click();
     html.document.body!.children.remove(anchor);
     html.Url.revokeObjectUrl(url);
   }
-}
+
+  void _showSnackBar(String message, {required bool isError}) {
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor:
+              isError ? Theme.of(context).colorScheme.error : Colors.green,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,24 +172,17 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
 
     return WindowScaffold(
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _showReportGenerationDialog(context);
-        },
-        label: Text("Generate Report"),
-        icon: Icon(Icons.stacked_bar_chart_outlined),
+        onPressed: () => _showReportGenerationDialog(context),
+        label: const Text("Generate Report"),
+        icon: const Icon(Icons.picture_as_pdf_outlined),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Section
           _buildHeader(theme),
           SizedBox(height: defaultHeight),
-          // Search Bar
           _buildSearchBar(theme),
-
           SizedBox(height: defaultHeight),
-
-          // Main Content - Scrollable
           Expanded(
             child: reportAsync.when(
               data: (report) => _buildReportContent(report, theme),
@@ -187,7 +201,7 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
         Container(
           padding: EdgeInsets.all(defaultPadding),
           decoration: BoxDecoration(
-            color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+            color: theme.colorScheme.primaryContainer.withAlpha(77),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
@@ -210,7 +224,7 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
               Text(
                 "Doctor performance and earnings overview",
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: theme.colorScheme.onSurface.withAlpha(178),
                 ),
               ),
             ],
@@ -228,15 +242,12 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
   Widget _buildSearchBar(ThemeData theme) {
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: theme.colorScheme.surfaceContainerHighest.withAlpha(128),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: theme.colorScheme.outline.withAlpha(51)),
       ),
       child: CustomTextField(
         tintColor: theme.colorScheme.secondary,
-
         controller: _searchController,
         label: "Search doctors...",
         onChanged: (value) {
@@ -253,7 +264,6 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
       return _buildEmptyState(theme);
     }
 
-    // Filter reports based on search query
     final filteredReports = report.where((doctor) {
       final fullName = '${doctor.firstName} ${doctor.lastName}'.toLowerCase();
       return fullName.contains(searchQuery);
@@ -263,7 +273,6 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
       return _buildNoSearchResults(theme);
     }
 
-    // Calculate totals for summary
     final totalIncentives = filteredReports.fold<int>(
       0,
       (sum, doctor) => sum + doctor.totalIncentive,
@@ -275,7 +284,6 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
 
     return Column(
       children: [
-        // Summary Cards
         _buildSummaryCards(
           filteredReports.length,
           totalIncentives,
@@ -283,11 +291,8 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
           theme,
         ),
         SizedBox(height: defaultHeight),
-
-        // Scrollable Doctor List
         Expanded(
           child: ListView.builder(
-            // padding: EdgeInsets.symmetric(horizontal: defaultPadding),
             itemCount: filteredReports.length,
             itemBuilder: (context, index) {
               return Padding(
@@ -361,7 +366,6 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(icon, color: color, size: 20),
               SizedBox(width: 8),
@@ -392,21 +396,23 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
     ThemeData theme,
   ) {
     final cardColor = _getDoctorCardColor(index, context);
+    final subtitleText =
+        "${doctor.bills.length} bills • From ${DateFormat("dd MMM yyyy").format(ref.read(reportStartDateProvider))} to ${DateFormat("dd MMM yyyy").format(ref.read(reportEndDateProvider))}";
 
     return ExpansionTile(
       tilePadding: EdgeInsets.all(defaultPadding),
       collapsedShape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: _getDoctorCardColor(index, context), width: 1),
+        side: BorderSide(color: cardColor, width: 1),
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: _getDoctorCardColor(index, context), width: 1),
+        side: BorderSide(color: cardColor, width: 1),
       ),
       childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       leading: CircleAvatar(
         radius: 24,
-        backgroundColor: cardColor.withValues(alpha: 0.2),
+        backgroundColor: cardColor.withAlpha(51),
         child: Text(
           "${doctor.firstName[0]}${doctor.lastName[0]}",
           style: TextStyle(
@@ -423,15 +429,15 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
         ),
       ),
       subtitle: Text(
-        "${doctor.bills.length} bills • From ${DateFormat("dd MMM yyyy").format(ref.read(reportStartDateProvider))} to ${DateFormat("dd MMM yyyy").format(ref.read(reportEndDateProvider))}",
+        subtitleText,
         style: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          color: theme.colorScheme.onSurface.withAlpha(178),
         ),
       ),
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: cardColor.withValues(alpha: 0.2),
+          color: cardColor.withAlpha(51),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -475,7 +481,7 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
               color: theme.colorScheme.primary,
             ),
             border: TableBorder.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.2),
+              color: theme.colorScheme.outline.withAlpha(51),
               borderRadius: BorderRadius.circular(6),
               width: 1,
             ),
@@ -512,13 +518,12 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        if (bill.patientPhoneNumber != null)
+                        if (bill.patientPhoneNumber != null &&
+                            bill.patientPhoneNumber!.isNotEmpty)
                           Text(
                             bill.patientPhoneNumber!,
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.6,
-                              ),
+                              color: theme.colorScheme.onSurface.withAlpha(153),
                               fontSize: 10,
                             ),
                           ),
@@ -533,7 +538,7 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.2),
+                        color: statusColor.withAlpha(51),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -552,23 +557,23 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
                         .when(
                           data: (diag) =>
                               Text("${diag.name} (${diag.category})"),
-                          loading: () => const Text("Loading..."),
+                          loading: () => const Text("..."),
                           error: (err, stack) => const Text("Error"),
                         ),
                   ),
                   DataCell(
                     bill.franchiseName != null
                         ? ref
-                              .watch(
-                                singleFranchiseProvider(bill.franchiseName!),
-                              )
-                              .when(
-                                data: (fran) =>
-                                    Text(fran.franchiseName ?? "N/A"),
-                                loading: () => const Text("Loading..."),
-                                error: (err, stack) => const Text("Error"),
-                              )
-                        : Text("N/A"),
+                            .watch(
+                              singleFranchiseProvider(bill.franchiseName!),
+                            )
+                            .when(
+                              data: (fran) =>
+                                  Text(fran.franchiseName ?? "N/A"),
+                              loading: () => const Text("..."),
+                              error: (err, stack) => const Text("Error"),
+                            )
+                        : const Text("N/A"),
                   ),
                   DataCell(
                     Text(
@@ -598,71 +603,70 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
                           ),
                         )
                         .when(
-                          data: (doctor) => Text(
-                            bill.diagnosisTypeOutput!['category'] ==
-                                    "Ultrasound"
-                                ? doctor.ultrasoundPercentage.toString()
-                                : bill.diagnosisTypeOutput!['category'] == "ECG"
-                                ? doctor.ecgPercentage.toString()
-                                : bill.diagnosisTypeOutput!['category'] ==
-                                      "X-Ray"
-                                ? doctor.xrayPercentage.toString()
-                                : bill.diagnosisTypeOutput!['category'] ==
-                                      "Pathology"
-                                ? doctor.pathologyPercentage.toString()
-                                : bill.diagnosisTypeOutput!['category'] ==
-                                      "Franchise Lab"
-                                ? doctor.franchiseLabPercentage.toString()
-                                : "0",
-                          ),
-                          loading: () => const Text("Loading..."),
+                          data: (doctor) {
+                            final category = bill
+                                .diagnosisTypeOutput!['category']
+                                ?.toString()
+                                .toLowerCase();
+                            String percentage = "0";
+                            if (category == "ultrasound") {
+                              percentage =
+                                  doctor.ultrasoundPercentage.toString();
+                            } else if (category == "ecg") {
+                              percentage = doctor.ecgPercentage.toString();
+                            } else if (category == "x-ray") {
+                              percentage = doctor.xrayPercentage.toString();
+                            } else if (category == "pathology") {
+                              percentage =
+                                  doctor.pathologyPercentage.toString();
+                            } else if (category == "franchise lab") {
+                              percentage =
+                                  doctor.franchiseLabPercentage.toString();
+                            }
+                            return Text(percentage);
+                          },
+                          loading: () => const Text("..."),
                           error: (err, stack) => const Text("Error"),
                         ),
                   ),
                   DataCell(
                     Text(
                       "₹${NumberFormat.decimalPattern('en_IN').format(bill.incentiveAmount)}",
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.green,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-
                   DataCell(
                     GestureDetector(
-                      onDoubleTap: () async {
-                        //
+                      onDoubleTap: () {
+                        Clipboard.setData(
+                          ClipboardData(text: bill.billNumber ?? ""),
+                        );
+                        _showSnackBar(
+                          'Bill number "${bill.billNumber}" copied!',
+                          isError: false,
+                        );
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           InkWell(
-                            onTap: () {
-                              navigatorKey.currentState?.push(
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return AddBillScreen(
-                                      themeColor:
-                                          bill.billStatus == "Fully Paid"
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.secondary
-                                          : bill.billStatus == "Partially Paid"
-                                          ? Colors.amber
-                                          : Theme.of(context).colorScheme.error,
-                                      billData: bill,
-                                    );
-                                  },
+                            onTap: () => navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) => AddBillScreen(
+                                  themeColor: _getBillStatusColor(
+                                    bill.billStatus,
+                                  ),
+                                  billData: bill,
                                 ),
-                              );
-                            },
+                              ),
+                            ),
                             child: Text(
-                              bill.billNumber ?? "LL00000000000000000000",
-                              style: TextStyle(
-                                decoration: TextDecoration.combine([
-                                  TextDecoration.underline,
-                                ]),
+                              bill.billNumber ?? "",
+                              style: const TextStyle(
+                                decoration: TextDecoration.underline,
                               ),
                             ),
                           ),
@@ -673,24 +677,13 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
                               color: Theme.of(context).colorScheme.outline,
                               size: 14,
                             ),
-                            onPressed: () async {
-                              await Clipboard.setData(
-                                ClipboardData(
-                                  text:
-                                      bill.billNumber ??
-                                      "LL00000000000000000000",
-                                ),
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(text: bill.billNumber ?? ""),
                               );
-                              ScaffoldMessenger.of(
-                                navigatorKey.currentContext!,
-                              ).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Bill number "${bill.billNumber}" copied!',
-                                  ),
-                                  duration: const Duration(seconds: 2),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
+                              _showSnackBar(
+                                'Bill number "${bill.billNumber}" copied!',
+                                isError: false,
                               );
                             },
                           ),
@@ -715,13 +708,13 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
           Icon(
             LucideIcons.fileX,
             size: 64,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            color: theme.colorScheme.onSurface.withAlpha(102),
           ),
           SizedBox(height: defaultPadding),
           Text(
             "No Incentive Data Found",
             style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              color: theme.colorScheme.onSurface.withAlpha(178),
             ),
           ),
           SizedBox(height: 8),
@@ -729,7 +722,7 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
             "No incentive data found for the selected filters.",
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+              color: theme.colorScheme.onSurface.withAlpha(128),
             ),
           ),
         ],
@@ -745,13 +738,13 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
           Icon(
             LucideIcons.searchX,
             size: 64,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+            color: theme.colorScheme.onSurface.withAlpha(102),
           ),
           SizedBox(height: defaultPadding),
           Text(
             "No Results Found",
             style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              color: theme.colorScheme.onSurface.withAlpha(178),
             ),
           ),
           SizedBox(height: 8),
@@ -759,7 +752,7 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
             "No doctors match your search criteria.",
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+              color: theme.colorScheme.onSurface.withAlpha(128),
             ),
           ),
         ],
@@ -785,7 +778,7 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(LucideIcons.alertCircle, color: Colors.red, size: 48),
+          const Icon(LucideIcons.alertCircle, color: Colors.red, size: 48),
           SizedBox(height: defaultPadding),
           Text(
             "Failed to Load Report",
@@ -799,7 +792,7 @@ void _downloadPdfWeb(Uint8List pdfBytes, String reportTitle) {
             error.toString(),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              color: theme.colorScheme.onSurface.withAlpha(178),
             ),
           ),
           SizedBox(height: defaultPadding),

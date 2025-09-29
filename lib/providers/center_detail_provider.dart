@@ -7,7 +7,7 @@ import 'package:labledger/providers/user_provider.dart';
 
 /// Base API Endpoint
 final String centerDetailsEndpoint =
-    "${globalBaseUrl}center-details/center-details/center-detail/";
+    "${globalBaseUrl}center-details/center-detail/";
 
 /// Fetches all center details.
 final centerDetailsProvider =

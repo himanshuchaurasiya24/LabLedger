@@ -7,14 +7,12 @@ import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/auth_response_model.dart';
 
 class AuthRepository {
-  // --- Constants for Endpoints and Timeouts ---
   static const _tokenEndpoint = '/api/token/';
   static const _refreshEndpoint = '/api/token/refresh/';
   static const _verifyEndpoint = '/verify-auth/';
   static const _appInfoEndpoint = '/api/app-info/';
   static const _defaultTimeout = Duration(seconds: 10);
 
-  // --- Singleton Pattern (No Changes) ---
   static AuthRepository? _instance;
   static AuthRepository get instance {
     _instance ??= AuthRepository._internal();
@@ -23,10 +21,6 @@ class AuthRepository {
   AuthRepository._internal();
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-
-  // --- Public API Methods ---
-
-  /// Attempts to log in the user and stores tokens upon success.
   Future<AuthResponse> login(String username, String password) async {
     final response = await _post(
       _tokenEndpoint,
@@ -51,8 +45,6 @@ class AuthRepository {
     }
   }
 
-  /// Verifies the current user's authentication status and subscription.
-  /// Attempts to refresh the token automatically if it has expired.
   Future<AuthResponse> verifyAuth() async {
     try {
       final accessToken = await getAccessToken();
