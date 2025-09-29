@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/center_detail_model_with_subscription.dart';
 import 'package:labledger/models/incentive_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
@@ -26,15 +25,14 @@ Future<Uint8List> createPDF({
       pageFormat: PdfPageFormat.a4.landscape,
       margin: const pw.EdgeInsets.all(25),
       build: (pw.Context context) {
-        return reports.map((doctor) {
+        return reports.map((doctorReport) {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              // 🌟 REVISED: Professional, colorful doctor summary card
-              _buildDoctorSummaryCard(doctor, ref, centerDetail, reportTitle),
+              _buildDoctorSummaryCard(doctorReport, ref, centerDetail, reportTitle),
               pw.SizedBox(height: 15),
               pw.Text(
-                'Bill Details (${doctor.bills.length} bills)',
+                'Bill Details (${doctorReport.bills.length} bills)',
                 style: pw.TextStyle(
                   fontSize: 12,
                   fontWeight: pw.FontWeight.bold,
@@ -42,10 +40,10 @@ Future<Uint8List> createPDF({
                 ),
               ),
               pw.SizedBox(height: 5),
-              _buildBillsTable(doctor.bills, selectedFields),
-              // 🌟 MOVED: Footer is now per-doctor
+              // Pass the entire report object to the table builder
+              _buildBillsTable(doctorReport, selectedFields),
               _buildDoctorReportFooter(),
-              pw.SizedBox(height: 30), // Space between doctors
+              pw.SizedBox(height: 30), // Space between doctor sections
             ],
           );
         }).toList();
@@ -58,16 +56,18 @@ Future<Uint8List> createPDF({
 
 // --- PDF Page Components ---
 
-// 🌟 REVISED: This is the new professional doctor header
 pw.Widget _buildDoctorSummaryCard(
-  DoctorReport doctor,
+  DoctorReport doctorReport,
   WidgetRef ref,
   CenterDetail centerDetail,
   String reportTitle,
 ) {
-  const tealColor = PdfColor.fromInt(0xFF008080); // Teal
-  const lightTealColor = PdfColor.fromInt(0xFFE0F2F1); // Light Teal background
+  const tealColor = PdfColor.fromInt(0xFF008080);
+  const lightTealColor = PdfColor.fromInt(0xFFE0F2F1);
 
+  final firstName = doctorReport.doctor.firstName ?? '';
+  final lastName = doctorReport.doctor.lastName ?? '';
+  
   return pw.Container(
     padding: const pw.EdgeInsets.all(12),
     decoration: pw.BoxDecoration(
@@ -82,7 +82,7 @@ pw.Widget _buildDoctorSummaryCard(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
             pw.Text(
-              "${doctor.firstName} ${doctor.lastName}",
+              "$firstName $lastName",
               style: pw.TextStyle(
                 fontSize: 20,
                 fontWeight: pw.FontWeight.bold,
@@ -101,7 +101,7 @@ pw.Widget _buildDoctorSummaryCard(
                 ),
                 pw.SizedBox(height: 2),
                 pw.Text(
-                  "₹${NumberFormat.decimalPattern('en_IN').format(doctor.totalIncentive)}",
+                  "₹${NumberFormat.decimalPattern('en_IN').format(doctorReport.totalIncentive)}",
                   style: pw.TextStyle(
                     fontSize: 20,
                     fontWeight: pw.FontWeight.bold,
@@ -137,7 +137,7 @@ pw.Widget _buildDoctorSummaryCard(
               ],
             ),
             pw.Text(
-              "Total Bills: ${doctor.bills.length}",
+              "Total Bills: ${doctorReport.bills.length}",
               style: pw.TextStyle(
                 fontSize: 9,
                 color: PdfColors.grey700,
@@ -151,10 +151,15 @@ pw.Widget _buildDoctorSummaryCard(
   );
 }
 
-pw.Widget _buildBillsTable(List<Bill> bills, Map<String, bool> selectedFields) {
+pw.Widget _buildBillsTable(
+  DoctorReport doctorReport,
+  Map<String, bool> selectedFields,
+) {
   final headers = <String>[];
   final Map<int, pw.TableColumnWidth> columnWidths = {};
+  final bills = doctorReport.bills;
 
+  // Dynamically build headers based on user selection
   int colIndex = 0;
   if (selectedFields['dateOfBill'] ?? false) {
     headers.add('Date');
@@ -216,7 +221,6 @@ pw.Widget _buildBillsTable(List<Bill> bills, Map<String, bool> selectedFields) {
     columnWidths: columnWidths,
     children: [
       pw.TableRow(
-        // 🌟 REVISED: Table header color changed
         decoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFF0072B5)),
         children: headers
             .map(
@@ -227,7 +231,7 @@ pw.Widget _buildBillsTable(List<Bill> bills, Map<String, bool> selectedFields) {
                   style: pw.TextStyle(
                     fontSize: 7,
                     fontWeight: pw.FontWeight.bold,
-                    color: PdfColors.white, // Text color to white
+                    color: PdfColors.white,
                   ),
                   textAlign: pw.TextAlign.center,
                 ),
@@ -241,17 +245,13 @@ pw.Widget _buildBillsTable(List<Bill> bills, Map<String, bool> selectedFields) {
         final cells = <pw.Widget>[];
 
         if (selectedFields['dateOfBill'] ?? false) {
-          cells.add(
-            _buildTableCell(DateFormat('dd-MM-yy').format(bill.dateOfBill), 6),
-          );
+          cells.add(_buildTableCell(DateFormat('dd-MM-yy').format(bill.dateOfBill), 6));
         }
         if (selectedFields['patientName'] ?? false) {
           cells.add(_buildTableCell(bill.patientName, 6));
         }
         if (selectedFields['ageAndSex'] ?? false) {
-          cells.add(
-            _buildTableCell("${bill.patientAge}y ${bill.patientSex}", 6),
-          );
+          cells.add(_buildTableCell("${bill.patientAge}y ${bill.patientSex}", 6));
         }
         if (selectedFields['billStatus'] ?? false) {
           cells.add(_buildPaymentStatusCell(bill.billStatus));
@@ -263,45 +263,26 @@ pw.Widget _buildBillsTable(List<Bill> bills, Map<String, bool> selectedFields) {
           cells.add(_buildTableCell(_formatFranchise(bill), 6));
         }
         if (selectedFields['totalAmount'] ?? false) {
-          cells.add(
-            _buildTableCell(
-              "₹${NumberFormat.decimalPattern('en_IN').format(bill.totalAmount)}",
-              6,
-            ),
-          );
+          cells.add(_buildTableCell("₹${NumberFormat.decimalPattern('en_IN').format(bill.totalAmount)}", 6));
         }
         if (selectedFields['paidAmount'] ?? false) {
-          cells.add(
-            _buildTableCell(
-              "₹${NumberFormat.decimalPattern('en_IN').format(bill.paidAmount)}",
-              6,
-            ),
-          );
+          cells.add(_buildTableCell("₹${NumberFormat.decimalPattern('en_IN').format(bill.paidAmount)}", 6));
         }
         if (selectedFields['discByDoctor'] ?? false) {
-          cells.add(
-            _buildTableCell(
-              "₹${NumberFormat.decimalPattern('en_IN').format(bill.discByDoctor)}",
-              6,
-            ),
-          );
+          cells.add(_buildTableCell("₹${NumberFormat.decimalPattern('en_IN').format(bill.discByDoctor)}", 6));
         }
         if (selectedFields['discByCenter'] ?? false) {
-          cells.add(
-            _buildTableCell(
-              "₹${NumberFormat.decimalPattern('en_IN').format(bill.discByCenter)}",
-              6,
-            ),
-          );
+          cells.add(_buildTableCell("₹${NumberFormat.decimalPattern('en_IN').format(bill.discByCenter)}", 6));
         }
         if (selectedFields['incentivePercentage'] ?? false) {
-          cells.add(_buildTableCell(_getIncentivePercentage(bill), 6));
+          // 🌟 CORRECTED: Pass the doctor and the bill to get the percentage
+          cells.add(_buildTableCell(_getIncentivePercentage(doctorReport.doctor, bill), 6));
         }
         if (selectedFields['incentiveAmount'] ?? false) {
           cells.add(_buildIncentiveCell(bill.incentiveAmount));
         }
         if (selectedFields['billNumber'] ?? false) {
-          cells.add(_buildTableCell(bill.billNumber ?? 'N/A', 5));
+          cells.add(_buildTableCell(bill.billNumber, 5));
         }
 
         return pw.TableRow(
@@ -315,7 +296,6 @@ pw.Widget _buildBillsTable(List<Bill> bills, Map<String, bool> selectedFields) {
   );
 }
 
-// 🌟 NEW: This is the per-doctor footer
 pw.Widget _buildDoctorReportFooter() {
   return pw.Container(
     padding: const pw.EdgeInsets.only(top: 8),
@@ -340,15 +320,15 @@ pw.Widget _buildDoctorReportFooter() {
 // --- Helper Functions and Widgets ---
 
 pw.Widget _buildTableCell(String text, double fontSize) => pw.Container(
-  padding: const pw.EdgeInsets.all(3),
-  child: pw.Text(
-    text,
-    style: pw.TextStyle(fontSize: fontSize, color: PdfColors.grey800),
-    textAlign: pw.TextAlign.center,
-    maxLines: 2,
-    overflow: pw.TextOverflow.clip,
-  ),
-);
+      padding: const pw.EdgeInsets.all(3),
+      child: pw.Text(
+        text,
+        style: pw.TextStyle(fontSize: fontSize, color: PdfColors.grey800),
+        textAlign: pw.TextAlign.center,
+        maxLines: 2,
+        overflow: pw.TextOverflow.clip,
+      ),
+    );
 
 pw.Widget _buildPaymentStatusCell(String status) {
   final colors = {
@@ -380,46 +360,46 @@ pw.Widget _buildPaymentStatusCell(String status) {
 }
 
 pw.Widget _buildIncentiveCell(int amount) => pw.Container(
-  padding: const pw.EdgeInsets.all(3),
-  child: pw.Text(
-    "₹${NumberFormat.decimalPattern('en_IN').format(amount)}",
-    style: pw.TextStyle(
-      fontSize: 6,
-      fontWeight: pw.FontWeight.bold,
-      color: PdfColors.green800,
-    ),
-    textAlign: pw.TextAlign.center,
-  ),
-);
+      padding: const pw.EdgeInsets.all(3),
+      child: pw.Text(
+        "₹${NumberFormat.decimalPattern('en_IN').format(amount)}",
+        style: pw.TextStyle(
+          fontSize: 6,
+          fontWeight: pw.FontWeight.bold,
+          color: PdfColors.green800,
+        ),
+        textAlign: pw.TextAlign.center,
+      ),
+    );
 
-String _formatDiagnosis(Bill bill) => bill.diagnosisTypeOutput != null
-    ? "${bill.diagnosisTypeOutput!['name'] ?? ''} (${bill.diagnosisTypeOutput!['category'] ?? ''})"
-    : 'N/A';
-String _formatFranchise(Bill bill) => bill.franchiseNameOutput != null
-    ? bill.franchiseNameOutput!['franchise_name'] ?? 'N/A'
-    : 'N/A';
-String _getIncentivePercentage(Bill bill) {
-  if (bill.referredByDoctorOutput != null && bill.diagnosisTypeOutput != null) {
-    final category = bill.diagnosisTypeOutput!['category']
-        ?.toString()
-        .toLowerCase();
-    final doctorData = bill.referredByDoctorOutput!;
-    switch (category) {
-      case 'ultrasound':
-        return doctorData['ultrasound_percentage']?.toString() ?? '0';
-      case 'ecg':
-        return doctorData['ecg_percentage']?.toString() ?? '0';
-      case 'x-ray':
-        return doctorData['xray_percentage']?.toString() ?? '0';
-      case 'pathology':
-        return doctorData['pathology_percentage']?.toString() ?? '0';
-      case 'franchise lab':
-        return doctorData['franchise_lab_percentage']?.toString() ?? '0';
-      default:
-        return '0';
-    }
+String _formatDiagnosis(IncentiveBill bill) {
+  final name = bill.diagnosisType.name;
+  final category = bill.diagnosisType.category;
+  return "$name ($category)";
+}
+
+String _formatFranchise(IncentiveBill bill) {
+  return bill.franchiseName?.franchiseName ?? 'N/A';
+}
+
+// 🌟 CORRECTED: This function now receives the Doctor object directly
+String _getIncentivePercentage(Doctor doctor, IncentiveBill bill) {
+  final category = bill.diagnosisType.category.toLowerCase();
+
+  switch (category) {
+    case 'ultrasound':
+      return doctor.ultrasoundPercentage?.toString() ?? '0';
+    case 'ecg':
+      return doctor.ecgPercentage?.toString() ?? '0';
+    case 'x-ray':
+      return doctor.xrayPercentage?.toString() ?? '0';
+    case 'pathology':
+      return doctor.pathologyPercentage?.toString() ?? '0';
+    case 'franchise lab':
+      return doctor.franchiseLabPercentage?.toString() ?? '0';
+    default:
+      return '0';
   }
-  return '0';
 }
 
 // --- Report Generation Dialog Widget ---

@@ -5,11 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
-import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/incentive_model.dart';
-import 'package:labledger/providers/diagnosis_type_provider.dart';
-import 'package:labledger/providers/doctor_provider.dart';
-import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/providers/incenitve_generator_provider.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/incentives/pdf_api.dart';
@@ -47,7 +43,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return ReportGenerationDialog(); // 🌟 This widget now comes from pdf_api.dart
+        return ReportGenerationDialog();
       },
     );
 
@@ -93,16 +89,20 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     try {
       final reportAsync = ref.read(incentiveReportProvider);
 
-       reportAsync.when(
+      reportAsync.when(
         data: (report) async {
           if (report.isEmpty) {
-            _showSnackBar('No data available for report generation', isError: true);
+            _showSnackBar(
+              'No data available for report generation',
+              isError: true,
+            );
             return;
           }
 
-          final filteredReports = report.where((doctor) {
-            final fullName =
-                '${doctor.firstName} ${doctor.lastName}'.toLowerCase();
+          final filteredReports = report.where((doctorReport) {
+            final firstName = doctorReport.doctor.firstName ?? '';
+            final lastName = doctorReport.doctor.lastName ?? '';
+            final fullName = '$firstName $lastName'.toLowerCase();
             return fullName.contains(searchQuery);
           }).toList();
 
@@ -110,8 +110,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
             _showSnackBar('No filtered data to generate report', isError: true);
             return;
           }
-          
-          // 🌟 Call the createPDF function from pdf_api.dart
+
           final pdfBytes = await createPDF(
             reports: filteredReports,
             selectedFields: selectedFields,
@@ -158,8 +157,9 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor:
-              isError ? Theme.of(context).colorScheme.error : Colors.green,
+          backgroundColor: isError
+              ? Theme.of(context).colorScheme.error
+              : Colors.green,
         ),
       );
     }
@@ -264,8 +264,10 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       return _buildEmptyState(theme);
     }
 
-    final filteredReports = report.where((doctor) {
-      final fullName = '${doctor.firstName} ${doctor.lastName}'.toLowerCase();
+    final filteredReports = report.where((doctorReport) {
+      final firstName = doctorReport.doctor.firstName ?? '';
+      final lastName = doctorReport.doctor.lastName ?? '';
+      final fullName = '$firstName $lastName'.toLowerCase();
       return fullName.contains(searchQuery);
     }).toList();
 
@@ -391,13 +393,19 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
   }
 
   Widget _buildDoctorExpansionTile(
-    DoctorReport doctor,
+    DoctorReport doctorReport,
     int index,
     ThemeData theme,
   ) {
     final cardColor = _getDoctorCardColor(index, context);
+    final startDate = ref.read(reportStartDateProvider);
+    final endDate = ref.read(reportEndDateProvider);
     final subtitleText =
-        "${doctor.bills.length} bills • From ${DateFormat("dd MMM yyyy").format(ref.read(reportStartDateProvider))} to ${DateFormat("dd MMM yyyy").format(ref.read(reportEndDateProvider))}";
+        "${doctorReport.bills.length} bills • From ${DateFormat("dd MMM yyyy").format(startDate)} to ${DateFormat("dd MMM yyyy").format(endDate)}";
+
+    final firstName = doctorReport.doctor.firstName ?? '';
+    final lastName = doctorReport.doctor.lastName ?? '';
+    final initials = _getInitials(firstName, lastName);
 
     return ExpansionTile(
       tilePadding: EdgeInsets.all(defaultPadding),
@@ -414,7 +422,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
         radius: 24,
         backgroundColor: cardColor.withAlpha(51),
         child: Text(
-          "${doctor.firstName[0]}${doctor.lastName[0]}",
+          initials,
           style: TextStyle(
             color: cardColor,
             fontWeight: FontWeight.bold,
@@ -423,7 +431,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
         ),
       ),
       title: Text(
-        "${doctor.firstName} ${doctor.lastName}",
+        "$firstName $lastName",
         style: theme.textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.bold,
         ),
@@ -447,17 +455,24 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
             Text(
               NumberFormat.decimalPattern(
                 'en_IN',
-              ).format(doctor.totalIncentive),
+              ).format(doctorReport.totalIncentive),
               style: TextStyle(color: cardColor, fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ),
-      children: [_buildBillsSection(doctor.bills, theme)],
+      children: [_buildBillsSection(doctorReport, theme)],
     );
   }
 
-  Widget _buildBillsSection(List<Bill> bills, ThemeData theme) {
+  String _getInitials(String firstName, String lastName) {
+    final firstInitial = firstName.isNotEmpty ? firstName[0].toUpperCase() : '';
+    final lastInitial = lastName.isNotEmpty ? lastName[0].toUpperCase() : '';
+    return '$firstInitial$lastInitial';
+  }
+
+  Widget _buildBillsSection(DoctorReport doctorReport, ThemeData theme) {
+    final bills = doctorReport.bills;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -552,27 +567,13 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                     ),
                   ),
                   DataCell(
-                    ref
-                        .watch(diagnosisTypeDetailProvider(bill.diagnosisType))
-                        .when(
-                          data: (diag) =>
-                              Text("${diag.name} (${diag.category})"),
-                          loading: () => const Text("..."),
-                          error: (err, stack) => const Text("Error"),
-                        ),
+                    Text(
+                      "${bill.diagnosisType.name} (${bill.diagnosisType.category})",
+                    ),
                   ),
                   DataCell(
                     bill.franchiseName != null
-                        ? ref
-                            .watch(
-                              singleFranchiseProvider(bill.franchiseName!),
-                            )
-                            .when(
-                              data: (fran) =>
-                                  Text(fran.franchiseName ?? "N/A"),
-                              loading: () => const Text("..."),
-                              error: (err, stack) => const Text("Error"),
-                            )
+                        ? Text(bill.franchiseName!.franchiseName)
                         : const Text("N/A"),
                   ),
                   DataCell(
@@ -595,40 +596,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                       "₹${NumberFormat.decimalPattern('en_IN').format(bill.discByCenter)}",
                     ),
                   ),
-                  DataCell(
-                    ref
-                        .watch(
-                          singleDoctorProvider(
-                            bill.referredByDoctorOutput!['id'],
-                          ),
-                        )
-                        .when(
-                          data: (doctor) {
-                            final category = bill
-                                .diagnosisTypeOutput!['category']
-                                ?.toString()
-                                .toLowerCase();
-                            String percentage = "0";
-                            if (category == "ultrasound") {
-                              percentage =
-                                  doctor.ultrasoundPercentage.toString();
-                            } else if (category == "ecg") {
-                              percentage = doctor.ecgPercentage.toString();
-                            } else if (category == "x-ray") {
-                              percentage = doctor.xrayPercentage.toString();
-                            } else if (category == "pathology") {
-                              percentage =
-                                  doctor.pathologyPercentage.toString();
-                            } else if (category == "franchise lab") {
-                              percentage =
-                                  doctor.franchiseLabPercentage.toString();
-                            }
-                            return Text(percentage);
-                          },
-                          loading: () => const Text("..."),
-                          error: (err, stack) => const Text("Error"),
-                        ),
-                  ),
+                  DataCell(getIncentivePercentage(doctorReport.doctor, bill)),
                   DataCell(
                     Text(
                       "₹${NumberFormat.decimalPattern('en_IN').format(bill.incentiveAmount)}",
@@ -638,65 +606,76 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                       ),
                     ),
                   ),
-                  DataCell(
-                    GestureDetector(
-                      onDoubleTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: bill.billNumber ?? ""),
-                        );
-                        _showSnackBar(
-                          'Bill number "${bill.billNumber}" copied!',
-                          isError: false,
-                        );
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                            onTap: () => navigatorKey.currentState?.push(
-                              MaterialPageRoute(
-                                builder: (context) => AddBillScreen(
-                                  themeColor: _getBillStatusColor(
-                                    bill.billStatus,
-                                  ),
-                                  billData: bill,
-                                ),
-                              ),
-                            ),
-                            child: Text(
-                              bill.billNumber ?? "",
-                              style: const TextStyle(
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: "Copy bill number",
-                            icon: Icon(
-                              Icons.copy,
-                              color: Theme.of(context).colorScheme.outline,
-                              size: 14,
-                            ),
-                            onPressed: () {
-                              Clipboard.setData(
-                                ClipboardData(text: bill.billNumber ?? ""),
-                              );
-                              _showSnackBar(
-                                'Bill number "${bill.billNumber}" copied!',
-                                isError: false,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  DataCell(_buildBillNumberCell(bill, theme)),
                 ],
               );
             }).toList(),
           ),
         ),
       ],
+    );
+  }
+
+  Widget getIncentivePercentage(Doctor doctor, IncentiveBill bill) {
+    final category = bill.diagnosisType.category.toLowerCase();
+
+    switch (category) {
+      case 'ultrasound':
+        return Text(doctor.ultrasoundPercentage?.toString() ?? '0');
+      case 'ecg':
+        return Text(doctor.ecgPercentage?.toString() ?? '0');
+      case 'x-ray':
+        return Text(doctor.xrayPercentage?.toString() ?? '0');
+      case 'pathology':
+        return Text(doctor.pathologyPercentage?.toString() ?? '0');
+      case 'franchise lab':
+        return Text(doctor.franchiseLabPercentage?.toString() ?? '0');
+      default:
+        return Text('0');
+    }
+  }
+
+  Widget _buildBillNumberCell(IncentiveBill bill, ThemeData theme) {
+    return GestureDetector(
+      onDoubleTap: () {
+        Clipboard.setData(ClipboardData(text: bill.billNumber));
+        _showSnackBar(
+          'Bill number "${bill.billNumber}" copied!',
+          isError: false,
+        );
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          InkWell(
+            onTap: () {
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(
+                  builder: (context) => AddBillScreen(
+                    themeColor: _getBillStatusColor(bill.billStatus),
+                    // billData: bill, // This might need conversion
+                  ),
+                ),
+              );
+            },
+            child: Text(
+              bill.billNumber,
+              style: const TextStyle(decoration: TextDecoration.underline),
+            ),
+          ),
+          IconButton(
+            tooltip: "Copy bill number",
+            icon: Icon(Icons.copy, color: theme.colorScheme.outline, size: 14),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: bill.billNumber));
+              _showSnackBar(
+                'Bill number "${bill.billNumber}" copied!',
+                isError: false,
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
