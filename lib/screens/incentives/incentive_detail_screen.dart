@@ -19,6 +19,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
+// ignore: depend_on_referenced_packages
 import "package:path/path.dart" as p;
 class IncentiveDetailScreen extends ConsumerStatefulWidget {
   const IncentiveDetailScreen({super.key});

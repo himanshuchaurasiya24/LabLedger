@@ -1,4 +1,3 @@
-
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/center_detail_model_with_subscription.dart';
 import 'package:labledger/providers/incenitve_generator_provider.dart';
@@ -8,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:labledger/models/incentive_model.dart';
 import 'package:pdf/pdf.dart';
 
-pw.Widget buildBillsTableType1(
+pw.Widget buildBillsTableType2(
   DoctorReport doctorReport,
   Map<String, bool> selectedFields,
   WidgetRef ref,
@@ -16,8 +15,9 @@ pw.Widget buildBillsTableType1(
   pw.Font boldFont,
   CenterDetail centerDetail,
 ) {
+  double containerBorderRadius = 8;
   const lightBlueColor = PdfColor.fromInt(0xFFE3F2FD);
-
+  final deepBlueColor = PdfColor.fromInt(0xFF0072B5);
   final headers = <String>[];
   final Map<int, pw.TableColumnWidth> columnWidths = {};
   final bills = doctorReport.bills;
@@ -78,18 +78,18 @@ pw.Widget buildBillsTableType1(
   }
 
   if (headers.isEmpty) return pw.Container();
-  double containerBorderRadius = 8;
+
   return pw.Container(
     decoration: pw.BoxDecoration(
       borderRadius: pw.BorderRadius.circular(containerBorderRadius),
-      border: pw.Border.all(color: PdfColor.fromHex("#0072B5"), width: 0.6),
+      border: pw.Border.all(color: deepBlueColor, width: 0.6),
     ),
     child: pw.Column(
       children: [
         pw.Container(
           padding: pw.EdgeInsets.only(
-            left: defaultPadding,
-            right: defaultPadding,
+            left: defaultPadding / 2,
+            right: defaultPadding / 2,
             top: defaultPadding / 2,
           ),
           decoration: pw.BoxDecoration(
@@ -110,7 +110,7 @@ pw.Widget buildBillsTableType1(
                         width: 36,
                         height: 36,
                         decoration: pw.BoxDecoration(
-                          color: lightBlueColor,
+                          color: deepBlueColor,
                           shape: pw.BoxShape.circle,
                         ),
                         child: pw.Center(
@@ -120,7 +120,7 @@ pw.Widget buildBillsTableType1(
                               font: boldFont,
                               fontSize: 14,
                               fontWeight: pw.FontWeight.bold,
-                              color: PdfColor.fromHex("#0072B5"),
+                              color: PdfColors.white,
                             ),
                           ),
                         ),
@@ -140,7 +140,7 @@ pw.Widget buildBillsTableType1(
                           ),
                           pw.SizedBox(height: 2),
                           pw.Text(
-                            "${doctorReport.bills.length} bills • Total ₹${doctorReport.totalIncentive}• From ${DateFormat("dd MMM yyyy").format(ref.read(reportStartDateProvider))} to ${DateFormat("dd MMM yyyy").format(ref.read(reportEndDateProvider))}",
+                            "${doctorReport.bills.length} Referrals • Total ₹${doctorReport.totalIncentive} • From ${DateFormat("dd MMM yyyy").format(ref.read(reportStartDateProvider))} to ${DateFormat("dd MMM yyyy").format(ref.read(reportEndDateProvider))}",
                             style: pw.TextStyle(
                               font: font,
                               fontSize: 8,
@@ -170,7 +170,7 @@ pw.Widget buildBillsTableType1(
                             font: boldFont,
                             fontSize: 10,
                             fontWeight: pw.FontWeight.bold,
-                            color: PdfColor.fromHex("#0072B5"),
+                            color: deepBlueColor,
                           ),
                         ),
                         pw.SizedBox(height: 4),
@@ -198,7 +198,7 @@ pw.Widget buildBillsTableType1(
             columnWidths: columnWidths,
             children: [
               pw.TableRow(
-                decoration: pw.BoxDecoration(color: lightBlueColor),
+                decoration: pw.BoxDecoration(color: deepBlueColor),
                 children: headers
                     .map(
                       (header) => pw.Center(
@@ -213,7 +213,7 @@ pw.Widget buildBillsTableType1(
                               font: boldFont,
                               fontSize: 7.5,
                               // fontWeight: pw.FontWeight.bold,
-                              color: PdfColor.fromHex("#0072B5"),
+                              color: PdfColors.white,
                             ),
                             textAlign: pw.TextAlign.center,
                           ),
