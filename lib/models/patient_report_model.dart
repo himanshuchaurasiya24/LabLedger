@@ -12,8 +12,7 @@ class PatientReport {
   factory PatientReport.fromJson(Map<String, dynamic> json) {
     return PatientReport(
       id: json['id'],
-      reportUrl: json['report_url'],
-      // The bill ID is nested inside the bill_output object
+      reportUrl: json['report_file'],
       billId: json['bill_output']?['id'] ?? 0,
     );
   }

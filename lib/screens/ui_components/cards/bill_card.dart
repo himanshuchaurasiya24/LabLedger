@@ -249,16 +249,16 @@ class BillCard extends StatelessWidget {
                     ),
                     if (bill.reportUrl != null)
                       InkWell(
-                         onTap: () async {
-      final uri = Uri.parse(bill.reportUrl!);
+                        onTap: () async {
+                          final uri = Uri.parse(bill.reportUrl!);
 
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
-      } else {
-        debugPrint('Could not launch ${bill.reportUrl}');
-      }
-    },
-                        
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri);
+                          } else {
+                            debugPrint('Could not launch ${bill.reportUrl}');
+                          }
+                        },
+
                         child: Icon(
                           Icons.document_scanner_outlined,
                           color: textColor,

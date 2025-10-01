@@ -12,11 +12,13 @@ import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_provider.dart';
+import 'package:labledger/providers/patient_report_provider.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AddUpdateBillScreen extends ConsumerStatefulWidget {
   final Bill? billData;
@@ -51,8 +53,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   final paidAmountController = TextEditingController();
   final discByDoctorController = TextEditingController();
   final discByCenterController = TextEditingController();
-
-  // Display controllers for dropdowns
   final diagnosisTypeDisplayController = TextEditingController();
   final franchiseNameDisplayController = TextEditingController();
   final refByDoctorDisplayController = TextEditingController();
@@ -73,7 +73,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
   bool _isControllersInitialized = false;
   bool _isSubmitting = false;
-
+  bool _isDownloadReportButtonVisible = true;
   @override
   void initState() {
     super.initState();
@@ -303,6 +303,80 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                         widget.billData?.billStatus ?? 'Unknown',
                         _getStatusColor(widget.billData?.billStatus),
                       ),
+                      SizedBox(width: defaultWidth / 2),
+                      InkWell(
+                        onTap: () {
+                          //
+                        },
+                        child: _buildStatusBadge(
+                          widget.billData != null &&
+                                  widget.billData!.reportUrl != null
+                              ? 'Update Report'
+                              : 'Upload Report',
+                          color,
+                        ),
+                      ),
+                      SizedBox(width: defaultWidth / 2),
+                      if (widget.billData != null &&
+                          widget.billData!.reportUrl != null)
+                        Visibility(
+                          visible: _isDownloadReportButtonVisible,
+                          child: InkWell(
+                            onTap: () async {
+                              final uri = Uri.parse(
+                                widget.billData!.reportUrl!,
+                              );
+
+                              if (await canLaunchUrl(uri)) {
+                                await launchUrl(uri);
+                              } else {
+                                debugPrint(
+                                  'Could not launch ${widget.billData!.reportUrl}',
+                                );
+                              }
+                            },
+                            child: _buildStatusBadge("Download Report", color),
+                          ),
+                        ),
+                      SizedBox(width: defaultWidth / 2),
+
+                      if (widget.billData != null &&
+                          widget.billData!.reportUrl != null)
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final reportAsyncValue = ref.watch(
+                              getReportForBillProvider(widget.billData!.id!),
+                            );
+
+                            if (widget.billData != null &&
+                                widget.billData!.reportUrl != null &&
+                                reportAsyncValue.hasValue &&
+                                reportAsyncValue.value != null) {
+                              final report = reportAsyncValue.value!;
+
+                              return InkWell(
+                                onTap: () {
+                                  ref.read(
+                                    deletePatientReportProvider((
+                                      reportId: report.id,
+                                      billId: widget.billData!.id!,
+                                    )).future,
+                                  );
+                                  setState(() {
+                                    _isDownloadReportButtonVisible = false;
+                                  });
+                                },
+                                child: _buildStatusBadge(
+                                  "Delete Report",
+                                  _getStatusColor(
+                                    "Unpaid",
+                                  ), // Assuming this is your styling function
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
                     ],
                   ],
                 ),
