@@ -129,11 +129,13 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
           } else {
             final directory = await getApplicationDocumentsDirectory();
             final fileName =
-                "LabLedger Incentive Report ${DateFormat("dd MMM yyyy hh:mm:ss").format(DateTime.now())}";
+                "LabLedger Incentive Report ${DateFormat("dd MMM yyyy hh-mm-ss").format(DateTime.now())}";
             final filePath = p.join(directory.path, fileName);
             final file = File(filePath);
+
             await file.writeAsBytes(pdfBytes);
             final result = await OpenFile.open(filePath);
+
             if (result.type == ResultType.error) {
               _showSnackBar(
                 'Failed to open PDF: ${result.message}',
