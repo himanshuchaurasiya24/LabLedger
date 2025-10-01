@@ -14,7 +14,6 @@ class AuthHttpClient {
     String? body,
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    // ... (No changes to the token retrieval logic)
     String? token;
     try {
       token = await ref.read(tokenProvider.future);
@@ -36,7 +35,6 @@ class AuthHttpClient {
       timeout: timeout,
     );
 
-    // --- ⭐️ AMENDED LOGIC: 401 (Token Refresh) Handling ---
     if (response.statusCode == 401) {
       try {
         final authRepo = AuthRepository.instance;
@@ -48,7 +46,6 @@ class AuthHttpClient {
           "Authorization": "Bearer $newToken",
         };
 
-        // Retry the request with the new token
         response = await _makeHttpRequest(
           method: method,
           url: url,
@@ -63,46 +60,36 @@ class AuthHttpClient {
       }
     }
 
-    // --- ⭐️ NEW: Centralized Success/Error Check ---
-    // After attempting the request (and a potential retry), check the final status.
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      // If the request was successful, return the response.
       return response;
     } else {
-      // If it failed for any other reason, parse the body and throw a clean exception.
       throw _generateExceptionFromResponse(response);
     }
   }
-  /// ⭐️ ENHANCED HELPER: Parses both simple and complex error responses.
+
   static Exception _generateExceptionFromResponse(http.Response response) {
     try {
       final dynamic errorData = jsonDecode(response.body);
 
       if (errorData is Map<String, dynamic>) {
-        // Case 1: Simple error message (e.g., {"detail": "Not found."})
         if (errorData.containsKey('detail')) {
-          final String detail = errorData['detail'] ?? 'An unknown server error occurred.';
+          final String detail =
+              errorData['detail'] ?? 'An unknown server error occurred.';
           if (response.statusCode == 403) return AccountLockedException(detail);
           return ApiException(detail);
-        }
-        // Case 2: Complex validation error map (e.g., {"password": ["Too short."]})
-        else {
+        } else {
           final String formattedMessage = _formatValidationErrors(errorData);
           return ValidationException(formattedMessage);
         }
       }
-      // Fallback for non-map or primitive JSON bodies (e.g., "An error occurred")
       return ApiException(errorData.toString());
     } catch (_) {
-      // Fallback for non-JSON responses
       return ServerException(
-          'The server returned an unexpected response. Status: ${response.statusCode}');
+        'The server returned an unexpected response. Status: ${response.statusCode}',
+      );
     }
   }
 
-  // --- (No changes to _makeHttpRequest or convenience methods like get, post, etc.) ---
-
-  /// Helper method to make actual HTTP requests
   static Future<http.Response> _makeHttpRequest({
     required String method,
     required String url,
@@ -140,7 +127,6 @@ class AuthHttpClient {
     }
   }
 
-  /// Convenience methods
   static Future<http.Response> get(
     Ref ref,
     String url, {
@@ -192,16 +178,119 @@ class AuthHttpClient {
     timeout: timeout,
   );
 
-  /// ⭐️ NEW HELPER: Formats complex validation errors from a map into a single string.
+  /// ⭐️ NEW: Handles multipart (file upload) POST requests.
+  static Future<http.Response> postMultipart(
+    Ref ref,
+    String url, {
+    required Map<String, String> fields,
+    required String filePath,
+    required String fileField,
+    Duration timeout = const Duration(
+      seconds: 30,
+    ), // Longer timeout for uploads
+  }) async {
+    return _requestMultipart(
+      ref,
+      method: 'POST',
+      url: url,
+      fields: fields,
+      filePath: filePath,
+      fileField: fileField,
+      timeout: timeout,
+    );
+  }
+
+  /// ⭐️ NEW: Handles multipart (file upload) PUT requests.
+  static Future<http.Response> putMultipart(
+    Ref ref,
+    String url, {
+    required Map<String, String> fields,
+    required String filePath,
+    required String fileField,
+    Duration timeout = const Duration(seconds: 30),
+  }) async {
+    return _requestMultipart(
+      ref,
+      method: 'PUT',
+      url: url,
+      fields: fields,
+      filePath: filePath,
+      fileField: fileField,
+      timeout: timeout,
+    );
+  }
+
+  /// ⭐️ NEW HELPER: Private method to handle the core logic for multipart requests.
+  static Future<http.Response> _requestMultipart(
+    Ref ref, {
+    required String method,
+    required String url,
+    required Map<String, String> fields,
+    required String filePath,
+    required String fileField,
+    required Duration timeout,
+  }) async {
+    String? token;
+    try {
+      token = await ref.read(tokenProvider.future);
+    } catch (e) {
+      throw const TokenExpiredException();
+    }
+
+    // Helper function to create, populate, and send the multipart request.
+    // This is needed to avoid duplicating code for the token-refresh retry logic.
+    Future<http.Response> sendRequest(String currentToken) async {
+      try {
+        final request = http.MultipartRequest(method, Uri.parse(url));
+        request.headers['Authorization'] = 'Bearer $currentToken';
+        request.fields.addAll(fields);
+        request.files.add(
+          await http.MultipartFile.fromPath(fileField, filePath),
+        );
+
+        final streamedResponse = await request.send().timeout(timeout);
+        // Convert the streamed response into a regular http.Response
+        return await http.Response.fromStream(streamedResponse);
+      } catch (e) {
+        throw const NetworkException();
+      }
+    }
+
+    // Make the initial request attempt
+    http.Response response = await sendRequest(token!);
+
+    // --- Token Refresh Handling (Identical to your existing 'request' method) ---
+    if (response.statusCode == 401) {
+      try {
+        final authRepo = AuthRepository.instance;
+        await authRepo.verifyAuth();
+
+        final newToken = await ref.read(tokenProvider.future);
+        // Retry the request with the new token
+        response = await sendRequest(newToken!);
+      } on AuthException {
+        rethrow;
+      } catch (e) {
+        throw const NetworkException();
+      }
+    }
+
+    // --- Centralized Success/Error Check ---
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return response;
+    } else {
+      // Reuse your existing powerful exception generator
+      throw _generateExceptionFromResponse(response);
+    }
+  }
+
   static String _formatValidationErrors(Map<String, dynamic> errors) {
     String errorMessage = '';
     errors.forEach((key, value) {
-      // Join list of errors into a single line
       final String fieldError = (value is List)
           ? value.join(', ')
           : value.toString();
 
-      // Make common field names more user-friendly
       String friendlyFieldName = key
           .replaceAll('_', ' ')
           .split(' ')

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/bill_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BillCard extends StatelessWidget {
   final Bill bill;
@@ -203,50 +204,71 @@ class BillCard extends StatelessWidget {
                 SizedBox(height: defaultHeight / 2),
                 // Patient Details Row
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Age and Sex
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(
-                          bill.patientSex.toLowerCase() == 'male'
-                              ? Icons.male
-                              : bill.patientSex.toLowerCase() == 'female'
-                              ? Icons.female
-                              : Icons.person,
-                          size: 18,
-                          color: textColor.withValues(alpha: 0.7),
+                        Row(
+                          children: [
+                            Icon(
+                              bill.patientSex.toLowerCase() == 'male'
+                                  ? Icons.male
+                                  : bill.patientSex.toLowerCase() == 'female'
+                                  ? Icons.female
+                                  : Icons.person,
+                              size: 18,
+                              color: textColor.withValues(alpha: 0.7),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${bill.patientAge}y, ${bill.patientSex.toUpperCase()}',
+                              style: bodyStyle?.copyWith(fontSize: 14),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${bill.patientAge}y, ${bill.patientSex.toUpperCase()}',
-                          style: bodyStyle?.copyWith(fontSize: 14),
+
+                        SizedBox(width: defaultWidth / 2),
+
+                        // Date
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              size: 16,
+                              color: textColor.withValues(alpha: 0.7),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _formatDate(bill.dateOfBill),
+                              style: bodyStyle?.copyWith(fontSize: 12),
+                            ),
+                          ],
                         ),
                       ],
                     ),
+                    if (bill.reportUrl != null)
+                      InkWell(
+                         onTap: () async {
+      final uri = Uri.parse(bill.reportUrl!);
 
-                    SizedBox(width: defaultWidth / 2),
-
-                    // Date
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: textColor.withValues(alpha: 0.7),
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      } else {
+        debugPrint('Could not launch ${bill.reportUrl}');
+      }
+    },
+                        
+                        child: Icon(
+                          Icons.document_scanner_outlined,
+                          color: textColor,
+                          size: 20,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _formatDate(bill.dateOfBill),
-                          style: bodyStyle?.copyWith(fontSize: 12),
-                        ),
-                      ],
-                    ),
+                      ),
                   ],
                 ),
 
                 SizedBox(height: defaultHeight / 2),
-
-                // Doctor Name Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

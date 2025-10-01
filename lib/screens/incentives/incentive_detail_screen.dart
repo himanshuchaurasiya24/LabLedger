@@ -673,7 +673,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
             onTap: () {
               navigatorKey.currentState?.push(
                 MaterialPageRoute(
-                  builder: (context) => AddBillScreen(
+                  builder: (context) => AddUpdateBillScreen(
                     themeColor: _getBillStatusColor(bill.billStatus),
                     // billData: bill, // This might need conversion
                   ),

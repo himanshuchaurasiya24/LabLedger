@@ -18,25 +18,30 @@ import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 
-class AddBillScreen extends ConsumerStatefulWidget {
+class AddUpdateBillScreen extends ConsumerStatefulWidget {
   final Bill? billData;
   final Color themeColor;
 
-  const AddBillScreen({super.key, this.billData, required this.themeColor});
+  const AddUpdateBillScreen({
+    super.key,
+    this.billData,
+    required this.themeColor,
+  });
 
   @override
-  ConsumerState<AddBillScreen> createState() => _AddBillScreenState();
+  ConsumerState<AddUpdateBillScreen> createState() =>
+      _AddUpdateBillScreenState();
 }
 
-class _AddBillScreenState extends ConsumerState<AddBillScreen>
+class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final _formKey = GlobalKey<FormState>();
 
-  // Form controllers
   final patientNameController = TextEditingController();
   final patientAgeController = TextEditingController();
   final patientSexController = TextEditingController();
+  final patientPhoneNumberController = TextEditingController();
   final diagnosisTypeController = TextEditingController();
   final franchiseNameController = TextEditingController();
   final refByDoctorController = TextEditingController();
@@ -100,6 +105,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     paidAmountController.dispose();
     discByDoctorController.dispose();
     discByCenterController.dispose();
+    patientPhoneNumberController.dispose();
     diagnosisTypeDisplayController.dispose();
     franchiseNameDisplayController.dispose();
     refByDoctorDisplayController.dispose();
@@ -110,11 +116,10 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     if (widget.billData == null || _isControllersInitialized) return;
     final bill = widget.billData!;
     final dateFormat = DateFormat('dd-MM-yyyy');
-
-    // Basic info
     patientNameController.text = bill.patientName;
     patientAgeController.text = bill.patientAge.toString();
     patientSexController.text = bill.patientSex;
+    patientPhoneNumberController.text = bill.patientPhoneNumber.toString();
     dateOfTestController.text = dateFormat.format(bill.dateOfTest);
     dateOfBillController.text = dateFormat.format(bill.dateOfBill);
     selectedTestDateISO = bill.dateOfTest.toIso8601String();
@@ -124,36 +129,27 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     discByDoctorController.text = bill.discByDoctor.toString();
     discByCenterController.text = bill.discByCenter.toString();
 
-    // ✅ CORRECTED: Initialize the state variables from the bill's map data
-    // This is the missing step that controls the UI logic.
     if (bill.diagnosisTypeOutput != null) {
-      // We assume you have a DiagnosisType.fromJson constructor
       _selectedDiagnosisType = DiagnosisType.fromJson(
         bill.diagnosisTypeOutput!,
       );
     }
     if (bill.referredByDoctorOutput != null) {
-      // We assume you have a Doctor.fromJson constructor
       _selectedDoctor = Doctor.fromJson(bill.referredByDoctorOutput!);
     }
     if (bill.franchiseNameOutput != null) {
-      // We assume you have a FranchiseName.fromJson constructor
       _selectedFranchise = FranchiseName.fromJson(bill.franchiseNameOutput!);
     }
-
-    // Populate the ID controllers
     diagnosisTypeController.text = bill.diagnosisType.toString();
     refByDoctorController.text = bill.referredByDoctor.toString();
     franchiseNameController.text = bill.franchiseName?.toString() ?? '';
 
-    // Populate the display controllers
     diagnosisTypeDisplayController.text =
         '${bill.diagnosisTypeOutput?['category']} ${bill.diagnosisTypeOutput?['name']}';
     refByDoctorDisplayController.text =
         '${bill.referredByDoctorOutput?['first_name']} ${bill.referredByDoctorOutput?['last_name']}';
     franchiseNameDisplayController.text =
         bill.franchiseNameOutput?['franchise_name'] ?? '';
-
     _isControllersInitialized = true;
   }
 
@@ -163,7 +159,6 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     List<Doctor> doctors,
   ) {
     if (widget.billData == null || !_isControllersInitialized) return;
-
     try {
       if (diagnosisTypeController.text.isNotEmpty) {
         final diagnosisId = int.tryParse(diagnosisTypeController.text);
@@ -556,6 +551,18 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                     tintColor: defaultColor,
                   ),
                 ),
+                SizedBox(width: defaultWidth / 2),
+                Expanded(
+                  child: CustomTextField(
+                    label: 'Phone Number',
+                    controller: patientPhoneNumberController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    isRequired: true,
+                    isNumeric: true,
+                    tintColor: defaultColor,
+                  ),
+                ),
               ],
             ),
           ],
@@ -637,27 +644,26 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
                   ? Padding(
                       padding: EdgeInsets.only(bottom: defaultPadding),
                       child: franchiseNamesAsync.when(
-                        data: (franchises) => SearchableDropdownField<FranchiseName>(
-                          label: 'Franchise Name',
-                          controller: franchiseNameDisplayController,
-                          items: franchises,
-                          color: defaultColor,
-                          valueMapper: (item) =>
-                              "${item.franchiseName}, ${item.address}",
-                          onSelected: (selected) {
-                            setState(() {
-                              _selectedFranchise = selected;
-                              // ✅ CORRECTED: Save the ID to the main controller for saving
-                              franchiseNameController.text = selected.id
-                                  .toString();
-                              // ✅ Save the name to the display controller for the UI
-                              franchiseNameDisplayController.text =
-                                  selected.franchiseName ?? '';
-                            });
-                          },
-                          validator: (v) =>
-                              v!.isEmpty ? 'Franchise is required' : null,
-                        ),
+                        data: (franchises) =>
+                            SearchableDropdownField<FranchiseName>(
+                              label: 'Franchise Name',
+                              controller: franchiseNameDisplayController,
+                              items: franchises,
+                              color: defaultColor,
+                              valueMapper: (item) =>
+                                  "${item.franchiseName}, ${item.address}",
+                              onSelected: (selected) {
+                                setState(() {
+                                  _selectedFranchise = selected;
+                                  franchiseNameController.text = selected.id
+                                      .toString();
+                                  franchiseNameDisplayController.text =
+                                      selected.franchiseName ?? '';
+                                });
+                              },
+                              validator: (v) =>
+                                  v!.isEmpty ? 'Franchise is required' : null,
+                            ),
                         loading: () => _buildLoadingField(),
                         error: (e, s) =>
                             _buildErrorField('Error loading franchises'),
@@ -814,12 +820,7 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
     );
   }
 
-  // --- FORM ACTIONS AND HELPERS ---
-
-  // In _AddBillScreenState
-
   Future<void> _saveBill() async {
-    // --- Pre-validation logic (remains the same) ---
     if (billStatusController.text == "Unpaid") {
       paidAmountController.text = "0";
       discByCenterController.text = "0";
@@ -844,30 +845,24 @@ class _AddBillScreenState extends ConsumerState<AddBillScreen>
       patientName: patientNameController.text,
       patientAge: int.parse(patientAgeController.text),
       patientSex: patientSexController.text,
+
       dateOfTest: DateTime.parse(selectedTestDateISO),
       dateOfBill: DateTime.parse(selectedBillDateISO),
       billStatus: billStatusController.text,
       paidAmount: int.parse(paidAmountController.text),
       discByCenter: int.parse(discByCenterController.text),
       discByDoctor: int.parse(discByDoctorController.text),
-      patientPhoneNumber: "0000000000",
-
-      // Use the controllers that hold the IDs
+      patientPhoneNumber: patientPhoneNumberController.text,
       diagnosisType: int.parse(diagnosisTypeController.text),
       referredByDoctor: int.parse(refByDoctorController.text),
       franchiseName: franchiseNameController.text.isNotEmpty
           ? int.parse(franchiseNameController.text)
           : null,
-
-      // The ...Output fields are not needed for saving, so we can omit them
-      // or provide the existing data if available. The backend will ignore them anyway.
       diagnosisTypeOutput: widget.billData?.diagnosisTypeOutput,
       referredByDoctorOutput: widget.billData?.referredByDoctorOutput,
       franchiseNameOutput: widget.billData?.franchiseNameOutput,
       testDoneBy: widget.billData?.testDoneBy,
       centerDetail: widget.billData?.centerDetail,
-
-      // Backend-generated fields are not needed for saving.
       billNumber: null,
       totalAmount: 0,
       incentiveAmount: 0,

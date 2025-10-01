@@ -12,21 +12,17 @@ final String billsEndpoint = "${globalBaseUrl}diagnosis/bill/";
 final String billGrowthStatsEndpoint =
     "${globalBaseUrl}diagnosis/bills/growth-stats/";
 
-// --- Local State Providers ---
 final currentPageProvider = StateProvider.autoDispose<int>((ref) => 1);
 final currentSearchQueryProvider = StateProvider.autoDispose<String>(
   (ref) => '',
 );
 
-// --- Data Fetching Providers ---
 
-/// Fetches bill growth statistics for the dashboard.
 final billGrowthStatsProvider = FutureProvider.autoDispose((ref) async {
   final response = await AuthHttpClient.get(ref, billGrowthStatsEndpoint);
   return BillStats.fromJson(jsonDecode(response.body));
 });
 
-/// Fetches the 10 most recent bills for a dashboard widget.
 final latestBillsProvider = FutureProvider.autoDispose<List<Bill>>((ref) async {
   final uri = Uri.parse(
     billsEndpoint,
@@ -37,7 +33,6 @@ final latestBillsProvider = FutureProvider.autoDispose<List<Bill>>((ref) async {
   return jsonList.map((item) => Bill.fromJson(item)).toList();
 });
 
-/// Fetches a paginated list of all unpaid or partially paid bills.
 final paginatedUnpaidPartialBillsProvider =
     FutureProvider.autoDispose<PaginatedBillsResponse>((ref) async {
       final uri = Uri.parse(billsEndpoint).replace(
@@ -50,7 +45,6 @@ final paginatedUnpaidPartialBillsProvider =
       return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
     });
 
-/// The main provider for fetching a paginated and searchable list of all bills.
 final paginatedBillsProvider =
     FutureProvider.autoDispose<PaginatedBillsResponse>((ref) async {
       final page = ref.watch(currentPageProvider);
@@ -66,7 +60,6 @@ final paginatedBillsProvider =
       return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
     });
 
-/// the provider to fetch the bills list of a particular doctor
 
 final paginatedDoctorBillProvider = FutureProvider.autoDispose
     .family<PaginatedBillsResponse, int>((ref, id) async {
@@ -112,7 +105,6 @@ final paginatedFranchiseBillProvider = FutureProvider.autoDispose
       return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
     });
 
-/// Fetches a single bill by its ID.
 final singleBillProvider = FutureProvider.autoDispose.family<Bill, int>((
   ref,
   id,
@@ -124,9 +116,7 @@ final singleBillProvider = FutureProvider.autoDispose.family<Bill, int>((
   return Bill.fromJson(jsonDecode(response.body));
 });
 
-// --- Action Providers ---
 
-/// Creates a new bill and invalidates all relevant data providers.
 final createBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
   ref,
   newBill,
@@ -141,7 +131,6 @@ final createBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
   return Bill.fromJson(jsonDecode(response.body));
 });
 
-/// Updates an existing bill and invalidates all relevant data providers.
 final updateBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
   ref,
   updatedBill,
@@ -157,7 +146,6 @@ final updateBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
   return Bill.fromJson(jsonDecode(response.body));
 });
 
-/// Deletes a bill and invalidates all relevant data providers.
 final deleteBillProvider = FutureProvider.autoDispose.family<void, int>((
   ref,
   id,
@@ -167,10 +155,7 @@ final deleteBillProvider = FutureProvider.autoDispose.family<void, int>((
   ref.invalidate(singleBillProvider(id));
 });
 
-// --- Private Helper Functions ---
 
-/// Centralized function to invalidate all providers related to bill data.
-/// This keeps the action providers clean and consistent.
 void _invalidateBillCache(Ref ref) {
   ref.invalidate(referralStatsProvider);
   ref.invalidate(billChartStatsProvider);

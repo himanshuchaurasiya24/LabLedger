@@ -1,9 +1,9 @@
 class Bill {
-  final int? id; // Nullable for creating new bills
+  final int? id;
   final String? billNumber;
   final DateTime dateOfTest;
   final String patientName;
-  final String? patientPhoneNumber; // ✅ Added field
+  final String? patientPhoneNumber;
   final int patientAge;
   final String patientSex;
   final DateTime dateOfBill;
@@ -13,11 +13,12 @@ class Bill {
   final int discByCenter;
   final int discByDoctor;
   final int incentiveAmount;
+  final String? reportUrl; // ✅ Field added
 
   // Storing IDs for write operations (POST/PUT)
   final int diagnosisType;
   final int referredByDoctor;
-  final int? franchiseName; // Nullable
+  final int? franchiseName;
 
   // Storing full objects for read operations (GET)
   final Map<String, dynamic>? diagnosisTypeOutput;
@@ -32,7 +33,7 @@ class Bill {
     this.billNumber,
     required this.dateOfTest,
     required this.patientName,
-    required this.patientPhoneNumber, // ✅ Added to constructor
+    required this.patientPhoneNumber,
     required this.patientAge,
     required this.patientSex,
     required this.dateOfBill,
@@ -51,6 +52,7 @@ class Bill {
     this.testDoneBy,
     this.centerDetail,
     this.matchReason,
+    this.reportUrl, // ✅ Added to constructor
   });
 
   /// Factory Constructor to Parse JSON
@@ -60,7 +62,7 @@ class Bill {
       billNumber: json['bill_number'],
       dateOfTest: DateTime.parse(json['date_of_test']),
       patientName: json['patient_name'],
-      patientPhoneNumber: json['patient_phone_number'], // ✅ Added parsing
+      patientPhoneNumber: json['patient_phone_number']?.toString(),
       patientAge: json['patient_age'],
       patientSex: json['patient_sex'],
       dateOfBill: DateTime.parse(json['date_of_bill']),
@@ -70,6 +72,7 @@ class Bill {
       discByCenter: json['disc_by_center'],
       discByDoctor: json['disc_by_doctor'],
       incentiveAmount: json['incentive_amount'],
+      reportUrl: json['report_url'], // ✅ Added parsing for the new field
       diagnosisType: json['diagnosis_type_output']?['id'] ?? 0,
       referredByDoctor: json['referred_by_doctor_output']?['id'] ?? 0,
       franchiseName: json['franchise_name_output']?['id'],
@@ -85,11 +88,9 @@ class Bill {
   /// Convert Object to JSON Map (for POST/PUT)
   Map<String, dynamic> toJson() {
     return {
-      // id is only included for updates, not creations
       if (id != null) 'id': id,
-
       'patient_name': patientName,
-      'patient_phone_number': patientPhoneNumber, // ✅ Added to JSON map
+      'patient_phone_number': patientPhoneNumber,
       'patient_age': patientAge,
       'patient_sex': patientSex,
       'paid_amount': paidAmount,
@@ -98,8 +99,6 @@ class Bill {
       'bill_status': billStatus,
       'date_of_test': dateOfTest.toIso8601String(),
       'date_of_bill': dateOfBill.toIso8601String(),
-
-      // Send only the integer IDs for foreign key relationships
       'diagnosis_type': diagnosisType,
       'referred_by_doctor': referredByDoctor,
       'franchise_name': franchiseName,

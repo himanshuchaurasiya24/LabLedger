@@ -70,7 +70,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onPressed: () {
           navigatorKey.currentState?.push(
             MaterialPageRoute(
-              builder: (context) => AddBillScreen(
+              builder: (context) => AddUpdateBillScreen(
                 themeColor: Theme.of(context).colorScheme.secondary,
               ),
             ),
@@ -480,7 +480,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           onBillTap: (bill) {
             navigatorKey.currentState?.push(
               MaterialPageRoute(
-                builder: (context) => AddBillScreen(
+                builder: (context) => AddUpdateBillScreen(
                   billData: bill,
                   themeColor: Theme.of(context).colorScheme.error,
                 ),

@@ -70,7 +70,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   void _navigateToBill(Bill bill) {
     navigatorKey.currentState?.push(
       MaterialPageRoute(
-        builder: (_) => AddBillScreen(
+        builder: (_) => AddUpdateBillScreen(
           billData: bill,
           themeColor: bill.billStatus != "Fully Paid"
               ? Theme.of(context).colorScheme.error
@@ -126,7 +126,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
         onPressed: () {
           navigatorKey.currentState?.push(
             MaterialPageRoute(
-              builder: (context) => AddBillScreen(
+              builder: (context) => AddUpdateBillScreen(
                 themeColor: Theme.of(context).colorScheme.secondary,
               ),
             ),
