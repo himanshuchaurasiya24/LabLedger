@@ -328,7 +328,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                       SizedBox(width: defaultWidth / 2),
                       InkWell(
                         onTap: () {
-                          // TODO: Handle report upload/update
+                          //
                         },
                         child: _buildStatusBadge(
                           bill != null && bill.reportUrl != null
