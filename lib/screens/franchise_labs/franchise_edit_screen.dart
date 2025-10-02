@@ -24,7 +24,6 @@ class FranchiseEditScreen extends ConsumerStatefulWidget {
 class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
   final _detailsFormKey = GlobalKey<FormState>();
 
-  // Franchise details controllers
   final _franchiseNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
@@ -189,8 +188,6 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
               ],
             ),
           ),
-          // ✅ Conditional visibility for the entire button column.
-          // It will only show if it's "create mode" OR if the user is an admin.
           if (!_isEditMode || isAdmin)
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -227,7 +224,6 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                     ),
                   ),
                 ),
-                // The delete button is now conditional on BOTH edit mode AND admin status.
                 if (_isEditMode && isAdmin) ...[
                   SizedBox(height: defaultHeight / 2),
                   OutlinedButton.icon(

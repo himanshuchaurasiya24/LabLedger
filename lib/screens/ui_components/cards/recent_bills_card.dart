@@ -164,7 +164,8 @@ class RecentBillsCard extends StatelessWidget {
           navigatorKey.currentState?.push(
             MaterialPageRoute(
               builder: (context) =>
-                  AddUpdateBillScreen(themeColor: statusInfo.color, billData: bill),
+                  AddUpdateBillScreen(themeColor: statusInfo.color,           billId: bill.id,
+),
             ),
           );
         },

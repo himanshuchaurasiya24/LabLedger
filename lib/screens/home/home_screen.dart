@@ -481,7 +481,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             navigatorKey.currentState?.push(
               MaterialPageRoute(
                 builder: (context) => AddUpdateBillScreen(
-                  billData: bill,
+          billId: bill.id,
                   themeColor: Theme.of(context).colorScheme.error,
                 ),
               ),

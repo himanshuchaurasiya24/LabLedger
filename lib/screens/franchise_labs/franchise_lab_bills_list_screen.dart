@@ -76,7 +76,7 @@ class _FranchiseBillsListScreenState
     navigatorKey.currentState?.push(
       MaterialPageRoute(
         builder: (_) => AddUpdateBillScreen(
-          billData: bill,
+          billId: bill.id,
           themeColor: bill.billStatus != "Fully Paid"
               ? Theme.of(context).colorScheme.error
               : Theme.of(context).colorScheme.secondary,

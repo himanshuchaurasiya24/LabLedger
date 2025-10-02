@@ -21,6 +21,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
 // ignore: depend_on_referenced_packages
 import "package:path/path.dart" as p;
+
 class IncentiveDetailScreen extends ConsumerStatefulWidget {
   const IncentiveDetailScreen({super.key});
 
@@ -555,10 +556,9 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        if (bill.patientPhoneNumber != null &&
-                            bill.patientPhoneNumber!.isNotEmpty)
+                        if (bill.patientPhoneNumber != null)
                           Text(
-                            bill.patientPhoneNumber!,
+                            bill.patientPhoneNumber.toString(),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurface.withAlpha(153),
                               fontSize: 10,
@@ -675,7 +675,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                 MaterialPageRoute(
                   builder: (context) => AddUpdateBillScreen(
                     themeColor: _getBillStatusColor(bill.billStatus),
-                    // billData: bill, // This might need conversion
+                    billId: bill.id,
                   ),
                 ),
               );
@@ -822,7 +822,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
   Color _getBillStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'fully paid':
-        return Colors.green;
+        return Colors.teal;
       case 'partially paid':
         return Colors.amber;
       case 'unpaid':

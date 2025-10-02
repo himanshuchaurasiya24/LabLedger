@@ -1,4 +1,3 @@
-
 // Represents a Doctor with their details and incentive percentages.
 class Doctor {
   final int? id;
@@ -38,12 +37,11 @@ class Doctor {
   }
 }
 
-
 /// Represents the incentive report for a single doctor.
 class DoctorReport {
   final Doctor doctor;
   final int totalIncentive;
-  
+
   // 🌟 RENAMED: This list now uses the IncentiveBill model.
   final List<IncentiveBill> bills;
 
@@ -55,8 +53,11 @@ class DoctorReport {
 
   factory DoctorReport.fromJson(Map<String, dynamic> json) {
     final billsListFromJson = json['bills'] as List? ?? [];
-        final List<IncentiveBill> parsedBills = billsListFromJson
-        .map((billJson) => IncentiveBill.fromJson(billJson as Map<String, dynamic>))
+    final List<IncentiveBill> parsedBills = billsListFromJson
+        .map(
+          (billJson) =>
+              IncentiveBill.fromJson(billJson as Map<String, dynamic>),
+        )
         .toList();
 
     return DoctorReport(
@@ -66,6 +67,7 @@ class DoctorReport {
     );
   }
 }
+
 /// Helper model for the nested Diagnosis Type object.
 class DiagnosisType {
   final String name;
@@ -91,9 +93,7 @@ class DiagnosisType {
 class FranchiseName {
   final String franchiseName;
 
-  FranchiseName({
-    required this.franchiseName,
-  });
+  FranchiseName({required this.franchiseName});
 
   factory FranchiseName.fromJson(Map<String, dynamic> json) {
     return FranchiseName(
@@ -109,7 +109,7 @@ class IncentiveBill {
   final String patientName;
   final int patientAge;
   final String patientSex;
-  final String? patientPhoneNumber;
+  final int? patientPhoneNumber;
   final DiagnosisType diagnosisType;
   final FranchiseName? franchiseName; // 🌟 RENAMED: Using FranchiseName
   final DateTime dateOfBill;
@@ -147,10 +147,14 @@ class IncentiveBill {
       patientName: json['patient_name'] as String? ?? '',
       patientAge: json['patient_age'] as int? ?? 0,
       patientSex: json['patient_sex'] as String? ?? '',
-      patientPhoneNumber: json['patient_phone_number'] as String?,
-      diagnosisType: DiagnosisType.fromJson(json['diagnosis_type'] as Map<String, dynamic>),
+      patientPhoneNumber: json['patient_phone_number'] as int?,
+      diagnosisType: DiagnosisType.fromJson(
+        json['diagnosis_type'] as Map<String, dynamic>,
+      ),
       // 🌟 RENAMED: Parsing now uses FranchiseName.fromJson.
-      franchiseName: franchiseJson != null ? FranchiseName.fromJson(franchiseJson) : null,
+      franchiseName: franchiseJson != null
+          ? FranchiseName.fromJson(franchiseJson)
+          : null,
       dateOfBill: DateTime.parse(json['date_of_bill'] as String),
       billStatus: json['bill_status'] as String? ?? 'Unpaid',
       totalAmount: json['total_amount'] as int? ?? 0,

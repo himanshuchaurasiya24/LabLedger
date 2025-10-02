@@ -111,7 +111,7 @@ final singleBillProvider = FutureProvider.autoDispose.family<Bill, int>((
 ) async {
   final response = await AuthHttpClient.get(
     ref,
-    "$billsEndpoint$id/?list_format=true",
+    "$billsEndpoint$id",
   );
   return Bill.fromJson(jsonDecode(response.body));
 });

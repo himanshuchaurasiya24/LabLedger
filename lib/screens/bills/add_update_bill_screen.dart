@@ -13,20 +13,21 @@ import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/providers/patient_report_provider.dart';
+import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+
 class AddUpdateBillScreen extends ConsumerStatefulWidget {
-  final Bill? billData;
+  final int? billId; // Changed from Bill? billData to int? billId
   final Color themeColor;
 
   const AddUpdateBillScreen({
     super.key,
-    this.billData,
+    this.billId, // Updated constructor
     required this.themeColor,
   });
 
@@ -71,18 +72,21 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     "Unpaid",
   ];
 
-  bool _isControllersInitialized = false;
+  bool _isDataInitialized = false; // Renamed for consistency
   bool _isSubmitting = false;
   bool _isDownloadReportButtonVisible = true;
+
+  // Getter to determine if we are in edit mode
+  bool get _isEditMode => widget.billId != null;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     billStatusController.addListener(() => setState(() {}));
 
-    if (widget.billData != null) {
-      _preFillData();
-    } else {
+    // Data initialization is now handled in the build method after data is fetched
+    if (!_isEditMode) {
       final defaultDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
       dateOfTestController.text = defaultDate;
       dateOfBillController.text = defaultDate;
@@ -112,9 +116,10 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     super.dispose();
   }
 
-  void _preFillData() {
-    if (widget.billData == null || _isControllersInitialized) return;
-    final bill = widget.billData!;
+  // This method now populates controllers from a fetched Bill object
+  void _initializeData(Bill bill) {
+    if (_isDataInitialized) return;
+
     final dateFormat = DateFormat('dd-MM-yyyy');
     patientNameController.text = bill.patientName;
     patientAgeController.text = bill.patientAge.toString();
@@ -150,15 +155,17 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         '${bill.referredByDoctorOutput?['first_name']} ${bill.referredByDoctorOutput?['last_name']}';
     franchiseNameDisplayController.text =
         bill.franchiseNameOutput?['franchise_name'] ?? '';
-    _isControllersInitialized = true;
+
+    _isDataInitialized = true;
   }
 
+  // This method is now called after the data is initialized
   void _updateDisplayControllers(
     List<DiagnosisType> diagnosisTypes,
     List<FranchiseName> franchises,
     List<Doctor> doctors,
   ) {
-    if (widget.billData == null || !_isControllersInitialized) return;
+    if (!_isEditMode || !_isDataInitialized) return;
     try {
       if (diagnosisTypeController.text.isNotEmpty) {
         final diagnosisId = int.tryParse(diagnosisTypeController.text);
@@ -197,34 +204,49 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isEditing = widget.billData != null;
+    // Main content is now built conditionally based on the fetch state
+    final content = _isEditMode
+        ? ref.watch(singleBillProvider(widget.billId!)).when(
+              data: (bill) {
+                _initializeData(bill);
+                return _buildContent(bill: bill);
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, st) =>
+                  _buildErrorWidget("Error loading bill: $err"),
+            )
+        : _buildContent();
+
+    return WindowScaffold(child: content);
+  }
+
+  // Extracted the main content build logic into its own method
+  Widget _buildContent({Bill? bill}) {
     final isLargeScreen = MediaQuery.of(context).size.width > 1200;
-    return WindowScaffold(
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            _buildBillHeaderCard(isEditing, color: widget.themeColor),
-            SizedBox(height: defaultHeight),
-            Expanded(
-              child: isLargeScreen
-                  ? _buildLargeScreenLayout(color: widget.themeColor)
-                  : Column(
-                      children: [
-                        _buildTabBar(color: widget.themeColor),
-                        Expanded(
-                          child: _buildTabContent(color: widget.themeColor),
-                        ),
-                      ],
-                    ),
-            ),
-          ],
-        ),
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          _buildBillHeaderCard(color: widget.themeColor, bill: bill),
+          SizedBox(height: defaultHeight),
+          Expanded(
+            child: isLargeScreen
+                ? _buildLargeScreenLayout(color: widget.themeColor)
+                : Column(
+                    children: [
+                      _buildTabBar(color: widget.themeColor),
+                      Expanded(
+                        child: _buildTabContent(color: widget.themeColor),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildBillHeaderCard(bool isEditing, {required Color color}) {
+  Widget _buildBillHeaderCard({required Color color, Bill? bill}) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final lightThemeColor = Color.lerp(
@@ -252,7 +274,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: color.withValues(alpha: 0.3),
+                  color: color.withValues(alpha:  0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -260,7 +282,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
             ),
             child: Center(
               child: Icon(
-                isEditing ? Icons.edit_note : Icons.add_circle_outline,
+                _isEditMode ? Icons.edit_note : Icons.add_circle_outline,
                 color: Colors.white,
                 size: 36,
               ),
@@ -273,7 +295,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  isEditing ? 'Edit Bill' : 'Create New Bill',
+                  _isEditMode ? 'Edit Bill' : 'Create New Bill',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : theme.colorScheme.onSurface,
@@ -281,86 +303,71 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                 ),
                 SizedBox(height: defaultHeight / 2),
                 Text(
-                  isEditing
-                      ? 'Bill #${widget.billData?.billNumber ?? 'N/A'} ${widget.billData!.id.toString()}'
+                  _isEditMode
+                      ? 'Bill #${bill?.billNumber ?? 'N/A'} ${bill!.id.toString()}'
                       : 'Fill in the details to create a new bill',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark
                         ? Colors.white70
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha:  0.7),
                   ),
                 ),
                 SizedBox(height: defaultHeight / 2),
                 Row(
                   children: [
                     _buildStatusBadge(
-                      isEditing ? 'Edit Mode' : 'New Bill',
+                      _isEditMode ? 'Edit Mode' : 'New Bill',
                       color,
                     ),
-                    if (isEditing) ...[
+                    if (_isEditMode) ...[
                       SizedBox(width: defaultWidth / 2),
                       _buildStatusBadge(
-                        widget.billData?.billStatus ?? 'Unknown',
-                        _getStatusColor(widget.billData?.billStatus),
+                        bill?.billStatus ?? 'Unknown',
+                        _getStatusColor(bill?.billStatus),
                       ),
                       SizedBox(width: defaultWidth / 2),
                       InkWell(
                         onTap: () {
-                          //
+                          // TODO: Handle report upload/update
                         },
                         child: _buildStatusBadge(
-                          widget.billData != null &&
-                                  widget.billData!.reportUrl != null
+                          bill != null && bill.reportUrl != null
                               ? 'Update Report'
                               : 'Upload Report',
                           color,
                         ),
                       ),
                       SizedBox(width: defaultWidth / 2),
-                      if (widget.billData != null &&
-                          widget.billData!.reportUrl != null)
+                      if (bill != null && bill.reportUrl != null)
                         Visibility(
                           visible: _isDownloadReportButtonVisible,
                           child: InkWell(
                             onTap: () async {
-                              final uri = Uri.parse(
-                                widget.billData!.reportUrl!,
-                              );
-
+                              final uri = Uri.parse(bill.reportUrl!);
                               if (await canLaunchUrl(uri)) {
                                 await launchUrl(uri);
                               } else {
-                                debugPrint(
-                                  'Could not launch ${widget.billData!.reportUrl}',
-                                );
+                                debugPrint('Could not launch ${bill.reportUrl}');
                               }
                             },
                             child: _buildStatusBadge("Download Report", color),
                           ),
                         ),
                       SizedBox(width: defaultWidth / 2),
-
-                      if (widget.billData != null &&
-                          widget.billData!.reportUrl != null)
+                      if (bill != null && bill.reportUrl != null)
                         Consumer(
                           builder: (context, ref, child) {
-                            final reportAsyncValue = ref.watch(
-                              getReportForBillProvider(widget.billData!.id!),
-                            );
-
-                            if (widget.billData != null &&
-                                widget.billData!.reportUrl != null &&
-                                reportAsyncValue.hasValue &&
+                            final reportAsyncValue =
+                                ref.watch(getReportForBillProvider(bill.id!));
+                            if (reportAsyncValue.hasValue &&
                                 reportAsyncValue.value != null) {
                               final report = reportAsyncValue.value!;
-
                               return InkWell(
                                 onTap: () {
                                   ref.read(
-                                    deletePatientReportProvider((
-                                      reportId: report.id,
-                                      billId: widget.billData!.id!,
-                                    )).future,
+                                    deletePatientReportProvider(
+                                            (reportId: report.id, billId: bill.id!))
+                                        .future,
                                   );
                                   setState(() {
                                     _isDownloadReportButtonVisible = false;
@@ -368,9 +375,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                                 },
                                 child: _buildStatusBadge(
                                   "Delete Report",
-                                  _getStatusColor(
-                                    "Unpaid",
-                                  ), // Assuming this is your styling function
+                                  _getStatusColor("Unpaid"),
                                 ),
                               );
                             }
@@ -387,7 +392,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton.icon(
-                onPressed: _isSubmitting ? null : _saveBill,
+                onPressed: _isSubmitting ? null : () => _saveBill(bill),
                 style: ElevatedButton.styleFrom(
                   fixedSize: const Size(160, 50),
                   backgroundColor: color,
@@ -402,23 +407,22 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                         width: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
-                    : Icon(isEditing ? Icons.save : Icons.add, size: 16),
+                    : Icon(_isEditMode ? Icons.save : Icons.add, size: 16),
                 label: Text(
                   _isSubmitting
                       ? 'Saving...'
-                      : (isEditing ? 'Update Bill' : 'Create Bill'),
+                      : (_isEditMode ? 'Update Bill' : 'Create Bill'),
                   style: const TextStyle(fontSize: 16),
                 ),
               ),
-              if (isEditing) ...[
+              if (_isEditMode) ...[
                 SizedBox(height: defaultHeight / 2),
                 OutlinedButton.icon(
-                  onPressed: () => _deleteBill(widget.billData!.id!),
+                  onPressed: () => _deleteBill(bill!),
                   style: OutlinedButton.styleFrom(
                     fixedSize: const Size(160, 50),
                     foregroundColor: Colors.red,
@@ -438,6 +442,10 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     );
   }
 
+  // --- Other build methods remain largely the same ---
+  // (e.g., _buildTabBar, _buildLargeScreenLayout, _buildTabContent, etc.)
+  // Minor change: In _buildDiagnosisDetailsCard, check `_isEditMode` instead of `widget.billData != null`.
+  
   Widget _buildTabBar({required Color color}) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -449,7 +457,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+            color: Colors.black.withValues(alpha:  isDark ? 0.3 : 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -465,7 +473,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         labelColor: Colors.white,
         unselectedLabelColor: isDark
             ? Colors.white70
-            : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            : theme.colorScheme.onSurface.withValues(alpha:  0.7),
         dividerColor: Colors.transparent,
         tabs: const [
           Tab(
@@ -672,8 +680,8 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               data: (types) {
                 if (doctorsAsync.hasValue &&
                     franchiseNamesAsync.hasValue &&
-                    widget.billData != null &&
-                    _isControllersInitialized &&
+                    _isEditMode &&
+                    _isDataInitialized &&
                     diagnosisTypeDisplayController.text.isEmpty) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     _updateDisplayControllers(
@@ -720,24 +728,24 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                       child: franchiseNamesAsync.when(
                         data: (franchises) =>
                             SearchableDropdownField<FranchiseName>(
-                              label: 'Franchise Name',
-                              controller: franchiseNameDisplayController,
-                              items: franchises,
-                              color: defaultColor,
-                              valueMapper: (item) =>
-                                  "${item.franchiseName}, ${item.address}",
-                              onSelected: (selected) {
-                                setState(() {
-                                  _selectedFranchise = selected;
-                                  franchiseNameController.text = selected.id
-                                      .toString();
-                                  franchiseNameDisplayController.text =
-                                      selected.franchiseName ?? '';
-                                });
-                              },
-                              validator: (v) =>
-                                  v!.isEmpty ? 'Franchise is required' : null,
-                            ),
+                          label: 'Franchise Name',
+                          controller: franchiseNameDisplayController,
+                          items: franchises,
+                          color: defaultColor,
+                          valueMapper: (item) =>
+                              "${item.franchiseName}, ${item.address}",
+                          onSelected: (selected) {
+                            setState(() {
+                              _selectedFranchise = selected;
+                              franchiseNameController.text =
+                                  selected.id.toString();
+                              franchiseNameDisplayController.text =
+                                  selected.franchiseName ?? '';
+                            });
+                          },
+                          validator: (v) =>
+                              v!.isEmpty ? 'Franchise is required' : null,
+                        ),
                         loading: () => _buildLoadingField(),
                         error: (e, s) =>
                             _buildErrorField('Error loading franchises'),
@@ -800,8 +808,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                     controller: dateOfTestController,
                     color: defaultColor,
                     onDateSelected: (iso) => selectedTestDateISO = iso,
-                    validator: (v) =>
-                        v!.isEmpty ? 'Test date is required' : null,
+                    validator: (v) => v!.isEmpty ? 'Test date is required' : null,
                   ),
                 ),
                 SizedBox(width: defaultWidth / 2),
@@ -811,8 +818,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                     controller: dateOfBillController,
                     color: defaultColor,
                     onDateSelected: (iso) => selectedBillDateISO = iso,
-                    validator: (v) =>
-                        v!.isEmpty ? 'Bill date is required' : null,
+                    validator: (v) => v!.isEmpty ? 'Bill date is required' : null,
                   ),
                 ),
               ],
@@ -824,8 +830,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               items: billStatusList,
               color: defaultColor,
               valueMapper: (item) => item,
-              onSelected: (value) =>
-                  setState(() => billStatusController.text = value),
+              onSelected: (value) => setState(() => billStatusController.text = value),
               validator: (v) => v!.isEmpty ? 'Bill status is required' : null,
             ),
           ],
@@ -894,7 +899,8 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     );
   }
 
-  Future<void> _saveBill() async {
+  // Updated _saveBill to accept the original bill for preserving output fields
+  Future<void> _saveBill(Bill? originalBill) async {
     if (billStatusController.text == "Unpaid") {
       paidAmountController.text = "0";
       discByCenterController.text = "0";
@@ -913,13 +919,11 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
     setState(() => _isSubmitting = true);
 
-    // ✅ Construct the Bill object using the simple integer ID fields for writing.
     final billToSave = Bill(
-      id: widget.billData?.id,
+      id: widget.billId,
       patientName: patientNameController.text,
       patientAge: int.parse(patientAgeController.text),
       patientSex: patientSexController.text,
-
       dateOfTest: DateTime.parse(selectedTestDateISO),
       dateOfBill: DateTime.parse(selectedBillDateISO),
       billStatus: billStatusController.text,
@@ -932,18 +936,18 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       franchiseName: franchiseNameController.text.isNotEmpty
           ? int.parse(franchiseNameController.text)
           : null,
-      diagnosisTypeOutput: widget.billData?.diagnosisTypeOutput,
-      referredByDoctorOutput: widget.billData?.referredByDoctorOutput,
-      franchiseNameOutput: widget.billData?.franchiseNameOutput,
-      testDoneBy: widget.billData?.testDoneBy,
-      centerDetail: widget.billData?.centerDetail,
+      diagnosisTypeOutput: originalBill?.diagnosisTypeOutput,
+      referredByDoctorOutput: originalBill?.referredByDoctorOutput,
+      franchiseNameOutput: originalBill?.franchiseNameOutput,
+      testDoneBy: originalBill?.testDoneBy,
+      centerDetail: originalBill?.centerDetail,
       billNumber: null,
       totalAmount: 0,
       incentiveAmount: 0,
     );
 
     try {
-      if (widget.billData != null) {
+      if (_isEditMode) {
         final updatedBill = await ref.read(
           updateBillProvider(billToSave).future,
         );
@@ -968,7 +972,8 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     }
   }
 
-  Future<void> _deleteBill(int id) async {
+  // Updated _deleteBill to accept the Bill object
+  Future<void> _deleteBill(Bill bill) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -991,7 +996,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     );
     if (shouldDelete == true) {
       try {
-        await ref.read(deleteBillProvider(id).future);
+        await ref.read(deleteBillProvider(bill.id!).future);
         if (mounted) {
           _showSuccessSnackBar(message: "Bill deleted successfully");
           Navigator.of(context).pop();
@@ -1005,6 +1010,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   }
 
   // --- UI HELPER METHODS ---
+  // (No changes needed here)
 
   void _showErrorDialog(String title, String errorMessage) {
     if (!mounted) return;
@@ -1043,7 +1049,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     return Container(
       padding: EdgeInsets.all(defaultPadding * 1.5),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: isDark ? 0.2 : 0.1),
+        color: color.withValues(alpha:  isDark ? 0.2 : 0.1),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(defaultRadius),
           topRight: Radius.circular(defaultRadius),
@@ -1054,7 +1060,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
           Container(
             padding: EdgeInsets.all(defaultPadding),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
+              color: color.withValues(alpha:  0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -1112,7 +1118,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
           suffixIcon: Icon(
             Icons.calendar_month_rounded,
             size: 22,
-            color: color.withValues(alpha: 0.9),
+            color: color.withValues(alpha:  0.9),
           ),
         ),
       ),
@@ -1124,9 +1130,10 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(defaultRadius),
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withValues(alpha:  0.5),
       ),
       child: const Center(
         child: SizedBox(
@@ -1145,10 +1152,8 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       padding: EdgeInsets.symmetric(horizontal: defaultPadding),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: theme.colorScheme.errorContainer.withValues(alpha: 0.2),
-        border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha: 0.4),
-        ),
+        color: theme.colorScheme.errorContainer.withValues(alpha:  0.2),
+        border: Border.all(color: theme.colorScheme.error.withValues(alpha:  0.4)),
       ),
       child: Center(
         child: Row(
@@ -1195,9 +1200,9 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         vertical: defaultPadding * 0.5,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withValues(alpha:  0.2),
         borderRadius: BorderRadius.circular(defaultRadius),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        border: Border.all(color: color.withValues(alpha:  0.5)),
       ),
       child: Text(
         text,
@@ -1205,6 +1210,66 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
           fontSize: 12,
           color: color,
           fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  // Error widget for when the bill fails to load
+  Widget _buildErrorWidget(String message) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: TintedContainer(
+          baseColor: theme.colorScheme.error,
+          intensity: isDark ? 0.2 : 0.1,
+          elevationLevel: 2,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: theme.colorScheme.error,
+              ),
+              SizedBox(height: defaultHeight),
+              Text(
+                'Error Loading Bill',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: theme.colorScheme.error,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: defaultHeight / 2),
+              Text(
+                message,
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: theme.colorScheme.error),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: defaultHeight),
+              ElevatedButton.icon(
+                onPressed: () {
+                  if (widget.billId != null) {
+                    ref.invalidate(singleBillProvider(widget.billId!));
+                  }
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: widget.themeColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

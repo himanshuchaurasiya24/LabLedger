@@ -28,14 +28,9 @@ final selectedBillStatusesProvider =
 // Holds the selected start date, defaulting to the 1st of the current month
 final reportStartDateProvider =
     StateProvider<DateTime>((ref) => DateTime.now().copyWith(day: 1));
-
-// Holds the selected end date, defaulting to today
 final reportEndDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
-
-/// The main provider that watches all filters and fetches the incentive report.
 final incentiveReportProvider =
     FutureProvider.autoDispose<List<DoctorReport>>((ref) async {
-  // 1. Watch all the individual filter providers.
   final doctorIds = ref.watch(selectedDoctorIdsProvider);
   final franchiseIds = ref.watch(selectedFranchiseIdsProvider);
   final diagnosisTypeIds = ref.watch(selectedDiagnosisTypeIdsProvider);
@@ -43,21 +38,16 @@ final incentiveReportProvider =
   final startDate = ref.watch(reportStartDateProvider);
   final endDate = ref.watch(reportEndDateProvider);
 
-  // 2. Build the query parameters map based on the filter states.
   final Map<String, List<String>> filters = {
-    // Convert sets of integers to lists of strings
     'doctor_id': doctorIds.map((id) => id.toString()).toList(),
     'franchise_id': franchiseIds.map((id) => id.toString()).toList(),
     'diagnosis_type_id':
         diagnosisTypeIds.map((id) => id.toString()).toList(),
-    // Convert set of strings to a list of strings
     'bill_status': billStatuses.toList(),
-    // Format dates into YYYY-MM-DD strings
     'start_date': [DateFormat('yyyy-MM-dd').format(startDate)],
     'end_date': [DateFormat('yyyy-MM-dd').format(endDate)],
   };
 
-  // 3. Construct the final URI.
   final uri = Uri.parse(incentiveReportEndpoint).replace(
     queryParameters: filters,
   );
