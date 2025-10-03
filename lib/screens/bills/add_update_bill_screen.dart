@@ -75,7 +75,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   bool _isDataInitialized = false; // Renamed for consistency
   bool _isSubmitting = false;
 
-  // Getter to determine if we are in edit mode
   bool get _isEditMode => widget.billId != null;
 
   @override

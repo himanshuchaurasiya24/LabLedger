@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/providers/sample_reports_provider.dart';
@@ -84,7 +85,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
       );
       final tempDir = await getTemporaryDirectory();
       final fileName =
-          'LabLedgerTemporaryReportDoNotDeleteUntillYouUploadOnServer${widget.billId}.${_selectedReportFromServer!.sampleReportFileUrl!.split('.').last}';
+          'LabLedgerServerReport${DateFormat("dd MMM yyy hh ss SSS").format(DateTime.now())}.${_selectedReportFromServer!.sampleReportFileUrl!.split('.').last}';
       final file = File('${tempDir.path}/$fileName');
       await file.writeAsBytes(response.bodyBytes);
 
@@ -128,9 +129,32 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
         billId: widget.billId,
         filePath: _reportFileToUpload!.path,
       );
+
       if (await _reportFileToUpload!.exists()) {
         await ref.read(createPatientReportProvider(uploadData).future);
-        await _reportFileToUpload!.delete();
+        try {
+          await _reportFileToUpload!.delete();
+        } catch (e) {
+          ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+            SnackBar(
+              duration: Duration(seconds: 7),
+              content: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Text(
+                    "Please close the editor before pressing the \"Upload Report\" button to optimize disk usage",
+                  ),
+                ],
+              ),
+              backgroundColor: Theme.of(
+                navigatorKey.currentContext!,
+              ).colorScheme.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          Navigator.of(navigatorKey.currentContext!).pop();
+        }
         ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
           SnackBar(
             content: Row(
@@ -147,7 +171,6 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
           ),
         );
         Navigator.of(navigatorKey.currentContext!).pop();
-        debugPrint("Temporary file deleted: ${_reportFileToUpload!.path}");
       } else {
         ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
           SnackBar(
@@ -170,7 +193,9 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
         ),
       );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
