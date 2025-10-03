@@ -130,7 +130,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
           } else {
             final directory = await getApplicationDocumentsDirectory();
             final fileName =
-                "LabLedger Incentive Report ${DateFormat("dd MMM yyyy hh-mm-ss").format(DateTime.now())}";
+                "LabLedger Incentive Report ${DateFormat("dd MMM yyyy hh-mm-ss").format(DateTime.now())}.pdf";
             final filePath = p.join(directory.path, fileName);
             final file = File(filePath);
 
