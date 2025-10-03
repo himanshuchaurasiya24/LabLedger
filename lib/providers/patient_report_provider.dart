@@ -28,7 +28,6 @@ final getReportForBillProvider =
   return null;
 });
 
-/// ✅ SIMPLIFIED: No more http.Response.fromStream
 final createPatientReportProvider = FutureProvider.autoDispose.family<PatientReport, ReportUploadData>((
   ref,
   uploadData,
