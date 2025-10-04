@@ -16,7 +16,6 @@ class RecentBillsCard extends StatelessWidget {
   final Color baseColor;
   final List<Bill> bills;
 
-  // Enhanced status icon with consistent color theming
   ({IconData icon, Color color, String label}) _getStatusInfo(
     String status,
     BuildContext context,
@@ -31,7 +30,7 @@ class RecentBillsCard extends StatelessWidget {
       case 'unpaid':
         return (
           icon: Icons.error_rounded,
-          color: Colors.red.shade600, // Red for unpaid
+          color: Theme.of(context).colorScheme.error, // Red for unpaid
           label: 'Pending',
         );
       case 'partially paid':
@@ -52,7 +51,6 @@ class RecentBillsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return TintedContainer(
       baseColor: baseColor,
       elevationLevel: 2,
@@ -60,7 +58,6 @@ class RecentBillsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- Enhanced Header ---
           Container(
             padding: EdgeInsets.only(bottom: defaultPadding),
             child: Row(
@@ -163,9 +160,10 @@ class RecentBillsCard extends StatelessWidget {
         onTap: () {
           navigatorKey.currentState?.push(
             MaterialPageRoute(
-              builder: (context) =>
-                  AddUpdateBillScreen(themeColor: statusInfo.color,           billId: bill.id,
-),
+              builder: (context) => AddUpdateBillScreen(
+                themeColor: statusInfo.color,
+                billId: bill.id,
+              ),
             ),
           );
         },

@@ -136,6 +136,8 @@ class BillCard extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+
       child: Container(
         decoration: BoxDecoration(
           color: backgroundColor,

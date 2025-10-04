@@ -111,9 +111,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ],
                   ),
                 ),
-                // NEW: Spacer pushes the user profile widget to the end.
                 const Spacer(),
-                // The user profile widget will stay at the end.
                 UserProfileWidget(
                   authResponse: widget.authResponse,
                   baseColor: baseColor,
@@ -200,62 +198,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           baseColor,
                         ),
                       ),
-                      SizedBox(width: defaultWidth),
-                      Expanded(
-                        child: _buildOptionColumn(
-                          baseColor: baseColor,
-                          firstIcon: FontAwesomeIcons.userDoctor,
-                          secondIcon: FontAwesomeIcons.buildingColumns,
-                          firstLabel: "Doctors",
-                          secondLabel: "Franchise Labs",
-                          firstOnTap: () {
-                            navigatorKey.currentState?.push(
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return DoctorsListScreen();
-                                },
-                              ),
-                            );
-                          },
-                          secondOnTap: () {
-                            navigatorKey.currentState?.push(
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return FranchiseListScreen();
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      SizedBox(width: defaultWidth),
-                      Expanded(
-                        child: _buildOptionColumn(
-                          baseColor: baseColor,
-                          firstIcon: FontAwesomeIcons.microscope,
-                          secondIcon: Icons.currency_rupee_rounded,
-                          firstLabel: "Diagnosis Types",
-                          secondLabel: "Incentives",
-                          firstOnTap: () {
-                            navigatorKey.currentState?.push(
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return DiagnosisTypesListScreen();
-                                },
-                              ),
-                            );
-                          },
-                          secondOnTap: () {
-                            navigatorKey.currentState?.push(
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return IncentiveGenerationScreen();
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+
                       SizedBox(width: defaultWidth),
                       Expanded(
                         child: _buildRecentBillsCard(
@@ -270,13 +213,204 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     children: [
                       _buildRecentBillsCard(recentBillsAsync, baseColor),
                       SizedBox(height: defaultHeight),
-                      _buildOptionColumn(
-                        baseColor: baseColor,
-                        firstIcon: FontAwesomeIcons.userDoctor,
-                        secondIcon: FontAwesomeIcons.buildingColumns,
-                        firstLabel: "Doctors",
-                        secondLabel: "Franchise Labs",
-                        firstOnTap: () {
+                      _buildRecentBillsCard(recentBillsAsync, baseColor),
+                    ],
+                  );
+                }
+              },
+            ),
+            SizedBox(height: defaultHeight),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                debugPrint("height ${MediaQuery.of(context).size.height}");
+                final height = MediaQuery.of(context).size.height / 8.1;
+
+                if (constraints.maxWidth > cardBreakpoint) {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(defaultRadius),
+
+                          onTap: () {
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return DoctorsListScreen();
+                                },
+                              ),
+                            );
+                          },
+                          child: TintedContainer(
+                            height: height,
+                            baseColor: baseColor,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Icon(
+                                  FontAwesomeIcons.userDoctor,
+                                  color: baseColor,
+                                  size: 50,
+                                ),
+                                Text(
+                                  "Doctor's List",
+                                  style: TextStyle(
+                                    color: baseColor,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios_outlined,
+                                  color: baseColor,
+                                  size: 30,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: defaultWidth),
+                      Expanded(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(defaultRadius),
+
+                          onTap: () {
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return FranchiseListScreen();
+                                },
+                              ),
+                            );
+                          },
+                          child: TintedContainer(
+                            height: height,
+
+                            baseColor: baseColor,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Icon(
+                                  FontAwesomeIcons.buildingColumns,
+                                  color: baseColor,
+                                  size: 50,
+                                ),
+                                Text(
+                                  "Franchise Labs",
+                                  style: TextStyle(
+                                    color: baseColor,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios_outlined,
+                                  color: baseColor,
+                                  size: 30,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: defaultWidth),
+                      Expanded(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(defaultRadius),
+
+                          onTap: () {
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return DiagnosisTypesListScreen();
+                                },
+                              ),
+                            );
+                          },
+                          child: TintedContainer(
+                            height: height,
+                            baseColor: baseColor,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Icon(
+                                  FontAwesomeIcons.microscope,
+                                  color: baseColor,
+                                  size: 50,
+                                ),
+                                Text(
+                                  "Diagnosis Type",
+                                  style: TextStyle(
+                                    color: baseColor,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios_outlined,
+                                  color: baseColor,
+                                  size: 30,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: defaultWidth),
+                      Expanded(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(defaultRadius),
+
+                          onTap: () {
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return IncentiveGenerationScreen();
+                                },
+                              ),
+                            );
+                          },
+                          child: TintedContainer(
+                            height: height,
+
+                            baseColor: baseColor,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Icon(
+                                  Icons.currency_rupee_rounded,
+                                  color: baseColor,
+                                  size: 50,
+                                ),
+                                Text(
+                                  "Incentives",
+                                  style: TextStyle(
+                                    color: baseColor,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios_outlined,
+                                  color: baseColor,
+                                  size: 30,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  return Column(
+                    children: [
+                      InkWell(
+                        borderRadius: BorderRadius.circular(defaultRadius),
+
+                        onTap: () {
                           navigatorKey.currentState?.push(
                             MaterialPageRoute(
                               builder: (context) {
@@ -285,7 +419,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           );
                         },
-                        secondOnTap: () {
+                        child: TintedContainer(
+                          height: height,
+                          baseColor: baseColor,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(
+                                FontAwesomeIcons.userDoctor,
+                                color: baseColor,
+                                size: 50,
+                              ),
+                              Text(
+                                "Doctor's List",
+                                style: TextStyle(
+                                  color: baseColor,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios_outlined,
+                                color: baseColor,
+                                size: 30,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: defaultHeight),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(defaultRadius),
+
+                        onTap: () {
                           navigatorKey.currentState?.push(
                             MaterialPageRoute(
                               builder: (context) {
@@ -294,15 +460,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           );
                         },
+                        child: TintedContainer(
+                          height: height,
+
+                          baseColor: baseColor,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(
+                                FontAwesomeIcons.buildingColumns,
+                                color: baseColor,
+                                size: 50,
+                              ),
+                              Text(
+                                "Franchise Labs",
+                                style: TextStyle(
+                                  color: baseColor,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios_outlined,
+                                color: baseColor,
+                                size: 30,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                       SizedBox(height: defaultHeight),
-                      _buildOptionColumn(
-                        baseColor: baseColor,
-                        firstIcon: FontAwesomeIcons.microscope,
-                        secondIcon: Icons.currency_rupee_outlined,
-                        firstLabel: "Diagnosis Types",
-                        secondLabel: "Incentives",
-                        firstOnTap: () {
+                      InkWell(
+                        borderRadius: BorderRadius.circular(defaultRadius),
+
+                        onTap: () {
                           navigatorKey.currentState?.push(
                             MaterialPageRoute(
                               builder: (context) {
@@ -311,7 +502,39 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           );
                         },
-                        secondOnTap: () {
+                        child: TintedContainer(
+                          height: height,
+                          baseColor: baseColor,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(
+                                FontAwesomeIcons.microscope,
+                                color: baseColor,
+                                size: 50,
+                              ),
+                              Text(
+                                "Diagnosis Type",
+                                style: TextStyle(
+                                  color: baseColor,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios_outlined,
+                                color: baseColor,
+                                size: 30,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: defaultHeight),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(defaultRadius),
+
+                        onTap: () {
                           navigatorKey.currentState?.push(
                             MaterialPageRoute(
                               builder: (context) {
@@ -320,86 +543,237 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           );
                         },
+                        child: TintedContainer(
+                          height: height,
+
+                          baseColor: baseColor,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(
+                                Icons.currency_rupee_rounded,
+                                color: baseColor,
+                                size: 50,
+                              ),
+                              Text(
+                                "Incentives",
+                                style: TextStyle(
+                                  color: baseColor,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios_outlined,
+                                color: baseColor,
+                                size: 30,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      SizedBox(height: defaultHeight),
-                      _buildRecentBillsCard(recentBillsAsync, baseColor),
                     ],
                   );
                 }
               },
             ),
+            if (widget.authResponse.isAdmin) ...[
+              SizedBox(height: defaultHeight),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  debugPrint("height ${MediaQuery.of(context).size.height}");
+                  final height = MediaQuery.of(context).size.height / 8.1;
+
+                  if (constraints.maxWidth > cardBreakpoint) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(defaultRadius),
+
+                            onTap: () {
+                              // navigatorKey.currentState?.push(
+                              //   MaterialPageRoute(
+                              //     builder: (context) {
+                              //       return DiagnosisTypesListScreen();
+                              //     },
+                              //   ),
+                              // );
+                            },
+                            child: TintedContainer(
+                              height: height - 30,
+                              baseColor: baseColor,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Icon(
+                                    FontAwesomeIcons.server,
+                                    color: baseColor,
+                                    size: 50,
+                                  ),
+                                  Text(
+                                    "Server Reports",
+                                    style: TextStyle(
+                                      color: baseColor,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    color: baseColor,
+                                    size: 30,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: defaultWidth),
+                        Expanded(
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(defaultRadius),
+
+                            onTap: () {
+                              navigatorKey.currentState?.push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return UserListScreen(
+                                      adminId: widget.authResponse.id,
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                            child: TintedContainer(
+                              height: height - 30,
+                              baseColor: baseColor,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Icon(
+                                    Icons.supervised_user_circle_sharp,
+                                    color: baseColor,
+                                    size: 50,
+                                  ),
+                                  Text(
+                                    "Users Profile",
+                                    style: TextStyle(
+                                      color: baseColor,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    color: baseColor,
+                                    size: 30,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  } else {
+                    return Column(
+                      children: [
+                        InkWell(
+                          borderRadius: BorderRadius.circular(defaultRadius),
+
+                          onTap: () {
+                            // navigatorKey.currentState?.push(
+                            //   MaterialPageRoute(
+                            //     builder: (context) {
+                            //       return DiagnosisTypesListScreen();
+                            //     },
+                            //   ),
+                            // );
+                          },
+                          child: TintedContainer(
+                            height: height,
+                            baseColor: baseColor,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Icon(
+                                  FontAwesomeIcons.server,
+                                  color: baseColor,
+                                  size: 50,
+                                ),
+                                Text(
+                                  "Server Reports",
+                                  style: TextStyle(
+                                    color: baseColor,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios_outlined,
+                                  color: baseColor,
+                                  size: 30,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: defaultHeight),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(defaultRadius),
+
+                          onTap: () {
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return UserListScreen(
+                                    adminId: widget.authResponse.id,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          child: TintedContainer(
+                            height: height,
+                            baseColor: baseColor,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Icon(
+                                  Icons.supervised_user_circle_sharp,
+                                  color: baseColor,
+                                  size: 50,
+                                ),
+                                Text(
+                                  "Users Profile",
+                                  style: TextStyle(
+                                    color: baseColor,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios_outlined,
+                                  color: baseColor,
+                                  size: 30,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                },
+              ),
+            ],
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildOptionColumn({
-    required Color? baseColor,
-    required IconData firstIcon,
-    required IconData secondIcon,
-    required String firstLabel,
-    required String secondLabel,
-    required VoidCallback firstOnTap,
-    required VoidCallback secondOnTap,
-  }) {
-    final accentColor = baseColor ?? Theme.of(context).colorScheme.secondary;
-    return Column(
-      children: [
-        InkWell(
-          onTap: firstOnTap,
-          child: TintedContainer(
-            height: (tintedContainerHeight / 2 - defaultHeight / 2),
-            baseColor: accentColor,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Icon(firstIcon, color: accentColor, size: 50),
-                Text(
-                  firstLabel,
-                  style: TextStyle(
-                    color: accentColor,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_outlined,
-                  color: accentColor,
-                  size: 30,
-                ),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(height: defaultHeight),
-        InkWell(
-          onTap: secondOnTap,
-          child: TintedContainer(
-            height: (tintedContainerHeight / 2 - defaultHeight / 2),
-            baseColor: accentColor,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Icon(secondIcon, color: accentColor, size: 50),
-                Text(
-                  secondLabel,
-                  style: TextStyle(
-                    color: accentColor,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_outlined,
-                  color: accentColor,
-                  size: 30,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -442,6 +816,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       data: (chartResponse) {
         final chartData = chartResponse.getDataForPeriod(selectedPeriod);
         return InkWell(
+          borderRadius: BorderRadius.circular(defaultRadius),
+
           onTap: () {
             navigatorKey.currentState?.push(
               MaterialPageRoute(builder: (context) => const BillsScreen()),
@@ -481,7 +857,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             navigatorKey.currentState?.push(
               MaterialPageRoute(
                 builder: (context) => AddUpdateBillScreen(
-          billId: bill.id,
+                  billId: bill.id,
                   themeColor: Theme.of(context).colorScheme.error,
                 ),
               ),
@@ -511,10 +887,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: InkWell(
+        borderRadius: BorderRadius.circular(25),
+
         onTap: () {
           setState(() => selectedPeriod = label);
         },
-        borderRadius: BorderRadius.circular(25),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
@@ -545,12 +922,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  /// Builds a card that displays a list of the latest bills.
   Widget _buildRecentBillsCard(
     AsyncValue<List<Bill>> recentBillsAsync,
     Color? baseColor,
   ) {
-    // A way to get context if needed
     final Color accentColor =
         baseColor ?? Theme.of(context).colorScheme.secondary;
     final Color errorColor = Theme.of(context).colorScheme.error;
@@ -558,7 +933,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       data: (bills) {
         return RecentBillsCard(bills: bills, baseColor: accentColor);
       },
-      // --- Loading and Error States ---
       loading: () => TintedContainer(
         baseColor: accentColor,
         child: Center(child: CircularProgressIndicator(color: baseColor)),

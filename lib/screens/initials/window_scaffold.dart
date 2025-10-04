@@ -242,6 +242,10 @@ class _WindowScaffoldState extends State<WindowScaffold>
                               ),
                               child: InkWell(
                                 onTap: _handleBackButton,
+                                borderRadius: BorderRadius.circular(
+                                  defaultRadius,
+                                ),
+
                                 child: Container(
                                   width: 40,
                                   height: 40,
