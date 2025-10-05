@@ -19,6 +19,7 @@ import 'package:labledger/screens/franchise_labs/franchise_labs_list_screen.dart
 import 'package:labledger/screens/incentives/incentive_generation_screen.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/profile/user_list_screen.dart';
+import 'package:labledger/screens/sample_report/sample_report_screen.dart';
 import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
 import 'package:labledger/screens/ui_components/cards/recent_bills_card.dart';
 import 'package:labledger/screens/ui_components/cards/pending_bill_cards.dart';
@@ -593,13 +594,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             borderRadius: BorderRadius.circular(defaultRadius),
 
                             onTap: () {
-                              // navigatorKey.currentState?.push(
-                              //   MaterialPageRoute(
-                              //     builder: (context) {
-                              //       return DiagnosisTypesListScreen();
-                              //     },
-                              //   ),
-                              // );
+                              navigatorKey.currentState?.push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return SampleReportManagementScreen();
+                                  },
+                                ),
+                              );
                             },
                             child: TintedContainer(
                               height: height - 30,

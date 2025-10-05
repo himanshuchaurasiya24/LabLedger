@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/auth_repository.dart';
 import 'package:labledger/authentication/config.dart';
-import 'package:labledger/models/sample_report_model.dart';
+import 'package:labledger/models/sample_report_model.dart'; 
 
 final String sampleReportsEndpoint = "${globalBaseUrl}diagnosis/sample-test-report/";
 
@@ -22,6 +22,7 @@ final singleSampleReportProvider =
     return SampleReportModel.fromJson(jsonDecode(response.body));
   },
 );
+
 final createSampleReportProvider =
     FutureProvider.autoDispose.family<SampleReportModel, SampleReportModel>(
   (ref, newReport) async {
@@ -60,7 +61,6 @@ final updateSampleReportProvider =
     if (updatedReport.id == null) throw Exception("Report ID is required for update.");
 
     final uri = Uri.parse("$sampleReportsEndpoint${updatedReport.id}/");
-    // Use PATCH for partial updates
     final request = http.MultipartRequest("PATCH", uri)
       ..fields.addAll(updatedReport.toPostMap())
       ..headers['Authorization'] = 'Bearer $token';
@@ -89,10 +89,10 @@ final deleteSampleReportProvider = FutureProvider.autoDispose.family<void, int>(
   (ref, id) async {
     await AuthHttpClient.delete(ref, "$sampleReportsEndpoint$id/");
     _invalidateSampleReportCache(ref);
-    // Also invalidate the specific item provider in case it's being watched
     ref.invalidate(singleSampleReportProvider(id));
   },
 );
+
 void _invalidateSampleReportCache(Ref ref) {
   ref.invalidate(allSampleReportsProvider);
 }

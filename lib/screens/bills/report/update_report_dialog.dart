@@ -76,16 +76,16 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
   }
 
   Future<void> _downloadAndOpenFile() async {
-    if (_selectedReportFromServer?.sampleReportFileUrl == null) return;
+    if (_selectedReportFromServer?.sampleReportFile == null) return;
     setState(() => _isLoading = true);
 
     try {
       final response = await http.get(
-        Uri.parse(_selectedReportFromServer!.sampleReportFileUrl!),
+        Uri.parse(_selectedReportFromServer!.sampleReportFile),
       );
       final tempDir = await getTemporaryDirectory();
       final fileName =
-          'LabLedgerServerReport${DateFormat("dd MMM yyy hh ss SSS").format(DateTime.now())}.${_selectedReportFromServer!.sampleReportFileUrl!.split('.').last}';
+          'LabLedgerServerReport${DateFormat("dd MMM yyy hh ss SSS").format(DateTime.now())}.${_selectedReportFromServer!.sampleReportFile.split('.').last}';
       final file = File('${tempDir.path}/$fileName');
       await file.writeAsBytes(response.bodyBytes);
 
@@ -501,7 +501,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
             ? allReports
             : allReports
                   .where(
-                    (r) => r.diagnosisTypeOutput?.category == _selectedCategory,
+                    (r) => r.category == _selectedCategory,
                   )
                   .toList();
 

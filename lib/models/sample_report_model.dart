@@ -1,65 +1,91 @@
-import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:labledger/models/diagnosis_type_model.dart';
+import 'dart:convert';
+import 'dart:io'; // Import for File support
 
+// ✅ Renamed class to SampleReportModel
 class SampleReportModel {
+  // --- Properties ---
   final int? id;
+  final String category;
   final String diagnosisName;
-  final DiagnosisType? diagnosisTypeOutput; // full object (from API)
-  final int? diagnosisType;                 // only id for posting/updating
-  final File? sampleReportFileLocal;        // for posting
-  final String? sampleReportFileUrl;        // for fetching
+  final String sampleReportFile;
+  final File? sampleReportFileLocal; 
 
-  SampleReportModel({
+  // --- Constructor ---
+  // ✅ Renamed constructor
+  const SampleReportModel({
     this.id,
+    required this.category,
     required this.diagnosisName,
-    this.diagnosisTypeOutput,
-    this.diagnosisType,
+    required this.sampleReportFile,
     this.sampleReportFileLocal,
-    this.sampleReportFileUrl,
   });
 
-  // From JSON (fetch API data)
-  factory SampleReportModel.fromJson(Map<String, dynamic> json) {
+  // --- copyWith Method ---
+  // ✅ Renamed return type
+  SampleReportModel copyWith({
+    int? id,
+    String? category,
+    String? diagnosisName,
+    String? sampleReportFile,
+    File? sampleReportFileLocal,
+  }) {
+    // ✅ Renamed class instantiation
     return SampleReportModel(
-      id: json['id'],
-      diagnosisName: json['diagnosis_name'],
-      diagnosisTypeOutput: json['diagnosis_type_output'] != null
-          ? DiagnosisType.fromJson(json['diagnosis_type_output'])
-          : null,
-      diagnosisType: json['diagnosis_type_output'] != null
-          ? json['diagnosis_type_output']['id']
-          : null,
-      sampleReportFileUrl: json['sample_report_file'],
+      id: id ?? this.id,
+      category: category ?? this.category,
+      diagnosisName: diagnosisName ?? this.diagnosisName,
+      sampleReportFile: sampleReportFile ?? this.sampleReportFile,
+      sampleReportFileLocal: sampleReportFileLocal ?? this.sampleReportFileLocal,
     );
   }
 
-  // Fields for posting/updating
+  // --- JSON Serialization ---
   Map<String, String> toPostMap() {
     return {
-      "diagnosis_name": diagnosisName,
-      "diagnosis_type": (diagnosisType ?? diagnosisTypeOutput?.id)?.toString() ?? "",
+      'category': category,
+      'diagnosis_name': diagnosisName,
     };
   }
+  
+  String toJson() => json.encode(toPostMap());
 
-  // Multipart request for posting/updating with file
-  Future<http.MultipartRequest> toMultipartRequest(Uri uri, String token) async {
-    var request = http.MultipartRequest("POST", uri);
+  // --- JSON Deserialization ---
+  // ✅ Renamed factory constructor
+  factory SampleReportModel.fromJson(Map<String, dynamic> json) {
+    // ✅ Renamed class instantiation
+    return SampleReportModel(
+      id: json['id'],
+      category: json['category'] ?? '',
+      diagnosisName: json['diagnosis_name'] ?? '',
+      sampleReportFile: json['sample_report_file'] ?? '',
+    );
+  }
 
-    // add text fields
-    request.fields.addAll(toPostMap());
+  // --- Equality and hashCode ---
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+  
+    // ✅ Renamed type check
+    return other is SampleReportModel &&
+      other.id == id &&
+      other.category == category &&
+      other.diagnosisName == diagnosisName &&
+      other.sampleReportFile == sampleReportFile;
+  }
 
-    // add file if present
-    if (sampleReportFileLocal != null) {
-      request.files.add(await http.MultipartFile.fromPath(
-        "sample_report_file",
-        sampleReportFileLocal!.path,
-      ));
-    }
+  @override
+  int get hashCode {
+    return id.hashCode ^
+      category.hashCode ^
+      diagnosisName.hashCode ^
+      sampleReportFile.hashCode;
+  }
 
-    // auth header
-    request.headers['Authorization'] = 'Bearer $token';
-
-    return request;
+  // --- toString Method ---
+  @override
+  String toString() {
+    // ✅ Renamed class name in string output
+    return 'SampleReportModel(id: $id, category: $category, diagnosisName: $diagnosisName, sampleReportFile: $sampleReportFile)';
   }
 }
