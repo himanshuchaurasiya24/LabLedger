@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -122,9 +123,7 @@ class AboutAppDialog extends StatelessWidget {
                           Text(
                             'Free & Open Source Software',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.9,
-                              ),
+                              color: theme.colorScheme.onSurface,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -170,8 +169,7 @@ class AboutAppDialog extends StatelessWidget {
                                   Text(
                                     'Developed by',
                                     style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onSurface
-                                          .withValues(alpha: 0.6),
+                                      color: theme.colorScheme.onSurface,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -242,20 +240,20 @@ class AboutAppDialog extends StatelessWidget {
                     // Framework Cards
                     _buildFrameworkCard(
                       context: context,
-                      imageUrl:
-                          'https://storage.googleapis.com/cms-storage-bucket/780e0e64d323aad2cdd5.png',
+                      assetLocation:
+                          'assets/images/flutter.svg',
                       name: 'Flutter',
                       description:
                           'UI toolkit for beautiful, natively compiled applications',
-                      color: const Color(0xFF02569B),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
 
                     SizedBox(height: defaultHeight / 1.5),
 
                     _buildFrameworkCard(
                       context: context,
-                      imageUrl:
-                          'https://www.django-rest-framework.org/img/logo.png',
+                      assetLocation:
+                          'assets/images/django.svg',
                       name: 'Django REST Framework',
                       description:
                           'Powerful toolkit for building robust Web APIs',
@@ -300,7 +298,7 @@ class AboutAppDialog extends StatelessWidget {
   // Helper widget to build framework cards
   Widget _buildFrameworkCard({
     required BuildContext context,
-    required String imageUrl,
+    required String assetLocation,
     required String name,
     required String description,
     required Color color,
@@ -332,22 +330,10 @@ class AboutAppDialog extends StatelessWidget {
                 ),
               ],
             ),
-            child: Image.network(
-              imageUrl,
+            child: SvgPicture.asset(
+              assetLocation,
               fit: BoxFit.contain,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(color),
-                    ),
-                  ),
-                );
-              },
+              
               errorBuilder: (context, error, stackTrace) => Icon(
                 LucideIcons.imageOff,
                 size: 24,
@@ -373,7 +359,7 @@ class AboutAppDialog extends StatelessWidget {
                 Text(
                   description,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: theme.colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
                     height: 1.3,
                   ),

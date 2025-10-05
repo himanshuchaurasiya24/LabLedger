@@ -43,7 +43,6 @@ class _IncentiveGenerationScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Section
           Text(
             "Generate Incentive Report",
             style: theme.textTheme.headlineMedium?.copyWith(
@@ -59,15 +58,12 @@ class _IncentiveGenerationScreenState
           ),
           SizedBox(height: defaultHeight * 1.5),
 
-          // Main Content
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left Panel: Filters
                 Expanded(flex: 2, child: _FilterPanel()),
                 SizedBox(width: defaultWidth),
-                // Right Panel: Action Area & Quick Stats
                 Expanded(
                   flex: 1,
                   child: Column(
@@ -87,7 +83,6 @@ class _IncentiveGenerationScreenState
   }
 }
 
-// Internal widget for the filter panel
 class _FilterPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -99,7 +94,6 @@ class _FilterPanel extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Date Range Filter
           TintedContainer(
             baseColor: Theme.of(context).colorScheme.primary,
             height: 150,
@@ -131,11 +125,9 @@ class _FilterPanel extends ConsumerWidget {
           ),
           SizedBox(height: defaultHeight),
 
-          // Filters Grid
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Doctor Filter
               Expanded(
                 child: doctorsAsync.when(
                   data: (doctors) => TintedContainer(
@@ -186,7 +178,6 @@ class _FilterPanel extends ConsumerWidget {
                 ),
               ),
               SizedBox(width: defaultWidth),
-              // Franchise Filter
               Expanded(
                 child: franchisesAsync.when(
                   data: (franchises) => TintedContainer(
@@ -253,7 +244,6 @@ class _FilterPanel extends ConsumerWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Diagnosis Type Filter
               Expanded(
                 child: diagnosisTypesAsync.when(
                   data: (types) => TintedContainer(
@@ -301,7 +291,6 @@ class _FilterPanel extends ConsumerWidget {
                 ),
               ),
               SizedBox(width: defaultWidth),
-              // Bill Status Filter
               Expanded(
                 child: TintedContainer(
                   baseColor: Theme.of(context).colorScheme.secondary,
@@ -350,7 +339,6 @@ class _FilterPanel extends ConsumerWidget {
   }
 }
 
-// Quick stats panel to show selected filter counts
 class _QuickStatsPanel extends ConsumerWidget {
   const _QuickStatsPanel();
 
@@ -480,7 +468,6 @@ class _QuickStatsPanel extends ConsumerWidget {
   }
 }
 
-// Action panel with generate and clear buttons
 class _ActionPanel extends ConsumerWidget {
   const _ActionPanel();
 
@@ -899,9 +886,8 @@ class __CompactMultiSelectDropdownState<T>
   }
 }
 
-// Dropdown Item is a Consumer to rebuild on state changes
 class _DropdownItem<T> extends ConsumerWidget {
-  final T? value; // Null for "Select All"
+  final T? value;
   final String text;
   final Map<T, String> allItems;
   final StateProvider<Set<T>> selectedProvider;
@@ -923,11 +909,9 @@ class _DropdownItem<T> extends ConsumerWidget {
 
     bool isSelected;
     if (value == null) {
-      // "Select All" logic
       isSelected =
           selectedValues.isNotEmpty && selectedValues.length == allItems.length;
     } else {
-      // Individual item logic
       isSelected = selectedValues.contains(value);
     }
 

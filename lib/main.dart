@@ -157,7 +157,6 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           ),
         ),
 
-        // 🌙 DARK THEME
         darkTheme: ThemeData(
           brightness: Brightness.dark,
           colorScheme:
@@ -227,7 +226,6 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
         ),
 
         home: WindowLoadingScreen(),
-        // home: LoginScreen(),
       ),
     );
   }
