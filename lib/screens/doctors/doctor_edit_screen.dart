@@ -755,29 +755,25 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
           : int.parse(_franchiseController.text.trim());
 
       if (_isEditMode) {
-        final Map<String, dynamic> updatedData = {
-          "first_name": _firstNameController.text.trim(),
-          "last_name": _lastNameController.text.trim(),
-          "hospital_name": _hospitalController.text.trim(),
-          "email": _emailController.text.trim().isEmpty
-              ? null
-              : _emailController.text.trim(),
-          "phone_number": _phoneController.text.trim(),
-          "address": _addressController.text.trim().isEmpty
-              ? null
-              : _addressController.text.trim(),
-          "ultrasound_percentage": ultrasoundPercentage,
-          "pathology_percentage": pathologyPercentage,
-          "ecg_percentage": ecgPercentage,
-          "xray_percentage": xrayPercentage,
-          "franchise_lab_percentage": franchisePercentage,
-        };
+        
 
         await ref.read(
-          updateDoctorProvider({
-            'id': originalDoctor!.id!,
-            'data': updatedData,
-          }).future,
+          updateDoctorProvider(
+            Doctor(
+              id: widget.doctorId,
+              address: _addressController.text,
+              ecgPercentage: ecgPercentage,
+              email: _emailController.text,
+              firstName: _firstNameController.text,
+              franchiseLabPercentage: franchisePercentage,
+              hospitalName: _hospitalController.text,
+              lastName: _lastNameController.text,
+              pathologyPercentage: pathologyPercentage,
+              phoneNumber: _phoneController.text,
+              ultrasoundPercentage: ultrasoundPercentage,
+              xrayPercentage: xrayPercentage,
+            ),
+          ).future,
         );
 
         if (mounted) {

@@ -290,26 +290,23 @@ class _CustomDropdownMenu extends ConsumerWidget {
                     ),
                   ),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // User Info Header
-                      InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return UserAddEditScreen(
-                                  targetUserId: authResponse.id,
-                                );
-                              },
-                            ),
-                          );
-                          onDismiss();
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(defaultPadding),
+                      Container(
+                        padding: EdgeInsets.all(defaultPadding),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return UserAddEditScreen(
+                                    targetUserId: authResponse.id,
+                                  );
+                                },
+                              ),
+                            );
+                            onDismiss();
+                          },
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
@@ -375,18 +372,6 @@ class _CustomDropdownMenu extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                authResponse.centerDetail.centerName,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: isDark
-                                      ? Colors.grey.shade400
-                                      : Colors.grey.shade600,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
                             ],
                           ),
                         ),
@@ -398,7 +383,6 @@ class _CustomDropdownMenu extends ConsumerWidget {
                             ? Colors.grey.shade700
                             : Colors.grey.shade300,
                       ),
-                      // Settings Option
                       if (authResponse.isAdmin)
                         _buildMenuItem(
                           icon: LucideIcons.user2,
@@ -406,15 +390,13 @@ class _CustomDropdownMenu extends ConsumerWidget {
                           onTap: onProfileTap,
                           isDark: isDark,
                         ),
-                      // Settings Option
-                      _buildMenuItem(
-                        icon: Icons.settings_outlined,
-                        label: 'Settings',
-                        onTap: onSettingsTap,
-                        isDark: isDark,
-                      ),
 
-                      // Theme Header (Clickable)
+                      // _buildMenuItem(
+                      //   icon: Icons.settings_outlined,
+                      //   label: 'Settings',
+                      //   onTap: onSettingsTap,
+                      //   isDark: isDark,
+                      // ),
                       _buildMenuItem(
                         icon: Icons.palette_outlined,
                         label: 'Theme',
@@ -433,7 +415,6 @@ class _CustomDropdownMenu extends ConsumerWidget {
                         ),
                       ),
 
-                      // Theme Options (Conditionally shown with proper animation)
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeInOut,

@@ -57,9 +57,8 @@ class SampleReportManagementScreen extends ConsumerWidget {
 
     return WindowScaffold(
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: effectiveColor,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
-        elevation: 4.0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(defaultRadius),
         ),
@@ -120,7 +119,7 @@ class SampleReportManagementScreen extends ConsumerWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(defaultRadius),
         onTap: () {
-          // Optional: Navigate to detail screen
+          _showEditDialog(context, report, effectiveColor);
         },
         child: Stack(
           children: [
@@ -184,9 +183,16 @@ class SampleReportManagementScreen extends ConsumerWidget {
               ],
             ),
             Positioned(
-              top: 0,
+              top: 40,
               right: 0,
               child: PopupMenuButton<String>(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadiusGeometry.circular(defaultRadius),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                color: Theme.of(context).colorScheme.surface,
                 icon: Icon(Icons.more_vert, color: textColor),
                 onSelected: (value) {
                   if (value == 'edit') {
@@ -199,24 +205,27 @@ class SampleReportManagementScreen extends ConsumerWidget {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit),
+                        Icon(Icons.edit, color: effectiveColor),
                         SizedBox(width: 8),
-                        Text('Edit'),
+                        Text('Edit', style: TextStyle(color: effectiveColor)),
                       ],
                     ),
                   ),
                   if (report.sampleReportFile.isNotEmpty)
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'download',
                       child: Row(
                         children: [
-                          Icon(Icons.download),
+                          Icon(Icons.download, color: effectiveColor),
                           SizedBox(width: 8),
-                          Text('Download'),
+                          Text(
+                            'Download',
+                            style: TextStyle(color: effectiveColor),
+                          ),
                         ],
                       ),
                     ),
@@ -737,11 +746,35 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                                 ),
                               ElevatedButton.icon(
                                 onPressed: _pickFile,
-                                icon: const Icon(Icons.folder_open),
-                                label: const Text('Browse Files'),
+
                                 style: ElevatedButton.styleFrom(
+                                  fixedSize: const Size(160, 50),
                                   backgroundColor: widget.themeColor,
                                   foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      defaultRadius,
+                                    ),
+                                  ),
+                                ),
+                                icon: _isSubmitting
+                                    ? const SizedBox(
+                                        height: 16,
+                                        width: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    : const Icon(Icons.folder_open),
+                                label: Text(
+                                  _isSubmitting
+                                      ? 'Saving...'
+                                      : ("Browse Files"),
+                                  style: const TextStyle(fontSize: 16),
                                 ),
                               ),
                             ],
@@ -752,30 +785,43 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                   ),
                 ),
 
-                // Action button
                 Padding(
-                  padding: EdgeInsets.all(defaultPadding),
-                  child: ElevatedButton(
+                  padding: EdgeInsetsGeometry.all(defaultPadding),
+                  child: ElevatedButton.icon(
                     onPressed: _isSubmitting ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
+                      fixedSize: const Size(160, 50),
                       backgroundColor: widget.themeColor,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(defaultRadius),
+                      ),
                     ),
-                    child: _isSubmitting
+                    icon: _isSubmitting
                         ? const SizedBox(
-                            height: 20,
-                            width: 20,
+                            height: 16,
+                            width: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
-                        : Text(
+                        : Icon(
                             widget.mode == FormMode.create
-                                ? 'Create'
-                                : 'Update',
+                                ? Icons.add
+                                : LucideIcons.upload,
+                            size: 16,
                           ),
+                    label: Text(
+                      _isSubmitting
+                          ? 'Saving...'
+                          : (widget.mode == FormMode.create
+                                ? 'Create'
+                                : 'Update'),
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
               ],
@@ -851,6 +897,8 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
             content: Text(
               'Report ${widget.mode == FormMode.create ? 'created' : 'updated'} successfully',
             ),
+            backgroundColor: widget.themeColor,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }

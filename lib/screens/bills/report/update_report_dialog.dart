@@ -133,7 +133,11 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
       if (await _reportFileToUpload!.exists()) {
         await ref.read(createPatientReportProvider(uploadData).future);
         try {
-          await _reportFileToUpload!.delete();
+          final Directory tempDir = await getTemporaryDirectory();
+
+          if (_reportFileToUpload!.path.startsWith(tempDir.path)) {
+            await _reportFileToUpload!.delete();
+          }
         } catch (e) {
           ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
             SnackBar(
@@ -348,6 +352,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                     if (isReadyToUpload)
                       Expanded(
                         child: Container(
+                          height: 50,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 12,
@@ -387,16 +392,22 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                     // Action buttons
                     Row(
                       children: [
-                        TextButton(
+                        OutlinedButton.icon(
                           onPressed: () => Navigator.of(context).pop(),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
+                          style: OutlinedButton.styleFrom(
+                            fixedSize: const Size(160, 50),
+                            foregroundColor: widget.color,
+                            side: BorderSide(color: widget.color),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                defaultRadius,
+                              ),
                             ),
                           ),
-                          child: const Text('Cancel'),
+                          icon: const Icon(Icons.close_outlined),
+                          label: const Text('Cancel'),
                         ),
+
                         const SizedBox(width: 8),
                         if (_isLoading && isReadyToUpload)
                           Container(
@@ -416,15 +427,13 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                             icon: const Icon(Icons.upload_rounded, size: 20),
                             label: const Text('Upload Report'),
                             style: ElevatedButton.styleFrom(
+                              fixedSize: const Size(200, 50),
                               backgroundColor: widget.color,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              elevation: 2,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(
+                                  defaultRadius,
+                                ),
                               ),
                             ),
                           ),
@@ -499,11 +508,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
       data: (allReports) {
         final filteredReports = _selectedCategory == null
             ? allReports
-            : allReports
-                  .where(
-                    (r) => r.category == _selectedCategory,
-                  )
-                  .toList();
+            : allReports.where((r) => r.category == _selectedCategory).toList();
 
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -649,9 +654,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                       Text(
                         'Download the template, fill it out, and it will be ready to upload',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.8,
-                          ),
+                          color: theme.colorScheme.onSurface,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -664,14 +667,13 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                           icon: const Icon(Icons.download_rounded),
                           label: const Text('Download Template'),
                           style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(200, 50),
                             backgroundColor: widget.color,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 32,
-                              vertical: 16,
-                            ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(
+                                defaultRadius,
+                              ),
                             ),
                           ),
                         ),
@@ -690,10 +692,10 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
     final theme = Theme.of(context);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(defaultPadding),
       child: Column(
         children: [
-          const SizedBox(height: 20),
+          SizedBox(height: defaultHeight / 3),
           // Upload Area
           InkWell(
             onTap: _pickLocalFile,
@@ -713,7 +715,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(defaultPadding * 2),
                     decoration: BoxDecoration(
                       color: widget.color.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
@@ -739,20 +741,17 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: defaultHeight),
                   ElevatedButton.icon(
                     onPressed: _pickLocalFile,
                     icon: const Icon(Icons.folder_open_rounded),
                     label: const Text('Browse Files'),
                     style: ElevatedButton.styleFrom(
+                      fixedSize: const Size(160, 50),
                       backgroundColor: widget.color,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(defaultRadius),
                       ),
                     ),
                   ),

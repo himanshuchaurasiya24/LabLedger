@@ -10,7 +10,6 @@ import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-// Assuming ColorValues extension is defined elsewhere in your project
 extension ColorValues on Color {
   Color withValues({double? alpha, double? red, double? green, double? blue}) {
     Color updatedColor = this;
@@ -34,8 +33,6 @@ class FranchiseListScreen extends ConsumerWidget {
   const FranchiseListScreen({super.key, this.baseColor});
 
   final Color? baseColor;
-
-  // Reusing the exact same responsive logic from DoctorsListScreen
   int getCrossAxisCount(BuildContext context) {
     final size = MediaQuery.of(context).size;
     if (size.width < initialWindowWidth && size.width > 1200) {
@@ -47,7 +44,6 @@ class FranchiseListScreen extends ConsumerWidget {
     return 4;
   }
 
-  // Reusing the exact same responsive logic from DoctorsListScreen
   double getChildAspectRatio(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
@@ -66,7 +62,6 @@ class FranchiseListScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final effectiveColor = baseColor ?? colorScheme.secondary;
-    // Watching the franchise provider instead of the doctors provider
     final franchisesAsync = ref.watch(franchiseProvider);
 
     return WindowScaffold(

@@ -85,7 +85,6 @@ class _FranchiseBillsListScreenState
     );
   }
 
-  // Confirmation dialog for deleting the franchise
   Future<void> _confirmDeleteFranchise(FranchiseName franchise) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
@@ -102,7 +101,7 @@ class _FranchiseBillsListScreenState
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
               foregroundColor: Colors.white,
             ),
             child: const Text('Delete'),
@@ -113,13 +112,13 @@ class _FranchiseBillsListScreenState
 
     if (shouldDelete == true) {
       try {
-        // Assumes you have a `deleteFranchiseProvider`
         await ref.read(deleteFranchiseProvider(widget.id).future);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
               content: Text("Franchise deleted successfully"),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
             ),
           );
           Navigator.of(context).pop(); // Go back to the previous screen
@@ -128,8 +127,9 @@ class _FranchiseBillsListScreenState
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
+              behavior: SnackBarBehavior.floating,
               content: Text("Failed to delete franchise: $e"),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -142,7 +142,6 @@ class _FranchiseBillsListScreenState
     final franchiseBillsAsync = ref.watch(
       paginatedFranchiseBillProvider(widget.id),
     );
-    // Assumes you have a `franchiseDetailProvider` to get the franchise's details
     final franchiseAsync = ref.watch(singleFranchiseProvider(widget.id));
     final currentQuery = ref.watch(currentSearchQueryProvider);
 

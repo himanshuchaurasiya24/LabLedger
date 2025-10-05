@@ -22,9 +22,9 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 
 class DoctorDashboardScreen extends ConsumerStatefulWidget {
-  final Doctor doctor;
+  final int doctorId;
 
-  const DoctorDashboardScreen({super.key, required this.doctor});
+  const DoctorDashboardScreen({super.key, required this.doctorId});
 
   @override
   ConsumerState<DoctorDashboardScreen> createState() =>
@@ -88,14 +88,13 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
     );
   }
 
-  // ✅ New method to show the delete confirmation dialog
-  Future<void> _confirmDeleteDoctor() async {
+  Future<void> _confirmDeleteDoctor(Doctor doctor) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Doctor'),
         content: Text(
-          'All the records for Dr. ${widget.doctor.firstName} ${widget.doctor.lastName} will be deleted including bills.\nThis action cannot be undone.\nAre you sure?',
+          'All the records for Dr. ${doctor.firstName} ${doctor.lastName} will be deleted including bills.\nThis action cannot be undone.\nAre you sure?',
         ),
         actions: [
           TextButton(
@@ -116,23 +115,25 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
 
     if (shouldDelete == true) {
       try {
-        await ref.read(deleteDoctorProvider(widget.doctor.id!).future);
+        await ref.read(deleteDoctorProvider(widget.doctorId).future);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
               content: Text("Doctor deleted successfully"),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
             ),
           );
-          // Pop back to the previous screen
           Navigator.of(context).pop();
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
+              behavior: SnackBarBehavior.floating,
+
               content: Text("Failed to delete doctor: $e"),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -142,75 +143,82 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    final asyncBills = ref.watch(
-      paginatedDoctorBillProvider(widget.doctor.id!),
-    );
-    final asyncStats = ref.watch(doctorGrowthStatsProvider(widget.doctor.id!));
+    final asyncDoctor = ref.watch(singleDoctorProvider(widget.doctorId));
+    final asyncBills = ref.watch(paginatedDoctorBillProvider(widget.doctorId));
+    final asyncStats = ref.watch(doctorGrowthStatsProvider(widget.doctorId));
     final currentQuery = ref.watch(currentSearchQueryProvider);
 
-    return WindowScaffold(
-      centerWidget: CenterSearchBar(
-        controller: searchController,
-        searchFocusNode: searchFocusNode,
-        hintText: "Search bills for Dr. ${widget.doctor.firstName}...",
-        width: 400,
-        onSearch: _onSearchChanged,
+    return asyncDoctor.when(
+      loading: () => const WindowScaffold(
+        child: Center(child: CircularProgressIndicator()),
       ),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            Visibility(
-              visible: searchController.text.isEmpty,
-              child: Column(
-                children: [
-                  _buildDoctorHeader(), // ✅ Call the restored header
-                  SizedBox(height: defaultHeight),
-                  BillGrowthStatsView(
-                    statsProvider: asyncStats,
-                    onRetry: () => ref.invalidate(
-                      doctorGrowthStatsProvider(widget.doctor.id!),
-                    ),
+      error: (error, stackTrace) => WindowScaffold(
+        child: Center(child: Text('Error loading doctor: $error')),
+      ),
+      data: (doctor) {
+        return WindowScaffold(
+          centerWidget: CenterSearchBar(
+            controller: searchController,
+            searchFocusNode: searchFocusNode,
+            hintText: "Search bills for Dr. ${doctor.firstName}...",
+            width: 400,
+            onSearch: _onSearchChanged,
+          ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Visibility(
+                  visible: searchController.text.isEmpty,
+                  child: Column(
+                    children: [
+                      _buildDoctorHeader(doctor),
+                      SizedBox(height: defaultHeight),
+                      BillGrowthStatsView(
+                        statsProvider: asyncStats,
+                        onRetry: () => ref.invalidate(
+                          doctorGrowthStatsProvider(widget.doctorId),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                SizedBox(height: defaultHeight),
+                _buildSectionHeader(
+                  context,
+                  currentQuery.isNotEmpty
+                      ? 'Search Results for: "$currentQuery"'
+                      : "Referred Bills",
+                ),
+                PaginatedBillsView(
+                  billsProvider: asyncBills,
+                  selectedView: _selectedView,
+                  headerTitle: currentQuery.isNotEmpty
+                      ? 'Search Results for: "$currentQuery"'
+                      : "Referred Bills",
+                  emptyListMessage: currentQuery.isEmpty
+                      ? 'No bills found for this doctor.'
+                      : 'No bills found for "$currentQuery"',
+                  onPageChanged: (newPage) {
+                    ref.read(currentPageProvider.notifier).state = newPage;
+                  },
+                  onBillTap: _navigateToBill,
+                  onRetry: () => ref.invalidate(
+                    paginatedDoctorBillProvider(widget.doctorId),
+                  ),
+                ),
+                const SizedBox(height: 80),
+              ],
             ),
-            SizedBox(height: defaultHeight),
-            _buildSectionHeader(
-              context,
-              currentQuery.isNotEmpty
-                  ? 'Search Results for: "$currentQuery"'
-                  : "Referred Bills",
-            ),
-
-            PaginatedBillsView(
-              billsProvider: asyncBills,
-              selectedView: _selectedView,
-              headerTitle: currentQuery.isNotEmpty
-                  ? 'Search Results for: "$currentQuery"'
-                  : "Referred Bills",
-              emptyListMessage: currentQuery.isEmpty
-                  ? 'No bills found for this doctor.'
-                  : 'No bills found for "$currentQuery"',
-              onPageChanged: (newPage) {
-                ref.read(currentPageProvider.notifier).state = newPage;
-              },
-              onBillTap: _navigateToBill,
-              onRetry: () => ref.invalidate(
-                paginatedDoctorBillProvider(widget.doctor.id!),
-              ),
-            ),
-            const SizedBox(height: 80),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  // ✅ Restored header widget
-  Widget _buildDoctorHeader() {
+  Widget _buildDoctorHeader(Doctor doctor) {
     final theme = Theme.of(context);
-    const Color positiveColor = Colors.teal; // Or any color you prefer
+    const Color positiveColor = Colors.teal;
 
     return TintedContainer(
       baseColor: positiveColor,
@@ -229,7 +237,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
                 ),
                 child: Center(
                   child: Text(
-                    "${widget.doctor.firstName![0].toUpperCase()}${widget.doctor.lastName![0].toUpperCase()}",
+                    "${doctor.firstName![0].toUpperCase()}${doctor.lastName![0].toUpperCase()}",
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -244,8 +252,11 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "${widget.doctor.firstName} ${widget.doctor.lastName}",
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                    "${doctor.firstName} ${doctor.lastName}",
+                    style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Container(
@@ -258,7 +269,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      "${widget.doctor.hospitalName}, ${widget.doctor.address}",
+                      "${doctor.hospitalName}, ${doctor.address}",
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -277,7 +288,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
                   navigatorKey.currentState?.push(
                     MaterialPageRoute(
                       builder: (context) =>
-                          DoctorEditScreen(doctorId: widget.doctor.id),
+                          DoctorEditScreen(doctorId: doctor.id),
                     ),
                   );
                 },
@@ -286,8 +297,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
               ),
               const SizedBox(width: 8),
               IconButton(
-                onPressed:
-                    _confirmDeleteDoctor, // ✅ Call the confirmation method
+                onPressed: () => _confirmDeleteDoctor(doctor),
                 icon: Icon(LucideIcons.trash2, color: theme.colorScheme.error),
                 tooltip: 'Delete Doctor',
               ),

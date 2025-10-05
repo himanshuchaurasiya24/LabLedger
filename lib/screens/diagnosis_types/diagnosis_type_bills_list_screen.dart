@@ -86,7 +86,6 @@ class _DiagnosisTypeBillsListScreenState
     );
   }
 
-  // Confirmation dialog for deleting the diagnosis type
   Future<void> _confirmDeleteDiagnosisType(DiagnosisType diagnosisType) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
@@ -114,7 +113,6 @@ class _DiagnosisTypeBillsListScreenState
 
     if (shouldDelete == true) {
       try {
-        // Assumes you have a `deleteDiagnosisTypeProvider`
         await ref.read(deleteDiagnosisTypeProvider(widget.id).future);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -140,12 +138,9 @@ class _DiagnosisTypeBillsListScreenState
 
   @override
   Widget build(BuildContext context) {
-    // Provider to fetch paginated bills for this diagnosis type
     final perDiagnosisTypeBillsAsync = ref.watch(
       paginatedDiagnosisTypeBillProvider(widget.id),
     );
-    // Provider to get the details of the diagnosis type itself (e.g., its name)
-    // Assumes you have a `diagnosisTypeDetailProvider`
     final diagnosisTypeAsync = ref.watch(
       diagnosisTypeDetailProvider(widget.id),
     );

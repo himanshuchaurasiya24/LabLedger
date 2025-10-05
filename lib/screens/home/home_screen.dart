@@ -7,6 +7,7 @@ import 'package:labledger/main.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/paginated_response.dart';
+import 'package:labledger/models/pending_report_bill_model.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/secure_storage_provider.dart';
@@ -21,6 +22,7 @@ import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/profile/user_list_screen.dart';
 import 'package:labledger/screens/sample_report/sample_report_screen.dart';
 import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
+import 'package:labledger/screens/ui_components/cards/pending_report_bill_card.dart';
 import 'package:labledger/screens/ui_components/cards/recent_bills_card.dart';
 import 'package:labledger/screens/ui_components/cards/pending_bill_cards.dart';
 import 'package:labledger/screens/ui_components/cards/referral_card.dart';
@@ -62,6 +64,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         widget.baseColor ?? Theme.of(context).colorScheme.secondary;
     final unpaidBillsAsync = ref.watch(paginatedUnpaidPartialBillsProvider);
     final recentBillsAsync = ref.watch(latestBillsProvider);
+    final pendingBillReportAsync = ref.watch(pendingReportBillProvider);
     const double cardBreakpoint = 1100.0;
 
     return WindowScaffold(
@@ -85,10 +88,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         icon: const Icon(LucideIcons.plus),
       ),
+      centerWidget: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: defaultPadding * 5,
+              vertical: defaultPadding / 2,
+            ),
+            decoration: BoxDecoration(
+              // color: baseColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Text(
+              "${widget.authResponse.centerDetail.centerName}, ${widget.authResponse.centerDetail.address}",
+              style: TextStyle(
+                fontSize: 20,
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
       child: SingleChildScrollView(
         child: Column(
           children: [
-            // CHANGED: Replaced the outer Wrap with a Row for explicit start/end alignment.
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -202,8 +233,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                       SizedBox(width: defaultWidth),
                       Expanded(
-                        child: _buildRecentBillsCard(
-                          recentBillsAsync,
+                        child: _pendingReportBill(
+                          pendingBillReportAsync,
                           baseColor,
                         ),
                       ),
@@ -214,7 +245,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     children: [
                       _buildRecentBillsCard(recentBillsAsync, baseColor),
                       SizedBox(height: defaultHeight),
-                      _buildRecentBillsCard(recentBillsAsync, baseColor),
+                      _pendingReportBill(pendingBillReportAsync, baseColor),
                     ],
                   );
                 }
@@ -687,13 +718,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           borderRadius: BorderRadius.circular(defaultRadius),
 
                           onTap: () {
-                            // navigatorKey.currentState?.push(
-                            //   MaterialPageRoute(
-                            //     builder: (context) {
-                            //       return DiagnosisTypesListScreen();
-                            //     },
-                            //   ),
-                            // );
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return SampleReportManagementScreen();
+                                },
+                              ),
+                            );
                           },
                           child: TintedContainer(
                             height: height,
@@ -917,6 +948,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               letterSpacing: 0.5,
             ),
             child: Text(label),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _pendingReportBill(
+    AsyncValue<List<PendingReportBillModel>> pendingBillsAsync,
+    Color? baseColor,
+  ) {
+    final Color accentColor =
+        baseColor ?? Theme.of(context).colorScheme.primary;
+    final Color errorColor = Theme.of(context).colorScheme.error;
+
+    return pendingBillsAsync.when(
+      data: (bills) {
+        return PendingReportsCard(bills: bills, baseColor: accentColor);
+      },
+      loading: () => TintedContainer(
+        baseColor: accentColor,
+        child: Center(child: CircularProgressIndicator(color: accentColor)),
+      ),
+      error: (err, _) => TintedContainer(
+        baseColor: errorColor,
+        child: Center(
+          child: Text(
+            "Error: Failed to load pending reports.",
+            style: TextStyle(color: errorColor),
           ),
         ),
       ),

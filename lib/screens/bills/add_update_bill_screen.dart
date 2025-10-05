@@ -83,7 +83,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     _tabController = TabController(length: 3, vsync: this);
     billStatusController.addListener(() => setState(() {}));
 
-    // Data initialization is now handled in the build method after data is fetched
     if (!_isEditMode) {
       final defaultDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
       dateOfTestController.text = defaultDate;
@@ -114,7 +113,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     super.dispose();
   }
 
-  // This method now populates controllers from a fetched Bill object
   void _initializeData(Bill bill) {
     if (_isDataInitialized) return;
 
@@ -201,7 +199,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Main content is now built conditionally based on the fetch state
     final content = _isEditMode
         ? ref
               .watch(singleBillProvider(widget.billId!))
@@ -219,7 +216,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     return WindowScaffold(child: content);
   }
 
-  // Extracted the main content build logic into its own method
   Widget _buildContent({Bill? bill}) {
     final isLargeScreen = MediaQuery.of(context).size.width > 1200;
     return Form(
@@ -331,7 +327,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                             context: context,
                             builder: (BuildContext context) {
                               return UpdateReportDialog(
-                                color: color, 
+                                color: color,
                                 billId: widget.billId!,
                               );
                             },
@@ -352,9 +348,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                             if (await canLaunchUrl(uri)) {
                               await launchUrl(uri);
                             } else {
-                              debugPrint(
-                                'Could not launch ${bill.reportUrl}',
-                              );
+                              debugPrint('Could not launch ${bill.reportUrl}');
                             }
                           },
                           child: _buildStatusBadge("Download Report", color),
@@ -377,7 +371,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                                       billId: bill.id!,
                                     )).future,
                                   );
-                                  
                                 },
                                 child: _buildStatusBadge(
                                   "Delete Report",
@@ -448,10 +441,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       ),
     );
   }
-
-  // --- Other build methods remain largely the same ---
-  // (e.g., _buildTabBar, _buildLargeScreenLayout, _buildTabContent, etc.)
-  // Minor change: In _buildDiagnosisDetailsCard, check `_isEditMode` instead of `widget.billData != null`.
 
   Widget _buildTabBar({required Color color}) {
     final theme = Theme.of(context);
@@ -594,7 +583,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   }) {
     return TintedContainer(
       baseColor: defaultColor,
-      height: height ?? 254,
+      height: height ?? 258,
       radius: defaultRadius,
       elevationLevel: 1,
       child: SingleChildScrollView(
@@ -794,7 +783,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   }) {
     return TintedContainer(
       baseColor: defaultColor,
-      height: height ?? 254,
+      height: height ?? 258,
       radius: defaultRadius,
       elevationLevel: 1,
       child: SingleChildScrollView(
@@ -1019,9 +1008,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     }
   }
 
-  // --- UI HELPER METHODS ---
-  // (No changes needed here)
-
   void _showErrorDialog(String title, String errorMessage) {
     if (!mounted) return;
     showDialog(
@@ -1035,6 +1021,8 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        behavior: SnackBarBehavior.floating,
+
         content: Row(
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
@@ -1042,7 +1030,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
             Expanded(child: Text(message)),
           ],
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 3),
       ),

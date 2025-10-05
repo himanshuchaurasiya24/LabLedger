@@ -5,10 +5,12 @@ import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/bill_stats_model.dart';
 import 'package:labledger/models/paginated_response.dart';
+import 'package:labledger/models/pending_report_bill_model.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 
-// --- Base Endpoint ---
 final String billsEndpoint = "${globalBaseUrl}diagnosis/bill/";
+final String pendingReportsEndpoint =
+    "${globalBaseUrl}diagnosis/pending-reports/";
 final String billGrowthStatsEndpoint =
     "${globalBaseUrl}diagnosis/bills/growth-stats/";
 
@@ -17,11 +19,19 @@ final currentSearchQueryProvider = StateProvider.autoDispose<String>(
   (ref) => '',
 );
 
-
 final billGrowthStatsProvider = FutureProvider.autoDispose((ref) async {
   final response = await AuthHttpClient.get(ref, billGrowthStatsEndpoint);
   return BillStats.fromJson(jsonDecode(response.body));
 });
+
+final pendingReportBillProvider =
+    FutureProvider.autoDispose<List<PendingReportBillModel>>((ref) async {
+      final response = await AuthHttpClient.get(ref, pendingReportsEndpoint);
+
+      final List data = jsonDecode(response.body);
+
+      return data.map((e) => PendingReportBillModel.fromJson(e)).toList();
+    });
 
 final latestBillsProvider = FutureProvider.autoDispose<List<Bill>>((ref) async {
   final uri = Uri.parse(
@@ -59,7 +69,6 @@ final paginatedBillsProvider =
       final response = await AuthHttpClient.get(ref, uri.toString());
       return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
     });
-
 
 final paginatedDoctorBillProvider = FutureProvider.autoDispose
     .family<PaginatedBillsResponse, int>((ref, id) async {
@@ -109,13 +118,9 @@ final singleBillProvider = FutureProvider.autoDispose.family<Bill, int>((
   ref,
   id,
 ) async {
-  final response = await AuthHttpClient.get(
-    ref,
-    "$billsEndpoint$id",
-  );
+  final response = await AuthHttpClient.get(ref, "$billsEndpoint$id");
   return Bill.fromJson(jsonDecode(response.body));
 });
-
 
 final createBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
   ref,
@@ -155,7 +160,6 @@ final deleteBillProvider = FutureProvider.autoDispose.family<void, int>((
   ref.invalidate(singleBillProvider(id));
 });
 
-
 void _invalidateBillCache(Ref ref) {
   ref.invalidate(referralStatsProvider);
   ref.invalidate(billChartStatsProvider);
@@ -163,5 +167,8 @@ void _invalidateBillCache(Ref ref) {
   ref.invalidate(billGrowthStatsProvider);
   ref.invalidate(latestBillsProvider);
   ref.invalidate(paginatedUnpaidPartialBillsProvider);
+  ref.invalidate(paginatedDiagnosisTypeBillProvider);
+  ref.invalidate(paginatedDoctorBillProvider);
+  ref.invalidate(paginatedFranchiseBillProvider);
   ref.invalidate(paginatedBillsProvider);
 }

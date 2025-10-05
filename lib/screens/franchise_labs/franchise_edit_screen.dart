@@ -370,17 +370,15 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
 
     try {
       if (_isEditMode) {
-        final updatedData = {
-          "franchise_name": _franchiseNameController.text.trim(),
-          "address": _addressController.text.trim(),
-          "phone_number": _phoneController.text.trim(),
-        };
-
         await ref.read(
-          updateFranchiseProvider({
-            'id': originalFranchise!.id!,
-            'data': updatedData,
-          }).future,
+          updateFranchiseProvider(
+            FranchiseName(
+              id: widget.franchiseId,
+              address: _addressController.text.trim(),
+              franchiseName: _franchiseNameController.text.trim(),
+              phoneNumber: _phoneController.text.trim(),
+            ),
+          ).future,
         );
         _showSuccessSnackBar('Franchise Lab updated successfully!');
       } else {
@@ -480,6 +478,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        behavior: SnackBarBehavior.floating,
         content: Row(
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
@@ -487,7 +486,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
             Text(message),
           ],
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
