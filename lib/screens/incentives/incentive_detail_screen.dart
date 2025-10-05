@@ -196,6 +196,8 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     return WindowScaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showReportGenerationDialog(context),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
         label: const Text("Generate Report"),
         icon: const Icon(Icons.picture_as_pdf_outlined),
       ),
@@ -247,7 +249,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
               Text(
                 "Doctor performance and earnings overview",
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withAlpha(178),
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             ],
@@ -348,7 +350,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
             icon: LucideIcons.users,
             title: "Doctors",
             value: doctorCount.toString(),
-            color: Colors.teal,
+            color: theme.colorScheme.secondary,
             theme: theme,
           ),
         ),
@@ -462,7 +464,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       subtitle: Text(
         subtitleText,
         style: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurface.withAlpha(178),
+          color: theme.colorScheme.onSurface,
         ),
       ),
       trailing: Container(

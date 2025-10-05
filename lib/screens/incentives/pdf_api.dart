@@ -16,12 +16,12 @@ Future<Uint8List> createPDF({
 
   // Load a font that supports the Rupee symbol
   final liteFont = await rootBundle.load(
-    "assets/fonts/GoogleSansDisplay-Regular.ttf",
+    "assets/fonts/Ubuntu-Regular.ttf",
   );
   final ttf = pw.Font.ttf(liteFont);
 
   final boldFont = await rootBundle.load(
-    "assets/fonts/GoogleSansDisplay-Bold.ttf",
+    "assets/fonts/Ubuntu-Bold.ttf",
   );
   final boldTTF = pw.Font.ttf(boldFont);
   // Get center details

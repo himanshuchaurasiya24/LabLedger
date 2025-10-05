@@ -54,7 +54,7 @@ class _IncentiveGenerationScreenState
           Text(
             "Configure filters and generate detailed incentive reports",
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              color: theme.colorScheme.onSurface,
             ),
           ),
           SizedBox(height: defaultHeight * 1.5),
