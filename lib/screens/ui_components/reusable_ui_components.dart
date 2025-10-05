@@ -51,13 +51,15 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextFormField(
           controller: widget.controller,
-          obscureText: widget.showTogglePasswordVisibility ? _isObscured : widget.obscureText,
+          obscureText: widget.showTogglePasswordVisibility
+              ? _isObscured
+              : widget.obscureText,
           keyboardType: widget.keyboardType,
           validator: widget.validator,
           onChanged: widget.onChanged,
@@ -82,7 +84,9 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
             suffixIcon: widget.showTogglePasswordVisibility
                 ? IconButton(
                     icon: Icon(
-                      _isObscured ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      _isObscured
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
                       color: theme.colorScheme.onSurfaceVariant,
                       size: 22,
                     ),
@@ -93,15 +97,17 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
                     },
                   )
                 : widget.suffixIcon != null
-                    ? Icon(
-                        widget.suffixIcon,
-                        color: theme.colorScheme.onSurfaceVariant,
-                        size: 22,
-                      )
-                    : null,
+                ? Icon(
+                    widget.suffixIcon,
+                    color: theme.colorScheme.onSurfaceVariant,
+                    size: 22,
+                  )
+                : null,
             errorText: widget.errorText,
             filled: true,
-            fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha:  0.7),
+            fillColor: theme.colorScheme.surfaceContainerHighest.withValues(
+              alpha: 0.7,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
@@ -115,26 +121,23 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: theme.colorScheme.error,
-                width: 2,
-              ),
+              borderSide: BorderSide(color: theme.colorScheme.error, width: 2),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: theme.colorScheme.error,
-                width: 2,
-              ),
+              borderSide: BorderSide(color: theme.colorScheme.error, width: 2),
             ),
             labelStyle: TextStyle(
               color: theme.colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
             hintStyle: TextStyle(
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha:  0.7),
+              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 20,
+            ),
           ),
         ),
       ],
@@ -143,14 +146,7 @@ class _ReusableTextFieldState extends State<ReusableTextField> {
 }
 
 // components/reusable_button.dart
-enum ButtonVariant {
-  primary,
-  secondary,
-  outlined,
-  text,
-  elevated,
-  tonal,
-}
+enum ButtonVariant { primary, secondary, outlined, text, elevated, tonal }
 
 class ReusableButton extends StatelessWidget {
   final String text;
@@ -197,16 +193,10 @@ class ReusableButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (icon != null) ...[
-          Icon(icon, size: 20),
-          const SizedBox(width: 8),
-        ],
+        if (icon != null) ...[Icon(icon, size: 20), const SizedBox(width: 8)],
         Text(
           text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-          ),
+          style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
         ),
       ],
     );
@@ -220,7 +210,9 @@ class ReusableButton extends StatelessWidget {
           style: FilledButton.styleFrom(
             backgroundColor: backgroundColor ?? colorScheme.primary,
             foregroundColor: textColor ?? colorScheme.onPrimary,
-            padding: padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius ?? 16),
             ),
@@ -236,7 +228,9 @@ class ReusableButton extends StatelessWidget {
           style: FilledButton.styleFrom(
             backgroundColor: backgroundColor ?? colorScheme.secondaryContainer,
             foregroundColor: textColor ?? colorScheme.onSecondaryContainer,
-            padding: padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius ?? 16),
             ),
@@ -251,7 +245,9 @@ class ReusableButton extends StatelessWidget {
           onPressed: onPressed,
           style: OutlinedButton.styleFrom(
             foregroundColor: textColor ?? colorScheme.primary,
-            padding: padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius ?? 16),
             ),
@@ -267,7 +263,9 @@ class ReusableButton extends StatelessWidget {
           onPressed: onPressed,
           style: TextButton.styleFrom(
             foregroundColor: textColor ?? colorScheme.primary,
-            padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius ?? 12),
             ),
@@ -283,12 +281,14 @@ class ReusableButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: backgroundColor ?? colorScheme.surface,
             foregroundColor: textColor ?? colorScheme.primary,
-            padding: padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius ?? 16),
             ),
             elevation: 4,
-            shadowColor: colorScheme.shadow.withValues(alpha:  0.3),
+            shadowColor: colorScheme.shadow.withValues(alpha: 0.3),
             minimumSize: Size(width ?? 0, height ?? 52),
           ),
           child: buttonContent,
@@ -299,9 +299,12 @@ class ReusableButton extends StatelessWidget {
         button = FilledButton.tonal(
           onPressed: onPressed,
           style: FilledButton.styleFrom(
-            backgroundColor: backgroundColor ?? colorScheme.surfaceContainerHighest,
+            backgroundColor:
+                backgroundColor ?? colorScheme.surfaceContainerHighest,
             foregroundColor: textColor ?? colorScheme.onSurface,
-            padding: padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding:
+                padding ??
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius ?? 16),
             ),
@@ -312,11 +315,7 @@ class ReusableButton extends StatelessWidget {
         break;
     }
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: button,
-    );
+    return SizedBox(width: width, height: height, child: button);
   }
 
   Widget _buildLoadingButton(BuildContext context) {
@@ -327,7 +326,7 @@ class ReusableButton extends StatelessWidget {
       width: width,
       height: height ?? 52,
       decoration: BoxDecoration(
-        color: (backgroundColor ?? colorScheme.primary).withValues(alpha:  0.7),
+        color: (backgroundColor ?? colorScheme.primary).withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(borderRadius ?? 16),
       ),
       child: Center(
@@ -343,59 +342,3 @@ class ReusableButton extends StatelessWidget {
     );
   }
 }
-
-// // components/logo_widget.dart
-// class LogoWidget extends StatelessWidget {
-//   final double fontSize;
-//   final bool showSubtitle;
-//   final String subtitle;
-
-//   const LogoWidget({
-//     super.key,
-//     this.fontSize = 48,
-//     this.showSubtitle = false,
-//     this.subtitle = "Modern Lab Management",
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final theme = Theme.of(context);
-    
-//     return Column(
-//       children: [
-//         Row(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Text(
-//               "Lab",
-//               style: TextStyle(
-//                 fontSize: fontSize,
-//                 fontWeight: FontWeight.bold,
-//                 color: theme.colorScheme.primary,
-//               ),
-//             ),
-//             Text(
-//               "Ledger",
-//               style: TextStyle(
-//                 fontSize: fontSize,
-//                 fontWeight: FontWeight.bold,
-//                 color: theme.colorScheme.secondary,
-//               ),
-//             ),
-//           ],
-//         ),
-//         if (showSubtitle) ...[
-//           const SizedBox(height: 8),
-//           Text(
-//             subtitle,
-//             style: TextStyle(
-//               fontSize: fontSize * 0.25,
-//               color: theme.colorScheme.onSurfaceVariant,
-//               fontWeight: FontWeight.w500,
-//             ),
-//           ),
-//         ],
-//       ],
-//     );
-//   }
-// }

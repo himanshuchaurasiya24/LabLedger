@@ -8,7 +8,6 @@ import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/reusable_ui_components.dart';
-import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   final String? initialErrorMessage;
@@ -55,7 +54,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   String? _validateUsername(String? value) {
     if (value == null || value.trim().isEmpty) return 'Username is required';
-    if (value.trim().length < 3) return 'Username must be at least 3 characters';
+    if (value.trim().length < 3) {
+      return 'Username must be at least 3 characters';
+    }
     return null;
   }
 
@@ -76,7 +77,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     });
 
     try {
-      // ✅ KEY CHANGE: Reverted to using the LoginCredentials class constructor.
       final credentials = LoginCredentials(
         username: usernameController.text.trim(),
         password: passwordController.text,
@@ -91,12 +91,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         );
       }
     } on AppException catch (e) {
-      // This robust error handling correctly catches all custom API exceptions.
       setState(() {
         errorMessage = e.message;
       });
     } catch (e) {
-      // Fallback for any other unexpected errors.
       setState(() {
         errorMessage = "An unexpected error occurred. Please try again.";
       });
@@ -112,11 +110,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    // Assuming ColorValues extension is defined elsewhere
-    Color errorContainerColor = theme.colorScheme.errorContainer.withValues(alpha:  0.8);
-    Color errorBorderColor = theme.colorScheme.error.withValues(alpha:  0.3);
-    Color footerTextColor = theme.colorScheme.onSurfaceVariant.withValues(alpha:  0.7);
+    Color errorContainerColor = theme.colorScheme.errorContainer.withValues(
+      alpha: 0.8,
+    );
+    Color errorBorderColor = theme.colorScheme.error.withValues(alpha: 0.3);
+    Color footerTextColor = theme.colorScheme.onSurfaceVariant.withValues(
+      alpha: 0.7,
+    );
 
     return Scaffold(
       body: FadeTransition(
@@ -139,44 +139,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           appIconName(
-                              context: context,
-                              firstName: "Lab",
-                              secondName: "ledger"),
-                          SizedBox(height: defaultHeight),
+                            context: context,
+                            firstName: "Lab",
+                            secondName: "ledger",
+                          ),
+                          SizedBox(height: defaultHeight / 2),
                           if (errorMessage.isNotEmpty) ...[
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: errorContainerColor,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: errorBorderColor),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.error_outline,
-                                      color: theme.colorScheme.error, size: 20),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      errorMessage,
-                                      style: TextStyle(
-                                        color:
-                                            theme.colorScheme.onErrorContainer,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
+                            Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: errorContainerColor,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: errorBorderColor),
                                   ),
-                                ],
-                              ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.error_outline,
+                                        color: theme.colorScheme.error,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          errorMessage,
+                                          style: TextStyle(
+                                            color: theme
+                                                .colorScheme
+                                                .onErrorContainer,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: defaultHeight),
+                              ],
                             ),
-                            SizedBox(height: defaultHeight),
                           ],
                           CustomTextField(
                             controller: usernameController,
                             label: 'Username',
-                            prefixIcon:
-                                const Icon(Icons.person_outline, size: 20),
+                            prefixIcon: const Icon(
+                              Icons.person_outline,
+                              size: 20,
+                            ),
                             keyboardType: TextInputType.text,
                             validator: _validateUsername,
                             tintColor: theme.colorScheme.primary,
@@ -185,8 +196,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           CustomTextField(
                             controller: passwordController,
                             label: 'Password',
-                            prefixIcon:
-                                const Icon(Icons.lock_outline, size: 20),
+                            prefixIcon: const Icon(
+                              Icons.lock_outline,
+                              size: 20,
+                            ),
                             obscureText: _isPasswordObscured,
                             validator: _validatePassword,
                             onSubmitted: (_) => !isLoading ? _login() : null,
@@ -214,11 +227,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 variant: ButtonVariant.text,
                                 onPressed: !isLoading
                                     ? () {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           const SnackBar(
                                             content: Text(
-                                                'Contact administrator to reset password'),
+                                              'Contact administrator to reset password',
+                                            ),
                                           ),
                                         );
                                       }
@@ -228,7 +243,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               ),
                             ],
                           ),
-                          const Spacer(),
+                          Spacer(),
                           ReusableButton(
                             text: 'Sign In',
                             variant: ButtonVariant.primary,
@@ -239,14 +254,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             height: 56,
                             borderRadius: 16,
                           ),
-                          SizedBox(height: defaultHeight * 2),
+                          SizedBox(height: defaultHeight),
                           Text(
-                            "$appName $appVersion | $appDescription",
+                            "$appName v$appVersion | $appDescription",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: footerTextColor,
                               fontSize: 14,
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
@@ -257,56 +272,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ),
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-/// A simple, dedicated screen to show when an update is required.
-class UpdateRequiredScreen extends StatelessWidget {
-  final String requiredVersion;
-  const UpdateRequiredScreen({super.key, required this.requiredVersion});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: TintedContainer(
-            baseColor: theme.colorScheme.primary,
-            elevationLevel: 2,
-            radius: 24,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.system_update_alt,
-                    size: 50, color: theme.colorScheme.primary),
-                const SizedBox(height: 24),
-                Text(
-                  'Update Required',
-                  style: theme.textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'A new version of the app is available. Please update to\nversion $requiredVersion to continue.',
-                  style: theme.textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                ReusableButton(
-                  text: 'Contact Support to Update',
-                  onPressed: () {},
-                  width: 253,
-                  variant: ButtonVariant.elevated,
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );

@@ -34,7 +34,6 @@ void logout(WidgetRef ref, BuildContext context) {
   );
 }
 
-// Modern Search Bar
 class CenterSearchBar extends StatelessWidget {
   final String hintText;
   final Function(String) onSearch;
@@ -93,10 +92,10 @@ Future<void> setWindowBehavior({
 
     if (isLogin) {
       await windowManager.setSkipTaskbar(false);
-      await windowManager.setMinimumSize(const Size(800, 498));
-      await windowManager.setMaximumSize(const Size(800, 498));
+      await windowManager.setMinimumSize(const Size(700, 428));
+      await windowManager.setMaximumSize(const Size(700, 428));
 
-      await windowManager.setSize(const Size(800, 498));
+      await windowManager.setSize(const Size(700, 428));
       await windowManager.center();
 
       isLoginScreen.value = true;
