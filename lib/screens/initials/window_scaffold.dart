@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/screens/initials/about_app_dialog.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -223,13 +224,10 @@ class _WindowScaffoldState extends State<WindowScaffold>
           children: [
             SizedBox(
               height: 50,
-              // CHANGED: Replaced the outer Row with a Stack for true centering
               child: Stack(
                 children: [
-                  // Layer 1: Left and Right aligned widgets
                   Row(
                     children: [
-                      // Left-side widgets (Title/Back Button)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -295,13 +293,23 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     )
-                                  : appIconName(
-                                      context: context,
-                                      firstName: "Lab",
-                                      secondName: "Ledger",
-                                      primaryColor: primaryColor,
-                                      secondaryColor: baseColor,
-                                      fontSize: 35,
+                                  : InkWell(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AboutAppDialog();
+                                          },
+                                        );
+                                      },
+                                      child: appIconName(
+                                        context: context,
+                                        firstName: "Lab",
+                                        secondName: "Ledger",
+                                        primaryColor: primaryColor,
+                                        secondaryColor: baseColor,
+                                        fontSize: 35,
+                                      ),
                                     ),
                             ),
                           ),

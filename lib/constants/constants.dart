@@ -9,3 +9,4 @@ final double initialWindowWidth = 1600;
 final double initialWindowHeight = 900;
 final double minimalBorderRadius = 6;
 final double tintedContainerHeight = 304;
+final String developer = "Himanshu Chaurasiya";

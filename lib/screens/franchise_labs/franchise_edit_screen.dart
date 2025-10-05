@@ -572,7 +572,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                   backgroundColor: effectiveThemeColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(defaultRadius),
                   ),
                 ),
               ),

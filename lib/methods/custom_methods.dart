@@ -341,7 +341,6 @@ Widget appIconName({
   );
 }
 
-/// Returns the app icon and name widget, adapting the icon to the current theme.
 Widget appIconNameWidget({
   required BuildContext context,
   bool? forLogInScreen,

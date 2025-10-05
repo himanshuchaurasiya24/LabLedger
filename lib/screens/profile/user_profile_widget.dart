@@ -96,6 +96,7 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
     final String initials = _getInitials(userName);
 
     return InkWell(
+      borderRadius: BorderRadius.circular(20),
       onTap: () => _showCustomMenu(context),
       child: Container(
         decoration: BoxDecoration(
