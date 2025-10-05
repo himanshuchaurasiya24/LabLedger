@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/auth_exceptions.dart';
@@ -7,10 +8,10 @@ import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/auth_response_model.dart';
 
 class AuthRepository {
-  static const _tokenEndpoint = '/api/token/';
-  static const _refreshEndpoint = '/api/token/refresh/';
-  static const _verifyEndpoint = '/verify-auth/';
-  static const _appInfoEndpoint = '/api/app-info/';
+  static const _tokenEndpoint = 'api/token/';
+  static const _refreshEndpoint = 'api/token/refresh/';
+  static const _verifyEndpoint = 'verify-auth/';
+  static const _appInfoEndpoint = 'api/app-info/';
   static const _defaultTimeout = Duration(seconds: 10);
 
   static AuthRepository? _instance;
@@ -18,14 +19,15 @@ class AuthRepository {
     _instance ??= AuthRepository._internal();
     return _instance!;
   }
+
   AuthRepository._internal();
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   Future<AuthResponse> login(String username, String password) async {
-    final response = await _post(
-      _tokenEndpoint,
-      {"username": username, "password": password},
-    );
+    final response = await _post(_tokenEndpoint, {
+      "username": username,
+      "password": password,
+    });
 
     if (response.statusCode == 200) {
       final authResponse = AuthResponse.fromJson(jsonDecode(response.body));
@@ -40,7 +42,9 @@ class AuthRepository {
         case 403:
           throw AccountLockedException(detail!);
         default:
-          throw ServerException(detail ?? "Login failed: An unknown error occurred.");
+          throw ServerException(
+            detail ?? "Login failed: An unknown error occurred.",
+          );
       }
     }
   }
@@ -58,10 +62,7 @@ class AuthRepository {
 
   /// Refreshes the access token using the stored refresh token.
   Future<String?> refreshToken(String refreshToken) async {
-    final response = await _post(
-      _refreshEndpoint,
-      {"refresh": refreshToken},
-    );
+    final response = await _post(_refreshEndpoint, {"refresh": refreshToken});
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -75,7 +76,7 @@ class AuthRepository {
     await logout();
     throw const TokenExpiredException();
   }
-  
+
   /// Logs the user out by deleting their stored tokens.
   Future<void> logout() async {
     await _storage.delete(key: "access_token");
@@ -95,7 +96,6 @@ class AuthRepository {
     // If response is not 200 or version format is invalid
     throw const ServerException("Could not verify app version from server.");
   }
-
 
   // --- Private Helper Methods ---
 
@@ -120,7 +120,6 @@ class AuthRepository {
     }
   }
 
-  /// Handles the complete token refresh and verification retry flow.
   Future<AuthResponse> _retryWithRefresh() async {
     final refreshTokenValue = await getRefreshToken();
     if (refreshTokenValue == null) throw const TokenExpiredException();
@@ -128,15 +127,15 @@ class AuthRepository {
     final newAccessToken = await refreshToken(refreshTokenValue);
     if (newAccessToken == null) throw const TokenExpiredException();
 
-    // Retry the verification with the new token.
     return await _performVerification(newAccessToken);
   }
 
-  /// Validates the subscription status from an [AuthResponse].
   void _validateSubscription(AuthResponse authResponse) {
     final subscription = authResponse.centerDetail.subscription;
     if (!subscription.isActive) throw const SubscriptionInactiveException();
-    if (subscription.daysLeft <= 0) throw SubscriptionExpiredException(subscription.daysLeft);
+    if (subscription.daysLeft <= 0) {
+      throw SubscriptionExpiredException(subscription.daysLeft);
+    }
   }
 
   /// Safely parses the 'detail' message from a JSON error body.
@@ -156,6 +155,7 @@ class AuthRepository {
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
       }
+      debugPrint('get endpoint $globalBaseUrl$endpoint');
       return await http
           .get(Uri.parse('$globalBaseUrl$endpoint'), headers: headers)
           .timeout(_defaultTimeout);
@@ -166,7 +166,10 @@ class AuthRepository {
     }
   }
 
-  Future<http.Response> _post(String endpoint, Map<String, dynamic> body) async {
+  Future<http.Response> _post(
+    String endpoint,
+    Map<String, dynamic> body,
+  ) async {
     try {
       return await http
           .post(
@@ -180,7 +183,6 @@ class AuthRepository {
       throw const NetworkException();
     }
   }
-
 
   // --- Secure Storage Accessors ---
 
