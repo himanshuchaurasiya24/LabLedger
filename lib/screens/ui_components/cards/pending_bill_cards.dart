@@ -1,8 +1,12 @@
 // screens/ui_components/cards/pending_bill_cards.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/models/bill_model.dart';
+import 'package:labledger/models/paginated_response.dart';
+import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class PendingBillsCard extends StatelessWidget {
@@ -344,3 +348,42 @@ class PendingBillsCard extends StatelessWidget {
     }
   }
 }
+
+  Widget buildPendingBillsCard(
+    AsyncValue<PaginatedBillsResponse> unpaidBillsAsync,
+    BuildContext context
+  ) {
+    final accentColor = Theme.of(context).colorScheme.error;
+    // final accentColor = Colors.red;
+    return unpaidBillsAsync.when(
+      data: (unpaidBillsAsyncResponse) {
+        return PendingBillsCard(
+          baseColor: unpaidBillsAsyncResponse.bills.isEmpty
+              ? Theme.of(context).colorScheme.secondary
+              : accentColor,
+          bills: unpaidBillsAsyncResponse.bills,
+          onBillTap: (bill) {
+            navigatorKey.currentState?.push(
+              MaterialPageRoute(
+                builder: (context) => AddUpdateBillScreen(
+                  billId: bill.id,
+                  themeColor: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            );
+          },
+        );
+      },
+      loading: () => TintedContainer(
+        baseColor: accentColor,
+
+        child: Center(child: CircularProgressIndicator(color: accentColor)),
+      ),
+      error: (err, _) => Center(
+        child: Text(
+          "Error: Failed to load pending bills.",
+          style: TextStyle(color: accentColor),
+        ),
+      ),
+    );
+  }

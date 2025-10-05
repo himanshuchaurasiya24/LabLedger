@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -377,3 +378,34 @@ class _ReferralCardState extends State<ReferralCard> {
     return allServices;
   }
 }
+
+
+  Widget buildReferralCard(
+    AsyncValue<ReferralStatsResponse> referralStatsAsync,
+    Color? baseColor,
+    BuildContext context,
+    String selectedPeriod
+  ) {
+    final Color accentColor =
+        baseColor ?? Theme.of(context).colorScheme.secondary;
+    final Color errorColor = Theme.of(context).colorScheme.error;
+
+    return referralStatsAsync.when(
+      data: (statsResponse) {
+        final data = statsResponse.getDataForPeriod(selectedPeriod);
+        return ReferralCard(
+          referrals: data,
+          selectedPeriod: selectedPeriod,
+          baseColor: accentColor,
+        );
+      },
+      loading: () =>
+          Center(child: CircularProgressIndicator(color: accentColor)),
+      error: (err, _) => Center(
+        child: Text(
+          "Error: Failed to load referral stats.",
+          style: TextStyle(color: errorColor),
+        ),
+      ),
+    );
+  }

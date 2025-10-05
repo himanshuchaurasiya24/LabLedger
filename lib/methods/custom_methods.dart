@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/main.dart';
+import 'package:labledger/providers/secure_storage_provider.dart';
 import 'package:labledger/providers/theme_providers.dart';
+import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:window_manager/window_manager.dart';
+
 final containerLightColor = Color(0xFFEEEEEE);
 final containerDarkColor = Color(0xFF212121);
 
@@ -17,6 +21,17 @@ class NoThumbScrollBehavior extends ScrollBehavior {
   ) {
     return child;
   }
+}
+
+void logout(WidgetRef ref, BuildContext context) {
+  final secureStorage = ref.read(secureStorageProvider);
+  secureStorage.delete(key: 'access_token');
+  secureStorage.delete(key: 'refresh_token');
+
+  Navigator.pushReplacement(
+    navigatorKey.currentContext!,
+    MaterialPageRoute(builder: (context) => const WindowLoadingScreen()),
+  );
 }
 
 // Modern Search Bar

@@ -241,7 +241,6 @@ class RecentBillsCard extends StatelessWidget {
   }
 }
 
-// Enhanced builder function
 Widget buildRecentBillsCard(
   AsyncValue<List<Bill>> recentBillsAsync,
   Color? baseColor,
@@ -319,3 +318,4 @@ Widget buildRecentBillsCard(
     ),
   );
 }
+

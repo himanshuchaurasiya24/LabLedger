@@ -1,8 +1,11 @@
 // screens/ui_components/cards/chart_stats_card.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
+import 'package:labledger/screens/bills/bill_screen.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class ChartStatsCard extends StatefulWidget {
@@ -257,3 +260,40 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     );
   }
 }
+
+  Widget buildChartStatsCard(
+    AsyncValue<ChartStatsResponse> chartStatsAsync,
+    Color? baseColor,
+    BuildContext context,
+    String selectedPeriod
+  ) {
+    final Color accentColor =
+        baseColor ?? Theme.of(context).colorScheme.secondary;
+    final Color errorColor = Theme.of(context).colorScheme.error;
+    return chartStatsAsync.when(
+      data: (chartResponse) {
+        final chartData = chartResponse.getDataForPeriod(selectedPeriod);
+        return InkWell(
+          borderRadius: BorderRadius.circular(defaultRadius),
+          onTap: () {
+            navigatorKey.currentState?.push(
+              MaterialPageRoute(builder: (context) => const BillsScreen()),
+            );
+          },
+          child: ChartStatsCard(
+            title: selectedPeriod,
+            baseColor: accentColor,
+            data: chartData,
+          ),
+        );
+      },
+      loading: () =>
+          Center(child: CircularProgressIndicator(color: accentColor)),
+      error: (err, _) => Center(
+        child: Text(
+          "Error: Failed to load chart data.",
+          style: TextStyle(color: errorColor),
+        ),
+      ),
+    );
+  }

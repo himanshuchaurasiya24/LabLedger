@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/pending_report_bill_model.dart';
@@ -198,3 +199,32 @@ class PendingReportsCard extends StatelessWidget {
     );
   }
 }
+
+  Widget pendingReportBill(
+    AsyncValue<List<PendingReportBillModel>> pendingBillsAsync,
+    Color? baseColor,
+    BuildContext context
+  ) {
+    final Color accentColor =
+        baseColor ?? Theme.of(context).colorScheme.primary;
+    final Color errorColor = Theme.of(context).colorScheme.error;
+
+    return pendingBillsAsync.when(
+      data: (bills) {
+        return PendingReportsCard(bills: bills, baseColor: accentColor);
+      },
+      loading: () => TintedContainer(
+        baseColor: accentColor,
+        child: Center(child: CircularProgressIndicator(color: accentColor)),
+      ),
+      error: (err, _) => TintedContainer(
+        baseColor: errorColor,
+        child: Center(
+          child: Text(
+            "Error: Failed to load pending reports.",
+            style: TextStyle(color: errorColor),
+          ),
+        ),
+      ),
+    );
+  }
