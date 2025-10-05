@@ -356,7 +356,13 @@ class DoctorsListScreen extends ConsumerWidget {
             SizedBox(height: defaultPadding),
             ElevatedButton.icon(
               onPressed: () {
-                // Navigate to add doctor screen
+                navigatorKey.currentState?.push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return DoctorEditScreen();
+                    },
+                  ),
+                );
               },
               icon: const Icon(Icons.add),
               label: const Text('Add Doctor'),
