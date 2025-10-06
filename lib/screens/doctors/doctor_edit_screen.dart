@@ -236,7 +236,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
                     ],
                     _buildStatusBadge(
                       _isEditMode ? 'Edit Mode' : 'Create Mode',
-                      _isEditMode ? Colors.blue : Colors.green,
+                      _isEditMode ? Colors.blue : Theme.of(context).colorScheme.secondary,
                     ),
                   ],
                 ),
@@ -287,8 +287,8 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
                     onPressed: () => _handleDelete(doctor!),
                     style: OutlinedButton.styleFrom(
                       fixedSize: const Size(180, 60),
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                      side:  BorderSide(color: Theme.of(context).colorScheme.error),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(defaultRadius),
                       ),
@@ -779,6 +779,8 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
+            behavior: SnackBarBehavior.floating,
+
               content: const Row(
                 children: [
                   Icon(Icons.check_circle, color: Colors.white),
@@ -786,7 +788,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
                   Text('Doctor updated successfully!'),
                 ],
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -817,6 +819,8 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
+            behavior: SnackBarBehavior.floating,
+
               content: const Row(
                 children: [
                   Icon(Icons.check_circle, color: Colors.white),
@@ -824,7 +828,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
                   Text('Doctor created successfully!'),
                 ],
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -890,6 +894,8 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            behavior: SnackBarBehavior.floating,
+
             content: const Row(
               children: [
                 Icon(Icons.check_circle, color: Colors.white),
@@ -897,7 +903,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
                 Text('Doctor deleted successfully!'),
               ],
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),

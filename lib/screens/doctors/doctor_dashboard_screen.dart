@@ -104,7 +104,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
               foregroundColor: Colors.white,
             ),
             child: const Text('Delete'),

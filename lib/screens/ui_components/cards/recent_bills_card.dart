@@ -75,7 +75,7 @@ class RecentBillsCard extends StatelessWidget {
                   'Recent Bills',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
+                    color: theme.colorScheme.secondary,
                   ),
                 ),
               ],
@@ -110,36 +110,22 @@ class RecentBillsCard extends StatelessWidget {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    final theme = Theme.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: baseColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.receipt_outlined,
-              size: 32,
-              color: baseColor.withValues(alpha: 0.6),
-            ),
+          Icon(
+            Icons.check_circle_outline, // Changed Icon
+            size: 80, // Adjusted size
+            color: Theme.of(context).colorScheme.secondary,
           ),
           SizedBox(height: defaultHeight / 2),
           Text(
-            'No recent bills',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            "No Recent Bills Found!",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 18, // Adjusted size
               fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Bills will appear here once created',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
           ),
         ],
@@ -318,4 +304,3 @@ Widget buildRecentBillsCard(
     ),
   );
 }
-

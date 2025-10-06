@@ -48,7 +48,7 @@ class PendingReportsCard extends StatelessWidget {
                   'Pending Reports',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
+                    color: theme.colorScheme.secondary,
                   ),
                 ),
               ],
@@ -81,38 +81,23 @@ class PendingReportsCard extends StatelessWidget {
     );
   }
 
-  // --- Empty State Widget ---
   Widget _buildEmptyState(BuildContext context) {
-    final theme = Theme.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: baseColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              LucideIcons.fileCheck2,
-              size: 32,
-              color: baseColor.withValues(alpha: 0.6),
-            ),
+          Icon(
+            Icons.check_circle_outline, // Changed Icon
+            size: 80, // Adjusted size
+            color: Theme.of(context).colorScheme.secondary,
           ),
           SizedBox(height: defaultHeight / 2),
           Text(
-            'No pending reports',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            "All Reports Uploaded!",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 18, // Adjusted size
               fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'All bills have their reports uploaded',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
           ),
         ],
@@ -200,31 +185,30 @@ class PendingReportsCard extends StatelessWidget {
   }
 }
 
-  Widget pendingReportBill(
-    AsyncValue<List<PendingReportBillModel>> pendingBillsAsync,
-    Color? baseColor,
-    BuildContext context
-  ) {
-    final Color accentColor =
-        baseColor ?? Theme.of(context).colorScheme.primary;
-    final Color errorColor = Theme.of(context).colorScheme.error;
+Widget pendingReportBill(
+  AsyncValue<List<PendingReportBillModel>> pendingBillsAsync,
+  Color? baseColor,
+  BuildContext context,
+) {
+  final Color accentColor = baseColor ?? Theme.of(context).colorScheme.primary;
+  final Color errorColor = Theme.of(context).colorScheme.error;
 
-    return pendingBillsAsync.when(
-      data: (bills) {
-        return PendingReportsCard(bills: bills, baseColor: accentColor);
-      },
-      loading: () => TintedContainer(
-        baseColor: accentColor,
-        child: Center(child: CircularProgressIndicator(color: accentColor)),
-      ),
-      error: (err, _) => TintedContainer(
-        baseColor: errorColor,
-        child: Center(
-          child: Text(
-            "Error: Failed to load pending reports.",
-            style: TextStyle(color: errorColor),
-          ),
+  return pendingBillsAsync.when(
+    data: (bills) {
+      return PendingReportsCard(bills: bills, baseColor: accentColor);
+    },
+    loading: () => TintedContainer(
+      baseColor: accentColor,
+      child: Center(child: CircularProgressIndicator(color: accentColor)),
+    ),
+    error: (err, _) => TintedContainer(
+      baseColor: errorColor,
+      child: Center(
+        child: Text(
+          "Error: Failed to load pending reports.",
+          style: TextStyle(color: errorColor),
         ),
       ),
-    );
-  }
+    ),
+  );
+}

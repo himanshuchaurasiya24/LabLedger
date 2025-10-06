@@ -30,8 +30,8 @@ class PaginatedBillsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final size = MediaQuery.of(context).size;
-    const Color positiveColor = Colors.teal;
-    const Color negativeColor = Colors.red;
+     Color positiveColor = Theme.of(context).colorScheme.secondary;
+     Color negativeColor = Theme.of(context).colorScheme.error;
     const Color neutralColor = Colors.amber;
 
     return billsProvider.when(

@@ -425,8 +425,8 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                   onPressed: () => _deleteBill(bill!),
                   style: OutlinedButton.styleFrom(
                     fixedSize: const Size(160, 50),
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                    side:  BorderSide(color: Theme.of(context).colorScheme.error),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(defaultRadius),
                     ),
@@ -987,7 +987,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
             child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -1182,11 +1182,11 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   Color _getStatusColor(String? status) {
     switch (status) {
       case 'Fully Paid':
-        return Colors.green;
+        return Theme.of(context).colorScheme.secondary;
       case 'Partially Paid':
         return Colors.orange;
       case 'Unpaid':
-        return Colors.red;
+        return Theme.of(context).colorScheme.error;
       default:
         return Colors.grey;
     }

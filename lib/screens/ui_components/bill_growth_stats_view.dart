@@ -17,8 +17,8 @@ class BillGrowthStatsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color positiveColor = Colors.teal;
-    const Color negativeColor = Colors.red;
+     Color positiveColor =Theme.of(context).colorScheme.secondary;
+     Color negativeColor = Theme.of(context).colorScheme.error;
 
     return Container(
       height: tintedContainerHeight,
@@ -63,7 +63,7 @@ class BillGrowthStatsView extends StatelessWidget {
             ],
           );
         },
-        loading: () => const Center(
+        loading: () =>  Center(
           child: AnimatedLabProgressIndicator(
             firstColor: positiveColor,
             secondColor: negativeColor,

@@ -319,12 +319,12 @@ class SampleReportManagementScreen extends ConsumerWidget {
 
     return Center(
       child: TintedContainer(
-        baseColor: Colors.red,
+        baseColor: Theme.of(context).colorScheme.error,
         intensity: 0.1,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+             Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
             SizedBox(height: defaultPadding),
             Text(
               'Failed to load sample reports',
@@ -475,6 +475,8 @@ class SampleReportManagementScreen extends ConsumerWidget {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
+            behavior: SnackBarBehavior.floating,
+
                       content: Text('Report deleted successfully'),
                     ),
                   );
@@ -894,6 +896,7 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            
             content: Text(
               'Report ${widget.mode == FormMode.create ? 'created' : 'updated'} successfully',
             ),

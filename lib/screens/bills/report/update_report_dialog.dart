@@ -97,7 +97,9 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
         });
       } else {
         ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+          
           SnackBar(
+            behavior: SnackBarBehavior.floating,
             content: Text('Could not open file: ${openResult.message}'),
             backgroundColor: Theme.of(
               navigatorKey.currentContext!,
@@ -140,7 +142,9 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
           }
         } catch (e) {
           ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+        
             SnackBar(
+            
               duration: Duration(seconds: 7),
               content: Row(
                 children: [

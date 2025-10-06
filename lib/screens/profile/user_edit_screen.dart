@@ -235,7 +235,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
                 SizedBox(height: defaultHeight / 2),
                 _buildStatusBadge(
                   _isEditMode ? 'Edit Mode' : 'Create Mode',
-                  _isEditMode ? Colors.blue : Colors.green,
+                  _isEditMode ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
                 ),
               ],
             ),
@@ -854,6 +854,8 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+            behavior: SnackBarBehavior.floating,
+
         content: Row(
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
@@ -861,7 +863,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
             Text(message),
           ],
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
@@ -969,7 +971,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red),
+            Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
             SizedBox(height: defaultHeight),
             Text('Error Loading User', style: TextStyle(fontSize: 20)),
             SizedBox(height: defaultHeight / 2),

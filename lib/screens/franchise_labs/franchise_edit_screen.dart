@@ -181,7 +181,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                     ],
                     _buildStatusBadge(
                       _isEditMode ? 'Edit Mode' : 'Create Mode',
-                      _isEditMode ? Colors.blue : Colors.green,
+                      _isEditMode ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
                     ),
                   ],
                 ),
@@ -232,19 +232,19 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                         : () => _handleDelete(franchise!),
                     style: OutlinedButton.styleFrom(
                       fixedSize: const Size(180, 60),
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                      side:  BorderSide(color: Theme.of(context).colorScheme.error),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(defaultRadius),
                       ),
                     ),
                     icon: _isDeleting
-                        ? const SizedBox(
+                        ?  SizedBox(
                             width: 24,
                             height: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.red,
+                              color: Theme.of(context).colorScheme.error,
                             ),
                           )
                         : const Icon(Icons.delete_outline),

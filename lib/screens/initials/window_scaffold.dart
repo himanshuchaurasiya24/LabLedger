@@ -252,8 +252,8 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                       defaultRadius,
                                     ),
                                     color: isDark
-                                        ? Colors.red.withValues(alpha: 0.3)
-                                        : Colors.red.withValues(alpha: 0.8),
+                                        ? Theme.of(context).colorScheme.error.withValues(alpha: 0.3)
+                                        : Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
                                   ),
                                   child: Center(
                                     child: Icon(

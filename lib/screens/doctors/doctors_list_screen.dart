@@ -285,12 +285,12 @@ class DoctorsListScreen extends ConsumerWidget {
 
     return Center(
       child: TintedContainer(
-        baseColor: Colors.red,
+        baseColor: Theme.of(context).colorScheme.error,
         intensity: 0.1,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+             Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
             SizedBox(height: defaultPadding),
             Text(
               'Failed to load doctors',

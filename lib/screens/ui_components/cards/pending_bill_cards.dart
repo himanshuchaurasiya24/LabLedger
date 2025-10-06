@@ -354,7 +354,6 @@ class PendingBillsCard extends StatelessWidget {
     BuildContext context
   ) {
     final accentColor = Theme.of(context).colorScheme.error;
-    // final accentColor = Colors.red;
     return unpaidBillsAsync.when(
       data: (unpaidBillsAsyncResponse) {
         return PendingBillsCard(

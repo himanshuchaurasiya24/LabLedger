@@ -179,6 +179,8 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     if (context != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+            behavior: SnackBarBehavior.floating,
+
           content: Text(message),
           backgroundColor: isError
               ? Theme.of(context).colorScheme.error
@@ -624,8 +626,8 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                   DataCell(
                     Text(
                       "₹${NumberFormat.decimalPattern('en_IN').format(bill.incentiveAmount)}",
-                      style: const TextStyle(
-                        color: Colors.green,
+                      style:  TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -781,12 +783,12 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(LucideIcons.alertCircle, color: Colors.red, size: 48),
+           Icon(LucideIcons.alertCircle, color: Theme.of(context).colorScheme.error, size: 48),
           SizedBox(height: defaultPadding),
           Text(
             "Failed to Load Report",
             style: theme.textTheme.headlineSmall?.copyWith(
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.error,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -804,7 +806,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
             icon: const Icon(LucideIcons.refreshCw),
             label: const Text("Retry"),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
               foregroundColor: Colors.white,
             ),
           ),
@@ -828,7 +830,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       case 'partially paid':
         return Colors.amber;
       case 'unpaid':
-        return Colors.red;
+        return Theme.of(context).colorScheme.error;
       default:
         return Colors.grey;
     }

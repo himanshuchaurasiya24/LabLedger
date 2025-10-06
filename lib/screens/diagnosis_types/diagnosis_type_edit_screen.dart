@@ -206,8 +206,8 @@ class _DiagnosisTypeEditScreenState
                         : () => _handleDelete(diagnosis!),
                     style: OutlinedButton.styleFrom(
                       fixedSize: const Size(180, 60),
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                      side:  BorderSide(color: Theme.of(context).colorScheme.error),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(defaultRadius),
                       ),
@@ -367,7 +367,7 @@ class _DiagnosisTypeEditScreenState
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child:  Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),
@@ -401,6 +401,8 @@ class _DiagnosisTypeEditScreenState
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+            behavior: SnackBarBehavior.floating,
+
         content: Row(
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
@@ -408,7 +410,7 @@ class _DiagnosisTypeEditScreenState
             Text(message),
           ],
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
@@ -430,7 +432,7 @@ class _DiagnosisTypeEditScreenState
         padding: const EdgeInsets.all(16.0),
         child: Text(
           message,
-          style: const TextStyle(color: Colors.red, fontSize: 16),
+          style:  TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 16),
         ),
       ),
     );

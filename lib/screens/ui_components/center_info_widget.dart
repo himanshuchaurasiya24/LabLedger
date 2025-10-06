@@ -26,10 +26,10 @@ class CenterInfoWidget extends StatelessWidget {
 
     // Get status color based on days left
     Color getStatusColor() {
-      if (!isActive) return Colors.red;
+      if (!isActive) return Theme.of(context).colorScheme.error;
       if (daysLeft <= 7) return Colors.orange;
       if (daysLeft <= 30) return Colors.yellow.shade700;
-      return Colors.green;
+      return Theme.of(context).colorScheme.secondary;
     }
 
     return Container(

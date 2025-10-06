@@ -102,7 +102,7 @@ class _DiagnosisTypeBillsListScreenState
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
               foregroundColor: Colors.white,
             ),
             child: const Text('Delete'),
@@ -116,9 +116,11 @@ class _DiagnosisTypeBillsListScreenState
         await ref.read(deleteDiagnosisTypeProvider(widget.id).future);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+             SnackBar(
+            behavior: SnackBarBehavior.floating,
+
               content: Text("Diagnosis Type deleted successfully"),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
             ),
           );
           Navigator.of(context).pop(); // Go back to the previous screen
@@ -127,8 +129,10 @@ class _DiagnosisTypeBillsListScreenState
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
+            behavior: SnackBarBehavior.floating,
+
               content: Text("Failed to delete Diagnosis Type: $e"),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }

@@ -75,9 +75,11 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+           SnackBar(
+            behavior: SnackBarBehavior.floating,
+
             content: Text("Center details updated successfully!"),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
         Navigator.of(context).pop();
@@ -86,8 +88,10 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            behavior: SnackBarBehavior.floating,
+
             content: Text("Failed to update: $e"),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }

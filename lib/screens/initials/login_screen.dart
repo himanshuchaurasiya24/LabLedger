@@ -231,6 +231,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           context,
                                         ).showSnackBar(
                                           const SnackBar(
+            behavior: SnackBarBehavior.floating,
+
                                             content: Text(
                                               'Contact administrator to reset password',
                                             ),
