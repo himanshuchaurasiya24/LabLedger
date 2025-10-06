@@ -423,6 +423,7 @@ class _DiagnosisTypeEditScreenState
     );
   }
 
+
   Widget _buildErrorWidget(String message) {
     return Center(
       child: Padding(
