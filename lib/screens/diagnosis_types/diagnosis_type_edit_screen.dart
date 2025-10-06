@@ -230,8 +230,6 @@ class _DiagnosisTypeEditScreenState
   }
 
   Widget _buildDetailsCard(Color color, {DiagnosisType? diagnosis}) {
-    final diagnosisTypesAsync = ref.watch(diagnosisTypeProvider);
-
     return TintedContainer(
       baseColor: color,
       radius: defaultRadius,
@@ -282,28 +280,24 @@ class _DiagnosisTypeEditScreenState
                           v == null || v.isEmpty ? 'Name is required' : null,
                     ),
                     SizedBox(height: defaultHeight),
-                    diagnosisTypesAsync.when(
-                      data: (types) {
-                        final uniqueCategories = types
-                            .map((t) => t.category)
-                            .toSet()
-                            .toList();
-                        return SearchableDropdownField<String>(
-                          label: 'Category',
-                          controller: _categoryController,
-                          items: uniqueCategories,
-                          color: color,
-                          valueMapper: (item) => item,
-                          onSelected: (selected) {
-                            setState(() => _categoryController.text = selected);
-                          },
-                          validator: (v) =>
-                              v!.isEmpty ? 'Category is required' : null,
-                        );
+                    SearchableDropdownField<String>(
+                      label: 'Category',
+                      controller: _categoryController,
+                      // ✅ Directly provide the static list of categories here
+                      items: const [
+                        "Ultrasound",
+                        "Pathology",
+                        "X-Ray",
+                        "ECG",
+                        "Franchise Lab",
+                      ],
+                      color: color,
+                      valueMapper: (item) => item,
+                      onSelected: (selected) {
+                        setState(() => _categoryController.text = selected);
                       },
-                      loading: () => _buildLoadingField(),
-                      error: (e, s) =>
-                          _buildErrorField('Could not load categories'),
+                      validator: (v) =>
+                          v!.isEmpty ? 'Category is required' : null,
                     ),
                     SizedBox(height: defaultHeight),
                     CustomTextField(
@@ -436,62 +430,6 @@ class _DiagnosisTypeEditScreenState
         child: Text(
           message,
           style: const TextStyle(color: Colors.red, fontSize: 16),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingField() {
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(defaultRadius),
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      ),
-      child: const Center(
-        child: SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorField(String message) {
-    final theme = Theme.of(context);
-    return Container(
-      height: 56,
-      padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: theme.colorScheme.errorContainer.withValues(alpha: 0.2),
-        border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha: 0.4),
-        ),
-      ),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline_rounded,
-              color: theme.colorScheme.error,
-              size: 20,
-            ),
-            SizedBox(width: defaultWidth),
-            Expanded(
-              child: Text(
-                message,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.error,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
         ),
       ),
     );
