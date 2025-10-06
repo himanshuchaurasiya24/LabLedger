@@ -6,7 +6,9 @@ import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
+import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
@@ -181,7 +183,9 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                     ],
                     _buildStatusBadge(
                       _isEditMode ? 'Edit Mode' : 'Create Mode',
-                      _isEditMode ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
+                      _isEditMode
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.secondary,
                     ),
                   ],
                 ),
@@ -192,16 +196,17 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton.icon(
-                  onPressed: _isSaving ? null : () => _handleSave(franchise),
-                  style: ElevatedButton.styleFrom(
-                    fixedSize: const Size(180, 60),
-                    backgroundColor: color,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(defaultRadius),
-                    ),
-                  ),
+                CustomElevatedButton(
+                  onPressed: _isSaving == true
+                      ? null
+                      : () => _handleSave(franchise),
+
+                  label: _isSaving
+                      ? 'Saving...'
+                      : (_isEditMode)
+                      ? 'Update Lab'
+                      : 'Create Lab',
+                  backgroundColor: color,
                   icon: _isSaving
                       ? SizedBox(
                           height: defaultHeight,
@@ -214,32 +219,18 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                           ),
                         )
                       : Icon(_isEditMode ? Icons.update : Icons.save),
-                  label: Text(
-                    _isSaving
-                        ? 'Saving...'
-                        : (_isEditMode ? 'Update Lab' : 'Create Lab'),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
                 ),
+
                 if (_isEditMode && isAdmin) ...[
                   SizedBox(height: defaultHeight / 2),
-                  OutlinedButton.icon(
+                  CustomOutlinedButton(
                     onPressed: _isDeleting
                         ? null
                         : () => _handleDelete(franchise!),
-                    style: OutlinedButton.styleFrom(
-                      fixedSize: const Size(180, 60),
-                      foregroundColor: Theme.of(context).colorScheme.error,
-                      side:  BorderSide(color: Theme.of(context).colorScheme.error),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(defaultRadius),
-                      ),
-                    ),
+
+                    label: _isDeleting ? 'Deleting...' : 'Delete',
                     icon: _isDeleting
-                        ?  SizedBox(
+                        ? SizedBox(
                             width: 24,
                             height: 24,
                             child: CircularProgressIndicator(
@@ -248,8 +239,9 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
                             ),
                           )
                         : const Icon(Icons.delete_outline),
-                    label: Text(_isDeleting ? 'Deleting...' : 'Delete'),
                   ),
+
+                  // ),
                 ],
               ],
             ),

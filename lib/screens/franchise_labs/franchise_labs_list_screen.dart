@@ -7,6 +7,7 @@ import 'package:labledger/providers/franchise_provider.dart';
 import 'package:labledger/screens/franchise_labs/franchise_edit_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_lab_bills_list_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -211,7 +212,6 @@ class FranchiseListScreen extends ConsumerWidget {
                 ],
               ),
             ),
-           
           ],
         ),
       ),
@@ -292,7 +292,11 @@ class FranchiseListScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-             Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.error,
+            ),
             SizedBox(height: defaultPadding),
             Text(
               'Failed to load franchise labs', // Updated text
@@ -335,14 +339,16 @@ class FranchiseListScreen extends ConsumerWidget {
 
     return Center(
       child: TintedContainer(
+        height: 400,
+        width: 400,
         baseColor: effectiveColor,
         intensity: 0.08,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               LucideIcons.building,
-              size: 64,
+              size: 94,
               color: effectiveColor,
             ), // Updated Icon
             SizedBox(height: defaultPadding),
@@ -351,18 +357,21 @@ class FranchiseListScreen extends ConsumerWidget {
               style: theme.textTheme.titleMedium?.copyWith(
                 color: colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
+                fontSize: 20,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Add your first franchise lab to get started', // Updated Text
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                color: colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: defaultPadding),
-            ElevatedButton.icon(
+            // SizedBox(height: defaultPadding),
+            Spacer(),
+            CustomElevatedButton(
+              width: double.infinity,
               onPressed: () {
                 navigatorKey.currentState?.push(
                   MaterialPageRoute(
@@ -372,12 +381,9 @@ class FranchiseListScreen extends ConsumerWidget {
                   ),
                 );
               },
-              icon: const Icon(Icons.add),
-              label: const Text('Add Franchise Lab'), // Updated Text
-              style: ElevatedButton.styleFrom(
-                backgroundColor: effectiveColor,
-                foregroundColor: Colors.white,
-              ),
+              label: "Add Franchise Lab",
+              backgroundColor: effectiveColor,
+              icon: Icon(Icons.add),
             ),
           ],
         ),
