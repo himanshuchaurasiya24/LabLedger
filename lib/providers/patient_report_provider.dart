@@ -9,9 +9,9 @@ import 'package:labledger/providers/bills_provider.dart';
 import '../authentication/auth_http_client.dart';
 
 final String patientReportsEndpoint =
-    '$globalBaseUrl/diagnosis/patient-report/';
+    '${globalBaseUrl}diagnosis/patient-report/';
 String patientReportDetailEndpoint(int reportId) =>
-    '$globalBaseUrl/diagnosis/patient-report/$reportId/';
+    '${globalBaseUrl}diagnosis/patient-report/$reportId/';
 
 void _invalidateReportCache(Ref ref, int billId) {
   ref.invalidate(getReportForBillProvider(billId));
@@ -20,7 +20,6 @@ void _invalidateReportCache(Ref ref, int billId) {
   ref.invalidate(pendingReportBillProvider);
 }
 
-// --- Providers (Simplified) ---
 
 final getReportForBillProvider = FutureProvider.autoDispose
     .family<PatientReport?, int>((ref, billId) async {
@@ -37,17 +36,28 @@ final getReportForBillProvider = FutureProvider.autoDispose
 
 final createPatientReportProvider = FutureProvider.autoDispose
     .family<PatientReport, ReportUploadData>((ref, uploadData) async {
-      final response = await AuthHttpClient.postMultipart(
-        ref,
-        patientReportsEndpoint,
-        fields: {'bill': uploadData.billId.toString()},
-        fileField: 'report_file',
-        filePath: uploadData.filePath,
-      );
+  try {
+    final response = await AuthHttpClient.postMultipart(
+      ref,
+      patientReportsEndpoint,
+      fields: {
+        'bill': uploadData.billId.toString(),
+      },
+      fileField: 'report_file',
+      filePath: uploadData.filePath,
+    );
 
+    if (response.statusCode == 201 || response.statusCode == 200) {
       _invalidateReportCache(ref, uploadData.billId);
-      return PatientReport.fromJson(jsonDecode(response.body));
-    });
+      final jsonData = jsonDecode(response.body);
+      return PatientReport.fromJson(jsonData);
+    } else {
+      throw Exception('Failed to upload report: ${response.body}');
+    }
+  } catch (e) {
+    rethrow;
+  }
+});
 
 final deletePatientReportProvider = FutureProvider.autoDispose
     .family<void, ({int reportId, int billId})>((ref, ids) async {

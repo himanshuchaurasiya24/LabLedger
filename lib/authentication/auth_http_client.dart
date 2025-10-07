@@ -178,7 +178,6 @@ class AuthHttpClient {
     timeout: timeout,
   );
 
-  /// ⭐️ NEW: Handles multipart (file upload) POST requests.
   static Future<http.Response> postMultipart(
     Ref ref,
     String url, {

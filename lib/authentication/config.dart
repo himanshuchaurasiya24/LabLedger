@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 const String githubJsonRawUrl =
@@ -27,6 +28,8 @@ Future<void> initializeBaseUrl() async {
           final ping = await http.get(Uri.parse(hostedUrl));
           if (ping.statusCode == 200) {
             globalBaseUrl = hostedUrl;
+            debugPrint(globalBaseUrl);
+
             return;
           }
         } catch (_) {}
@@ -38,5 +41,5 @@ Future<void> initializeBaseUrl() async {
 
   // Fallback to local URL
   globalBaseUrl = localBaseUrl;
-  // debugPrint(globalBaseUrl);
+  debugPrint(globalBaseUrl);
 }
