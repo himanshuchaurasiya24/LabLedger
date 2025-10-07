@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/providers/theme_providers.dart';
@@ -56,7 +57,7 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
           ref.read(themeNotifierProvider.notifier).toggleTheme(themeMode);
           _removeOverlay();
         },
-        onSettingsTap: () {
+        onAboutAppTap: () {
           _removeOverlay();
           if (widget.onSettings != null) {
             widget.onSettings!();
@@ -234,7 +235,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
   final bool isThemeExpanded;
   final VoidCallback onThemeToggle;
   final Function(ThemeMode) onThemeSelect;
-  final VoidCallback onSettingsTap;
+  final VoidCallback onAboutAppTap;
   final VoidCallback onProfileTap;
   final VoidCallback onLogoutTap;
 
@@ -250,7 +251,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
     required this.isThemeExpanded,
     required this.onThemeToggle,
     required this.onThemeSelect,
-    required this.onSettingsTap,
+    required this.onAboutAppTap,
     required this.onLogoutTap,
   });
 
@@ -392,12 +393,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                           isDark: isDark,
                         ),
 
-                      // _buildMenuItem(
-                      //   icon: Icons.settings_outlined,
-                      //   label: 'Settings',
-                      //   onTap: onSettingsTap,
-                      //   isDark: isDark,
-                      // ),
+                     
                       _buildMenuItem(
                         icon: Icons.palette_outlined,
                         label: 'Theme',
@@ -414,6 +410,12 @@ class _CustomDropdownMenu extends ConsumerWidget {
                                 : Colors.grey.shade600,
                           ),
                         ),
+                      ),
+                       _buildMenuItem(
+                        icon: FontAwesomeIcons.circleInfo,
+                        label: 'About this app',
+                        onTap: onAboutAppTap,
+                        isDark: isDark,
                       ),
 
                       AnimatedContainer(

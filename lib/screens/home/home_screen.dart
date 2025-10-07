@@ -15,6 +15,7 @@ import 'package:labledger/screens/doctors/doctors_list_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_labs_list_screen.dart';
 import 'package:labledger/screens/home/center_detail_dialog.dart';
 import 'package:labledger/screens/incentives/incentive_generation_screen.dart';
+import 'package:labledger/screens/initials/about_app_dialog.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/profile/user_list_screen.dart';
 import 'package:labledger/screens/sample_report/sample_report_screen.dart';
@@ -102,7 +103,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     border: Border.all(
                       color: Theme.of(
                         context,
-                      ).colorScheme.primary.withValues(alpha:  0.3),
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
@@ -207,7 +208,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       );
                     },
                     onSettings: () {
-                      //
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AboutAppDialog();
+                        },
+                      );
                     },
                   ),
                 ],
