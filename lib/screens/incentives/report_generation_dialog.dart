@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 
 class ReportGenerationDialog extends StatefulWidget {
   const ReportGenerationDialog({super.key});
@@ -10,7 +11,14 @@ class ReportGenerationDialog extends StatefulWidget {
 }
 
 class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
-  final _titleController = TextEditingController(text: 'Incentive Report');
+  late final TextEditingController _layoutController;
+  final List<String> _pdfLayouts = const [
+    'LabLedger',
+    'Dark Blue',
+    'Light Blue',
+    'TEST',
+  ];
+  int _selectedLayoutIndex = 0;
 
   final Map<String, bool> _selectedFields = {
     'dateOfBill': true,
@@ -61,8 +69,17 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize the controller with the default layout text
+    _layoutController = TextEditingController(
+      text: _pdfLayouts[_selectedLayoutIndex],
+    );
+  }
+
+  @override
   void dispose() {
-    _titleController.dispose();
+    _layoutController.dispose(); // Dispose the controller
     super.dispose();
   }
 
@@ -71,7 +88,7 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
       Navigator.of(context).pop({
         'generate': true,
         'selectedFields': _selectedFields,
-        'title': _titleController.text,
+        'pdf_layout_index': _selectedLayoutIndex,
       });
     }
   }
@@ -98,13 +115,15 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        theme.colorScheme.primary.withValues(alpha: 0.2),
-                        theme.colorScheme.primary.withValues(alpha: 0.1),
+                        theme.colorScheme.primary.withAlpha(51), // 0.2 alpha
+                        theme.colorScheme.primary.withAlpha(26), // 0.1 alpha
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                      color: theme.colorScheme.primary.withAlpha(
+                        77,
+                      ), // 0.3 alpha
                     ),
                   ),
                   child: Icon(
@@ -127,11 +146,11 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Select fields to include in your report',
+                        'Select fields and layout to include in your report',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.9,
-                          ),
+                          color: theme.colorScheme.onSurface.withAlpha(
+                            230,
+                          ), // 0.9 alpha
                         ),
                       ),
                     ],
@@ -149,7 +168,31 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
             ),
             const SizedBox(height: 20),
 
-            // Fields Selection Header
+            SizedBox(height: defaultHeight / 2),
+            Text(
+              'Select PDF Layout',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            SizedBox(height: defaultHeight / 2),
+            SearchableDropdownField<String>(
+              label: 'PDF Layout',
+              controller: _layoutController,
+              items: _pdfLayouts,
+              color: theme.colorScheme.primary,
+              valueMapper: (layout) => layout,
+              onSelected: (selectedLayout) {
+                setState(() {
+                  _layoutController.text = selectedLayout;
+                  _selectedLayoutIndex = _pdfLayouts.indexOf(selectedLayout);
+                  debugPrint("selected layoutindex is: $_selectedLayoutIndex");
+                });
+              },
+            ),
+            SizedBox(height: defaultHeight / 2),
+
             Row(
               children: [
                 Text(
@@ -166,7 +209,9 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.secondary.withValues(alpha: 0.15),
+                    color: theme.colorScheme.secondary.withAlpha(
+                      38,
+                    ), // 0.15 alpha
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -203,9 +248,9 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                         vertical: defaultPadding * 1.5,
                       ),
                       side: BorderSide(
-                        color: theme.colorScheme.secondary.withValues(
-                          alpha: 0.3,
-                        ),
+                        color: theme.colorScheme.secondary.withAlpha(
+                          77,
+                        ), // 0.3 alpha
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -226,7 +271,9 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                         vertical: defaultPadding * 1.5,
                       ),
                       side: BorderSide(
-                        color: theme.colorScheme.error.withValues(alpha: 0.3),
+                        color: theme.colorScheme.error.withAlpha(
+                          77,
+                        ), // 0.3 alpha
                       ),
                       foregroundColor: theme.colorScheme.error,
                       shape: RoundedRectangleBorder(
@@ -237,6 +284,7 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                 ),
               ],
             ),
+
             SizedBox(height: defaultHeight / 2),
 
             // Fields List
@@ -252,10 +300,6 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                   itemCount: _selectedFields.length,
                   separatorBuilder: (context, index) =>
                       SizedBox(height: defaultHeight / 2),
-                  // padding: EdgeInsets.symmetric(
-                  //   horizontal: defaultPadding / 2,
-                  //   vertical: defaultPadding / 2,
-                  // ),
                   itemBuilder: (context, index) {
                     final key = _selectedFields.keys.elementAt(index);
                     final isSelected = _selectedFields[key] ?? false;
@@ -271,14 +315,16 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? theme.colorScheme.primary.withValues(alpha: 0.1)
+                              ? theme.colorScheme.primary.withAlpha(
+                                  26,
+                                ) // 0.1 alpha
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isSelected
-                                ? theme.colorScheme.primary.withValues(
-                                    alpha: 0.3,
-                                  )
+                                ? theme.colorScheme.primary.withAlpha(
+                                    77,
+                                  ) // 0.3 alpha
                                 : Colors.transparent,
                           ),
                         ),
@@ -288,9 +334,9 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? theme.colorScheme.primary.withValues(
-                                        alpha: 0.15,
-                                      )
+                                    ? theme.colorScheme.primary.withAlpha(
+                                        38,
+                                      ) // 0.15 alpha
                                     : theme.colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(6),
                               ),
@@ -299,9 +345,9 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                                 size: 16,
                                 color: isSelected
                                     ? theme.colorScheme.primary
-                                    : theme.colorScheme.onSurface.withValues(
-                                        alpha: 0.5,
-                                      ),
+                                    : theme.colorScheme.onSurface.withAlpha(
+                                        128,
+                                      ), // 0.5 alpha
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -348,20 +394,20 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 SizedBox(width: defaultWidth),
-                OutlinedButton(
+                ElevatedButton(
                   onPressed: _selectedCount > 0 ? _onGeneratePressed : null,
-                  style: OutlinedButton.styleFrom(
+                  style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(
                       horizontal: defaultPadding * 2,
                       vertical: defaultPadding * 1.5,
                     ),
-                    backgroundColor: theme.colorScheme.secondary,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor:
-                        theme.colorScheme.surfaceContainerHighest,
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
+                    disabledBackgroundColor: theme.colorScheme.onSurface
+                        .withValues(alpha: 0.12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

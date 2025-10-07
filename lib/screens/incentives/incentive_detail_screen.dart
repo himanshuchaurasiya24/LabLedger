@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -45,29 +46,14 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return ReportGenerationDialog();
+        return const ReportGenerationDialog();
       },
     );
 
-    if (result == null || result['generate'] != true) {
-      return; // Exit if the user cancelled or closed the dialog
-    }
-
-    final selectedFields = result['selectedFields'] as Map<String, bool>;
-
-    _showProgressDialog();
-
-    try {
-      await _generatePDFReport(selectedFields);
-    } catch (e) {
-      _showSnackBar('An unexpected error occurred: $e', isError: true);
-    } finally {
-      if (Navigator.of(
-        navigatorKey.currentContext!,
-        rootNavigator: true,
-      ).canPop()) {
-        Navigator.of(navigatorKey.currentContext!, rootNavigator: true).pop();
-      }
+    if (result != null && result['generate'] == true) {
+      final selectedFields = result['selectedFields'] as Map<String, bool>;
+      final pdfIndex = result['pdf_layout_index'] as int;
+      _generatePDFReport(selectedFields, pdfIndex);
     }
   }
 
@@ -93,12 +79,20 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     );
   }
 
-  Future<void> _generatePDFReport(Map<String, bool> selectedFields) async {
-    try {
-      final reportAsync = ref.read(incentiveReportProvider);
+  Future<void> _generatePDFReport(
+    Map<String, bool> selectedFields,
+    int pdfIndex,
+  ) async {
+    const minDuration = Duration(seconds: 1);
+    final stopwatch = Stopwatch()..start();
 
-      reportAsync.when(
-        data: (report) async {
+    _showProgressDialog();
+
+    try {
+      final reportState = ref.read(incentiveReportProvider);
+
+      switch (reportState) {
+        case AsyncData(value: final report):
           if (report.isEmpty) {
             _showSnackBar(
               'No data available for report generation',
@@ -123,6 +117,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
             reports: filteredReports,
             selectedFields: selectedFields,
             ref: ref,
+            pdfIndex: pdfIndex,
           );
 
           if (kIsWeb) {
@@ -133,7 +128,6 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                 "LabLedger Incentive Report ${DateFormat("dd MMM yyyy hh-mm-ss").format(DateTime.now())}.pdf";
             final filePath = p.join(directory.path, fileName);
             final file = File(filePath);
-
             await file.writeAsBytes(pdfBytes);
             final result = await OpenFile.open(filePath);
 
@@ -149,14 +143,33 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
               );
             }
           }
-        },
-        loading: () =>
-            _showSnackBar('Please wait for data to load', isError: false),
-        error: (err, stack) =>
-            _showSnackBar('Error generating report: $err', isError: true),
-      );
+        case AsyncLoading():
+          _showSnackBar('Please wait for data to load', isError: false);
+        case AsyncError(:final error):
+          _showSnackBar('Error fetching report data: $error', isError: true);
+        default:
+          _showSnackBar(
+            'An unknown error occurred while fetching data.',
+            isError: true,
+          );
+      }
     } catch (e) {
       _showSnackBar('Failed to generate report: $e', isError: true);
+    } finally {
+      stopwatch.stop();
+      final elapsed = stopwatch.elapsed;
+
+      if (elapsed < minDuration) {
+        final remainingDelay = minDuration - elapsed;
+        await Future.delayed(remainingDelay);
+      }
+
+      if (Navigator.of(
+        navigatorKey.currentContext!,
+        rootNavigator: true,
+      ).canPop()) {
+        Navigator.of(navigatorKey.currentContext!, rootNavigator: true).pop();
+      }
     }
   }
 
@@ -180,7 +193,6 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-
           content: Text(message),
           backgroundColor: isError
               ? Theme.of(context).colorScheme.error
@@ -397,7 +409,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
           Row(
             children: [
               Icon(icon, color: color, size: 20),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 title,
                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -657,7 +669,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       case 'franchise lab':
         return Text(doctor.franchiseLabPercentage?.toString() ?? '0');
       default:
-        return Text('0');
+        return const Text('0');
     }
   }
 
@@ -722,7 +734,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
               color: theme.colorScheme.onSurface.withAlpha(178),
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             "No incentive data found for the selected filters.",
             textAlign: TextAlign.center,
@@ -752,7 +764,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
               color: theme.colorScheme.onSurface.withAlpha(178),
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             "No doctors match your search criteria.",
             textAlign: TextAlign.center,
@@ -796,7 +808,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             error.toString(),
             textAlign: TextAlign.center,
