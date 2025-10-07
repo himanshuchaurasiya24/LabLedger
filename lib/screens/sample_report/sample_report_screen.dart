@@ -379,7 +379,7 @@ class SampleReportManagementScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              LucideIcons.building,
+              LucideIcons.server,
               size: 94,
               color: effectiveColor,
             ), // Updated Icon
