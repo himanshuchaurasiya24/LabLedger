@@ -29,9 +29,14 @@ class _IncentiveGenerationScreenState
       ref.invalidate(selectedDoctorIdsProvider);
       ref.invalidate(selectedFranchiseIdsProvider);
       ref.invalidate(selectedDiagnosisTypeIdsProvider);
-      ref.invalidate(selectedBillStatusesProvider);
-      ref.invalidate(reportStartDateProvider);
-      ref.invalidate(reportEndDateProvider);
+
+      ref.read(selectedBillStatusesProvider.notifier).state = {'Fully Paid'};
+
+      final now = DateTime.now();
+      final firstDayOfMonth = DateTime(now.year, now.month, 1);
+      ref.read(reportStartDateProvider.notifier).state = firstDayOfMonth;
+
+      ref.read(reportEndDateProvider.notifier).state = now;
     });
   }
 
@@ -40,301 +45,362 @@ class _IncentiveGenerationScreenState
     final theme = Theme.of(context);
 
     return WindowScaffold(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Generate Incentive Report",
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          Text(
-            "Configure filters and generate detailed incentive reports",
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          SizedBox(height: defaultHeight * 1.5),
-
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 2, child: _FilterPanel()),
-                SizedBox(width: defaultWidth),
-                Expanded(
-                  flex: 1,
-                  child: Column(
+      child: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 900),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(defaultPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Section
+                  Row(
                     children: [
-                      _QuickStatsPanel(),
-                      SizedBox(height: defaultHeight),
-                      _ActionPanel(),
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              theme.colorScheme.secondary,
+                              theme.colorScheme.secondary.withValues(
+                                alpha: 0.7,
+                              ),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.secondary.withValues(
+                                alpha: 0.3,
+                              ),
+                              blurRadius: 12,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          LucideIcons.fileText,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Generate Incentive Report",
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Configure filters and generate detailed incentive reports",
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              ],
+                  SizedBox(height: defaultHeight),
+
+                  // Date Range Section
+                  TintedContainer(
+                    baseColor: theme.colorScheme.secondary,
+                    height: 200,
+                    intensity: 0.08,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              LucideIcons.calendar,
+                              size: 20,
+                              color: theme.colorScheme.secondary,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              "Date Range",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: theme.colorScheme.secondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: defaultHeight),
+                        _DateRangePicker(),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: defaultHeight),
+
+                  // Filters Grid
+                  _FilterPanel(),
+
+                  SizedBox(height: defaultHeight * 1.5),
+
+                  // Stats and Actions Row
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 3, child: _QuickStatsPanel()),
+                      SizedBox(width: defaultWidth),
+                      Expanded(flex: 2, child: _ActionPanel()),
+                    ],
+                  ),
+                  SizedBox(height: defaultHeight * 2),
+                ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
 class _FilterPanel extends ConsumerWidget {
+  const _FilterPanel();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final doctorsAsync = ref.watch(doctorsProvider);
     final franchisesAsync = ref.watch(franchiseProvider);
     final diagnosisTypesAsync = ref.watch(diagnosisTypeProvider);
+    final theme = Theme.of(context);
+    final Color cardColor = theme.colorScheme.secondary;
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TintedContainer(
-            baseColor: Theme.of(context).colorScheme.primary,
-            height: 150,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      LucideIcons.calendar,
-                      size: 20,
-                      color: Colors.blue.shade700,
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      "Date Range",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.blue.shade700,
-                      ),
-                    ),
-                  ],
-                ),
-                Spacer(),
-                _DateRangePicker(),
-              ],
-            ),
-          ),
-          SizedBox(height: defaultHeight),
-
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: doctorsAsync.when(
-                  data: (doctors) => TintedContainer(
-                    height: 128,
-                    baseColor: Theme.of(context).colorScheme.secondary,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              LucideIcons.userCheck,
-                              size: 18,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              "Doctors",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Spacer(),
-                        _CompactMultiSelectDropdown<int>(
-                          items: {
-                            for (var doc in doctors)
-                              doc.id!: "${doc.firstName} ${doc.lastName}",
-                          },
-                          selectedProvider: selectedDoctorIdsProvider,
-                          hint: "Select doctors...",
-                          baseColor: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  loading: () => TintedContainer(
-                    baseColor: Theme.of(context).colorScheme.secondary,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                  error: (e, s) => TintedContainer(
-                    baseColor: Theme.of(context).colorScheme.error,
-                    child: Center(child: Text("Error")),
-                  ),
-                ),
-              ),
-              SizedBox(width: defaultWidth),
-              Expanded(
-                child: franchisesAsync.when(
-                  data: (franchises) => TintedContainer(
-                    baseColor: Theme.of(context).colorScheme.error,
-                    height: 128,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              LucideIcons.building,
-                              size: 18,
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              "Franchise Labs",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: defaultHeight / 2),
-                        Text(
-                          "   Select this only if you want to filter by labs otherwise leave it blank",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.error.withValues(alpha: 0.7),
-                          ),
-                        ),
-                        SizedBox(height: defaultHeight / 2),
-
-                        Spacer(),
-                        _CompactMultiSelectDropdown<int>(
-                          items: {
-                            for (var f in franchises) f.id!: f.franchiseName!,
-                          },
-                          selectedProvider: selectedFranchiseIdsProvider,
-                          hint: "Select labs...",
-                          baseColor: Theme.of(context).colorScheme.error,
-                        ),
-                      ],
-                    ),
-                  ),
-                  loading: () => TintedContainer(
-                    baseColor: Theme.of(context).colorScheme.error,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                  error: (e, s) => TintedContainer(
-                    baseColor: Theme.of(context).colorScheme.error,
-                    child: Center(child: Text("Error")),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: defaultHeight),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: diagnosisTypesAsync.when(
-                  data: (types) => TintedContainer(
-                    height: 120,
-                    baseColor: Theme.of(context).colorScheme.secondary,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              LucideIcons.clipboardList,
-                              size: 18,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              "Diagnosis Types",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Spacer(),
-                        _CompactMultiSelectDropdown<int>(
-                          items: {for (var t in types) t.id!: t.name},
-                          selectedProvider: selectedDiagnosisTypeIdsProvider,
-                          hint: "Select types...",
-                          baseColor: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  loading: () => TintedContainer(
-                    baseColor: Theme.of(context).colorScheme.secondary,
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                  error: (e, s) => TintedContainer(
-                    baseColor: Theme.of(context).colorScheme.error,
-                    child: Center(child: Text("Error")),
-                  ),
-                ),
-              ),
-              SizedBox(width: defaultWidth),
-              Expanded(
-                child: TintedContainer(
-                  baseColor: Theme.of(context).colorScheme.secondary,
-                  height: 120,
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: doctorsAsync.when(
+                data: (doctors) => TintedContainer(
+                  height: 140,
+                  baseColor: cardColor,
+                  intensity: 0.08,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
                           Icon(
-                            LucideIcons.creditCard,
+                            LucideIcons.userCheck,
                             size: 18,
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: cardColor,
                           ),
-                          SizedBox(width: 6),
+                          SizedBox(width: 8),
                           Text(
-                            "Bill Status",
+                            "Doctors",
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 15,
+                              color: cardColor,
                             ),
                           ),
                         ],
                       ),
                       Spacer(),
-                      _CompactMultiSelectDropdown<String>(
+                      _CompactMultiSelectDropdown<int>(
                         items: {
-                          'Fully Paid': 'Fully Paid',
-                          'Partially Paid': 'Partially Paid',
-                          'Unpaid': 'Unpaid',
+                          for (var doc in doctors)
+                            doc.id!: "${doc.firstName} ${doc.lastName}",
                         },
-                        selectedProvider: selectedBillStatusesProvider,
-                        hint: "Select status...",
-                        baseColor: Theme.of(context).colorScheme.secondary,
+                        selectedProvider: selectedDoctorIdsProvider,
+                        hint: "Select doctors...",
+                        baseColor: cardColor,
                       ),
                     ],
                   ),
                 ),
+                loading: () => TintedContainer(
+                  height: 140,
+                  baseColor: cardColor,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (e, s) => TintedContainer(
+                  height: 140,
+                  baseColor: theme.colorScheme.error,
+                  child: Center(child: Text("Error loading doctors")),
+                ),
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
+            SizedBox(width: defaultWidth),
+            Expanded(
+              child: franchisesAsync.when(
+                data: (franchises) => TintedContainer(
+                  baseColor: cardColor,
+                  height: 140,
+                  intensity: 0.08,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            LucideIcons.building,
+                            size: 18,
+                            color: cardColor,
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "Franchise Labs",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: cardColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        "Optional: Filter by a specific franchise",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: cardColor.withValues(alpha: 0.8),
+                        ),
+                      ),
+                      Spacer(),
+                      _CompactMultiSelectDropdown<int>(
+                        items: {
+                          for (var f in franchises) f.id!: f.franchiseName!,
+                        },
+                        selectedProvider: selectedFranchiseIdsProvider,
+                        hint: "Select labs...",
+                        baseColor: cardColor,
+                      ),
+                    ],
+                  ),
+                ),
+                loading: () => TintedContainer(
+                  height: 140,
+                  baseColor: cardColor,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (e, s) => TintedContainer(
+                  height: 140,
+                  baseColor: theme.colorScheme.error,
+                  child: Center(child: Text("Error loading labs")),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: defaultHeight),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: diagnosisTypesAsync.when(
+                data: (types) => TintedContainer(
+                  height: 140,
+                  baseColor: cardColor,
+                  intensity: 0.08,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            LucideIcons.clipboardList,
+                            size: 18,
+                            color: cardColor,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            "Diagnosis Types",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: cardColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Spacer(),
+                      _CompactMultiSelectDropdown<int>(
+                        items: {for (var t in types) t.id!: t.name},
+                        selectedProvider: selectedDiagnosisTypeIdsProvider,
+                        hint: "Select types...",
+                        baseColor: cardColor,
+                      ),
+                    ],
+                  ),
+                ),
+                loading: () => TintedContainer(
+                  height: 140,
+                  baseColor: cardColor,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (e, s) => TintedContainer(
+                  height: 140,
+                  baseColor: theme.colorScheme.error,
+                  child: Center(child: Text("Error loading types")),
+                ),
+              ),
+            ),
+            SizedBox(width: defaultWidth),
+            Expanded(
+              child: TintedContainer(
+                baseColor: cardColor,
+                height: 140,
+                intensity: 0.08,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          LucideIcons.creditCard,
+                          size: 18,
+                          color: cardColor,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          "Bill Status",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: cardColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Spacer(),
+                    _CompactMultiSelectDropdown<String>(
+                      items: {
+                        'Fully Paid': 'Fully Paid',
+                        'Partially Paid': 'Partially Paid',
+                        'Unpaid': 'Unpaid',
+                      },
+                      selectedProvider: selectedBillStatusesProvider,
+                      hint: "Select status...",
+                      baseColor: cardColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -348,122 +414,94 @@ class _QuickStatsPanel extends ConsumerWidget {
     final selectedFranchises = ref.watch(selectedFranchiseIdsProvider);
     final selectedDiagnosisTypes = ref.watch(selectedDiagnosisTypeIdsProvider);
     final selectedBillStatuses = ref.watch(selectedBillStatusesProvider);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Column(
+    final Color cardColor = Theme.of(context).colorScheme.secondary;
+
+    return Row(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: TintedContainer(
-                baseColor: colorScheme.secondary,
-                height: 80,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      selectedDoctors.length.toString(),
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.secondary,
-                      ),
-                    ),
-                    Text(
-                      "Doctors Selected",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.secondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(width: defaultWidth),
-            Expanded(
-              child: TintedContainer(
-                baseColor: colorScheme.error,
-                height: 80,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      selectedFranchises.length.toString(),
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.error,
-                      ),
-                    ),
-                    Text(
-                      "Labs Selected",
-                      style: TextStyle(fontSize: 12, color: colorScheme.error),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        Expanded(
+          child: _StatCard(
+            count: selectedDoctors.length,
+            label: "Doctors",
+            icon: LucideIcons.userCheck,
+            color: cardColor,
+          ),
         ),
-        SizedBox(height: defaultHeight),
-        Row(
-          children: [
-            Expanded(
-              child: TintedContainer(
-                baseColor: colorScheme.secondary,
-                height: 80,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      selectedDiagnosisTypes.length.toString(),
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.secondary,
-                      ),
-                    ),
-                    Text(
-                      "Diagnosis Types",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.secondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(width: defaultWidth),
-            Expanded(
-              child: TintedContainer(
-                baseColor: colorScheme.secondary,
-                height: 80,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      selectedBillStatuses.length.toString(),
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.secondary,
-                      ),
-                    ),
-                    Text(
-                      "Bill Statuses",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.secondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        SizedBox(width: defaultWidth),
+        Expanded(
+          child: _StatCard(
+            count: selectedFranchises.length,
+            label: "Labs",
+            icon: LucideIcons.building,
+            color: cardColor,
+          ),
+        ),
+        SizedBox(width: defaultWidth),
+        Expanded(
+          child: _StatCard(
+            count: selectedDiagnosisTypes.length,
+            label: "Types",
+            icon: LucideIcons.clipboardList,
+            color: cardColor,
+          ),
+        ),
+        SizedBox(width: defaultWidth),
+        Expanded(
+          child: _StatCard(
+            count: selectedBillStatuses.length,
+            label: "Statuses",
+            icon: LucideIcons.creditCard,
+            color: cardColor,
+          ),
         ),
       ],
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final int count;
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  const _StatCard({
+    required this.count,
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return TintedContainer(
+      baseColor: color,
+      height: 130,
+      intensity: 0.08,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 24),
+          SizedBox(height: 8),
+          Text(
+            count.toString(),
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -475,9 +513,11 @@ class _ActionPanel extends ConsumerWidget {
     ref.invalidate(selectedDoctorIdsProvider);
     ref.invalidate(selectedFranchiseIdsProvider);
     ref.invalidate(selectedDiagnosisTypeIdsProvider);
-    ref.invalidate(selectedBillStatusesProvider);
-    ref.invalidate(reportStartDateProvider);
-    ref.invalidate(reportEndDateProvider);
+    ref.read(selectedBillStatusesProvider.notifier).state = {'Fully Paid'};
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    ref.read(reportStartDateProvider.notifier).state = firstDayOfMonth;
+    ref.read(reportEndDateProvider.notifier).state = now;
   }
 
   @override
@@ -485,44 +525,12 @@ class _ActionPanel extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return TintedContainer(
-      height: 238,
-      baseColor: Theme.of(context).colorScheme.primary,
+      height: 130,
+      baseColor: theme.colorScheme.secondary,
+      intensity: 0.08,
       child: Column(
         children: [
-          Row(
-            children: [
-              Icon(
-                LucideIcons.fileText,
-                color: Colors.indigo.shade700,
-                size: 20,
-              ),
-              SizedBox(width: 8),
-              Text(
-                "Generate Report",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.indigo.shade700,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: defaultHeight / 2),
-          Text(
-            "Review your selected filters and generate the detailed incentive report with comprehensive analytics and breakdowns.",
-            style: TextStyle(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-              height: 1.4,
-            ),
-          ),
-          Spacer(),
-          Container(
-            width: double.infinity,
-            height: 52,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(defaultRadius),
-            ),
+          Expanded(
             child: InkWell(
               borderRadius: BorderRadius.circular(defaultRadius),
               onTap: () {
@@ -532,43 +540,62 @@ class _ActionPanel extends ConsumerWidget {
                   ),
                 );
               },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(LucideIcons.fileText, color: Colors.white, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    "Generate Report",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      theme.colorScheme.secondary,
+                      theme.colorScheme.secondary.withValues(alpha: 0.8),
+                    ],
                   ),
-                ],
+                  borderRadius: BorderRadius.circular(defaultRadius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(LucideIcons.fileText, color: Colors.white, size: 20),
+                    SizedBox(width: 10),
+                    Text(
+                      "Generate Report",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
           SizedBox(height: defaultHeight / 2),
           SizedBox(
             width: double.infinity,
-            height: 48,
             child: OutlinedButton.icon(
               icon: Icon(
-                LucideIcons.x,
+                LucideIcons.rotateCcw,
                 size: 16,
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
               label: Text(
-                "Clear All Filters",
+                "Clear Filters",
                 style: TextStyle(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  fontSize: 14,
                 ),
               ),
               onPressed: () => _clearFilters(ref),
               style: OutlinedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 12),
                 side: BorderSide(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(defaultRadius),
@@ -582,109 +609,49 @@ class _ActionPanel extends ConsumerWidget {
   }
 }
 
-// Date range picker widget
 class _DateRangePicker extends ConsumerWidget {
+  const _DateRangePicker();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final startDate = ref.watch(reportStartDateProvider);
     final endDate = ref.watch(reportEndDateProvider);
-    final theme = Theme.of(context);
 
     return Row(
       children: [
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(defaultRadius),
-              border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(defaultRadius),
-              onTap: () async {
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: startDate,
-                  firstDate: DateTime(2020),
-                  lastDate: endDate,
-                );
-                if (picked != null) {
-                  ref.read(reportStartDateProvider.notifier).state = picked;
-                }
-              },
-              child: Padding(
-                padding: EdgeInsets.all(defaultPadding * 1.5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Start Date",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue.shade600,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      DateFormat.yMMMd().format(startDate),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          child: _DatePickerCard(
+            label: "Start Date",
+            date: startDate,
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: startDate,
+                firstDate: DateTime(2020),
+                lastDate: endDate,
+              );
+              if (picked != null) {
+                ref.read(reportStartDateProvider.notifier).state = picked;
+              }
+            },
           ),
         ),
         SizedBox(width: defaultWidth),
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(defaultRadius),
-              border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(defaultRadius),
-              onTap: () async {
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: endDate,
-                  firstDate: startDate,
-                  lastDate: DateTime(2100),
-                );
-                if (picked != null) {
-                  ref.read(reportEndDateProvider.notifier).state = picked;
-                }
-              },
-              child: Padding(
-                padding: EdgeInsets.all(defaultPadding * 1.5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "End Date",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue.shade600,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      DateFormat.yMMMd().format(endDate),
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          child: _DatePickerCard(
+            label: "End Date",
+            date: endDate,
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: endDate,
+                firstDate: startDate,
+                lastDate: DateTime(2100),
+              );
+              if (picked != null) {
+                ref.read(reportEndDateProvider.notifier).state = picked;
+              }
+            },
           ),
         ),
       ],
@@ -692,7 +659,71 @@ class _DateRangePicker extends ConsumerWidget {
   }
 }
 
-// Custom Multi-Select Dropdown
+class _DatePickerCard extends StatelessWidget {
+  final String label;
+  final DateTime date;
+  final VoidCallback onTap;
+
+  const _DatePickerCard({
+    required this.label,
+    required this.date,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(defaultRadius),
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(defaultPadding * 1.2),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(defaultRadius),
+          border: Border.all(
+            color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.secondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 6),
+            Row(
+              children: [
+                Icon(
+                  LucideIcons.calendar,
+                  size: 16,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  DateFormat.yMMMd().format(date),
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _CompactMultiSelectDropdown<T> extends ConsumerStatefulWidget {
   final Map<T, String> items;
   final StateProvider<Set<T>> selectedProvider;
@@ -757,13 +788,14 @@ class __CompactMultiSelectDropdownState<T>
           CompositedTransformFollower(
             link: _layerLink,
             showWhenUnlinked: false,
-            offset: Offset(0, 4),
+            offset: Offset(0, size.height + 4),
             child: Material(
               color: Colors.transparent,
               child: TintedContainer(
                 baseColor: widget.baseColor,
                 disablePadding: true,
                 elevationLevel: 4,
+                intensity: 0.08,
                 child: SizedBox(
                   width: size.width,
                   child: Container(
@@ -778,6 +810,7 @@ class __CompactMultiSelectDropdownState<T>
                             text: "Select All",
                             selectedProvider: widget.selectedProvider,
                             allItems: widget.items,
+                            baseColor: widget.baseColor,
                             onTap: (_) {
                               final notifier = ref.read(
                                 widget.selectedProvider.notifier,
@@ -788,7 +821,6 @@ class __CompactMultiSelectDropdownState<T>
                               } else {
                                 notifier.state = widget.items.keys.toSet();
                               }
-                              _closeDropdown();
                             },
                           ),
                           Divider(height: 1),
@@ -797,6 +829,7 @@ class __CompactMultiSelectDropdownState<T>
                               value: entry.key,
                               text: entry.value,
                               selectedProvider: widget.selectedProvider,
+                              baseColor: widget.baseColor,
                               onTap: (key) {
                                 final notifier = ref.read(
                                   widget.selectedProvider.notifier,
@@ -848,7 +881,7 @@ class __CompactMultiSelectDropdownState<T>
         onTap: _toggleDropdown,
         child: Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(defaultRadius),
@@ -856,7 +889,7 @@ class __CompactMultiSelectDropdownState<T>
               color: isExpanded
                   ? widget.baseColor.withValues(alpha: 0.5)
                   : theme.colorScheme.onSurface.withValues(alpha: 0.2),
-              width: isExpanded ? 2 : 1,
+              width: isExpanded ? 2 : 1.5,
             ),
           ),
           child: Row(
@@ -865,9 +898,12 @@ class __CompactMultiSelectDropdownState<T>
                 child: Text(
                   _getDisplayText(),
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
+                    fontWeight: selectedValues.isEmpty
+                        ? FontWeight.normal
+                        : FontWeight.w500,
                     color: selectedValues.isEmpty
-                        ? theme.colorScheme.onSurface.withValues(alpha: 0.6)
+                        ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
                         : theme.colorScheme.onSurface,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -875,8 +911,8 @@ class __CompactMultiSelectDropdownState<T>
               ),
               Icon(
                 isExpanded ? LucideIcons.chevronUp : LucideIcons.chevronDown,
-                size: 16,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                size: 18,
+                color: widget.baseColor,
               ),
             ],
           ),
@@ -892,6 +928,7 @@ class _DropdownItem<T> extends ConsumerWidget {
   final Map<T, String> allItems;
   final StateProvider<Set<T>> selectedProvider;
   final Function(T? key) onTap;
+  final Color baseColor;
 
   const _DropdownItem({
     super.key,
@@ -899,6 +936,7 @@ class _DropdownItem<T> extends ConsumerWidget {
     required this.text,
     required this.selectedProvider,
     required this.onTap,
+    required this.baseColor,
     this.allItems = const {},
   });
 
@@ -921,31 +959,25 @@ class _DropdownItem<T> extends ConsumerWidget {
         onTap: () => onTap(value),
         borderRadius: BorderRadius.circular(defaultRadius / 2),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           child: Row(
             children: [
               Container(
-                width: 16,
-                height: 16,
+                width: 18,
+                height: 18,
                 decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
-                  borderRadius: BorderRadius.circular(3),
+                  borderRadius: BorderRadius.circular(4),
                   border: Border.all(
                     color: isSelected
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                        ? baseColor
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.3),
                     width: 2,
                   ),
-                  color: isSelected
-                      ? theme.colorScheme.primary
-                      : Colors.transparent,
+                  color: isSelected ? baseColor : Colors.transparent,
                 ),
                 child: isSelected
-                    ? Icon(
-                        LucideIcons.check,
-                        size: 10,
-                        color: theme.colorScheme.onPrimary,
-                      )
+                    ? Icon(LucideIcons.check, size: 12, color: Colors.white)
                     : null,
               ),
               SizedBox(width: 12),
@@ -953,13 +985,11 @@ class _DropdownItem<T> extends ConsumerWidget {
                 child: Text(
                   text,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: isSelected
                         ? FontWeight.w600
                         : FontWeight.normal,
-                    color: isSelected
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurface,
+                    color: isSelected ? baseColor : theme.colorScheme.onSurface,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),

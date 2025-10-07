@@ -22,14 +22,10 @@ import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AddUpdateBillScreen extends ConsumerStatefulWidget {
-  final int? billId; // Changed from Bill? billData to int? billId
+  final int? billId;
   final Color themeColor;
 
-  const AddUpdateBillScreen({
-    super.key,
-    this.billId, // Updated constructor
-    required this.themeColor,
-  });
+  const AddUpdateBillScreen({super.key, this.billId, required this.themeColor});
 
   @override
   ConsumerState<AddUpdateBillScreen> createState() =>
@@ -297,15 +293,39 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                   ),
                 ),
                 SizedBox(height: defaultHeight / 2),
-                Text(
-                  _isEditMode
-                      ? 'Bill #${bill?.billNumber ?? 'N/A'} ${bill!.id.toString()}'
-                      : 'Fill in the details to create a new bill',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: isDark
-                        ? Colors.white70
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      _isEditMode
+                          ? 'Bill #${bill?.billNumber ?? 'N/A'}'
+                          : 'Fill in the details to create a new bill',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isDark
+                            ? Colors.white70
+                            : theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
+                      ),
+                    ),
+                    if (_isEditMode)
+                      IconButton(
+                        tooltip: "Copy bill number",
+                        icon: Icon(
+                          Icons.copy,
+                          color: theme.colorScheme.outline,
+                          size: 14,
+                        ),
+                        onPressed: () {
+                          Clipboard.setData(
+                            ClipboardData(text: bill!.billNumber!),
+                          );
+                          _showSuccessSnackBar(
+                            message:
+                                "Bill number ${bill.billNumber} copied to clipboard.",
+                          );
+                        },
+                      ),
+                  ],
                 ),
                 SizedBox(height: defaultHeight / 2),
                 Row(
@@ -426,7 +446,9 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                   style: OutlinedButton.styleFrom(
                     fixedSize: const Size(160, 50),
                     foregroundColor: Theme.of(context).colorScheme.error,
-                    side:  BorderSide(color: Theme.of(context).colorScheme.error),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(defaultRadius),
                     ),
@@ -987,7 +1009,9 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),
         ],

@@ -179,7 +179,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     if (context != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            behavior: SnackBarBehavior.floating,
+          behavior: SnackBarBehavior.floating,
 
           content: Text(message),
           backgroundColor: isError
@@ -626,7 +626,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                   DataCell(
                     Text(
                       "₹${NumberFormat.decimalPattern('en_IN').format(bill.incentiveAmount)}",
-                      style:  TextStyle(
+                      style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                         fontWeight: FontWeight.w600,
                       ),
@@ -783,7 +783,11 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-           Icon(LucideIcons.alertCircle, color: Theme.of(context).colorScheme.error, size: 48),
+          Icon(
+            LucideIcons.alertCircle,
+            color: Theme.of(context).colorScheme.error,
+            size: 48,
+          ),
           SizedBox(height: defaultPadding),
           Text(
             "Failed to Load Report",
@@ -826,7 +830,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
   Color _getBillStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'fully paid':
-        return Colors.teal;
+        return Theme.of(context).colorScheme.secondary;
       case 'partially paid':
         return Colors.amber;
       case 'unpaid':
