@@ -4,7 +4,7 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
-import 'package:labledger/providers/franchise_provider.dart';
+import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/providers/incenitve_generator_provider.dart';
 import 'package:labledger/screens/incentives/incentive_detail_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';

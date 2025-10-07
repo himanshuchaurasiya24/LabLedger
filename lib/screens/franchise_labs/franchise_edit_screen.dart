@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
-import 'package:labledger/providers/franchise_provider.dart';
+import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';

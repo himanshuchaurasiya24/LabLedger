@@ -13,13 +13,6 @@ final String patientReportsEndpoint =
 String patientReportDetailEndpoint(int reportId) =>
     '${globalBaseUrl}diagnosis/patient-report/$reportId/';
 
-void _invalidateReportCache(Ref ref, int billId) {
-  ref.invalidate(getReportForBillProvider(billId));
-  ref.invalidate(paginatedBillsProvider);
-  ref.invalidate(singleBillProvider(billId));
-  ref.invalidate(pendingReportBillProvider);
-}
-
 
 final getReportForBillProvider = FutureProvider.autoDispose
     .family<PatientReport?, int>((ref, billId) async {
@@ -81,3 +74,10 @@ final updatePatientReportProvider = FutureProvider.autoDispose
       _invalidateReportCache(ref, updateData.billId);
       return PatientReport.fromJson(jsonDecode(response.body));
     });
+
+void _invalidateReportCache(Ref ref, int billId) {
+  ref.invalidate(getReportForBillProvider(billId));
+  ref.invalidate(paginatedBillsProvider);
+  ref.invalidate(singleBillProvider(billId));
+  ref.invalidate(pendingReportBillProvider);
+}

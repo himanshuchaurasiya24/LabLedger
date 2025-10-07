@@ -8,24 +8,18 @@ import 'package:labledger/models/incentive_model.dart';
 
 import '../authentication/auth_http_client.dart';
 
-/// Base API Endpoint
 final String incentiveReportEndpoint =
     "${globalBaseUrl}diagnosis/incentives/";
 
-// Holds the set of selected doctor IDs
 final selectedDoctorIdsProvider = StateProvider<Set<int>>((ref) => {});
 
-// Holds the set of selected franchise IDs
 final selectedFranchiseIdsProvider = StateProvider<Set<int>>((ref) => {});
 
-// Holds the set of selected diagnosis type IDs
 final selectedDiagnosisTypeIdsProvider = StateProvider<Set<int>>((ref) => {});
 
-// Holds the set of selected bill statuses, defaulting to 'Fully Paid'
 final selectedBillStatusesProvider =
     StateProvider<Set<String>>((ref) => {'Fully Paid'});
 
-// Holds the selected start date, defaulting to the 1st of the current month
 final reportStartDateProvider =
     StateProvider<DateTime>((ref) => DateTime.now().copyWith(day: 1));
 final reportEndDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
@@ -52,7 +46,6 @@ final incentiveReportProvider =
     queryParameters: filters,
   );
 
-  // 4. Make the API call and parse the response.
   final response = await AuthHttpClient.get(ref, uri.toString());
   final List<dynamic> jsonList = jsonDecode(response.body);
 

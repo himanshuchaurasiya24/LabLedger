@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
@@ -7,6 +8,7 @@ import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_bills_list_screen.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -182,7 +184,6 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            
           ],
         ),
       ),
@@ -259,7 +260,11 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-             Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.error,
+            ),
             SizedBox(height: defaultPadding),
             Text(
               'Failed to load diagnosis types', // Updated text
@@ -294,36 +299,42 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
 
   Widget _buildEmptyState(BuildContext context, Color effectiveColor) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Center(
       child: TintedContainer(
+        height: 400,
+        width: 400,
         baseColor: effectiveColor,
         intensity: 0.08,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              LucideIcons.beaker,
-              size: 64,
+              FontAwesomeIcons.microscope,
+              size: 94,
               color: effectiveColor,
             ), // Updated Icon
             SizedBox(height: defaultPadding),
             Text(
-              'No diagnosis types found', // Updated Text
+              'No diagnosis type found', // Updated Text
               style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurface,
+                color: colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
+                fontSize: 20,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Add your first diagnosis type to get started', // Updated Text
+              'Add a diagnosis type to get started', // Updated Text
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                color: colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: defaultPadding),
-            ElevatedButton.icon(
+            Spacer(),
+            CustomElevatedButton(
+              width: double.infinity,
               onPressed: () {
                 navigatorKey.currentState?.push(
                   MaterialPageRoute(
@@ -333,12 +344,9 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
                   ),
                 );
               },
-              icon: const Icon(Icons.add),
-              label: const Text('Add Diagnosis Type'), // Updated Text
-              style: ElevatedButton.styleFrom(
-                backgroundColor: effectiveColor,
-                foregroundColor: Colors.white,
-              ),
+              label: "Add a diagnosis type",
+              backgroundColor: effectiveColor,
+              icon: Icon(Icons.add),
             ),
           ],
         ),

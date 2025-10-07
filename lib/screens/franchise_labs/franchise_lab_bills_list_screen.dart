@@ -8,10 +8,11 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
-import 'package:labledger/providers/franchise_provider.dart';
+import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
@@ -144,51 +145,62 @@ class _FranchiseBillsListScreenState
     );
     final franchiseAsync = ref.watch(singleFranchiseProvider(widget.id));
     final currentQuery = ref.watch(currentSearchQueryProvider);
-
-    return WindowScaffold(
-      centerWidget: franchiseAsync.when(
-        data: (franchise) => CenterSearchBar(
-          controller: searchController,
-          searchFocusNode: searchFocusNode,
-          hintText: "Search bills for ${franchise.franchiseName}...",
-          width: 400,
-          onSearch: _onSearchChanged,
-        ),
-        loading: () => const SizedBox(),
-        error: (_, _) => const SizedBox(),
+    return franchiseAsync.when(
+      loading: () => const WindowScaffold(
+        child: Center(child: CircularProgressIndicator()),
       ),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            _buildFranchiseHeader(franchiseAsync),
-            SizedBox(height: defaultHeight),
-            _buildSectionHeader(
-              context,
-              currentQuery.isNotEmpty
-                  ? 'Search Results for: "$currentQuery"'
-                  : "Franchise Bills",
-            ),
-            PaginatedBillsView(
-              billsProvider: franchiseBillsAsync,
-              selectedView: _selectedView,
-              headerTitle: currentQuery.isNotEmpty
-                  ? 'Search Results for: "$currentQuery"'
-                  : "Franchise Bills",
-              emptyListMessage: currentQuery.isEmpty
-                  ? 'No bills found for this franchise.'
-                  : 'No bills found for "$currentQuery"',
-              onPageChanged: (newPage) {
-                ref.read(currentPageProvider.notifier).state = newPage;
-              },
-              onBillTap: _navigateToBill,
-              onRetry: () =>
-                  ref.invalidate(paginatedFranchiseBillProvider(widget.id)),
-            ),
-            const SizedBox(height: 80),
-          ],
+      error: (error, stackTrace) => WindowScaffold(
+        child: Center(
+          child: ErrorDialog(title: "Error", errorMessage: error.toString()),
         ),
       ),
+      data: (data) {
+        return WindowScaffold(
+                      centerWidget: franchiseAsync.when(
+          data: (franchise) => CenterSearchBar(
+            controller: searchController,
+            searchFocusNode: searchFocusNode,
+            hintText: "Search bills for ${franchise.franchiseName}...",
+            width: 400,
+            onSearch: _onSearchChanged,
+          ),
+          loading: () => const SizedBox(),
+          error: (_, _) => const SizedBox(),
+        ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                _buildFranchiseHeader(franchiseAsync),
+                SizedBox(height: defaultHeight),
+                _buildSectionHeader(
+                  context,
+                  currentQuery.isNotEmpty
+                      ? 'Search Results for: "$currentQuery"'
+                      : "Franchise Bills",
+                ),
+                PaginatedBillsView(
+                  billsProvider: franchiseBillsAsync,
+                  selectedView: _selectedView,
+                  headerTitle: currentQuery.isNotEmpty
+                      ? 'Search Results for: "$currentQuery"'
+                      : "Franchise Bills",
+                  emptyListMessage: currentQuery.isEmpty
+                      ? 'No bills found for this franchise.'
+                      : 'No bills found for "$currentQuery"',
+                  onPageChanged: (newPage) {
+                    ref.read(currentPageProvider.notifier).state = newPage;
+                  },
+                  onBillTap: _navigateToBill,
+                  onRetry: () =>
+                      ref.invalidate(paginatedFranchiseBillProvider(widget.id)),
+                ),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

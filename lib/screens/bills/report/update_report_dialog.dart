@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/providers/sample_reports_provider.dart';
+import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:labledger/models/sample_report_model.dart';
@@ -97,7 +98,6 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
         });
       } else {
         ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-          
           SnackBar(
             behavior: SnackBarBehavior.floating,
             content: Text('Could not open file: ${openResult.message}'),
@@ -124,6 +124,23 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
 
   Future<void> _uploadReport() async {
     if (_reportFileToUpload == null) return;
+    final int fileSizeBytes = await _reportFileToUpload!.length();
+    if (fileSizeBytes > maxFileSize) {
+      debugPrint("file size limit is 1 MB only");
+
+      showDialog(
+        context: navigatorKey.currentContext!,
+        builder: (context) {
+          return ErrorDialog(
+            title: "Size Limit",
+            errorMessage: "File size limit is 1 MB only.",
+          );
+        },
+      );
+
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
@@ -142,16 +159,17 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
           }
         } catch (e) {
           ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        
             SnackBar(
-            
-              duration: Duration(seconds: 7),
-              content: Row(
+              duration: const Duration(seconds: 7),
+              content: const Row(
                 children: [
                   Icon(Icons.check_circle, color: Colors.white),
-                  const SizedBox(width: 12),
-                  Text(
-                    "Please close the editor before pressing the \"Upload Report\" button to optimize disk usage",
+                  SizedBox(width: 12),
+                  Expanded(
+                    // Use Expanded to prevent overflow
+                    child: Text(
+                      "Please close the editor before pressing the \"Upload Report\" button to optimize disk usage",
+                    ),
                   ),
                 ],
               ),
@@ -165,10 +183,10 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
         }
         ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
           SnackBar(
-            content: Row(
+            content: const Row(
               children: [
                 Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Text('Report uploaded successfully!'),
               ],
             ),
@@ -182,7 +200,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
       } else {
         ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
           SnackBar(
-            content: Text('Report not found'),
+            content: const Text('Report not found'),
             backgroundColor: Theme.of(
               navigatorKey.currentContext!,
             ).colorScheme.error,

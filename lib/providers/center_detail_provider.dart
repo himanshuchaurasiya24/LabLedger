@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/center_detail_model_with_subscription.dart';
+import 'package:labledger/providers/bills_provider.dart';
+import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 import 'package:labledger/providers/user_provider.dart';
 
 final String centerDetailsEndpoint =
@@ -45,4 +47,9 @@ void _invalidateCenterDetailsCache(Ref ref) {
   ref.invalidate(centerDetailsProvider);
   ref.invalidate(singleCenterDetailProvider);
   ref.invalidate(usersDetailsProvider);
+  ref.invalidate(referralStatsProvider);
+  ref.invalidate(billChartStatsProvider);
+  ref.invalidate(paginatedUnpaidPartialBillsProvider);
+  ref.invalidate(latestBillsProvider);
+  ref.invalidate(pendingReportBillProvider);
 }

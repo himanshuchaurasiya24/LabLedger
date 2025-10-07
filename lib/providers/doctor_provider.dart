@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/models/doctors_model.dart';
+import 'package:labledger/providers/bills_provider.dart';
+import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 
 final String doctorsEndpoint = "${globalBaseUrl}diagnosis/doctor/";
 
@@ -30,7 +32,7 @@ final createDoctorProvider = FutureProvider.autoDispose.family<Doctor, Doctor>((
     headers: {"Content-Type": "application/json"},
     body: jsonEncode(newDoctor.toJson()),
   );
-  ref.invalidate(doctorsProvider);
+  _invalidateDoctorCache(ref: ref);
   return Doctor.fromJson(jsonDecode(response.body));
 });
 
@@ -46,8 +48,8 @@ final updateDoctorProvider = FutureProvider.autoDispose.family<Doctor, Doctor>((
     headers: {"Content-Type": "application/json"},
     body: jsonEncode(doctor.toJson()),
   );
-  ref.invalidate(doctorsProvider);
-  ref.invalidate(singleDoctorProvider(id));
+  _invalidateDoctorCache(ref: ref, id: id);
+
   return Doctor.fromJson(jsonDecode(response.body));
 });
 
@@ -56,6 +58,16 @@ final deleteDoctorProvider = FutureProvider.autoDispose.family<void, int>((
   id,
 ) async {
   await AuthHttpClient.delete(ref, "$doctorsEndpoint$id/");
-  ref.invalidate(doctorsProvider);
-  ref.invalidate(singleDoctorProvider(id));
+  _invalidateDoctorCache(ref: ref, id: id);
 });
+void _invalidateDoctorCache({required Ref ref, int? id}) {
+  ref.invalidate(doctorsProvider);
+  if (id != null) {
+    ref.invalidate(singleDoctorProvider(id));
+  }
+  ref.invalidate(referralStatsProvider);
+  ref.invalidate(billChartStatsProvider);
+  ref.invalidate(paginatedUnpaidPartialBillsProvider);
+  ref.invalidate(latestBillsProvider);
+  ref.invalidate(pendingReportBillProvider);
+}

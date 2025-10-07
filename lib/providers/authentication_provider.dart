@@ -1,10 +1,8 @@
-// providers/auth_providers.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_repository.dart';
 import 'package:labledger/models/auth_response_model.dart';
 
 
-// Login credentials model for provider input
 class LoginCredentials {
   final String username;
   final String password;

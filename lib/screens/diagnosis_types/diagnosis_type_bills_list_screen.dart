@@ -13,6 +13,7 @@ import 'package:labledger/providers/diagnosis_type_provider.dart'; // You will n
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
@@ -116,8 +117,8 @@ class _DiagnosisTypeBillsListScreenState
         await ref.read(deleteDiagnosisTypeProvider(widget.id).future);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-             SnackBar(
-            behavior: SnackBarBehavior.floating,
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
 
               content: Text("Diagnosis Type deleted successfully"),
               backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -129,7 +130,7 @@ class _DiagnosisTypeBillsListScreenState
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-            behavior: SnackBarBehavior.floating,
+              behavior: SnackBarBehavior.floating,
 
               content: Text("Failed to delete Diagnosis Type: $e"),
               backgroundColor: Theme.of(context).colorScheme.error,
@@ -149,52 +150,78 @@ class _DiagnosisTypeBillsListScreenState
       diagnosisTypeDetailProvider(widget.id),
     );
     final currentQuery = ref.watch(currentSearchQueryProvider);
-
-    return WindowScaffold(
-      centerWidget: diagnosisTypeAsync.when(
-        data: (diagnosisType) => CenterSearchBar(
-          controller: searchController,
-          searchFocusNode: searchFocusNode,
-          hintText: "Search bills for ${diagnosisType.name}...",
-          width: 400,
-          onSearch: _onSearchChanged,
-        ),
-        loading: () => const SizedBox(),
-        error: (_, _) => const SizedBox(),
+    return diagnosisTypeAsync.when(
+      loading: () => const WindowScaffold(
+        child: Center(child: CircularProgressIndicator()),
       ),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            _buildDiagnosisTypeHeader(diagnosisTypeAsync),
-            SizedBox(height: defaultHeight),
-            _buildSectionHeader(
-              context,
-              currentQuery.isNotEmpty
-                  ? 'Search Results for: "$currentQuery"'
-                  : "Bills",
-            ),
-            PaginatedBillsView(
-              billsProvider: perDiagnosisTypeBillsAsync,
-              selectedView: _selectedView,
-              headerTitle: currentQuery.isNotEmpty
-                  ? 'Search Results for: "$currentQuery"'
-                  : "Bills",
-              emptyListMessage: currentQuery.isEmpty
-                  ? 'No bills found for this diagnosis type.'
-                  : 'No bills found for "$currentQuery"',
-              onPageChanged: (newPage) {
-                ref.read(currentPageProvider.notifier).state = newPage;
-              },
-              onBillTap: _navigateToBill,
-              onRetry: () =>
-                  ref.invalidate(paginatedDiagnosisTypeBillProvider(widget.id)),
-            ),
-            const SizedBox(height: 80),
-          ],
+      error: (error, stackTrace) => WindowScaffold(
+        child: Center(
+          child: ErrorDialog(title: "Error", errorMessage: error.toString()),
         ),
       ),
+      data: (data) {
+        return WindowScaffold(
+          centerWidget: diagnosisTypeAsync.when(
+            data: (franchise) => CenterSearchBar(
+              controller: searchController,
+              searchFocusNode: searchFocusNode,
+              hintText: "Search bills for ${data.category}...",
+              width: 400,
+              onSearch: _onSearchChanged,
+            ),
+            loading: () => const SizedBox(),
+            error: (_, _) => const SizedBox(),
+          ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                _buildDiagnosisTypeHeader(diagnosisTypeAsync),
+                SizedBox(height: defaultHeight),
+                _buildSectionHeader(
+                  context,
+                  currentQuery.isNotEmpty
+                      ? 'Search Results for: "$currentQuery"'
+                      : "Bills",
+                ),
+                PaginatedBillsView(
+                  billsProvider: perDiagnosisTypeBillsAsync,
+                  selectedView: _selectedView,
+                  headerTitle: currentQuery.isNotEmpty
+                      ? 'Search Results for: "$currentQuery"'
+                      : "Bills",
+                  emptyListMessage: currentQuery.isEmpty
+                      ? 'No bills found for this diagnosis type.'
+                      : 'No bills found for "$currentQuery"',
+                  onPageChanged: (newPage) {
+                    ref.read(currentPageProvider.notifier).state = newPage;
+                  },
+                  onBillTap: _navigateToBill,
+                  onRetry: () => ref.invalidate(
+                    paginatedDiagnosisTypeBillProvider(widget.id),
+                  ),
+                ),
+                const SizedBox(height: 80),
+              ],
+            ),
+          ),
+        );
+      },
     );
+    // return WindowScaffold(
+    //   centerWidget: diagnosisTypeAsync.when(
+    //     data: (diagnosisType) => CenterSearchBar(
+    //       controller: searchController,
+    //       searchFocusNode: searchFocusNode,
+    //       hintText: "Search bills for ${diagnosisType.name}...",
+    //       width: 400,
+    //       onSearch: _onSearchChanged,
+    //     ),
+    //     loading: () => const SizedBox(),
+    //     error: (_, _) => const SizedBox(),
+    //   ),
+
+    // );
   }
 
   // Header widget to show diagnosis type details and actions

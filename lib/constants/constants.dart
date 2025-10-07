@@ -10,3 +10,4 @@ final double initialWindowHeight = 900;
 final double minimalBorderRadius = 6;
 final double tintedContainerHeight = 304;
 final String developer = "Himanshu Chaurasiya";
+const int maxFileSize = 1 * 1024 * 1024;

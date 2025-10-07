@@ -1,13 +1,21 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'package:labledger/authentication/auth_http_client.dart';
-import 'package:labledger/authentication/auth_repository.dart';
 import 'package:labledger/authentication/config.dart';
-import 'package:labledger/models/sample_report_model.dart'; 
+import 'package:labledger/models/sample_report_model.dart';
+import 'package:labledger/authentication/auth_http_client.dart';
 
-final String sampleReportsEndpoint = "${globalBaseUrl}diagnosis/sample-test-report/";
+final String sampleReportsEndpoint =
+    "${globalBaseUrl}diagnosis/sample-test-report/";
 
+String singleSampleReportEndpoint(int id) =>
+    "$sampleReportsEndpoint$id/";
+
+// Invalidate related caches when any sample report changes
+void _invalidateSampleReportCache(Ref ref) {
+  ref.invalidate(allSampleReportsProvider);
+}
+
+// Fetch all sample reports
 final allSampleReportsProvider =
     FutureProvider.autoDispose<List<SampleReportModel>>((ref) async {
   final response = await AuthHttpClient.get(ref, sampleReportsEndpoint);
@@ -15,84 +23,74 @@ final allSampleReportsProvider =
   return jsonList.map((item) => SampleReportModel.fromJson(item)).toList();
 });
 
+// Fetch single sample report
 final singleSampleReportProvider =
-    FutureProvider.autoDispose.family<SampleReportModel, int>(
-  (ref, id) async {
-    final response = await AuthHttpClient.get(ref, "$sampleReportsEndpoint$id/");
-    return SampleReportModel.fromJson(jsonDecode(response.body));
-  },
-);
+    FutureProvider.autoDispose.family<SampleReportModel, int>((ref, id) async {
+  final response = await AuthHttpClient.get(
+    ref,
+    singleSampleReportEndpoint(id),
+  );
+  return SampleReportModel.fromJson(jsonDecode(response.body));
+});
 
+// Create new sample report (multipart)
 final createSampleReportProvider =
     FutureProvider.autoDispose.family<SampleReportModel, SampleReportModel>(
-  (ref, newReport) async {
-    final token = await AuthRepository.instance.getAccessToken();
-    if (token == null) throw Exception("Authentication token not found.");
+        (ref, newReport) async {
+  final fields = newReport.toPostMap();
 
-    final uri = Uri.parse(sampleReportsEndpoint);
-    final request = http.MultipartRequest("POST", uri)
-      ..fields.addAll(newReport.toPostMap())
-      ..headers['Authorization'] = 'Bearer $token';
+  final filePath = newReport.sampleReportFileLocal?.path;
+  if (filePath == null) {
+    throw Exception("No file selected for upload.");
+  }
 
-    if (newReport.sampleReportFileLocal != null) {
-      request.files.add(await http.MultipartFile.fromPath(
-        "sample_report_file",
-        newReport.sampleReportFileLocal!.path,
-      ));
-    }
+  final response = await AuthHttpClient.postMultipart(
+    ref,
+    sampleReportsEndpoint,
+    fields: fields,
+    fileField: "sample_report_file",
+    filePath: filePath,
+  );
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+  if (response.statusCode == 201 || response.statusCode == 200) {
+    _invalidateSampleReportCache(ref);
+    return SampleReportModel.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception("Failed to create sample report: ${response.body}");
+  }
+});
 
-    if (response.statusCode == 201) {
-      _invalidateSampleReportCache(ref);
-      return SampleReportModel.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception("Failed to create sample report: ${response.body}");
-    }
-  },
-);
-
+// Update sample report (multipart)
 final updateSampleReportProvider =
     FutureProvider.autoDispose.family<SampleReportModel, SampleReportModel>(
-  (ref, updatedReport) async {
-    final token = await AuthRepository.instance.getAccessToken();
-    if (token == null) throw Exception("Authentication token not found.");
-    if (updatedReport.id == null) throw Exception("Report ID is required for update.");
+        (ref, updatedReport) async {
+  if (updatedReport.id == null) {
+    throw Exception("Report ID is required for update.");
+  }
 
-    final uri = Uri.parse("$sampleReportsEndpoint${updatedReport.id}/");
-    final request = http.MultipartRequest("PATCH", uri)
-      ..fields.addAll(updatedReport.toPostMap())
-      ..headers['Authorization'] = 'Bearer $token';
+  final fields = updatedReport.toPostMap();
+  final filePath = updatedReport.sampleReportFileLocal?.path;
 
-    if (updatedReport.sampleReportFileLocal != null) {
-      request.files.add(await http.MultipartFile.fromPath(
-        "sample_report_file",
-        updatedReport.sampleReportFileLocal!.path,
-      ));
-    }
+  final response = await AuthHttpClient.putMultipart(
+    ref,
+    singleSampleReportEndpoint(updatedReport.id!),
+    fields: fields,
+    fileField: "sample_report_file",
+    filePath: filePath ?? '', // Safe fallback
+  );
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 200) {
-      _invalidateSampleReportCache(ref);
-      ref.invalidate(singleSampleReportProvider(updatedReport.id!));
-      return SampleReportModel.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception("Failed to update sample report: ${response.body}");
-    }
-  },
-);
-
-final deleteSampleReportProvider = FutureProvider.autoDispose.family<void, int>(
-  (ref, id) async {
-    await AuthHttpClient.delete(ref, "$sampleReportsEndpoint$id/");
+  if (response.statusCode == 200) {
     _invalidateSampleReportCache(ref);
-    ref.invalidate(singleSampleReportProvider(id));
-  },
-);
+    ref.invalidate(singleSampleReportProvider(updatedReport.id!));
+    return SampleReportModel.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception("Failed to update sample report: ${response.body}");
+  }
+});
 
-void _invalidateSampleReportCache(Ref ref) {
-  ref.invalidate(allSampleReportsProvider);
-}
+final deleteSampleReportProvider =
+    FutureProvider.autoDispose.family<void, int>((ref, id) async {
+  await AuthHttpClient.delete(ref, singleSampleReportEndpoint(id));
+  _invalidateSampleReportCache(ref);
+  ref.invalidate(singleSampleReportProvider(id));
+});

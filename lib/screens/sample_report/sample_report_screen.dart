@@ -3,9 +3,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/main.dart';
 import 'package:labledger/models/sample_report_model.dart';
 import 'package:labledger/providers/sample_reports_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
@@ -324,7 +326,11 @@ class SampleReportManagementScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-             Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.error,
+            ),
             SizedBox(height: defaultPadding),
             Text(
               'Failed to load sample reports',
@@ -365,37 +371,44 @@ class SampleReportManagementScreen extends ConsumerWidget {
 
     return Center(
       child: TintedContainer(
+        height: 400,
+        width: 400,
         baseColor: effectiveColor,
         intensity: 0.08,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.description_outlined, size: 64, color: effectiveColor),
+            Icon(
+              LucideIcons.building,
+              size: 94,
+              color: effectiveColor,
+            ), // Updated Icon
             SizedBox(height: defaultPadding),
             Text(
-              'No sample reports found',
+              'No reports found', // Updated Text
               style: theme.textTheme.titleMedium?.copyWith(
                 color: colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
+                fontSize: 20,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Add your first report to get started',
+              'Add your first report to get started', // Updated Text
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                color: colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: defaultPadding),
-            ElevatedButton.icon(
-              onPressed: () => _showCreateDialog(context, effectiveColor),
-              icon: const Icon(Icons.add),
-              label: const Text('Add Report'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: effectiveColor,
-                foregroundColor: Colors.white,
-              ),
+            Spacer(),
+            CustomElevatedButton(
+              width: double.infinity,
+              onPressed: () {
+                _showCreateDialog(context, effectiveColor);
+              },
+              label: "Add Report",
+              backgroundColor: effectiveColor,
+              icon: Icon(Icons.add),
             ),
           ],
         ),
@@ -475,7 +488,7 @@ class SampleReportManagementScreen extends ConsumerWidget {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-            behavior: SnackBarBehavior.floating,
+                      behavior: SnackBarBehavior.floating,
 
                       content: Text('Report deleted successfully'),
                     ),
@@ -885,7 +898,21 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
         sampleReportFile: widget.existingReport?.sampleReportFile ?? '',
         sampleReportFileLocal: _selectedFile,
       );
+      if (_selectedFile == null) return;
+      final int fileSizeBytes = await _selectedFile!.length();
+      if (fileSizeBytes > maxFileSize) {
+        showDialog(
+          context: navigatorKey.currentContext!,
+          builder: (context) {
+            return ErrorDialog(
+              title: "Size Limit",
+              errorMessage: "File size limit is 1 MB only.",
+            );
+          },
+        );
 
+        return;
+      }
       if (widget.mode == FormMode.create) {
         await ref.read(createSampleReportProvider(report).future);
       } else {
@@ -896,7 +923,6 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            
             content: Text(
               'Report ${widget.mode == FormMode.create ? 'created' : 'updated'} successfully',
             ),

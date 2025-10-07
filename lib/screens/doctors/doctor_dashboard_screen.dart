@@ -15,6 +15,7 @@ import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/bill_growth_stats_view.dart';
+import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
@@ -153,7 +154,9 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (error, stackTrace) => WindowScaffold(
-        child: Center(child: Text('Error loading doctor: $error')),
+        child: Center(
+          child: ErrorDialog(title: "Error", errorMessage: error.toString()),
+        ),
       ),
       data: (doctor) {
         return WindowScaffold(
