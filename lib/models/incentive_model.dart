@@ -1,4 +1,3 @@
-// Represents a Doctor with their details and incentive percentages.
 class Doctor {
   final int? id;
   final String? firstName;
@@ -37,7 +36,6 @@ class Doctor {
   }
 }
 
-/// Represents the incentive report for a single doctor.
 class DoctorReport {
   final Doctor doctor;
   final int totalIncentive;

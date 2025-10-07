@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
+import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 
@@ -16,7 +18,6 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
     'LabLedger',
     'Dark Blue',
     'Light Blue',
-    'TEST',
   ];
   int _selectedLayoutIndex = 0;
 
@@ -103,7 +104,7 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         width: 600,
-        height: 800,
+        height: 850,
         padding: EdgeInsets.all(defaultPadding * 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,38 +383,18 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                OutlinedButton(
+                CustomOutlinedButton(
                   onPressed: () =>
                       Navigator.of(context).pop({'generate': false}),
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: defaultPadding * 2,
-                      vertical: defaultPadding * 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text('Cancel'),
+                  icon: Icon(Icons.close),
+                  label: "Cancel",
                 ),
                 SizedBox(width: defaultWidth),
-                ElevatedButton(
+                CustomElevatedButton(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   onPressed: _selectedCount > 0 ? _onGeneratePressed : null,
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: defaultPadding * 2,
-                      vertical: defaultPadding * 1.5,
-                    ),
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: theme.colorScheme.onPrimary,
-                    disabledBackgroundColor: theme.colorScheme.onSurface
-                        .withValues(alpha: 0.12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: const Text('Generate PDF'),
+                  icon: Icon(Icons.picture_as_pdf_outlined),
+                  label: 'Generate PDF',
                 ),
               ],
             ),

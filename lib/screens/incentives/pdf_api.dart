@@ -6,7 +6,6 @@ import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/incentives/pdf_layouts/pdf_type1.dart';
 import 'package:labledger/screens/incentives/pdf_layouts/pdf_type2.dart';
 import 'package:labledger/screens/incentives/pdf_layouts/pdf_type3.dart';
-import 'package:labledger/screens/incentives/pdf_layouts/pdf_type4.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -58,14 +57,7 @@ Future<Uint8List> createPDF({
               boldTTF,
               centerDetail,
             ),
-            buildBillsTableType4(
-              doctorReport,
-              selectedFields,
-              ref,
-              ttf,
-              boldTTF,
-              centerDetail,
-            ),
+            
           ];
           return pw.Column(
             mainAxisAlignment: pw.MainAxisAlignment.start,

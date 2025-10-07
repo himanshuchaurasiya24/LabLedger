@@ -153,7 +153,9 @@ pw.Widget buildBillsTableType1(
                               color: PdfColors.white,
                             ),
                           ),
-                          pw.SizedBox(height: 6),
+
+                          pw.SizedBox(height: 2),
+
                           pw.Row(
                             children: [
                               _buildInfoChip(
@@ -169,7 +171,7 @@ pw.Widget buildBillsTableType1(
                               ),
                             ],
                           ),
-                          pw.SizedBox(height: 4),
+                          pw.SizedBox(height: 2),
                           pw.Text(
                             "${DateFormat("dd MMM yyyy").format(ref.read(reportStartDateProvider))} - ${DateFormat("dd MMM yyyy").format(ref.read(reportEndDateProvider))}",
                             style: pw.TextStyle(
@@ -184,41 +186,29 @@ pw.Widget buildBillsTableType1(
                   ],
                 ),
               ),
-              // Center Info Section
-              pw.Container(
-                padding: const pw.EdgeInsets.all(12),
-                decoration: pw.BoxDecoration(
-                  color: PdfColors.white,
-                  borderRadius: pw.BorderRadius.circular(8),
-                ),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.end,
-                  children: [
-                    pw.Text(
-                      centerDetail.centerName,
-                      style: pw.TextStyle(
-                        font: boldFont,
-                        fontSize: 11,
-                        fontWeight: pw.FontWeight.bold,
-                        color: deepBlueColor,
-                      ),
+
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  pw.Text(
+                    centerDetail.centerName,
+                    style: pw.TextStyle(
+                      font: boldFont,
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.white,
                     ),
-                    pw.SizedBox(height: 4),
-                    pw.Container(
-                      constraints: const pw.BoxConstraints(maxWidth: 180),
-                      child: pw.Text(
-                        centerDetail.address,
-                        style: pw.TextStyle(
-                          font: font,
-                          fontSize: 8,
-                          color: PdfColors.grey700,
-                        ),
-                        textAlign: pw.TextAlign.right,
-                        maxLines: 2,
-                      ),
+                  ),
+                  pw.Text(
+                    centerDetail.address,
+                    style: pw.TextStyle(
+                      font: boldFont,
+                      fontSize: 10,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.white,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
