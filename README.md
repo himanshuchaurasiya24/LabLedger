@@ -79,7 +79,7 @@ flutter pub get
 ### 🧠 2. Running the Flutter App
 
 If you plan to run LabLedger with the **local backend**,
-**disconnect from the internet before launching the app.**
+**disconnect from the internet before launching the LabLedger(Flutter) app each time.**
 
 > The app automatically switches between the **online server** and **local Django server** depending on network availability.
 
