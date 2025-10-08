@@ -55,7 +55,7 @@ It streamlines diagnostic center operations — managing patients, doctors, diag
 If the compiled app shows **runtime errors** (missing DLLs or crashes), follow these steps:
 
 1. **Download the Visual C++ Runtimes package:**
-   👉 [Click here to download Visual-C-Runtimes-All-in-One-Jul-2025.zip](https://example.com/Visual-C-Runtimes-All-in-One-Jul-2025.zip)
+   👉 [Click here to download Visual-C-Runtimes-All-in-One-Jul-2025.zip](https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/)
 
 2. **Extract** the ZIP file anywhere.
 
