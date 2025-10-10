@@ -759,19 +759,11 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                                     ],
                                   ),
                                 ),
-                              ElevatedButton.icon(
+                              CustomElevatedButton(
                                 onPressed: _pickFile,
-
-                                style: ElevatedButton.styleFrom(
-                                  fixedSize: const Size(160, 50),
-                                  backgroundColor: widget.themeColor,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      defaultRadius,
-                                    ),
-                                  ),
-                                ),
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.secondary,
                                 icon: _isSubmitting
                                     ? const SizedBox(
                                         height: 16,
@@ -785,12 +777,9 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                                         ),
                                       )
                                     : const Icon(Icons.folder_open),
-                                label: Text(
-                                  _isSubmitting
-                                      ? 'Saving...'
-                                      : ("Browse Files"),
-                                  style: const TextStyle(fontSize: 16),
-                                ),
+                                label: _isSubmitting
+                                    ? 'Saving...'
+                                    : "Browse Files",
                               ),
                             ],
                           ),
