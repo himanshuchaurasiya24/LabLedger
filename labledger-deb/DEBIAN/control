@@ -1,0 +1,9 @@
+Package: labledger
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Himanshu Chaurasiya <himanshuchaurasiya24@gmail.com>
+Description: LabLeger - Diagnostic Center Incentive Management
+ A comprehensive software solution for managing diagnostic center incentives.
+Depends: libgtk-3-0, libblkid1, liblzma5
