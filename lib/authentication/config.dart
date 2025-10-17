@@ -17,6 +17,8 @@ Future<void> initializeBaseUrl() async {
     );
 
     final response = await http.get(uri);
+    debugPrint(response.statusCode.toString());
+
     if (response.statusCode == 200) {
       final jsonBody = jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -28,6 +30,8 @@ Future<void> initializeBaseUrl() async {
           final ping = await http.get(Uri.parse(hostedUrl));
           if (ping.statusCode == 200) {
             globalBaseUrl = hostedUrl;
+            debugPrint(globalBaseUrl);
+
             return;
           }
         } catch (_) {}
