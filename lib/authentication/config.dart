@@ -28,8 +28,6 @@ Future<void> initializeBaseUrl() async {
           final ping = await http.get(Uri.parse(hostedUrl));
           if (ping.statusCode == 200) {
             globalBaseUrl = hostedUrl;
-            debugPrint(globalBaseUrl);
-
             return;
           }
         } catch (_) {}
