@@ -190,7 +190,7 @@ echo "Using version: $VERSION"
 # ---------------------------
 # Build the .deb Package
 # ---------------------------
-OUTPUT_DEB="${APP_NAME}_v${VERSION}_amd64.deb"
+OUTPUT_DEB="${DISPLAY_NAME}_v${VERSION}_amd64.deb"
 echo "Building package '$OUTPUT_DEB'..."
 dpkg-deb --build --root-owner-group "$DEB_TEMP_DIR" "$OUTPUT_DEB"
 
