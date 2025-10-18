@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0.0
+Type=Application
+Name=LabLedger
+Exec=/usr/local/bin/labledger
+Icon=labledger
+Terminal=false
+Categories=Utility;

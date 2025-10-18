@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=LabLeger
-Comment=Diagnostic Center Incentive Management
-Exec=/usr/local/bin/labledger
-Icon=/opt/labledger/data/flutter_assets/assets/images/app_icon_hd.png
-Terminal=false
-Type=Application
-Categories=Office;Utility;

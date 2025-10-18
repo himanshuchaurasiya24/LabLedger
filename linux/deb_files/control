@@ -1,0 +1,8 @@
+Package: labledger
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: libgtk-3-0, libglib2.0-0
+Maintainer: Himanshu Chaurasiya <himanshuchaurasiya24@gmail.com>
+Description: LabLedger - Medical Records Made Simple
