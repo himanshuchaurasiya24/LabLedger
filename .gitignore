@@ -4,6 +4,8 @@
 *.pyc
 *.swp
 *.deb
+*.snap
+flutter-sdk/
 .DS_Store
 .atom/
 .build/

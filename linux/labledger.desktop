@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=LabLedger
+GenericName=Lab Management Application
+Comment=Medical Records Made Simple
+Exec=labledger
+Icon=${SNAP}/meta/gui/labledger.png
+Terminal=false
+Type=Application
+Categories=Utility;Office;Education;
+Version=1.0.0
+StartupNotify=true
+MimeType=application/x-labledger;
