@@ -2,7 +2,10 @@
 Version=1.0.0
 Type=Application
 Name=LabLedger
-Exec=/usr/local/bin/labledger
+Exec=labledger
 Icon=labledger
 Terminal=false
-Categories=Utility;
+Categories=Office;Utility;
+Comment=Medical Records Made Simple
+StartupWMClass=labledger
+StartupNotify=true

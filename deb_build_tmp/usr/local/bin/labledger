@@ -1,15 +1,32 @@
 #!/bin/bash
-# Wrapper script to run the main application.
+# Wrapper script to run the main application with single instance check.
 INSTALL_DIR="/usr/local/lib/labledger"
-LIB_DIR="/usr/local/lib/labledger/lib"
+LIB_DIR="$INSTALL_DIR/lib"
+BINARY_NAME="labledger"
+LOCK_FILE="/tmp/labledger.lock"
+
+# Single instance check using flock
+exec 200>"$LOCK_FILE"
+if ! flock -n 200; then
+    echo "LabLedger is already running. Bringing existing window to front..."
+    
+    # Try to focus the existing window
+    if command -v wmctrl &>/dev/null; then
+        wmctrl -a "LabLedger" 2>/dev/null || wmctrl -a "labledger" 2>/dev/null
+    elif command -v xdotool &>/dev/null; then
+        xdotool search --name "LabLedger" windowactivate 2>/dev/null || \
+        xdotool search --name "labledger" windowactivate 2>/dev/null
+    fi
+    
+    exit 0
+fi
 
 # Explicitly tell the dynamic linker where to find all .so files.
 export LD_LIBRARY_PATH="$LIB_DIR:$INSTALL_DIR:$LD_LIBRARY_PATH"
 
 # Change to the main application directory so the executable can find
 # the 'data' directory (containing AOT snapshot and assets).
-# This is the crucial step to fix the 'Invalid ELF path' error.
 cd "$INSTALL_DIR"
 
 # Execute the binary, passing along any command-line arguments.
-exec "./labledger" "$@"
+exec "./$BINARY_NAME" "$@"

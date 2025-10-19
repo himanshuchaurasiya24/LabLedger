@@ -26,6 +26,12 @@ static void my_application_activate(GApplication* application) {
   GtkWindow* window =
       GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));
 
+  // Set default icon name (matches Icon= in .desktop file)
+  gtk_window_set_default_icon_name("labledger");
+  
+  // Set window role for better window manager integration
+  gtk_window_set_role(window, "labledger");
+
   // Use a header bar when running in GNOME as this is the common style used
   // by applications and is the setup most users will be using (e.g. Ubuntu
   // desktop).
@@ -46,14 +52,15 @@ static void my_application_activate(GApplication* application) {
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "labledger");
+    gtk_header_bar_set_title(header_bar, "LabLedger");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   } else {
-    gtk_window_set_title(window, "labledger");
+    gtk_window_set_title(window, "LabLedger");
   }
 
-  gtk_window_set_default_size(window, 1280, 720);
+  // Window size is managed by Flutter/your app
+  // gtk_window_set_default_size(window, 1280, 720);
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(project, self->dart_entrypoint_arguments);
@@ -131,14 +138,12 @@ static void my_application_class_init(MyApplicationClass* klass) {
 static void my_application_init(MyApplication* self) {}
 
 MyApplication* my_application_new() {
-  // Set the program name to the application ID, which helps various systems
-  // like GTK and desktop environments map this running application to its
-  // corresponding .desktop file. This ensures better integration by allowing
-  // the application to be recognized beyond its binary name.
-  g_set_prgname(APPLICATION_ID);
+  // Set the program name to match the .desktop file name (without .desktop extension)
+  // This is CRITICAL for dock icon recognition in modern GTK applications
+  g_set_prgname("labledger");
 
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID,
-                                     "flags", G_APPLICATION_NON_UNIQUE,
+                                     "flags", G_APPLICATION_DEFAULT_FLAGS,  // Enables single instance
                                      nullptr));
 }
