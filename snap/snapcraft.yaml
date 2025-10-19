@@ -26,11 +26,17 @@ apps:
       - x11
       - network-bind
       - opengl
+      - desktop-legacy
+      - gsettings
+      - pulseaudio
+      - browser-support
 
 parts:
   labledger:
-    plugin: nil
+    plugin: flutter
     source: .
+    flutter-channel: stable
+    flutter-target: linux
     stage-packages:
       - libgtk-3-0
       - libglib2.0-0
