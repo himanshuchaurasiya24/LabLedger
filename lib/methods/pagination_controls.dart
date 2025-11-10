@@ -3,10 +3,6 @@ import 'package:flutter/services.dart';
 
 import 'package:labledger/screens/ui_components/custom_text_field.dart'; 
 
-/// A reusable pagination control widget.
-///
-/// This is a "dumb" component controlled by its parent. It receives the
-/// [currentPage] and notifies the parent of any changes via [onPageChanged].
 class PaginationControls extends StatefulWidget {
   const PaginationControls({
     super.key,
@@ -16,16 +12,9 @@ class PaginationControls extends StatefulWidget {
     required this.onPageChanged,
   });
 
-  /// The total number of items from the backend (the "count").
   final int totalItems;
-
-  /// The number of items per page (must match backend setting).
   final int itemsPerPage;
-
-  /// The current page number being displayed.
   final int currentPage;
-
-  /// A callback function that fires when the page should change.
   final ValueChanged<int> onPageChanged;
 
   @override
@@ -41,9 +30,7 @@ class _PaginationControlsState extends State<PaginationControls> {
     super.initState();
     _pageController = TextEditingController(text: widget.currentPage.toString());
     _focusNode = FocusNode();
-    
-    // Add a listener to submit when the user taps away
-    _focusNode.addListener(() {
+        _focusNode.addListener(() {
       if (!_focusNode.hasFocus) {
         _submitPage();
       }
