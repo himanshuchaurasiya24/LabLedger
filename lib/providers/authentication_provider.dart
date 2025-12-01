@@ -36,10 +36,10 @@ final loginProvider =
       .login(credentials.username, credentials.password);
 });
 
-final logoutProvider = FutureProvider.autoDispose<void>((ref) async {
-  await AuthRepository.instance.logout();
-  ref.invalidate(currentUserProvider);
-});
+// final logoutProvider = FutureProvider.autoDispose<void>((ref) async {
+//   await AuthRepository.instance.logout();
+//   ref.invalidate(currentUserProvider);
+// });
 final subscriptionStatusProvider =
     FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final authResponse = await ref.watch(currentUserProvider.future);
