@@ -22,7 +22,7 @@ Future<void> initializeBaseUrl() async {
     if (response.statusCode == 200) {
       final jsonBody = jsonDecode(response.body) as Map<String, dynamic>;
 
-      final hostedUrl = jsonBody["random_url"] as String?;
+      final hostedUrl = jsonBody["ll"] as String?;
 
       if (hostedUrl != null && hostedUrl.isNotEmpty) {
         try {
