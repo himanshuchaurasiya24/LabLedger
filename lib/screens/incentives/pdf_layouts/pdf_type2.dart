@@ -403,17 +403,30 @@ pw.Widget _buildIncentiveCell(int amount, pw.Font font) => pw.Container(
 );
 
 String _formatDiagnosis(IncentiveBill bill) {
-  final name = bill.diagnosisType.name;
-  final category = bill.diagnosisType.category;
-  return "$name ($category)";
+  if (bill.diagnosisTypesOutput != null &&
+      bill.diagnosisTypesOutput!.isNotEmpty) {
+    return bill.diagnosisTypesOutput!
+        .map(
+          (dt) =>
+              "${dt['diagnosis_type_detail']['name']} (${dt['diagnosis_type_detail']['category']})",
+        )
+        .join(', ');
+  }
+  return 'Unknown';
 }
 
 String _formatFranchise(IncentiveBill bill) {
-  return bill.franchiseName?.franchiseName ?? 'N/A';
+  return bill.franchiseName?['franchise_name'] ?? 'N/A';
 }
 
 String _getIncentivePercentage(Doctor doctor, IncentiveBill bill) {
-  final category = bill.diagnosisType.category.toLowerCase();
+  if (bill.diagnosisTypesOutput == null || bill.diagnosisTypesOutput!.isEmpty) {
+    return '0';
+  }
+  final category =
+      (bill.diagnosisTypesOutput![0]['diagnosis_type_detail']['category']
+              as String)
+          .toLowerCase();
 
   switch (category) {
     case 'ultrasound':

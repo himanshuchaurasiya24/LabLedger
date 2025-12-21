@@ -45,7 +45,7 @@ class PendingReportsCard extends StatelessWidget {
                 ),
                 SizedBox(width: defaultWidth / 2),
                 Text(
-                  'Pending Reports',
+                  'Pending For Report Upload',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.secondary,
@@ -154,9 +154,9 @@ class PendingReportsCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
-                    // Diagnosis Type
+                    // Age and Sex
                     Text(
-                      bill.diagnosisType.name,
+                      '${bill.patientAge}y • ${bill.patientSex}',
                       style: TextStyle(
                         color: statusInfo.color.withValues(alpha: 0.7),
                         fontSize: 14,
@@ -168,14 +168,11 @@ class PendingReportsCard extends StatelessWidget {
               ),
               SizedBox(width: defaultWidth),
 
-              // --- Price (Right Side) ---
-              Text(
-                '₹${bill.diagnosisType.price}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: statusInfo.color,
-                ),
+              // --- Chevron Icon (Right Side) ---
+              Icon(
+                LucideIcons.chevronRight,
+                color: statusInfo.color.withValues(alpha: 0.5),
+                size: 20,
               ),
             ],
           ),

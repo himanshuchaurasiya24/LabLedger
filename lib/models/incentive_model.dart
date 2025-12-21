@@ -108,8 +108,8 @@ class IncentiveBill {
   final int patientAge;
   final String patientSex;
   final int? patientPhoneNumber;
-  final DiagnosisType diagnosisType;
-  final FranchiseName? franchiseName; // 🌟 RENAMED: Using FranchiseName
+  final List<Map<String, dynamic>>? diagnosisTypesOutput;
+  final Map<String, dynamic>? franchiseName;
   final DateTime dateOfBill;
   final String billStatus;
   final int totalAmount;
@@ -125,7 +125,7 @@ class IncentiveBill {
     required this.patientAge,
     required this.patientSex,
     this.patientPhoneNumber,
-    required this.diagnosisType,
+    this.diagnosisTypesOutput,
     this.franchiseName,
     required this.dateOfBill,
     required this.billStatus,
@@ -137,22 +137,17 @@ class IncentiveBill {
   });
 
   factory IncentiveBill.fromJson(Map<String, dynamic> json) {
-    final franchiseJson = json['franchise_name'] as Map<String, dynamic>?;
-
     return IncentiveBill(
-      id: json['id'] as int? ?? 0,
-      billNumber: json['bill_number'] as String? ?? '',
-      patientName: json['patient_name'] as String? ?? '',
-      patientAge: json['patient_age'] as int? ?? 0,
-      patientSex: json['patient_sex'] as String? ?? '',
-      patientPhoneNumber: json['patient_phone_number'] as int?,
-      diagnosisType: DiagnosisType.fromJson(
-        json['diagnosis_type'] as Map<String, dynamic>,
-      ),
-      // 🌟 RENAMED: Parsing now uses FranchiseName.fromJson.
-      franchiseName: franchiseJson != null
-          ? FranchiseName.fromJson(franchiseJson)
+      id: json["id"] as int? ?? 0,
+      billNumber: json["bill_number"] as String? ?? '',
+      patientName: json["patient_name"] as String? ?? '',
+      patientAge: json["patient_age"] as int? ?? 0,
+      patientSex: json["patient_sex"] as String? ?? '',
+      patientPhoneNumber: json["patient_phone_number"] as int?,
+      diagnosisTypesOutput: json['diagnosis_types_output'] != null
+          ? List<Map<String, dynamic>>.from(json['diagnosis_types_output'])
           : null,
+      franchiseName: json["franchise_name"] as Map<String, dynamic>?,
       dateOfBill: DateTime.parse(json['date_of_bill'] as String),
       billStatus: json['bill_status'] as String? ?? 'Unpaid',
       totalAmount: json['total_amount'] as int? ?? 0,

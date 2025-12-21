@@ -16,12 +16,12 @@ class Bill {
   final String? reportUrl; // ✅ Field added
 
   // Storing IDs for write operations (POST/PUT)
-  final int diagnosisType;
+  final List<int> diagnosisTypes;
   final int referredByDoctor;
   final int? franchiseName;
 
   // Storing full objects for read operations (GET)
-  final Map<String, dynamic>? diagnosisTypeOutput;
+  final List<Map<String, dynamic>>? diagnosisTypesOutput;
   final Map<String, dynamic>? referredByDoctorOutput;
   final Map<String, dynamic>? franchiseNameOutput;
   final Map<String, dynamic>? testDoneBy;
@@ -43,10 +43,10 @@ class Bill {
     required this.discByCenter,
     required this.discByDoctor,
     required this.incentiveAmount,
-    required this.diagnosisType,
+    required this.diagnosisTypes,
     required this.referredByDoctor,
     this.franchiseName,
-    this.diagnosisTypeOutput,
+    this.diagnosisTypesOutput,
     this.referredByDoctorOutput,
     this.franchiseNameOutput,
     this.testDoneBy,
@@ -73,10 +73,21 @@ class Bill {
       discByDoctor: json['disc_by_doctor'],
       incentiveAmount: json['incentive_amount'],
       reportUrl: json['report_url'], // ✅ Added parsing for the new field
-      diagnosisType: json['diagnosis_type_output']?['id'] ?? 0,
+      diagnosisTypes: json['diagnosis_types_output'] != null
+          ? (json['diagnosis_types_output'] as List)
+                .map((dt) => dt['diagnosis_type'] as int)
+                .toList()
+          : [],
       referredByDoctor: json['referred_by_doctor_output']?['id'] ?? 0,
       franchiseName: json['franchise_name_output']?['id'],
-      diagnosisTypeOutput: json['diagnosis_type_output'],
+      diagnosisTypesOutput: json['diagnosis_types_output'] != null
+          ? (json['diagnosis_types_output'] as List)
+                .map(
+                  (dt) =>
+                      Map<String, dynamic>.from(dt['diagnosis_type_detail']),
+                )
+                .toList()
+          : null,
       referredByDoctorOutput: json['referred_by_doctor_output'],
       franchiseNameOutput: json['franchise_name_output'],
       testDoneBy: json['test_done_by'],
@@ -99,7 +110,7 @@ class Bill {
       'bill_status': billStatus,
       'date_of_test': dateOfTest.toIso8601String(),
       'date_of_bill': dateOfBill.toIso8601String(),
-      'diagnosis_type': diagnosisType,
+      'diagnosis_types': diagnosisTypes,
       'referred_by_doctor': referredByDoctor,
       'franchise_name': franchiseName,
     };

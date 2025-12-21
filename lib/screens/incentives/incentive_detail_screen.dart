@@ -606,12 +606,20 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                   ),
                   DataCell(
                     Text(
-                      "${bill.diagnosisType.name} (${bill.diagnosisType.category})",
+                      bill.diagnosisTypesOutput != null &&
+                              bill.diagnosisTypesOutput!.isNotEmpty
+                          ? bill.diagnosisTypesOutput!
+                                .map(
+                                  (dt) =>
+                                      "${dt['diagnosis_type_detail']['name']} (${dt['diagnosis_type_detail']['category']})",
+                                )
+                                .join(', ')
+                          : 'Unknown',
                     ),
                   ),
                   DataCell(
                     bill.franchiseName != null
-                        ? Text(bill.franchiseName!.franchiseName)
+                        ? Text(bill.franchiseName!['franchise_name'] ?? 'N/A')
                         : const Text("N/A"),
                   ),
                   DataCell(
@@ -655,7 +663,14 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
   }
 
   Widget getIncentivePercentage(Doctor doctor, IncentiveBill bill) {
-    final category = bill.diagnosisType.category.toLowerCase();
+    // Get first diagnosis type's category for percentage calculation
+    final category =
+        bill.diagnosisTypesOutput != null &&
+            bill.diagnosisTypesOutput!.isNotEmpty
+        ? (bill.diagnosisTypesOutput![0]['diagnosis_type_detail']['category']
+                  as String)
+              .toLowerCase()
+        : '';
 
     switch (category) {
       case 'ultrasound':

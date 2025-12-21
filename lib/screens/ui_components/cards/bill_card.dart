@@ -332,7 +332,14 @@ class BillCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        "${bill.diagnosisTypeOutput?['category']} ${bill.diagnosisTypeOutput?['name']}",
+                        bill.diagnosisTypesOutput != null &&
+                                bill.diagnosisTypesOutput!.isNotEmpty
+                            ? bill.diagnosisTypesOutput!
+                                  .map(
+                                    (dt) => "${dt['category']} ${dt['name']}",
+                                  )
+                                  .join(', ')
+                            : 'Unknown Test',
                         style: bodyStyle?.copyWith(fontSize: 14),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

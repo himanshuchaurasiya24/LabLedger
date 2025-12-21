@@ -57,7 +57,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   String selectedTestDateISO = DateTime.now().toIso8601String();
   String selectedBillDateISO = DateTime.now().toIso8601String();
 
-  DiagnosisType? _selectedDiagnosisType;
+  List<DiagnosisType> _selectedDiagnosisTypes = [];
   FranchiseName? _selectedFranchise;
   Doctor? _selectedDoctor;
 
@@ -126,10 +126,12 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     discByDoctorController.text = bill.discByDoctor.toString();
     discByCenterController.text = bill.discByCenter.toString();
 
-    if (bill.diagnosisTypeOutput != null) {
-      _selectedDiagnosisType = DiagnosisType.fromJson(
-        bill.diagnosisTypeOutput!,
-      );
+    // Load multiple diagnosis types
+    if (bill.diagnosisTypesOutput != null &&
+        bill.diagnosisTypesOutput!.isNotEmpty) {
+      _selectedDiagnosisTypes = bill.diagnosisTypesOutput!
+          .map((dt) => DiagnosisType.fromJson(dt))
+          .toList();
     }
     if (bill.referredByDoctorOutput != null) {
       _selectedDoctor = Doctor.fromJson(bill.referredByDoctorOutput!);
@@ -137,12 +139,14 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     if (bill.franchiseNameOutput != null) {
       _selectedFranchise = FranchiseName.fromJson(bill.franchiseNameOutput!);
     }
-    diagnosisTypeController.text = bill.diagnosisType.toString();
+    diagnosisTypeController.text = bill.diagnosisTypes.join(',');
     refByDoctorController.text = bill.referredByDoctor.toString();
     franchiseNameController.text = bill.franchiseName?.toString() ?? '';
 
-    diagnosisTypeDisplayController.text =
-        '${bill.diagnosisTypeOutput?['category']} ${bill.diagnosisTypeOutput?['name']}';
+    // Display diagnosis types as comma-separated list or chips
+    diagnosisTypeDisplayController.text = _selectedDiagnosisTypes
+        .map((dt) => '${dt.category} ${dt.name}')
+        .join(', ');
     refByDoctorDisplayController.text =
         '${bill.referredByDoctorOutput?['first_name']} ${bill.referredByDoctorOutput?['last_name']}';
     franchiseNameDisplayController.text =
@@ -158,14 +162,21 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   ) {
     if (!_isEditMode || !_isDataInitialized) return;
     try {
+      // Load diagnosis types from controller (comma-separated IDs)
       if (diagnosisTypeController.text.isNotEmpty) {
-        final diagnosisId = int.tryParse(diagnosisTypeController.text);
-        if (diagnosisId != null) {
-          _selectedDiagnosisType = diagnosisTypes.firstWhere(
-            (type) => type.id == diagnosisId,
-          );
-          diagnosisTypeDisplayController.text =
-              '${_selectedDiagnosisType!.category} ${_selectedDiagnosisType!.name}';
+        final diagnosisIds = diagnosisTypeController.text
+            .split(',')
+            .map((id) => int.tryParse(id.trim()))
+            .whereType<int>()
+            .toList();
+
+        if (diagnosisIds.isNotEmpty) {
+          _selectedDiagnosisTypes = diagnosisTypes
+              .where((type) => diagnosisIds.contains(type.id))
+              .toList();
+          diagnosisTypeDisplayController.text = _selectedDiagnosisTypes
+              .map((dt) => '${dt.category} ${dt.name}')
+              .join(', ');
         }
       }
 
@@ -178,8 +189,11 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         }
       }
 
-      if (_selectedDiagnosisType?.category == 'Franchise Lab' &&
-          franchiseNameController.text.isNotEmpty) {
+      // Check if any selected diagnosis type is Franchise Lab
+      bool hasFranchiseLab = _selectedDiagnosisTypes.any(
+        (dt) => dt.category == 'Franchise Lab',
+      );
+      if (hasFranchiseLab && franchiseNameController.text.isNotEmpty) {
         _selectedFranchise = franchises.firstWhere(
           (f) => f.franchiseName == franchiseNameController.text,
         );
@@ -709,28 +723,79 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                     );
                   });
                 }
-                return SearchableDropdownField<DiagnosisType>(
-                  label: 'Diagnosis Type',
-                  controller: diagnosisTypeDisplayController,
-                  items: types,
-                  color: defaultColor,
-                  valueMapper: (item) =>
-                      '${item.category} ${item.name}, ₹${item.price}',
-                  onSelected: (selected) {
-                    setState(() {
-                      _selectedDiagnosisType = selected;
-                      diagnosisTypeController.text = selected.id.toString();
-                      diagnosisTypeDisplayController.text =
-                          '${selected.category} ${selected.name}, ₹${selected.price}';
-                      if (selected.category != 'Franchise Lab') {
-                        _selectedFranchise = null;
-                        franchiseNameController.clear();
-                        franchiseNameDisplayController.clear();
-                      }
-                    });
-                  },
-                  validator: (v) =>
-                      v!.isEmpty ? 'Diagnosis type is required' : null,
+                // Multi-select UI with chips
+                return Column(
+                  children: [
+                    if (_selectedDiagnosisTypes.isNotEmpty)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _selectedDiagnosisTypes.map((dt) {
+                          return Chip(
+                            label: Text(
+                              '${dt.category} ${dt.name} (₹${dt.price})',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            backgroundColor: defaultColor.withOpacity(0.1),
+                            deleteIconColor: defaultColor,
+                            onDeleted: () {
+                              setState(() {
+                                _selectedDiagnosisTypes.remove(dt);
+                                diagnosisTypeController.text =
+                                    _selectedDiagnosisTypes
+                                        .map((d) => d.id.toString())
+                                        .join(',');
+                                diagnosisTypeDisplayController.text =
+                                    _selectedDiagnosisTypes
+                                        .map((d) => '${d.category} ${d.name}')
+                                        .join(', ');
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    SizedBox(height: defaultHeight / 2),
+                    SearchableDropdownField<DiagnosisType>(
+                      label: 'Add Diagnosis Type',
+                      controller:
+                          TextEditingController(), // Empty controller for adding
+                      items: types,
+                      color: defaultColor,
+                      valueMapper: (item) =>
+                          '${item.category} ${item.name}, ₹${item.price}',
+                      onSelected: (selected) {
+                        setState(() {
+                          // Add to list if not already present
+                          if (!_selectedDiagnosisTypes.any(
+                            (dt) => dt.id == selected.id,
+                          )) {
+                            _selectedDiagnosisTypes.add(selected);
+                            diagnosisTypeController.text =
+                                _selectedDiagnosisTypes
+                                    .map((d) => d.id.toString())
+                                    .join(',');
+                            diagnosisTypeDisplayController.text =
+                                _selectedDiagnosisTypes
+                                    .map((d) => '${d.category} ${d.name}')
+                                    .join(', ');
+
+                            // Clear franchise if no Franchise Lab types
+                            bool hasFranchiseLab = _selectedDiagnosisTypes.any(
+                              (dt) => dt.category == 'Franchise Lab',
+                            );
+                            if (!hasFranchiseLab) {
+                              _selectedFranchise = null;
+                              franchiseNameController.clear();
+                              franchiseNameDisplayController.clear();
+                            }
+                          }
+                        });
+                      },
+                      validator: (v) => _selectedDiagnosisTypes.isEmpty
+                          ? 'At least one diagnosis type is required'
+                          : null,
+                    ),
+                  ],
                 );
               },
               loading: () => _buildLoadingField(),
@@ -740,7 +805,10 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
             SizedBox(height: defaultHeight),
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
-              child: _selectedDiagnosisType?.category == 'Franchise Lab'
+              child:
+                  _selectedDiagnosisTypes.any(
+                    (dt) => dt.category == 'Franchise Lab',
+                  )
                   ? Padding(
                       padding: EdgeInsets.only(bottom: defaultPadding),
                       child: franchiseNamesAsync.when(
@@ -952,12 +1020,15 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       discByCenter: int.parse(discByCenterController.text),
       discByDoctor: int.parse(discByDoctorController.text),
       patientPhoneNumber: patientPhoneNumberController.text,
-      diagnosisType: int.parse(diagnosisTypeController.text),
+      diagnosisTypes: _selectedDiagnosisTypes
+          .map((dt) => dt.id)
+          .whereType<int>()
+          .toList(),
       referredByDoctor: int.parse(refByDoctorController.text),
       franchiseName: franchiseNameController.text.isNotEmpty
           ? int.parse(franchiseNameController.text)
           : null,
-      diagnosisTypeOutput: originalBill?.diagnosisTypeOutput,
+      diagnosisTypesOutput: originalBill?.diagnosisTypesOutput,
       referredByDoctorOutput: originalBill?.referredByDoctorOutput,
       franchiseNameOutput: originalBill?.franchiseNameOutput,
       testDoneBy: originalBill?.testDoneBy,

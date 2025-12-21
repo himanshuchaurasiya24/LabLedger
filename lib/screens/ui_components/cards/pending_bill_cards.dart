@@ -148,7 +148,12 @@ class PendingBillsCard extends StatelessWidget {
 
   Widget _buildBillItem(BuildContext context, Bill bill, int index) {
     final serviceName =
-        "${bill.diagnosisTypeOutput!["category"]} ${bill.diagnosisTypeOutput!["name"]}";
+        bill.diagnosisTypesOutput != null &&
+            bill.diagnosisTypesOutput!.isNotEmpty
+        ? bill.diagnosisTypesOutput!
+              .map((dt) => "${dt['category']} ${dt['name']}")
+              .join(', ')
+        : 'Unknown Service';
     final dateString = _formatDate(bill.dateOfBill);
     final doctorName = bill.referredByDoctorOutput?['full_name'];
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -349,40 +354,40 @@ class PendingBillsCard extends StatelessWidget {
   }
 }
 
-  Widget buildPendingBillsCard(
-    AsyncValue<PaginatedBillsResponse> unpaidBillsAsync,
-    BuildContext context
-  ) {
-    final accentColor = Theme.of(context).colorScheme.error;
-    return unpaidBillsAsync.when(
-      data: (unpaidBillsAsyncResponse) {
-        return PendingBillsCard(
-          baseColor: unpaidBillsAsyncResponse.bills.isEmpty
-              ? Theme.of(context).colorScheme.secondary
-              : accentColor,
-          bills: unpaidBillsAsyncResponse.bills,
-          onBillTap: (bill) {
-            navigatorKey.currentState?.push(
-              MaterialPageRoute(
-                builder: (context) => AddUpdateBillScreen(
-                  billId: bill.id,
-                  themeColor: Theme.of(context).colorScheme.error,
-                ),
+Widget buildPendingBillsCard(
+  AsyncValue<PaginatedBillsResponse> unpaidBillsAsync,
+  BuildContext context,
+) {
+  final accentColor = Theme.of(context).colorScheme.error;
+  return unpaidBillsAsync.when(
+    data: (unpaidBillsAsyncResponse) {
+      return PendingBillsCard(
+        baseColor: unpaidBillsAsyncResponse.bills.isEmpty
+            ? Theme.of(context).colorScheme.secondary
+            : accentColor,
+        bills: unpaidBillsAsyncResponse.bills,
+        onBillTap: (bill) {
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) => AddUpdateBillScreen(
+                billId: bill.id,
+                themeColor: Theme.of(context).colorScheme.error,
               ),
-            );
-          },
-        );
-      },
-      loading: () => TintedContainer(
-        baseColor: accentColor,
+            ),
+          );
+        },
+      );
+    },
+    loading: () => TintedContainer(
+      baseColor: accentColor,
 
-        child: Center(child: CircularProgressIndicator(color: accentColor)),
+      child: Center(child: CircularProgressIndicator(color: accentColor)),
+    ),
+    error: (err, _) => Center(
+      child: Text(
+        "Error: Failed to load pending bills.",
+        style: TextStyle(color: accentColor),
       ),
-      error: (err, _) => Center(
-        child: Text(
-          "Error: Failed to load pending bills.",
-          style: TextStyle(color: accentColor),
-        ),
-      ),
-    );
-  }
+    ),
+  );
+}

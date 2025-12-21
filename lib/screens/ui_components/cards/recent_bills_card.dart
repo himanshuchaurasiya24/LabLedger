@@ -182,7 +182,13 @@ class RecentBillsCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     // Diagnosis Type
                     Text(
-                      bill.diagnosisTypeOutput?["name"] ?? 'Unknown Test',
+                      bill.diagnosisTypesOutput != null &&
+                              bill.diagnosisTypesOutput!.isNotEmpty
+                          ? bill.diagnosisTypesOutput!.length > 1
+                                ? '${bill.diagnosisTypesOutput![0]['name']} +${bill.diagnosisTypesOutput!.length - 1} more'
+                                : bill.diagnosisTypesOutput![0]['name'] ??
+                                      'Unknown Test'
+                          : 'Unknown Test',
                       style: TextStyle(
                         color: statusInfo.color.withValues(alpha: 0.7),
                         fontSize: 14,
