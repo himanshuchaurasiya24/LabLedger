@@ -103,7 +103,7 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -139,7 +139,7 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark
                         ? Colors.white70
-                        : theme.colorScheme.onSurface.withOpacity(0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -223,7 +223,7 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
           Container(
             padding: EdgeInsets.all(defaultPadding * 1.5),
             decoration: BoxDecoration(
-              color: color.withOpacity(isDark ? 0.2 : 0.1),
+              color: color.withValues(alpha: isDark ? 0.2 : 0.1),
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(defaultRadius),
                 topRight: Radius.circular(defaultRadius),
@@ -234,7 +234,7 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
                 Container(
                   padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
+                    color: color.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(LucideIcons.tags, color: color, size: 20),
@@ -280,9 +280,9 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
                     // Franchise Lab Checkbox
                     Container(
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.05),
+                        color: color.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(defaultRadius),
-                        border: Border.all(color: color.withOpacity(0.2)),
+                        border: Border.all(color: color.withValues(alpha: 0.2)),
                       ),
                       child: CheckboxListTile(
                         title: Text(
@@ -440,9 +440,9 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         text,

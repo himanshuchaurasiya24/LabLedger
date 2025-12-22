@@ -154,7 +154,7 @@ class CustomTextField extends StatelessWidget {
       validator: masterValidator, // <-- USE MASTER VALIDATOR
       onTap: onTap,
       onFieldSubmitted: onSubmitted,
-      inputFormatters: inputFormatters,
+      inputFormatters: _getEffectiveInputFormatters(), // USE THE NEW METHOD
       textAlign: textAlign,
       style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
       decoration: InputDecoration(
@@ -192,6 +192,76 @@ class CustomTextField extends StatelessWidget {
         ),
         contentPadding: EdgeInsets.all(defaultPadding),
       ),
+    );
+  }
+
+  List<TextInputFormatter> _getEffectiveInputFormatters() {
+    final List<TextInputFormatter> formatters = [
+      ...?inputFormatters, // Add user-supplied formatters first
+    ];
+
+    // Safety check: specific keyboard types usually don't need capitalization
+    if (keyboardType == TextInputType.number ||
+        keyboardType == TextInputType.phone ||
+        keyboardType == TextInputType.datetime) {
+      return formatters;
+    }
+
+    final lowerLabel = label.toLowerCase();
+
+    // 1. Username / Email: Force lowercase + no spaces
+    if (lowerLabel.contains('username') || lowerLabel.contains('email')) {
+      formatters.add(
+        FilteringTextInputFormatter.deny(RegExp(r'\s')),
+      ); // No spaces
+      formatters.add(LowerCaseTextFormatter());
+      return formatters;
+    }
+
+    // 2. Password: Do nothing (preserve case)
+    if (obscureText || lowerLabel.contains('password')) {
+      return formatters;
+    }
+
+    // 3. Default: Title Case (Capitalize first letter of every word)
+    // Only apply if it's NOT a numeric field (just to be safe)
+    if (!isNumeric) {
+      formatters.add(TitleCaseTextInputFormatter());
+    }
+
+    return formatters;
+  }
+}
+
+class TitleCaseTextInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) return newValue;
+
+    // Capitalize first letter of each word
+    // We use a regex to find the first letter of each word boundary
+    String result = newValue.text.splitMapJoin(
+      RegExp(r'\b[a-zA-Z]'),
+      onMatch: (m) => m.group(0)!.toUpperCase(),
+      onNonMatch: (n) => n,
+    );
+
+    return TextEditingValue(text: result, selection: newValue.selection);
+  }
+}
+
+class LowerCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return TextEditingValue(
+      text: newValue.text.toLowerCase(),
+      selection: newValue.selection,
     );
   }
 }

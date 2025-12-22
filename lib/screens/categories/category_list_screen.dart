@@ -139,7 +139,7 @@ class CategoryListScreen extends ConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 28,
-                    backgroundColor: effectiveColor.withOpacity(0.2),
+                    backgroundColor: effectiveColor.withValues(alpha: 0.2),
                     child: Icon(
                       category.isFranchiseLab
                           ? LucideIcons.building2
@@ -169,7 +169,7 @@ class CategoryListScreen extends ConsumerWidget {
                           Text(
                             category.description!,
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: textColor.withOpacity(0.7),
+                              color: textColor.withValues(alpha: 0.7),
                               fontSize: 14,
                             ),
                             maxLines: 2,
@@ -189,10 +189,10 @@ class CategoryListScreen extends ConsumerWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: effectiveColor.withOpacity(0.15),
+                    color: effectiveColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: effectiveColor.withOpacity(0.3),
+                      color: effectiveColor.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -311,7 +311,7 @@ class CategoryListScreen extends ConsumerWidget {
             Text(
               error.toString(),
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withOpacity(0.7),
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
               textAlign: TextAlign.center,
             ),

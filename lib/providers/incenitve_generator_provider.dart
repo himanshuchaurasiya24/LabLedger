@@ -48,10 +48,6 @@ final incentiveReportProvider = FutureProvider.autoDispose<List<DoctorReport>>((
 
   final response = await AuthHttpClient.get(ref, uri.toString());
 
-  // Debug: Print raw response
-  print('DEBUG: Incentive API Response:');
-  print(response.body);
-
   final List data = jsonDecode(response.body);
 
   return data.map((json) => DoctorReport.fromJson(json)).toList();

@@ -56,7 +56,7 @@ class _DiagnosisTypeEditScreenState
         _categories = categories;
       });
     } catch (e) {
-      print('Error loading categories: $e');
+      debugPrint('Error loading categories: $e');
     }
   }
 

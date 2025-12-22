@@ -37,7 +37,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   final _addressController = TextEditingController();
 
   // Dynamic incentives controllers map: category_id -> controller
-  Map<int, TextEditingController> _categoryControllers = {};
+  final Map<int, TextEditingController> _categoryControllers = {};
   List<DiagnosisCategory> _categories = [];
 
   bool _isSaving = false;
@@ -71,7 +71,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
       }
     } catch (e) {
       // Handle error
-      print('Error loading categories: $e');
+      debugPrint('Error loading categories: $e');
     }
   }
 
@@ -732,8 +732,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     if (name.contains('ultrasound')) return Icons.monitor_heart_outlined;
     if (name.contains('pathology')) return Icons.biotech_outlined;
     if (name.contains('ecg')) return Icons.favorite_outline;
-    if (name.contains('x-ray') || name.contains('xray'))
+    if (name.contains('x-ray') || name.contains('xray')) {
       return Icons.camera_outlined;
+    }
     if (name.contains('franchise')) return Icons.business_outlined;
     return Icons.medical_services_outlined;
   }

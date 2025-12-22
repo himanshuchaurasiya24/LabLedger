@@ -141,7 +141,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           appIconName(
                             context: context,
                             firstName: "Lab",
-                            secondName: "ledger",
+                            secondName: "Ledger",
                           ),
                           SizedBox(height: defaultHeight / 2),
                           if (errorMessage.isNotEmpty) ...[
@@ -231,7 +231,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           context,
                                         ).showSnackBar(
                                           const SnackBar(
-            behavior: SnackBarBehavior.floating,
+                                            behavior: SnackBarBehavior.floating,
 
                                             content: Text(
                                               'Contact administrator to reset password',

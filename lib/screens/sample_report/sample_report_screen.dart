@@ -6,6 +6,7 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/sample_report_model.dart';
 import 'package:labledger/providers/sample_reports_provider.dart';
+import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
@@ -14,14 +15,6 @@ import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-const List<String> categoryOptions = [
-  "Ultrasound",
-  "Franchise Lab",
-  "ECG",
-  "X-Ray",
-  "Pathology",
-];
 
 class SampleReportManagementScreen extends ConsumerWidget {
   const SampleReportManagementScreen({super.key, this.baseColor});
@@ -658,25 +651,66 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                         ),
                         SizedBox(height: defaultHeight),
 
-                        // Category Dropdown
-                        SearchableDropdownField<String>(
-                          label: 'Category',
-                          controller: _categoryController,
-                          color: widget.themeColor,
-                          items: categoryOptions,
-                          valueMapper: (category) => category,
-                          validator: (value) {
-                            if (_selectedCategory == null ||
-                                _selectedCategory!.isEmpty) {
-                              return 'Please select a category';
-                            }
-                            return null;
-                          },
-                          onSelected: (category) {
-                            setState(() {
-                              _selectedCategory = category;
-                              _categoryController.text = category;
-                            });
+                        // Category Dropdown (dynamic from backend)
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final categoriesAsync = ref.watch(
+                              categoriesProvider,
+                            );
+
+                            return categoriesAsync.when(
+                              data: (categories) {
+                                final categoryNames = categories
+                                    .map((c) => c.name)
+                                    .toList();
+                                return SearchableDropdownField<String>(
+                                  label: 'Category',
+                                  controller: _categoryController,
+                                  color: widget.themeColor,
+                                  items: categoryNames,
+                                  valueMapper: (category) => category,
+                                  validator: (value) {
+                                    if (_selectedCategory == null ||
+                                        _selectedCategory!.isEmpty) {
+                                      return 'Please select a category';
+                                    }
+                                    return null;
+                                  },
+                                  onSelected: (category) {
+                                    setState(() {
+                                      _selectedCategory = category;
+                                      _categoryController.text = category;
+                                    });
+                                  },
+                                );
+                              },
+                              loading: () => CustomTextField(
+                                label: 'Category',
+                                controller: _categoryController,
+                                readOnly: true,
+                                tintColor: widget.themeColor,
+                                suffixIcon: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation(
+                                      widget.themeColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              error: (err, stack) => CustomTextField(
+                                label: 'Category (Error loading)',
+                                controller: _categoryController,
+                                readOnly: true,
+                                tintColor: Colors.red,
+                                suffixIcon: Icon(
+                                  Icons.error,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            );
                           },
                         ),
                         SizedBox(height: defaultHeight),
@@ -685,6 +719,7 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                         TintedContainer(
                           baseColor: widget.themeColor,
                           intensity: 0.08,
+                          height: 330,
                           child: Column(
                             children: [
                               Icon(

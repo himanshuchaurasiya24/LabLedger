@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/providers/sample_reports_provider.dart';
+import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -40,14 +41,6 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
   final _reportNameController = TextEditingController();
   final _categoryNameController =
       TextEditingController(); // ✅ Add this controller
-
-  final List<String> _categories = const [
-    "Ultrasound",
-    "Franchise Lab",
-    "ECG",
-    "X-Ray",
-    "Pathology",
-  ];
 
   @override
   void initState() {
@@ -568,23 +561,47 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                       ],
                     ),
                     const SizedBox(height: 12),
-                    SearchableDropdownField<String>(
-                      label: 'Select Category',
-                      controller:
-                          _categoryNameController, // Use the new controller
-                      items: _categories,
-                      color: widget.color,
-                      valueMapper: (item) =>
-                          item, // The item itself is the string to display
-                      onSelected: (value) {
-                        setState(() {
-                          _selectedCategory = value;
-                          _categoryNameController.text =
-                              value; // Update the text field
-                          // Reset the report selection when the category changes
-                          _selectedReportFromServer = null;
-                          _reportNameController.clear();
-                        });
+                    // Dynamic Category Dropdown
+                    Consumer(
+                      builder: (context, ref, child) {
+                        final categoriesAsync = ref.watch(categoriesProvider);
+
+                        return categoriesAsync.when(
+                          data: (categories) {
+                            final categoryNames = categories
+                                .map((c) => c.name)
+                                .toList();
+                            return SearchableDropdownField<String>(
+                              label: 'Select Category',
+                              controller: _categoryNameController,
+                              items: categoryNames,
+                              color: widget.color,
+                              valueMapper: (item) => item,
+                              onSelected: (value) {
+                                setState(() {
+                                  _selectedCategory = value;
+                                  _categoryNameController.text = value;
+                                  // Reset the report selection when the category changes
+                                  _selectedReportFromServer = null;
+                                  _reportNameController.clear();
+                                });
+                              },
+                            );
+                          },
+                          loading: () => const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                          error: (err, stack) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'Error loading categories',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ],

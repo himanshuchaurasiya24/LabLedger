@@ -746,7 +746,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                             '${dt.categoryName ?? "Unknown"} ${dt.name} (₹${dt.price})',
                             style: TextStyle(fontSize: 12),
                           ),
-                          backgroundColor: defaultColor.withOpacity(0.1),
+                          backgroundColor: defaultColor.withValues(alpha: 0.1),
                           deleteIconColor: defaultColor,
                           onDeleted: () {
                             setState(() {
@@ -971,9 +971,9 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
             Container(
               padding: EdgeInsets.all(defaultPadding),
               decoration: BoxDecoration(
-                color: defaultColor.withOpacity(0.1),
+                color: defaultColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: defaultColor.withOpacity(0.3)),
+                border: Border.all(color: defaultColor.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1084,20 +1084,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       billNumber: null,
       totalAmount: 0,
       incentiveAmount: 0,
-    );
-
-    // DEBUG: Print what we're sending to backend
-    print('DEBUG: Saving bill with:');
-    print('  Diagnosis types count: ${billToSave.diagnosisTypes.length}');
-    print('  Diagnosis type IDs: ${billToSave.diagnosisTypes}');
-    print(
-      '  Selected diagnosis types: ${_selectedDiagnosisTypes.map((dt) => '${dt.name} (₹${dt.price})').join(', ')}',
-    );
-    print('  Paid: ${billToSave.paidAmount}');
-    print('  Doctor discount: ${billToSave.discByDoctor}');
-    print('  Center discount: ${billToSave.discByCenter}');
-    print(
-      '  Expected total: ${_selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price)}',
     );
 
     try {
