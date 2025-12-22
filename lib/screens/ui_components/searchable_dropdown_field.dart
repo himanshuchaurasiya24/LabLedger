@@ -6,7 +6,7 @@ import 'package:labledger/constants/constants.dart'; // For defaultPadding, etc.
 import 'package:labledger/screens/ui_components/custom_text_field.dart'; // For CustomTextField
 
 /// A reusable, searchable popup menu form field that looks like a CustomTextField.
-class SearchableDropdownField<T> extends StatelessWidget {
+class SearchableDropdownField<T> extends StatefulWidget {
   const SearchableDropdownField({
     super.key,
     required this.label,
@@ -27,34 +27,44 @@ class SearchableDropdownField<T> extends StatelessWidget {
   final String? Function(String?)? validator;
 
   @override
-  Widget build(BuildContext context) {
-    final GlobalKey anchorKey = GlobalKey();
+  State<SearchableDropdownField<T>> createState() =>
+      _SearchableDropdownFieldState<T>();
+}
 
+class _SearchableDropdownFieldState<T>
+    extends State<SearchableDropdownField<T>> {
+  final GlobalKey anchorKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
       key: anchorKey,
       borderRadius: BorderRadius.circular(12),
       onTap: () {
-        if (items.isEmpty) return;
-        HapticFeedback.selectionClick();
-        _showSearchableMenu<T>(
-          context: context,
-          anchorKey: anchorKey,
-          color: color,
-          items: items,
-          valueMapper: valueMapper,
-          onSelected: onSelected,
+        print(
+          'DEBUG: SearchableDropdownField tapped. Label: ${widget.label}, Items: ${widget.items.length}',
         );
+        if (widget.items.isEmpty) {
+          print('DEBUG: Items empty, returning.');
+          return;
+        }
+        HapticFeedback.selectionClick();
+        try {
+          _showSearchableMenu(context);
+        } catch (e, stack) {
+          print('DEBUG: Error showing menu: $e\n$stack');
+        }
       },
       child: AbsorbPointer(
         child: CustomTextField(
-          label: label,
-          controller: controller,
+          label: widget.label,
+          controller: widget.controller,
           readOnly: true,
-          validator: validator,
-          tintColor: color,
+          validator: widget.validator,
+          tintColor: widget.color,
           suffixIcon: Icon(
             Icons.keyboard_arrow_down_rounded,
-            color: color.withValues(alpha:  0.7),
+            color: widget.color.withValues(alpha: 0.7),
             size: 24,
           ),
         ),
@@ -62,16 +72,16 @@ class SearchableDropdownField<T> extends StatelessWidget {
     );
   }
 
-  Future<void> _showSearchableMenu<T>({
-    required BuildContext context,
-    required GlobalKey anchorKey,
-    required Color color,
-    required List<T> items,
-    required String Function(T) valueMapper,
-    required void Function(T) onSelected,
-  }) async {
+  Future<void> _showSearchableMenu(BuildContext context) async {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    // Ensure the key is mounted
+    if (anchorKey.currentContext == null) {
+      print('DEBUG: anchorKey context is null');
+      return;
+    }
+
     final RenderBox renderBox =
         anchorKey.currentContext!.findRenderObject() as RenderBox;
     final size = renderBox.size;
@@ -83,15 +93,21 @@ class SearchableDropdownField<T> extends StatelessWidget {
       position.dy,
     );
     final menuBackgroundColor = isDark
-        ? Color.alphaBlend(color.withValues(alpha:  0.25), theme.colorScheme.surface)
-        : Color.alphaBlend(color.withValues(alpha:  0.1), theme.colorScheme.surface);
-    final menuBorderColor = color.withValues(alpha:  isDark ? 0.5 : 0.4);
+        ? Color.alphaBlend(
+            widget.color.withValues(alpha: 0.25),
+            theme.colorScheme.surface,
+          )
+        : Color.alphaBlend(
+            widget.color.withValues(alpha: 0.1),
+            theme.colorScheme.surface,
+          );
+    final menuBorderColor = widget.color.withValues(alpha: isDark ? 0.5 : 0.4);
 
     await showMenu<T>(
       context: context,
       position: menuPosition,
       elevation: 2,
-      shadowColor: Colors.black.withValues(alpha:  0.2),
+      shadowColor: Colors.black.withValues(alpha: 0.2),
       color: menuBackgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -101,10 +117,10 @@ class SearchableDropdownField<T> extends StatelessWidget {
         PopupMenuItem<T>(
           enabled: false,
           child: _SearchableMenuContent<T>(
-            items: items,
-            valueMapper: valueMapper,
-            onSelected: onSelected,
-            color: color,
+            items: widget.items,
+            valueMapper: widget.valueMapper,
+            onSelected: widget.onSelected,
+            color: widget.color,
             parentSize: size,
             menuBorderColor: menuBorderColor,
           ),
@@ -146,7 +162,7 @@ class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>> {
     super.initState();
     _filteredItems = widget.items;
   }
-  
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -159,10 +175,12 @@ class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>> {
         _filteredItems = widget.items;
       } else {
         _filteredItems = widget.items
-            .where((item) => widget
-                .valueMapper(item)
-                .toLowerCase()
-                .contains(query.toLowerCase()))
+            .where(
+              (item) => widget
+                  .valueMapper(item)
+                  .toLowerCase()
+                  .contains(query.toLowerCase()),
+            )
             .toList();
       }
     });
@@ -187,8 +205,10 @@ class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>> {
                 hintText: 'Search...',
                 prefixIcon: Icon(Icons.search, size: 18, color: widget.color),
                 isDense: true,
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 10.0,
+                  horizontal: 12.0,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(defaultRadius),
                   borderSide: BorderSide(color: widget.menuBorderColor),
@@ -207,8 +227,10 @@ class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>> {
               itemBuilder: (context, index) {
                 final item = _filteredItems[index];
                 return ListTile(
-                  title:
-                      Text(widget.valueMapper(item), style: theme.textTheme.bodyMedium),
+                  title: Text(
+                    widget.valueMapper(item),
+                    style: theme.textTheme.bodyMedium,
+                  ),
                   onTap: () {
                     widget.onSelected(item);
                     Navigator.of(context).pop();
