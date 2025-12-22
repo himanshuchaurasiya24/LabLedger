@@ -5,6 +5,8 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
+import 'package:labledger/providers/category_provider.dart';
+import 'package:labledger/models/diagnosis_category_model.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
@@ -34,12 +36,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
 
-  // Incentives rates controllers
-  final _ultrasoundController = TextEditingController();
-  final _pathologyController = TextEditingController();
-  final _ecgController = TextEditingController();
-  final _xrayController = TextEditingController();
-  final _franchiseController = TextEditingController();
+  // Dynamic incentives controllers map: category_id -> controller
+  Map<int, TextEditingController> _categoryControllers = {};
+  List<DiagnosisCategory> _categories = [];
 
   bool _isSaving = false;
   // ignore: unused_field
@@ -52,7 +51,32 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadCategories();
   }
+
+  Future<void> _loadCategories() async {
+    try {
+      final categories = await ref.read(categoriesProvider.future);
+      setState(() {
+        _categories = categories;
+        // Create controllers for each category
+        for (var category in categories) {
+          _categoryControllers[category.id] = TextEditingController();
+        }
+      });
+
+      // Re-initialize doctor data if in edit mode and doctor was already loaded
+      if (_isEditMode && _loadedDoctor != null) {
+        _initializeData(_loadedDoctor!);
+      }
+    } catch (e) {
+      // Handle error
+      print('Error loading categories: $e');
+    }
+  }
+
+  Doctor?
+  _loadedDoctor; // Store loaded doctor for re-initialization after categories load
 
   @override
   void dispose() {
@@ -63,30 +87,40 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     _emailController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
-    _ultrasoundController.dispose();
-    _pathologyController.dispose();
-    _ecgController.dispose();
-    _xrayController.dispose();
-    _franchiseController.dispose();
+    // Dispose all dynamic category controllers
+    for (var controller in _categoryControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
   void _initializeData(Doctor doctor) {
     if (!_isDataInitialized) {
+      _loadedDoctor =
+          doctor; // Store for re-initialization after categories load
       _firstNameController.text = doctor.firstName ?? '';
       _lastNameController.text = doctor.lastName ?? '';
       _hospitalController.text = doctor.hospitalName ?? '';
       _emailController.text = doctor.email ?? '';
       _phoneController.text = doctor.phoneNumber ?? '';
       _addressController.text = doctor.address ?? '';
-      _ultrasoundController.text = (doctor.ultrasoundPercentage ?? 0)
-          .toString();
-      _pathologyController.text = (doctor.pathologyPercentage ?? 0).toString();
-      _ecgController.text = (doctor.ecgPercentage ?? 0).toString();
-      _xrayController.text = (doctor.xrayPercentage ?? 0).toString();
-      _franchiseController.text = (doctor.franchiseLabPercentage ?? 0)
-          .toString();
+
       _isDataInitialized = true;
+    }
+
+    // Always try to initialize category percentages (can be called multiple times)
+    _initializeCategoryPercentages(doctor);
+  }
+
+  void _initializeCategoryPercentages(Doctor doctor) {
+    // Initialize category percentages from category_percentages list
+    if (doctor.categoryPercentages != null && _categoryControllers.isNotEmpty) {
+      for (var catPercent in doctor.categoryPercentages!) {
+        final controller = _categoryControllers[catPercent.category];
+        if (controller != null) {
+          controller.text = catPercent.percentage.toString();
+        }
+      }
     }
   }
 
@@ -236,7 +270,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
                     ],
                     _buildStatusBadge(
                       _isEditMode ? 'Edit Mode' : 'Create Mode',
-                      _isEditMode ? Colors.blue : Theme.of(context).colorScheme.secondary,
+                      _isEditMode
+                          ? Colors.blue
+                          : Theme.of(context).colorScheme.secondary,
                     ),
                   ],
                 ),
@@ -288,7 +324,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
                     style: OutlinedButton.styleFrom(
                       fixedSize: const Size(180, 60),
                       foregroundColor: Theme.of(context).colorScheme.error,
-                      side:  BorderSide(color: Theme.of(context).colorScheme.error),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(defaultRadius),
                       ),
@@ -609,58 +647,8 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
                       ),
                     ),
                     SizedBox(height: defaultHeight),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildIncentiveField(
-                            'Ultrasound Incentives',
-                            _ultrasoundController,
-                            color,
-                            Icons.monitor_heart_outlined,
-                          ),
-                        ),
-                        SizedBox(width: defaultWidth),
-                        Expanded(
-                          child: _buildIncentiveField(
-                            'Pathology Incentives',
-                            _pathologyController,
-                            color,
-                            Icons.biotech_outlined,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: defaultHeight),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildIncentiveField(
-                            'ECG Incentives',
-                            _ecgController,
-                            color,
-                            Icons.favorite_outline,
-                          ),
-                        ),
-                        SizedBox(width: defaultWidth),
-                        Expanded(
-                          child: _buildIncentiveField(
-                            'X-Ray Incentives',
-                            _xrayController,
-                            color,
-                            Icons.camera_outlined,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: defaultHeight),
-                    _buildIncentiveField(
-                      'Franchise Lab Incentives',
-                      _franchiseController,
-                      color,
-                      Icons.business_outlined,
-                    ),
+                    // Dynamic category incentive fields
+                    ..._buildDynamicIncentiveFields(color),
                   ],
                 ),
               ),
@@ -669,6 +657,85 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         ],
       ),
     );
+  }
+
+  // Helper to build dynamic incentive fields
+  List<Widget> _buildDynamicIncentiveFields(Color color) {
+    if (_categories.isEmpty) {
+      return [
+        Center(
+          child: Padding(
+            padding: EdgeInsets.all(defaultPadding * 2),
+            child: Text('Loading categories...'),
+          ),
+        ),
+      ];
+    }
+
+    List<Widget> widgets = [];
+    // Build in pairs for 2-column layout
+    for (int i = 0; i < _categories.length; i += 2) {
+      final category1 = _categories[i];
+      final controller1 = _categoryControllers[category1.id];
+
+      if (i + 1 < _categories.length) {
+        // Two categories in this row
+        final category2 = _categories[i + 1];
+        final controller2 = _categoryControllers[category2.id];
+
+        widgets.add(
+          Row(
+            children: [
+              Expanded(
+                child: _buildIncentiveField(
+                  '${category1.name} Incentives',
+                  controller1!,
+                  color,
+                  _getIconForCategory(category1.name),
+                ),
+              ),
+              SizedBox(width: defaultWidth),
+              Expanded(
+                child: _buildIncentiveField(
+                  '${category2.name} Incentives',
+                  controller2!,
+                  color,
+                  _getIconForCategory(category2.name),
+                ),
+              ),
+            ],
+          ),
+        );
+      } else {
+        // Single category in this row
+        widgets.add(
+          _buildIncentiveField(
+            '${category1.name} Incentives',
+            controller1!,
+            color,
+            _getIconForCategory(category1.name),
+          ),
+        );
+      }
+
+      if (i + 2 < _categories.length) {
+        widgets.add(SizedBox(height: defaultHeight));
+      }
+    }
+
+    return widgets;
+  }
+
+  // Helper to get appropriate icon for category
+  IconData _getIconForCategory(String categoryName) {
+    final name = categoryName.toLowerCase();
+    if (name.contains('ultrasound')) return Icons.monitor_heart_outlined;
+    if (name.contains('pathology')) return Icons.biotech_outlined;
+    if (name.contains('ecg')) return Icons.favorite_outline;
+    if (name.contains('x-ray') || name.contains('xray'))
+      return Icons.camera_outlined;
+    if (name.contains('franchise')) return Icons.business_outlined;
+    return Icons.medical_services_outlined;
   }
 
   Widget _buildIncentiveField(
@@ -737,41 +804,31 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     setState(() => _isSaving = true);
 
     try {
-      // Parse incentive values, defaulting to 0 if empty
-      final ultrasoundPercentage = _ultrasoundController.text.trim().isEmpty
-          ? 0
-          : int.parse(_ultrasoundController.text.trim());
-      final pathologyPercentage = _pathologyController.text.trim().isEmpty
-          ? 0
-          : int.parse(_pathologyController.text.trim());
-      final ecgPercentage = _ecgController.text.trim().isEmpty
-          ? 0
-          : int.parse(_ecgController.text.trim());
-      final xrayPercentage = _xrayController.text.trim().isEmpty
-          ? 0
-          : int.parse(_xrayController.text.trim());
-      final franchisePercentage = _franchiseController.text.trim().isEmpty
-          ? 0
-          : int.parse(_franchiseController.text.trim());
+      // Build category percentages list from dynamic controllers
+      final categoryPercentages = _categoryControllers.entries.map((entry) {
+        final categoryId = entry.key;
+        final controller = entry.value;
+        final percentage = int.tryParse(controller.text) ?? 0;
+
+        return DoctorCategoryPercentage(
+          id: 0, // Will be assigned by backend
+          category: categoryId,
+          percentage: percentage,
+        );
+      }).toList();
 
       if (_isEditMode) {
-        
-
         await ref.read(
           updateDoctorProvider(
             Doctor(
               id: widget.doctorId,
               address: _addressController.text,
-              ecgPercentage: ecgPercentage,
               email: _emailController.text,
               firstName: _firstNameController.text,
-              franchiseLabPercentage: franchisePercentage,
               hospitalName: _hospitalController.text,
               lastName: _lastNameController.text,
-              pathologyPercentage: pathologyPercentage,
               phoneNumber: _phoneController.text,
-              ultrasoundPercentage: ultrasoundPercentage,
-              xrayPercentage: xrayPercentage,
+              categoryPercentages: categoryPercentages,
             ),
           ).future,
         );
@@ -779,7 +836,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-            behavior: SnackBarBehavior.floating,
+              behavior: SnackBarBehavior.floating,
 
               content: const Row(
                 children: [
@@ -804,14 +861,8 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
               ? null
               : _emailController.text.trim(),
           phoneNumber: _phoneController.text.trim(),
-          address: _addressController.text.trim().isEmpty
-              ? null
-              : _addressController.text.trim(),
-          ultrasoundPercentage: ultrasoundPercentage,
-          pathologyPercentage: pathologyPercentage,
-          ecgPercentage: ecgPercentage,
-          xrayPercentage: xrayPercentage,
-          franchiseLabPercentage: franchisePercentage,
+          address: _addressController.text.trim(),
+          categoryPercentages: categoryPercentages,
         );
 
         await ref.read(createDoctorProvider(newDoctor).future);
@@ -819,7 +870,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-            behavior: SnackBarBehavior.floating,
+              behavior: SnackBarBehavior.floating,
 
               content: const Row(
                 children: [
@@ -840,9 +891,12 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
       if (mounted) Navigator.of(context).pop(true);
     } catch (e) {
       if (mounted) {
-        _showErrorDialog(
-          'Operation Failed',
-          e.toString().replaceAll("Exception: ", ""),
+        showDialog(
+          context: context,
+          builder: (context) => ErrorDialog(
+            title: 'Operation Failed',
+            errorMessage: e.toString().replaceAll("Exception: ", ""),
+          ),
         );
       }
     } finally {

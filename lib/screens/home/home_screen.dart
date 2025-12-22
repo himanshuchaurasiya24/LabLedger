@@ -15,6 +15,7 @@ import 'package:labledger/screens/doctors/doctors_list_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_labs_list_screen.dart';
 import 'package:labledger/screens/home/center_detail_dialog.dart';
 import 'package:labledger/screens/incentives/incentive_generation_screen.dart';
+import 'package:labledger/screens/categories/category_list_screen.dart';
 import 'package:labledger/screens/initials/about_app_dialog.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/profile/user_list_screen.dart';
@@ -468,7 +469,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               navigatorKey.currentState?.push(
                                 MaterialPageRoute(
                                   builder: (context) {
-                                    return IncentiveGenerationScreen();
+                                    return CategoryListScreen();
                                   },
                                 ),
                               );
@@ -482,12 +483,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Icon(
-                                    Icons.currency_rupee_rounded,
+                                    LucideIcons.tags,
                                     color: baseColor,
                                     size: 50,
                                   ),
                                   Text(
-                                    "Incentives",
+                                    "Categories",
                                     style: TextStyle(
                                       color: baseColor,
                                       fontSize: 30,
@@ -640,7 +641,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             navigatorKey.currentState?.push(
                               MaterialPageRoute(
                                 builder: (context) {
-                                  return IncentiveGenerationScreen();
+                                  return CategoryListScreen();
                                 },
                               ),
                             );
@@ -653,12 +654,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Icon(
-                                  Icons.currency_rupee_rounded,
+                                  LucideIcons.tags,
                                   color: baseColor,
                                   size: 50,
                                 ),
                                 Text(
-                                  "Incentives",
+                                  "Categories",
                                   style: TextStyle(
                                     color: baseColor,
                                     fontSize: 30,
@@ -745,9 +746,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 navigatorKey.currentState?.push(
                                   MaterialPageRoute(
                                     builder: (context) {
-                                      return UserListScreen(
-                                        adminId: widget.authResponse.id,
-                                      );
+                                      return IncentiveGenerationScreen();
                                     },
                                   ),
                                 );
@@ -760,12 +759,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Icon(
-                                      Icons.supervised_user_circle_sharp,
+                                      Icons.currency_rupee_rounded,
                                       color: baseColor,
                                       size: 50,
                                     ),
                                     Text(
-                                      "Users Profile",
+                                      "Incentives",
                                       style: TextStyle(
                                         color: baseColor,
                                         fontSize: 30,

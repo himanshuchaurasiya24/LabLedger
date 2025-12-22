@@ -34,13 +34,13 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
     final size = MediaQuery.of(context).size;
 
     if (size.width < initialWindowWidth && size.width > 1200) {
-      return 2.3;
+      return 2.0; // Increased from 2.3
     }
     if (size.width < 1200 || size.width > initialWindowWidth) {
-      return 2.7;
+      return 2.4; // Increased from 2.7
     }
 
-    return 2.3;
+    return 2.0; // Increased from 2.3
   }
 
   @override
@@ -164,7 +164,7 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    diagnosis.category,
+                    diagnosis.categoryName ?? 'Unknown',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: textColor,
                       fontSize: 16,

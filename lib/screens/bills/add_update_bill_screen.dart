@@ -145,7 +145,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
     // Display diagnosis types as comma-separated list or chips
     diagnosisTypeDisplayController.text = _selectedDiagnosisTypes
-        .map((dt) => '${dt.category} ${dt.name}')
+        .map((dt) => '${dt.categoryName ?? "Unknown"} ${dt.name}')
         .join(', ');
     refByDoctorDisplayController.text =
         '${bill.referredByDoctorOutput?['first_name']} ${bill.referredByDoctorOutput?['last_name']}';
@@ -175,7 +175,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               .where((type) => diagnosisIds.contains(type.id))
               .toList();
           diagnosisTypeDisplayController.text = _selectedDiagnosisTypes
-              .map((dt) => '${dt.category} ${dt.name}')
+              .map((dt) => '${dt.categoryName ?? "Unknown"} ${dt.name}')
               .join(', ');
         }
       }
@@ -191,7 +191,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
       // Check if any selected diagnosis type is Franchise Lab
       bool hasFranchiseLab = _selectedDiagnosisTypes.any(
-        (dt) => dt.category == 'Franchise Lab',
+        (dt) => dt.categoryName?.toLowerCase() == 'franchise lab',
       );
       if (hasFranchiseLab && franchiseNameController.text.isNotEmpty) {
         _selectedFranchise = franchises.firstWhere(
@@ -733,7 +733,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                         children: _selectedDiagnosisTypes.map((dt) {
                           return Chip(
                             label: Text(
-                              '${dt.category} ${dt.name} (₹${dt.price})',
+                              '${dt.categoryName ?? "Unknown"} ${dt.name} (₹${dt.price})',
                               style: TextStyle(fontSize: 12),
                             ),
                             backgroundColor: defaultColor.withOpacity(0.1),
@@ -762,7 +762,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                       items: types,
                       color: defaultColor,
                       valueMapper: (item) =>
-                          '${item.category} ${item.name}, ₹${item.price}',
+                          '${item.categoryName ?? "Unknown"} ${item.name}, ₹${item.price}',
                       onSelected: (selected) {
                         setState(() {
                           // Add to list if not already present
@@ -774,14 +774,19 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                                 _selectedDiagnosisTypes
                                     .map((d) => d.id.toString())
                                     .join(',');
-                            diagnosisTypeDisplayController.text =
-                                _selectedDiagnosisTypes
-                                    .map((d) => '${d.category} ${d.name}')
-                                    .join(', ');
+                            diagnosisTypeDisplayController
+                                .text = _selectedDiagnosisTypes
+                                .map(
+                                  (d) =>
+                                      '${d.categoryName ?? "Unknown"} ${d.name}',
+                                )
+                                .join(', ');
 
                             // Clear franchise if no Franchise Lab types
                             bool hasFranchiseLab = _selectedDiagnosisTypes.any(
-                              (dt) => dt.category == 'Franchise Lab',
+                              (dt) =>
+                                  dt.categoryName?.toLowerCase() ==
+                                  'franchise lab',
                             );
                             if (!hasFranchiseLab) {
                               _selectedFranchise = null;
@@ -807,7 +812,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               duration: const Duration(milliseconds: 300),
               child:
                   _selectedDiagnosisTypes.any(
-                    (dt) => dt.category == 'Franchise Lab',
+                    (dt) => dt.categoryName?.toLowerCase() == 'franchise lab',
                   )
                   ? Padding(
                       padding: EdgeInsets.only(bottom: defaultPadding),

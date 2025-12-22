@@ -8,6 +8,8 @@ class Doctor {
   final int? ecgPercentage;
   final int? xrayPercentage;
   final int? franchiseLabPercentage;
+  final List<DoctorCategoryPercentage>?
+  categoryPercentages; // Dynamic percentages
 
   Doctor({
     this.id,
@@ -19,6 +21,7 @@ class Doctor {
     this.ecgPercentage,
     this.xrayPercentage,
     this.franchiseLabPercentage,
+    this.categoryPercentages,
   });
 
   factory Doctor.fromJson(Map<String, dynamic> json) {
@@ -32,6 +35,35 @@ class Doctor {
       ecgPercentage: json["ecg_percentage"] as int?,
       xrayPercentage: json["xray_percentage"] as int?,
       franchiseLabPercentage: json["franchise_lab_percentage"] as int?,
+      categoryPercentages: (json['category_percentages'] as List<dynamic>?)
+          ?.map(
+            (e) => DoctorCategoryPercentage.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
+    );
+  }
+}
+
+// DoctorCategoryPercentage model for incentive screen
+class DoctorCategoryPercentage {
+  final int id;
+  final int category;
+  final String? categoryName;
+  final int percentage;
+
+  DoctorCategoryPercentage({
+    required this.id,
+    required this.category,
+    this.categoryName,
+    required this.percentage,
+  });
+
+  factory DoctorCategoryPercentage.fromJson(Map<String, dynamic> json) {
+    return DoctorCategoryPercentage(
+      id: json['id'] as int? ?? 0,
+      category: json['category'] as int? ?? 0,
+      categoryName: json['category_name'] as String?,
+      percentage: json['percentage'] as int? ?? 0,
     );
   }
 }
@@ -67,21 +99,27 @@ class DoctorReport {
 }
 
 /// Helper model for the nested Diagnosis Type object.
-class DiagnosisType {
+class IncentiveDiagnosisType {
+  final int id;
   final String name;
-  final String category;
+  final int category; // Category ID
+  final String? categoryName; // For display
   final int price;
 
-  DiagnosisType({
+  IncentiveDiagnosisType({
+    required this.id,
     required this.name,
     required this.category,
+    this.categoryName,
     required this.price,
   });
 
-  factory DiagnosisType.fromJson(Map<String, dynamic> json) {
-    return DiagnosisType(
+  factory IncentiveDiagnosisType.fromJson(Map<String, dynamic> json) {
+    return IncentiveDiagnosisType(
+      id: json['id'] as int? ?? 0,
       name: json['name'] as String? ?? '',
-      category: json['category'] as String? ?? '',
+      category: json['category'] as int? ?? 0, // Add null safety with default
+      categoryName: json['category_name'] as String?,
       price: json['price'] as int? ?? 0,
     );
   }
@@ -108,7 +146,7 @@ class IncentiveBill {
   final int patientAge;
   final String patientSex;
   final int? patientPhoneNumber;
-  final List<Map<String, dynamic>>? diagnosisTypesOutput;
+  final List<IncentiveDiagnosisType> diagnosisTypesOutput;
   final Map<String, dynamic>? franchiseName;
   final DateTime dateOfBill;
   final String billStatus;
@@ -125,7 +163,7 @@ class IncentiveBill {
     required this.patientAge,
     required this.patientSex,
     this.patientPhoneNumber,
-    this.diagnosisTypesOutput,
+    required this.diagnosisTypesOutput,
     this.franchiseName,
     required this.dateOfBill,
     required this.billStatus,
@@ -144,9 +182,13 @@ class IncentiveBill {
       patientAge: json["patient_age"] as int? ?? 0,
       patientSex: json["patient_sex"] as String? ?? '',
       patientPhoneNumber: json["patient_phone_number"] as int?,
-      diagnosisTypesOutput: json['diagnosis_types_output'] != null
-          ? List<Map<String, dynamic>>.from(json['diagnosis_types_output'])
-          : null,
+      diagnosisTypesOutput:
+          (json['diagnosis_types_output'] as List<dynamic>? ?? [])
+              .map(
+                (e) =>
+                    IncentiveDiagnosisType.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
       franchiseName: json["franchise_name"] as Map<String, dynamic>?,
       dateOfBill: DateTime.parse(json['date_of_bill'] as String),
       billStatus: json['bill_status'] as String? ?? 'Unpaid',

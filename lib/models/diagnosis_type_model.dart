@@ -1,31 +1,38 @@
 class DiagnosisType {
-  final int? id;            // nullable, because not required when creating
+  final int? id;
   final String name;
-  final String category;
+  final int category; // Changed to int - stores category ID
+  final String? categoryName; // For display purposes
   final int price;
 
   DiagnosisType({
-    this.id,                // optional
+    this.id,
     required this.name,
     required this.category,
+    this.categoryName,
     required this.price,
   });
 
   factory DiagnosisType.fromJson(Map<String, dynamic> json) {
     return DiagnosisType(
-      id: json['id'],       // will be null when posting
+      id: json['id'],
       name: json['name'],
-      category: json['category'],
+      category: json['category'], // Backend sends category ID
+      categoryName:
+          json['category_name'], // Backend sends category name for display
       price: json['price'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      "name": name,
-      "category": category,
-      "price": price,
-      // no id, no center_detail here when adding
+    final Map<String, dynamic> data = {
+      'name': name,
+      'category': category, // Send category ID to backend
+      'price': price,
     };
+    if (id != null) {
+      data['id'] = id as dynamic; // Cast to dynamic to avoid type issue
+    }
+    return data;
   }
 }

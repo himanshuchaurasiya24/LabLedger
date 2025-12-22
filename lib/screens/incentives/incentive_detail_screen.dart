@@ -606,12 +606,11 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                   ),
                   DataCell(
                     Text(
-                      bill.diagnosisTypesOutput != null &&
-                              bill.diagnosisTypesOutput!.isNotEmpty
-                          ? bill.diagnosisTypesOutput!
+                      bill.diagnosisTypesOutput.isNotEmpty
+                          ? bill.diagnosisTypesOutput
                                 .map(
                                   (dt) =>
-                                      "${dt['diagnosis_type_detail']['name']} (${dt['diagnosis_type_detail']['category']})",
+                                      "${dt.name} (${dt.categoryName ?? 'Unknown'})",
                                 )
                                 .join(', ')
                           : 'Unknown',
@@ -663,29 +662,34 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
   }
 
   Widget getIncentivePercentage(Doctor doctor, IncentiveBill bill) {
-    // Get first diagnosis type's category for percentage calculation
-    final category =
-        bill.diagnosisTypesOutput != null &&
-            bill.diagnosisTypesOutput!.isNotEmpty
-        ? (bill.diagnosisTypesOutput![0]['diagnosis_type_detail']['category']
-                  as String)
-              .toLowerCase()
-        : '';
-
-    switch (category) {
-      case 'ultrasound':
-        return Text(doctor.ultrasoundPercentage?.toString() ?? '0');
-      case 'ecg':
-        return Text(doctor.ecgPercentage?.toString() ?? '0');
-      case 'x-ray':
-        return Text(doctor.xrayPercentage?.toString() ?? '0');
-      case 'pathology':
-        return Text(doctor.pathologyPercentage?.toString() ?? '0');
-      case 'franchise lab':
-        return Text(doctor.franchiseLabPercentage?.toString() ?? '0');
-      default:
-        return const Text('0');
+    // Get first diagnosis type's category ID for percentage calculation
+    if (bill.diagnosisTypesOutput.isEmpty) {
+      return Text('0');
     }
+
+    final categoryId = bill.diagnosisTypesOutput[0].category;
+
+    // Find matching category percentage from doctor's dynamic percentages
+    int percentage = 0;
+    if (doctor.categoryPercentages != null &&
+        doctor.categoryPercentages!.isNotEmpty) {
+      try {
+        final matchingPercentage = doctor.categoryPercentages!.firstWhere(
+          (cp) => cp.category == categoryId,
+          orElse: () => DoctorCategoryPercentage(
+            id: 0,
+            category: 0,
+            categoryName: '',
+            percentage: 0,
+          ),
+        );
+        percentage = matchingPercentage.percentage;
+      } catch (e) {
+        // Error finding percentage, keep default 0
+      }
+    }
+
+    return Text(percentage.toString());
   }
 
   Widget _buildBillNumberCell(IncentiveBill bill, ThemeData theme) {

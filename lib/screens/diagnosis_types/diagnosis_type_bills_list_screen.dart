@@ -165,7 +165,7 @@ class _DiagnosisTypeBillsListScreenState
             data: (franchise) => CenterSearchBar(
               controller: searchController,
               searchFocusNode: searchFocusNode,
-              hintText: "Search bills for ${data.category}...",
+              hintText: "Search bills for ${data.categoryName ?? data.name}...",
               width: 400,
               onSearch: _onSearchChanged,
             ),
@@ -277,7 +277,7 @@ class _DiagnosisTypeBillsListScreenState
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        diagnosisType.category,
+                        diagnosisType.categoryName ?? 'Unknown Category',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,

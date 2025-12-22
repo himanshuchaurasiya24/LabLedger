@@ -602,13 +602,9 @@ pw.Widget _buildModernFooter(pw.Font font, PdfColor tealColor) {
 }
 
 String _formatDiagnosis(IncentiveBill bill) {
-  if (bill.diagnosisTypesOutput != null &&
-      bill.diagnosisTypesOutput!.isNotEmpty) {
-    return bill.diagnosisTypesOutput!
-        .map(
-          (dt) =>
-              "${dt['diagnosis_type_detail']['name']} (${dt['diagnosis_type_detail']['category']})",
-        )
+  if (bill.diagnosisTypesOutput.isNotEmpty) {
+    return bill.diagnosisTypesOutput
+        .map((dt) => "${dt.name} (${dt.categoryName ?? 'Unknown'})")
         .join(', ');
   }
   return 'Unknown';
@@ -619,13 +615,11 @@ String _formatFranchise(IncentiveBill bill) {
 }
 
 String _getIncentivePercentage(Doctor doctor, IncentiveBill bill) {
-  if (bill.diagnosisTypesOutput == null || bill.diagnosisTypesOutput!.isEmpty) {
+  if (bill.diagnosisTypesOutput.isEmpty) {
     return '0';
   }
-  final category =
-      (bill.diagnosisTypesOutput![0]['diagnosis_type_detail']['category']
-              as String)
-          .toLowerCase();
+  final category = (bill.diagnosisTypesOutput[0].categoryName ?? '')
+      .toLowerCase();
 
   switch (category) {
     case 'ultrasound':

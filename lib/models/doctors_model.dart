@@ -46,6 +46,7 @@ class Doctor {
   final int? ecgPercentage;
   final int? xrayPercentage;
   final int? franchiseLabPercentage;
+  final List<DoctorCategoryPercentage>? categoryPercentages;
 
   Doctor({
     this.id,
@@ -60,6 +61,7 @@ class Doctor {
     this.ecgPercentage,
     this.xrayPercentage,
     this.franchiseLabPercentage,
+    this.categoryPercentages,
   });
 
   factory Doctor.fromJson(Map<String, dynamic> json) {
@@ -76,6 +78,11 @@ class Doctor {
       ecgPercentage: json["ecg_percentage"],
       xrayPercentage: json["xray_percentage"],
       franchiseLabPercentage: json["franchise_lab_percentage"],
+      categoryPercentages: json["category_percentages"] != null
+          ? (json["category_percentages"] as List)
+                .map((e) => DoctorCategoryPercentage.fromJson(e))
+                .toList()
+          : null,
       // The "center_detail" key from the JSON is now simply ignored.
     );
   }
@@ -93,6 +100,9 @@ class Doctor {
       "ecg_percentage": ecgPercentage,
       "xray_percentage": xrayPercentage,
       "franchise_lab_percentage": franchiseLabPercentage,
+      "category_percentages": categoryPercentages
+          ?.map((e) => e.toJson())
+          .toList(),
     };
 
     if (id != null) {
@@ -100,5 +110,33 @@ class Doctor {
     }
 
     return data;
+  }
+}
+
+// DoctorCategoryPercentage model
+class DoctorCategoryPercentage {
+  final int id;
+  final int category;
+  final String? categoryName;
+  final int percentage; // Non-nullable, defaults to 0
+
+  DoctorCategoryPercentage({
+    required this.id,
+    required this.category,
+    this.categoryName,
+    required this.percentage,
+  });
+
+  factory DoctorCategoryPercentage.fromJson(Map<String, dynamic> json) {
+    return DoctorCategoryPercentage(
+      id: json['id'] as int? ?? 0,
+      category: json['category'] as int? ?? 0,
+      categoryName: json['category_name'] as String?,
+      percentage: json['percentage'] as int? ?? 0, // Default to 0 if null
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'category': category, 'percentage': percentage};
   }
 }
