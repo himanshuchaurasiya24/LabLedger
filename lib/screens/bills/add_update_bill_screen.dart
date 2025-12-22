@@ -207,6 +207,16 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     }
   }
 
+  /// Recalculates total amount based on selected diagnosis types
+  void _updateTotalAmount() {
+    // Calculate total from selected diagnosis types
+    int total = _selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price);
+
+    // The Bill model will recalculate when saved, but this helps user see the total
+    // Note: There's no totalAmountController because total is calculated from diagnosis types
+    debugPrint("Total amount recalculated: $total");
+  }
+
   @override
   Widget build(BuildContext context) {
     final content = _isEditMode
@@ -726,34 +736,36 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                 // Multi-select UI with chips
                 return Column(
                   children: [
-                    if (_selectedDiagnosisTypes.isNotEmpty)
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _selectedDiagnosisTypes.map((dt) {
-                          return Chip(
-                            label: Text(
-                              '${dt.categoryName ?? "Unknown"} ${dt.name} (₹${dt.price})',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                            backgroundColor: defaultColor.withOpacity(0.1),
-                            deleteIconColor: defaultColor,
-                            onDeleted: () {
-                              setState(() {
-                                _selectedDiagnosisTypes.remove(dt);
-                                diagnosisTypeController.text =
-                                    _selectedDiagnosisTypes
-                                        .map((d) => d.id.toString())
-                                        .join(',');
-                                diagnosisTypeDisplayController.text =
-                                    _selectedDiagnosisTypes
-                                        .map((d) => '${d.category} ${d.name}')
-                                        .join(', ');
-                              });
-                            },
-                          );
-                        }).toList(),
-                      ),
+                    // Always show chips wrap (even if empty) to maintain consistent layout
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _selectedDiagnosisTypes.map((dt) {
+                        return Chip(
+                          label: Text(
+                            '${dt.categoryName ?? "Unknown"} ${dt.name} (₹${dt.price})',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          backgroundColor: defaultColor.withOpacity(0.1),
+                          deleteIconColor: defaultColor,
+                          onDeleted: () {
+                            setState(() {
+                              _selectedDiagnosisTypes.remove(dt);
+                              diagnosisTypeController.text =
+                                  _selectedDiagnosisTypes
+                                      .map((d) => d.id.toString())
+                                      .join(',');
+                              diagnosisTypeDisplayController.text =
+                                  _selectedDiagnosisTypes
+                                      .map((d) => '${d.category} ${d.name}')
+                                      .join(', ');
+                              // Recalculate total amount
+                              _updateTotalAmount();
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
                     SizedBox(height: defaultHeight / 2),
                     SearchableDropdownField<DiagnosisType>(
                       label: 'Add Diagnosis Type',
@@ -793,6 +805,9 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                               franchiseNameController.clear();
                               franchiseNameDisplayController.clear();
                             }
+
+                            // Recalculate total amount
+                            _updateTotalAmount();
                           }
                         });
                       },
@@ -952,6 +967,34 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               color: defaultColor,
             ),
             SizedBox(height: defaultHeight),
+            // Display calculated total from selected diagnosis types
+            Container(
+              padding: EdgeInsets.all(defaultPadding),
+              decoration: BoxDecoration(
+                color: defaultColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: defaultColor.withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Amount:',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '₹${_selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price)}',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: defaultColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: defaultHeight),
             CustomTextField(
               label: 'Paid Amount',
               controller: paidAmountController,
@@ -1041,6 +1084,20 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       billNumber: null,
       totalAmount: 0,
       incentiveAmount: 0,
+    );
+
+    // DEBUG: Print what we're sending to backend
+    print('DEBUG: Saving bill with:');
+    print('  Diagnosis types count: ${billToSave.diagnosisTypes.length}');
+    print('  Diagnosis type IDs: ${billToSave.diagnosisTypes}');
+    print(
+      '  Selected diagnosis types: ${_selectedDiagnosisTypes.map((dt) => '${dt.name} (₹${dt.price})').join(', ')}',
+    );
+    print('  Paid: ${billToSave.paidAmount}');
+    print('  Doctor discount: ${billToSave.discByDoctor}');
+    print('  Center discount: ${billToSave.discByCenter}');
+    print(
+      '  Expected total: ${_selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price)}',
     );
 
     try {

@@ -1,138 +1,80 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'package:labledger/models/diagnosis_category_model.dart';
-import 'package:labledger/authentication/auth_repository.dart';
+import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/models/diagnosis_category_model.dart';
+import 'package:labledger/providers/bills_provider.dart';
+import 'package:labledger/providers/diagnosis_type_provider.dart';
+import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
+
+final String categoryEndpoint = "${globalBaseUrl}diagnosis/categories/";
 
 // Provider for categories list
 final categoriesProvider = FutureProvider.autoDispose<List<DiagnosisCategory>>((
   ref,
 ) async {
-  final accessToken = await AuthRepository.instance.getAccessToken();
-  if (accessToken == null) {
-    throw Exception('Not authenticated');
-  }
-
-  final response = await http.get(
-    Uri.parse('$globalBaseUrl/diagnosis/categories/'),
-    headers: {
-      'Authorization': 'Bearer $accessToken',
-      'Content-Type': 'application/json',
-    },
-  );
-
-  if (response.statusCode == 200) {
-    final List<dynamic> data = json.decode(response.body);
-    return data.map((json) => DiagnosisCategory.fromJson(json)).toList();
-  } else {
-    throw Exception('Failed to load categories');
-  }
+  final response = await AuthHttpClient.get(ref, categoryEndpoint);
+  final List data = jsonDecode(response.body);
+  return data.map((e) => DiagnosisCategory.fromJson(e)).toList();
 });
 
-// Provider for creating/updating categories
-class CategoryNotifier extends StateNotifier<AsyncValue<void>> {
-  final Ref ref;
-
-  CategoryNotifier(this.ref) : super(const AsyncValue.data(null));
-
-  Future<void> createCategory({
-    required String name,
-    String? description,
-    required bool isFranchiseLab,
-  }) async {
-    state = const AsyncValue.loading();
-
-    try {
-      final accessToken = await AuthRepository.instance.getAccessToken();
-      final response = await http.post(
-        Uri.parse('$globalBaseUrl/diagnosis/categories/'),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'name': name,
-          'description': description ?? '',
-          'is_franchise_lab': isFranchiseLab,
-          'is_active': true,
-        }),
-      );
-
-      if (response.statusCode == 201) {
-        state = const AsyncValue.data(null);
-        // Refresh categories list
-        ref.invalidate(categoriesProvider);
-      } else {
-        final error = json.decode(response.body);
-        throw Exception(error.toString());
-      }
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
-      rethrow;
-    }
-  }
-
-  Future<void> updateCategory({
-    required int id,
-    required String name,
-    String? description,
-    required bool isFranchiseLab,
-  }) async {
-    state = const AsyncValue.loading();
-
-    try {
-      final accessToken = await AuthRepository.instance.getAccessToken();
-      final response = await http.patch(
-        Uri.parse('$globalBaseUrl/diagnosis/categories/$id/'),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'name': name,
-          'description': description ?? '',
-          'is_franchise_lab': isFranchiseLab,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        state = const AsyncValue.data(null);
-        ref.invalidate(categoriesProvider);
-      } else {
-        final error = json.decode(response.body);
-        throw Exception(error.toString());
-      }
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
-      rethrow;
-    }
-  }
-
-  Future<void> deleteCategory(int id) async {
-    state = const AsyncValue.loading();
-
-    try {
-      final accessToken = await AuthRepository.instance.getAccessToken();
-      final response = await http.delete(
-        Uri.parse('$globalBaseUrl/diagnosis/categories/$id/'),
-        headers: {'Authorization': 'Bearer $accessToken'},
-      );
-
-      if (response.statusCode == 204) {
-        state = const AsyncValue.data(null);
-        ref.invalidate(categoriesProvider);
-      } else {
-        throw Exception('Failed to delete category');
-      }
-    } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
-      rethrow;
-    }
-  }
-}
-
-final categoryNotifierProvider =
-    StateNotifierProvider<CategoryNotifier, AsyncValue<void>>((ref) {
-      return CategoryNotifier(ref);
+// Provider for category detail
+final categoryDetailProvider = FutureProvider.autoDispose
+    .family<DiagnosisCategory, int>((ref, id) async {
+      final response = await AuthHttpClient.get(ref, "$categoryEndpoint$id/");
+      return DiagnosisCategory.fromJson(jsonDecode(response.body));
     });
+
+// Provider for creating a category
+final addCategoryProvider = FutureProvider.autoDispose
+    .family<DiagnosisCategory, DiagnosisCategory>((ref, category) async {
+      final response = await AuthHttpClient.post(
+        ref,
+        categoryEndpoint,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(category.toJson()),
+      );
+      _invalidateCategoryCache(ref: ref);
+      return DiagnosisCategory.fromJson(jsonDecode(response.body));
+    });
+
+// Provider for updating a category
+final updateCategoryProvider = FutureProvider.autoDispose
+    .family<DiagnosisCategory, DiagnosisCategory>((ref, updatedCategory) async {
+      final int id = updatedCategory.id;
+
+      final response = await AuthHttpClient.put(
+        ref,
+        "$categoryEndpoint$id/",
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(updatedCategory.toJson()),
+      );
+
+      _invalidateCategoryCache(ref: ref, id: id);
+      return DiagnosisCategory.fromJson(jsonDecode(response.body));
+    });
+
+// Provider for deleting a category
+final deleteCategoryProvider = FutureProvider.autoDispose.family<void, int>((
+  ref,
+  id,
+) async {
+  await AuthHttpClient.delete(ref, "$categoryEndpoint$id/");
+  _invalidateCategoryCache(ref: ref, id: id);
+});
+
+// Cache invalidation helper
+void _invalidateCategoryCache({required Ref ref, int? id}) {
+  ref.invalidate(categoriesProvider);
+  if (id != null) {
+    ref.invalidate(categoryDetailProvider(id));
+  }
+  // Invalidate diagnosis types since they depend on categories
+  ref.invalidate(diagnosisTypeProvider);
+  // Invalidate stats and bills providers
+  ref.invalidate(referralStatsProvider);
+  ref.invalidate(billChartStatsProvider);
+  ref.invalidate(paginatedUnpaidPartialBillsProvider);
+  ref.invalidate(latestBillsProvider);
+  ref.invalidate(pendingReportBillProvider);
+}

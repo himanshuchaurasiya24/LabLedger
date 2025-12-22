@@ -322,26 +322,21 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
     setState(() => _isSaving = true);
 
     try {
-      final categoryNotifier = ref.read(categoryNotifierProvider.notifier);
+      final category = DiagnosisCategory(
+        id: _isEditMode ? widget.category!.id : 0,
+        name: _nameController.text.trim(),
+        description: _descriptionController.text.trim().isEmpty
+            ? null
+            : _descriptionController.text.trim(),
+        isFranchiseLab: _isFranchiseLab,
+        isActive: true,
+      );
 
       if (_isEditMode) {
-        await categoryNotifier.updateCategory(
-          id: widget.category!.id,
-          name: _nameController.text.trim(),
-          description: _descriptionController.text.trim().isEmpty
-              ? null
-              : _descriptionController.text.trim(),
-          isFranchiseLab: _isFranchiseLab,
-        );
+        await ref.read(updateCategoryProvider(category).future);
         _showSuccessSnackBar('Category updated successfully!');
       } else {
-        await categoryNotifier.createCategory(
-          name: _nameController.text.trim(),
-          description: _descriptionController.text.trim().isEmpty
-              ? null
-              : _descriptionController.text.trim(),
-          isFranchiseLab: _isFranchiseLab,
-        );
+        await ref.read(addCategoryProvider(category).future);
         _showSuccessSnackBar('Category created successfully!');
       }
 
@@ -396,9 +391,7 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
 
     setState(() => _isDeleting = true);
     try {
-      await ref
-          .read(categoryNotifierProvider.notifier)
-          .deleteCategory(widget.category!.id);
+      await ref.read(deleteCategoryProvider(widget.category!.id).future);
       if (mounted) {
         _showSuccessSnackBar('Category deleted successfully!');
         Navigator.of(context).pop(true);

@@ -115,12 +115,15 @@ class IncentiveDiagnosisType {
   });
 
   factory IncentiveDiagnosisType.fromJson(Map<String, dynamic> json) {
+    // The API returns diagnosis type info nested in 'diagnosis_type_detail'
+    final detail = json['diagnosis_type_detail'] as Map<String, dynamic>;
+
     return IncentiveDiagnosisType(
-      id: json['id'] as int? ?? 0,
-      name: json['name'] as String? ?? '',
-      category: json['category'] as int? ?? 0, // Add null safety with default
-      categoryName: json['category_name'] as String?,
-      price: json['price'] as int? ?? 0,
+      id: detail['id'] as int? ?? 0,
+      name: detail['name'] as String? ?? '',
+      category: detail['category'] as int? ?? 0, // Default to 0 if null
+      categoryName: detail['category_name'] as String?,
+      price: detail['price'] as int? ?? 0,
     );
   }
 }
