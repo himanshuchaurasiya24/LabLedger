@@ -82,7 +82,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         password: passwordController.text,
       );
       final authResponse = await ref.read(loginProvider(credentials).future);
-
+  debugPrint(authResponse.toJson().toString());
       if (mounted) {
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
@@ -96,7 +96,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       });
     } catch (e) {
       setState(() {
-        errorMessage = "An unexpected error occurred. Please try again.";
+        // errorMessage = "An unexpected error occurred. Please try again.";
+        errorMessage = e.toString();
       });
     } finally {
       if (mounted) {
