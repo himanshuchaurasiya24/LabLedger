@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:labledger/models/incentive_model.dart';
 import 'package:pdf/pdf.dart';
 
-pw.Widget buildBillsTableType2(
+List<pw.Widget> buildBillsTableType2(
   DoctorReport doctorReport,
   Map<String, bool> selectedFields,
   WidgetRef ref,
@@ -77,245 +77,237 @@ pw.Widget buildBillsTableType2(
     columnWidths[colIndex++] = const pw.FlexColumnWidth(1.5);
   }
 
-  if (headers.isEmpty) return pw.Container();
+  if (headers.isEmpty) return [];
 
-  return pw.Container(
-    decoration: pw.BoxDecoration(
-      borderRadius: pw.BorderRadius.circular(containerBorderRadius),
-      border: pw.Border.all(color: deepBlueColor, width: 0.6),
-    ),
-    child: pw.Column(
-      children: [
-        pw.Container(
-          padding: pw.EdgeInsets.only(
-            left: defaultPadding / 2,
-            right: defaultPadding / 2,
-            top: defaultPadding / 2,
-          ),
-          decoration: pw.BoxDecoration(
-            borderRadius: pw.BorderRadius.only(
-              topLeft: pw.Radius.circular(containerBorderRadius),
-              topRight: pw.Radius.circular(containerBorderRadius),
-            ),
-          ),
-          child: pw.Column(
+  return [
+    pw.Container(
+      padding: pw.EdgeInsets.only(
+        left: defaultPadding / 2,
+        right: defaultPadding / 2,
+        top: defaultPadding / 2,
+      ),
+      decoration: pw.BoxDecoration(
+        borderRadius: pw.BorderRadius.only(
+          topLeft: pw.Radius.circular(containerBorderRadius),
+          topRight: pw.Radius.circular(containerBorderRadius),
+        ),
+      ),
+      child: pw.Column(
+        children: [
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
               pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  pw.Row(
-                    children: [
-                      pw.Container(
-                        width: 36,
-                        height: 36,
-                        decoration: pw.BoxDecoration(
-                          color: deepBlueColor,
-                          shape: pw.BoxShape.circle,
-                        ),
-                        child: pw.Center(
-                          child: pw.Text(
-                            "${doctorReport.doctor.firstName!.isNotEmpty ? doctorReport.doctor.firstName!.substring(0, 1).toUpperCase() : ''}${doctorReport.doctor.lastName!.isNotEmpty ? doctorReport.doctor.lastName!.substring(0, 1).toUpperCase() : ''}",
-                            style: pw.TextStyle(
-                              font: boldFont,
-                              fontSize: 14,
-                              fontWeight: pw.FontWeight.bold,
-                              color: PdfColors.white,
-                            ),
-                          ),
+                  pw.Container(
+                    width: 36,
+                    height: 36,
+                    decoration: pw.BoxDecoration(
+                      color: deepBlueColor,
+                      shape: pw.BoxShape.circle,
+                    ),
+                    child: pw.Center(
+                      child: pw.Text(
+                        "${doctorReport.doctor.firstName!.isNotEmpty ? doctorReport.doctor.firstName!.substring(0, 1).toUpperCase() : ''}${doctorReport.doctor.lastName!.isNotEmpty ? doctorReport.doctor.lastName!.substring(0, 1).toUpperCase() : ''}",
+                        style: pw.TextStyle(
+                          font: boldFont,
+                          fontSize: 14,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.white,
                         ),
                       ),
-                      pw.SizedBox(width: 12),
-                      pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Text(
-                            "${doctorReport.doctor.firstName} ${doctorReport.doctor.lastName}",
-                            style: pw.TextStyle(
-                              font: boldFont,
-                              fontSize: 14,
-                              fontWeight: pw.FontWeight.bold,
-                              color: PdfColors.grey900,
-                            ),
-                          ),
-                          pw.SizedBox(height: 2),
-                          pw.Text(
-                            "${doctorReport.bills.length} Referrals • Total ₹${doctorReport.totalIncentive} • From ${DateFormat("dd MMM yyyy").format(ref.read(reportStartDateProvider))} to ${DateFormat("dd MMM yyyy").format(ref.read(reportEndDateProvider))}",
-                            style: pw.TextStyle(
-                              font: font,
-                              fontSize: 8,
-                              color: PdfColors.grey600,
-                            ),
-                          ),
-                        ],
+                    ),
+                  ),
+                  pw.SizedBox(width: 12),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        "${doctorReport.doctor.firstName} ${doctorReport.doctor.lastName}",
+                        style: pw.TextStyle(
+                          font: boldFont,
+                          fontSize: 14,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.grey900,
+                        ),
+                      ),
+                      pw.SizedBox(height: 2),
+                      pw.Text(
+                        "${doctorReport.bills.length} Referrals • Total ₹${doctorReport.totalIncentive} • From ${DateFormat("dd MMM yyyy").format(ref.read(reportStartDateProvider))} to ${DateFormat("dd MMM yyyy").format(ref.read(reportEndDateProvider))}",
+                        style: pw.TextStyle(
+                          font: font,
+                          fontSize: 8,
+                          color: PdfColors.grey600,
+                        ),
                       ),
                     ],
                   ),
-                  pw.Container(
-                    padding: const pw.EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: pw.BoxDecoration(
-                      color: lightBlueColor,
-                      borderRadius: pw.BorderRadius.circular(6),
-                    ),
-
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.end,
-                      children: [
-                        pw.Text(
-                          centerDetail.centerName,
-                          style: pw.TextStyle(
-                            font: boldFont,
-                            fontSize: 10,
-                            fontWeight: pw.FontWeight.bold,
-                            color: deepBlueColor,
-                          ),
-                        ),
-                        pw.SizedBox(height: 4),
-                        pw.Text(
-                          centerDetail.address,
-                          style: pw.TextStyle(
-                            font: font,
-                            fontSize: 8,
-                            color: PdfColors.grey700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
-              pw.SizedBox(height: defaultHeight / 2),
-            ],
-          ),
-        ),
-        pw.Padding(
-          padding: pw.EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-          child: pw.Table(
-            border: pw.TableBorder.all(color: PdfColors.grey300, width: 1),
-            columnWidths: columnWidths,
-            children: [
-              pw.TableRow(
-                decoration: pw.BoxDecoration(color: deepBlueColor),
-                children: headers
-                    .map(
-                      (header) => pw.Center(
-                        child: pw.Padding(
-                          padding: pw.EdgeInsets.symmetric(
-                            horizontal: defaultPadding / 2,
-                            vertical: defaultPadding / 4,
-                          ),
-                          child: pw.Text(
-                            header,
-                            style: pw.TextStyle(
-                              font: boldFont,
-                              fontSize: 7.5,
-                              // fontWeight: pw.FontWeight.bold,
-                              color: PdfColors.white,
-                            ),
-                            textAlign: pw.TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-              ),
-              ...bills.asMap().entries.map((entry) {
-                final bill = entry.value;
-                final cells = <pw.Widget>[];
+              pw.Container(
+                padding: const pw.EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: pw.BoxDecoration(
+                  color: lightBlueColor,
+                  borderRadius: pw.BorderRadius.circular(6),
+                ),
 
-                if (selectedFields['dateOfBill'] ?? false) {
-                  cells.add(
-                    _buildTableCell(
-                      DateFormat('dd MMM yyyy').format(bill.dateOfBill),
-                      7,
-                      font,
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Text(
+                      centerDetail.centerName,
+                      style: pw.TextStyle(
+                        font: boldFont,
+                        fontSize: 10,
+                        fontWeight: pw.FontWeight.bold,
+                        color: deepBlueColor,
+                      ),
                     ),
-                  );
-                }
-                if (selectedFields['patientName'] ?? false) {
-                  cells.add(_buildTableCell(bill.patientName, 7, font));
-                }
-                if (selectedFields['ageAndSex'] ?? false) {
-                  cells.add(
-                    _buildTableCell(
-                      "${bill.patientAge}y ${bill.patientSex}",
-                      7,
-                      font,
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      centerDetail.address,
+                      style: pw.TextStyle(
+                        font: font,
+                        fontSize: 8,
+                        color: PdfColors.grey700,
+                      ),
                     ),
-                  );
-                }
-                if (selectedFields['billStatus'] ?? false) {
-                  cells.add(_buildPaymentStatusCell(bill.billStatus, font));
-                }
-                if (selectedFields['diagnosisTypeOutput'] ?? false) {
-                  cells.add(_buildTableCell(_formatDiagnosis(bill), 7, font));
-                }
-                if (selectedFields['franchiseNameOutput'] ?? false) {
-                  cells.add(_buildTableCell(_formatFranchise(bill), 7, font));
-                }
-                if (selectedFields['totalAmount'] ?? false) {
-                  cells.add(
-                    _buildTableCell(
-                      "₹${NumberFormat('#,##,###').format(bill.totalAmount)}",
-                      7,
-                      font,
-                    ),
-                  );
-                }
-                if (selectedFields['paidAmount'] ?? false) {
-                  cells.add(
-                    _buildTableCell(
-                      "₹${NumberFormat('#,##,###').format(bill.paidAmount)}",
-                      7,
-                      font,
-                    ),
-                  );
-                }
-                if (selectedFields['discByDoctor'] ?? false) {
-                  cells.add(
-                    _buildTableCell(
-                      "₹${NumberFormat('#,##,###').format(bill.discByDoctor)}",
-                      7,
-                      font,
-                    ),
-                  );
-                }
-                if (selectedFields['discByCenter'] ?? false) {
-                  cells.add(
-                    _buildTableCell(
-                      "₹${NumberFormat('#,##,###').format(bill.discByCenter)}",
-                      7,
-                      font,
-                    ),
-                  );
-                }
-                if (selectedFields['incentivePercentage'] ?? false) {
-                  cells.add(
-                    _buildTableCell(
-                      _getIncentivePercentage(doctorReport.doctor, bill),
-                      7,
-                      font,
-                    ),
-                  );
-                }
-                if (selectedFields['incentiveAmount'] ?? false) {
-                  cells.add(_buildIncentiveCell(bill.incentiveAmount, font));
-                }
-                if (selectedFields['billNumber'] ?? false) {
-                  cells.add(_buildTableCell(bill.billNumber, 6.5, font));
-                }
-                return pw.TableRow(children: cells);
-              }),
+                  ],
+                ),
+              ),
             ],
           ),
-        ),
-        _buildLabLedgerBrandingFooter(font),
-      ],
+          pw.SizedBox(height: defaultHeight / 2),
+        ],
+      ),
     ),
-  );
+    pw.Padding(
+      padding: pw.EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+      child: pw.Table(
+        border: pw.TableBorder.all(color: PdfColors.grey300, width: 1),
+        columnWidths: columnWidths,
+        children: [
+          pw.TableRow(
+            decoration: pw.BoxDecoration(color: deepBlueColor),
+            children: headers
+                .map(
+                  (header) => pw.Center(
+                    child: pw.Padding(
+                      padding: pw.EdgeInsets.symmetric(
+                        horizontal: defaultPadding / 2,
+                        vertical: defaultPadding / 4,
+                      ),
+                      child: pw.Text(
+                        header,
+                        style: pw.TextStyle(
+                          font: boldFont,
+                          fontSize: 7.5,
+                          // fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.white,
+                        ),
+                        textAlign: pw.TextAlign.center,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+          ...bills.asMap().entries.map((entry) {
+            final bill = entry.value;
+            final cells = <pw.Widget>[];
+
+            if (selectedFields['dateOfBill'] ?? false) {
+              cells.add(
+                _buildTableCell(
+                  DateFormat('dd MMM yyyy').format(bill.dateOfBill),
+                  7,
+                  font,
+                ),
+              );
+            }
+            if (selectedFields['patientName'] ?? false) {
+              cells.add(_buildTableCell(bill.patientName, 7, font));
+            }
+            if (selectedFields['ageAndSex'] ?? false) {
+              cells.add(
+                _buildTableCell(
+                  "${bill.patientAge}y ${bill.patientSex}",
+                  7,
+                  font,
+                ),
+              );
+            }
+            if (selectedFields['billStatus'] ?? false) {
+              cells.add(_buildPaymentStatusCell(bill.billStatus, font));
+            }
+            if (selectedFields['diagnosisTypeOutput'] ?? false) {
+              cells.add(_buildTableCell(_formatDiagnosis(bill), 7, font));
+            }
+            if (selectedFields['franchiseNameOutput'] ?? false) {
+              cells.add(_buildTableCell(_formatFranchise(bill), 7, font));
+            }
+            if (selectedFields['totalAmount'] ?? false) {
+              cells.add(
+                _buildTableCell(
+                  "₹${NumberFormat('#,##,###').format(bill.totalAmount)}",
+                  7,
+                  font,
+                ),
+              );
+            }
+            if (selectedFields['paidAmount'] ?? false) {
+              cells.add(
+                _buildTableCell(
+                  "₹${NumberFormat('#,##,###').format(bill.paidAmount)}",
+                  7,
+                  font,
+                ),
+              );
+            }
+            if (selectedFields['discByDoctor'] ?? false) {
+              cells.add(
+                _buildTableCell(
+                  "₹${NumberFormat('#,##,###').format(bill.discByDoctor)}",
+                  7,
+                  font,
+                ),
+              );
+            }
+            if (selectedFields['discByCenter'] ?? false) {
+              cells.add(
+                _buildTableCell(
+                  "₹${NumberFormat('#,##,###').format(bill.discByCenter)}",
+                  7,
+                  font,
+                ),
+              );
+            }
+            if (selectedFields['incentivePercentage'] ?? false) {
+              cells.add(
+                _buildTableCell(
+                  _getIncentivePercentage(doctorReport.doctor, bill),
+                  7,
+                  font,
+                ),
+              );
+            }
+            if (selectedFields['incentiveAmount'] ?? false) {
+              cells.add(_buildIncentiveCell(bill.incentiveAmount, font));
+            }
+            if (selectedFields['billNumber'] ?? false) {
+              cells.add(_buildTableCell(bill.billNumber, 6.5, font));
+            }
+            return pw.TableRow(children: cells);
+          }),
+        ],
+      ),
+    ),
+    _buildLabLedgerBrandingFooter(font),
+  ];
 }
 
 pw.Widget _buildLabLedgerBrandingFooter(pw.Font font) {
@@ -416,24 +408,32 @@ String _formatFranchise(IncentiveBill bill) {
 }
 
 String _getIncentivePercentage(Doctor doctor, IncentiveBill bill) {
+  // Get first diagnosis type's category ID for percentage calculation
   if (bill.diagnosisTypesOutput.isEmpty) {
     return '0';
   }
-  final category = (bill.diagnosisTypesOutput[0].categoryName ?? '')
-      .toLowerCase();
 
-  switch (category) {
-    case 'ultrasound':
-      return doctor.ultrasoundPercentage?.toString() ?? '0';
-    case 'ecg':
-      return doctor.ecgPercentage?.toString() ?? '0';
-    case 'x-ray':
-      return doctor.xrayPercentage?.toString() ?? '0';
-    case 'pathology':
-      return doctor.pathologyPercentage?.toString() ?? '0';
-    case 'franchise lab':
-      return doctor.franchiseLabPercentage?.toString() ?? '0';
-    default:
-      return '0';
+  final categoryId = bill.diagnosisTypesOutput[0].category;
+
+  // Find matching category percentage from doctor's dynamic percentages
+  int percentage = 0;
+  if (doctor.categoryPercentages != null &&
+      doctor.categoryPercentages!.isNotEmpty) {
+    try {
+      final matchingPercentage = doctor.categoryPercentages!.firstWhere(
+        (cp) => cp.category == categoryId,
+        orElse: () => DoctorCategoryPercentage(
+          id: 0,
+          category: 0,
+          categoryName: '',
+          percentage: 0,
+        ),
+      );
+      percentage = matchingPercentage.percentage;
+    } catch (e) {
+      // Error finding percentage, keep default 0
+    }
   }
+
+  return percentage.toString();
 }

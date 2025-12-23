@@ -31,40 +31,50 @@ Future<Uint8List> createPDF({
       margin: pw.EdgeInsets.all(defaultPadding / 2),
 
       build: (pw.Context context) {
-        return reports.map((doctorReport) {
-          List pdfLayouts = [
-            buildBillsTableType1(
-              doctorReport,
-              selectedFields,
-              ref,
-              ttf,
-              boldTTF,
-              centerDetail,
-            ),
-            buildBillsTableType2(
-              doctorReport,
-              selectedFields,
-              ref,
-              ttf,
-              boldTTF,
-              centerDetail,
-            ),
-            buildBillsTableType3(
-              doctorReport,
-              selectedFields,
-              ref,
-              ttf,
-              boldTTF,
-              centerDetail,
-            ),
-            
-          ];
-          return pw.Column(
-            mainAxisAlignment: pw.MainAxisAlignment.start,
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [pdfLayouts[pdfIndex], pw.SizedBox(height: 5)],
-          );
-        }).toList();
+        final List<pw.Widget> allWidgets = [];
+
+        for (var doctorReport in reports) {
+          List<pw.Widget> layout;
+          switch (pdfIndex) {
+            case 0:
+              layout = buildBillsTableType1(
+                doctorReport,
+                selectedFields,
+                ref,
+                ttf,
+                boldTTF,
+                centerDetail,
+              );
+              break;
+            case 1:
+              layout = buildBillsTableType2(
+                doctorReport,
+                selectedFields,
+                ref,
+                ttf,
+                boldTTF,
+                centerDetail,
+              );
+              break;
+            case 2:
+              layout = buildBillsTableType3(
+                doctorReport,
+                selectedFields,
+                ref,
+                ttf,
+                boldTTF,
+                centerDetail,
+              );
+              break;
+            default:
+              layout = [];
+          }
+
+          allWidgets.addAll(layout);
+          allWidgets.add(pw.SizedBox(height: 10));
+        }
+
+        return allWidgets;
       },
     ),
   );
