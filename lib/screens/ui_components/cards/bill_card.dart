@@ -291,31 +291,28 @@ class BillCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // Incentive Amount (if available)
-                    if (bill.incentiveAmount > 0) ...[
-                      SizedBox(height: defaultHeight / 2),
-                      Row(
-                        children: [
-                          Icon(Icons.card_giftcard, size: 16, color: textColor),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Incentive: ',
-                            style: bodyStyle?.copyWith(
-                              fontSize: 12,
-                              color: textColor,
-                            ),
+                    SizedBox(height: defaultHeight / 2),
+                    Row(
+                      children: [
+                        Icon(Icons.card_giftcard, size: 16, color: textColor),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Incentive: ',
+                          style: bodyStyle?.copyWith(
+                            fontSize: 12,
+                            color: textColor,
                           ),
-                          Text(
-                            _formatCurrency(bill.incentiveAmount),
-                            style: bodyStyle?.copyWith(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
+                        ),
+                        Text(
+                          _formatCurrency(bill.incentiveAmount),
+                          style: bodyStyle?.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ],
                 ),
 
