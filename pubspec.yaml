@@ -41,9 +41,18 @@ dev_dependencies:
 # This is the configuration for the launcher icons package.
 # It must be at the root indentation level.
 flutter_launcher_icons:
-  image_path: "assets/images/app_icon_hd.png"
-
-  # Enable icon generation for macOS
+  image_path: "assets/images/app_icon.png"
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  windows:
+    generate: true
+    icon_size: 48
+  linux:
+    generate: true
+  web:
+    generate: true
+    image_path: "assets/images/app_icon.png"
   macos:
     generate: true
 
