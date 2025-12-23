@@ -292,6 +292,7 @@ class BillCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: defaultHeight / 2),
+                    //
                     Row(
                       children: [
                         Icon(Icons.card_giftcard, size: 16, color: textColor),
