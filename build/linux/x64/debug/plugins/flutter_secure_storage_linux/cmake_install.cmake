@@ -1,8 +1,8 @@
-# Install script for directory: /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux
+# Install script for directory: /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle")
+  set(CMAKE_INSTALL_PREFIX "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -45,6 +45,6 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux/install_local_manifest.txt"
+  file(WRITE "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

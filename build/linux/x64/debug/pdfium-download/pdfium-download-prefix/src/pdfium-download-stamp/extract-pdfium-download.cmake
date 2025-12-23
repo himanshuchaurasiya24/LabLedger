@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION ${CMAKE_VERSION}) # this file comes with cmake
 
 # Make file names absolute:
 #
-get_filename_component(filename "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz" ABSOLUTE)
-get_filename_component(directory "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src" ABSOLUTE)
+get_filename_component(filename "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz" ABSOLUTE)
+get_filename_component(directory "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src" ABSOLUTE)
 
 message(VERBOSE "extracting...
      src='${filename}'

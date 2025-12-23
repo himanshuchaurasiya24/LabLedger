@@ -22,14 +22,14 @@ function(check_file_hash has_hash hash_is_good)
   set("${has_hash}" TRUE PARENT_SCOPE)
 
   message(VERBOSE "verifying file...
-       file='/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz'")
+       file='/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz'")
 
-  file("" "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz" actual_value)
+  file("" "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz" actual_value)
 
   if(NOT "${actual_value}" STREQUAL "")
     set("${hash_is_good}" FALSE PARENT_SCOPE)
     message(VERBOSE " hash of
-    /home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz
+    /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz
   does not match expected value
     expected: ''
       actual: '${actual_value}'")
@@ -71,32 +71,32 @@ function(sleep_before_download attempt)
   execute_process(COMMAND "${CMAKE_COMMAND}" -E sleep "${sleep_seconds}")
 endfunction()
 
-if(EXISTS "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz")
+if(EXISTS "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz")
   check_file_hash(has_hash hash_is_good)
   if(has_hash)
     if(hash_is_good)
       message(VERBOSE "File already exists and hash match (skip download):
-  file='/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz'
+  file='/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz'
   =''"
       )
       return()
     else()
       message(VERBOSE "File already exists but hash mismatch. Removing...")
-      file(REMOVE "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz")
+      file(REMOVE "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz")
     endif()
   else()
     message(VERBOSE "File already exists but no hash specified (use URL_HASH):
-  file='/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz'
+  file='/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz'
 Old file will be removed and new file downloaded from URL."
     )
-    file(REMOVE "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz")
+    file(REMOVE "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz")
   endif()
 endif()
 
 set(retry_number 5)
 
 message(VERBOSE "Downloading...
-   dst='/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz'
+   dst='/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz'
    timeout='none'
    inactivity timeout='none'"
 )
@@ -119,7 +119,7 @@ foreach(i RANGE ${retry_number})
 
       file(
         DOWNLOAD
-        "${url}" "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz"
+        "${url}" "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz"
         SHOW_PROGRESS
         # no TIMEOUT
         # no INACTIVITY_TIMEOUT
@@ -136,7 +136,7 @@ foreach(i RANGE ${retry_number})
         check_file_hash(has_hash hash_is_good)
         if(has_hash AND NOT hash_is_good)
           message(VERBOSE "Hash mismatch, removing...")
-          file(REMOVE "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz")
+          file(REMOVE "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-linux-x64.tgz")
         else()
           message(VERBOSE "Downloading... done")
           return()

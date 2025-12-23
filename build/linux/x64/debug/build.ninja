@@ -39,13 +39,13 @@ include CMakeFiles/rules.ninja
 #############################################
 # Logical path to working directory; prefix for absolute paths.
 
-cmake_ninja_workdir = /home/himanshu/Documents/LabLedger/build/linux/x64/debug/
+cmake_ninja_workdir = /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/
 
 #############################################
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -56,7 +56,7 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/LabLedger/linux -B/home/himanshu/Documents/LabLedger/build/linux/x64/debug
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/Repositories/LabLedger/linux -B/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -74,7 +74,7 @@ build list_install_components: phony
 # Utility command for install
 
 build CMakeFiles/install.util: CUSTOM_COMMAND all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug && /usr/bin/cmake -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug && /usr/bin/cmake -P cmake_install.cmake
   DESC = Install the project...
   pool = console
   restat = 1
@@ -86,7 +86,7 @@ build install: phony CMakeFiles/install.util
 # Utility command for install/local
 
 build CMakeFiles/install/local.util: CUSTOM_COMMAND all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
   DESC = Installing only the local directory...
   pool = console
   restat = 1
@@ -98,7 +98,7 @@ build install/local: phony CMakeFiles/install/local.util
 # Utility command for install/strip
 
 build CMakeFiles/install/strip.util: CUSTOM_COMMAND all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
   DESC = Installing the project stripped...
   pool = console
   restat = 1
@@ -107,21 +107,21 @@ build install/strip: phony CMakeFiles/install/strip.util
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
-# /home/himanshu/Documents/LabLedger/linux/CMakeLists.txt
+# /home/himanshu/Documents/Repositories/LabLedger/linux/CMakeLists.txt
 # =============================================================================
 
 
 #############################################
 # Utility command for flutter_assemble
 
-build flutter/flutter_assemble: phony flutter/CMakeFiles/flutter_assemble /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_basic_message_channel.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_messenger.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_dart_project.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_engine.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_message_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_method_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_message_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_call.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_channel.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_response.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registrar.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registry.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_message_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_method_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_string_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_value.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_view.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/flutter_linux.h flutter/_phony_
+build flutter/flutter_assemble: phony flutter/CMakeFiles/flutter_assemble /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_basic_message_channel.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_messenger.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_dart_project.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_engine.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_message_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_method_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_message_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_call.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_channel.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_response.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registrar.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registry.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_message_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_method_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_string_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_value.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_view.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/flutter_linux.h flutter/_phony_
 
 
 #############################################
 # Utility command for edit_cache
 
 build flutter/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -132,7 +132,7 @@ build flutter/edit_cache: phony flutter/CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build flutter/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/LabLedger/linux -B/home/himanshu/Documents/LabLedger/build/linux/x64/debug
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/Repositories/LabLedger/linux -B/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -150,7 +150,7 @@ build flutter/list_install_components: phony
 # Utility command for install
 
 build flutter/CMakeFiles/install.util: CUSTOM_COMMAND flutter/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake -P cmake_install.cmake
   DESC = Install the project...
   pool = console
   restat = 1
@@ -162,7 +162,7 @@ build flutter/install: phony flutter/CMakeFiles/install.util
 # Utility command for install/local
 
 build flutter/CMakeFiles/install/local.util: CUSTOM_COMMAND flutter/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
   DESC = Installing only the local directory...
   pool = console
   restat = 1
@@ -174,7 +174,7 @@ build flutter/install/local: phony flutter/CMakeFiles/install/local.util
 # Utility command for install/strip
 
 build flutter/CMakeFiles/install/strip.util: CUSTOM_COMMAND flutter/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
   DESC = Installing the project stripped...
   pool = console
   restat = 1
@@ -185,20 +185,20 @@ build flutter/install/strip: phony flutter/CMakeFiles/install/strip.util
 #############################################
 # Phony custom command for flutter/CMakeFiles/flutter_assemble
 
-build flutter/CMakeFiles/flutter_assemble | ${cmake_ninja_workdir}flutter/CMakeFiles/flutter_assemble: phony /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_basic_message_channel.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_messenger.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_dart_project.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_engine.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_message_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_method_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_message_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_call.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_channel.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_response.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registrar.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registry.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_message_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_method_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_string_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_value.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_view.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/flutter_linux.h
+build flutter/CMakeFiles/flutter_assemble | ${cmake_ninja_workdir}flutter/CMakeFiles/flutter_assemble: phony /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_basic_message_channel.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_messenger.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_dart_project.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_engine.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_message_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_method_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_message_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_call.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_channel.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_response.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registrar.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registry.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_message_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_method_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_string_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_value.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_view.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/flutter_linux.h
 
 
 #############################################
-# Custom command for /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so
+# Custom command for /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so
 
-build /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_basic_message_channel.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_messenger.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_dart_project.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_engine.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_message_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_method_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_message_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_call.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_channel.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_response.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registrar.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registry.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_message_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_method_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_string_codec.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_value.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_view.h /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/flutter_linux.h flutter/_phony_ | ${cmake_ninja_workdir}flutter/_phony_: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake -E env FLUTTER_ROOT=/opt/flutter PROJECT_DIR=/home/himanshu/Documents/LabLedger DART_DEFINES=RkxVVFRFUl9WRVJTSU9OPTMuMzguMw==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049MTkwNzRkMTJmNw==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049MTNlNjU4NzI1ZA==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMC4x DART_OBFUSCATION=false TRACK_WIDGET_CREATION=true TREE_SHAKE_ICONS=false PACKAGE_CONFIG=/home/himanshu/Documents/LabLedger/.dart_tool/package_config.json FLUTTER_TARGET=/home/himanshu/Documents/LabLedger/lib/main.dart /opt/flutter/packages/flutter_tools/bin/tool_backend.sh linux-x64 Debug
-  DESC = Generating /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_basic_message_channel.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_codec.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_messenger.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_dart_project.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_engine.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_message_codec.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_method_codec.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_message_codec.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_call.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_channel.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_codec.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_response.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registrar.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registry.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_message_codec.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_method_codec.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_string_codec.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_value.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_view.h, /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/flutter_linux/flutter_linux.h, _phony_
+build /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_basic_message_channel.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_messenger.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_dart_project.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_engine.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_message_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_method_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_message_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_call.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_channel.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_response.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registrar.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registry.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_message_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_method_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_string_codec.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_value.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_view.h /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/flutter_linux.h flutter/_phony_ | ${cmake_ninja_workdir}flutter/_phony_: CUSTOM_COMMAND
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/flutter && /usr/bin/cmake -E env FLUTTER_ROOT=/opt/flutter PROJECT_DIR=/home/himanshu/Documents/Repositories/LabLedger DART_DEFINES=RkxVVFRFUl9WRVJTSU9OPTMuMzguMw==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049MTkwNzRkMTJmNw==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049MTNlNjU4NzI1ZA==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMC4x DART_OBFUSCATION=false TRACK_WIDGET_CREATION=true TREE_SHAKE_ICONS=false PACKAGE_CONFIG=/home/himanshu/Documents/Repositories/LabLedger/.dart_tool/package_config.json FLUTTER_TARGET=/home/himanshu/Documents/Repositories/LabLedger/lib/main.dart /opt/flutter/packages/flutter_tools/bin/tool_backend.sh linux-x64 Debug
+  DESC = Generating /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_basic_message_channel.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_codec.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_binary_messenger.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_dart_project.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_engine.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_message_codec.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_json_method_codec.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_message_codec.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_call.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_channel.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_codec.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_method_response.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registrar.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_plugin_registry.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_message_codec.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_standard_method_codec.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_string_codec.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_value.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/fl_view.h, /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/flutter_linux/flutter_linux.h, _phony_
   restat = 1
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
-# /home/himanshu/Documents/LabLedger/linux/CMakeLists.txt
+# /home/himanshu/Documents/Repositories/LabLedger/linux/CMakeLists.txt
 # =============================================================================
 
 # =============================================================================
@@ -210,29 +210,35 @@ build /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linu
 
 build cmake_object_order_depends_target_labledger: phony || cmake_object_order_depends_target_flutter_secure_storage_linux_plugin cmake_object_order_depends_target_printing_plugin cmake_object_order_depends_target_screen_retriever_linux_plugin cmake_object_order_depends_target_url_launcher_linux_plugin cmake_object_order_depends_target_window_manager_plugin flutter/flutter_assemble
 
-build runner/CMakeFiles/labledger.dir/main.cc.o: CXX_COMPILER__labledger_unscanned_Debug /home/himanshu/Documents/LabLedger/linux/runner/main.cc || cmake_object_order_depends_target_labledger
+build runner/CMakeFiles/labledger.dir/main.cc.o: CXX_COMPILER__labledger_unscanned_Debug /home/himanshu/Documents/Repositories/LabLedger/linux/runner/main.cc || cmake_object_order_depends_target_labledger
   DEFINES = -DAPPLICATION_ID=\"com.chaurasiya.labledger\"
   DEP_FILE = runner/CMakeFiles/labledger.dir/main.cc.o.d
   FLAGS = -g -Wall -Werror -pthread
-  INCLUDES = -I/home/himanshu/Documents/LabLedger/linux -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/include -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
+  INCLUDES = -I/home/himanshu/Documents/Repositories/LabLedger/linux -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/include -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
   OBJECT_DIR = runner/CMakeFiles/labledger.dir
   OBJECT_FILE_DIR = runner/CMakeFiles/labledger.dir
+  TARGET_COMPILE_PDB = runner/CMakeFiles/labledger.dir/
+  TARGET_PDB = intermediates_do_not_run/labledger.pdb
 
-build runner/CMakeFiles/labledger.dir/my_application.cc.o: CXX_COMPILER__labledger_unscanned_Debug /home/himanshu/Documents/LabLedger/linux/runner/my_application.cc || cmake_object_order_depends_target_labledger
+build runner/CMakeFiles/labledger.dir/my_application.cc.o: CXX_COMPILER__labledger_unscanned_Debug /home/himanshu/Documents/Repositories/LabLedger/linux/runner/my_application.cc || cmake_object_order_depends_target_labledger
   DEFINES = -DAPPLICATION_ID=\"com.chaurasiya.labledger\"
   DEP_FILE = runner/CMakeFiles/labledger.dir/my_application.cc.o.d
   FLAGS = -g -Wall -Werror -pthread
-  INCLUDES = -I/home/himanshu/Documents/LabLedger/linux -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/include -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
+  INCLUDES = -I/home/himanshu/Documents/Repositories/LabLedger/linux -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/include -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
   OBJECT_DIR = runner/CMakeFiles/labledger.dir
   OBJECT_FILE_DIR = runner/CMakeFiles/labledger.dir
+  TARGET_COMPILE_PDB = runner/CMakeFiles/labledger.dir/
+  TARGET_PDB = intermediates_do_not_run/labledger.pdb
 
-build runner/CMakeFiles/labledger.dir/__/flutter/generated_plugin_registrant.cc.o: CXX_COMPILER__labledger_unscanned_Debug /home/himanshu/Documents/LabLedger/linux/flutter/generated_plugin_registrant.cc || cmake_object_order_depends_target_labledger
+build runner/CMakeFiles/labledger.dir/__/flutter/generated_plugin_registrant.cc.o: CXX_COMPILER__labledger_unscanned_Debug /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/generated_plugin_registrant.cc || cmake_object_order_depends_target_labledger
   DEFINES = -DAPPLICATION_ID=\"com.chaurasiya.labledger\"
   DEP_FILE = runner/CMakeFiles/labledger.dir/__/flutter/generated_plugin_registrant.cc.o.d
   FLAGS = -g -Wall -Werror -pthread
-  INCLUDES = -I/home/himanshu/Documents/LabLedger/linux -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/include -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/include -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
+  INCLUDES = -I/home/himanshu/Documents/Repositories/LabLedger/linux -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/include -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/include -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
   OBJECT_DIR = runner/CMakeFiles/labledger.dir
   OBJECT_FILE_DIR = runner/CMakeFiles/labledger.dir/__/flutter
+  TARGET_COMPILE_PDB = runner/CMakeFiles/labledger.dir/
+  TARGET_PDB = intermediates_do_not_run/labledger.pdb
 
 
 # =============================================================================
@@ -242,23 +248,25 @@ build runner/CMakeFiles/labledger.dir/__/flutter/generated_plugin_registrant.cc.
 #############################################
 # Link the executable intermediates_do_not_run/labledger
 
-build intermediates_do_not_run/labledger: CXX_EXECUTABLE_LINKER__labledger_Debug runner/CMakeFiles/labledger.dir/main.cc.o runner/CMakeFiles/labledger.dir/my_application.cc.o runner/CMakeFiles/labledger.dir/__/flutter/generated_plugin_registrant.cc.o | plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so plugins/printing/libprinting_plugin.so plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so plugins/url_launcher_linux/liburl_launcher_linux_plugin.so plugins/window_manager/libwindow_manager_plugin.so /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so plugins/printing/libprinting_plugin.so plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so plugins/url_launcher_linux/liburl_launcher_linux_plugin.so plugins/window_manager/libwindow_manager_plugin.so
+build intermediates_do_not_run/labledger: CXX_EXECUTABLE_LINKER__labledger_Debug runner/CMakeFiles/labledger.dir/main.cc.o runner/CMakeFiles/labledger.dir/my_application.cc.o runner/CMakeFiles/labledger.dir/__/flutter/generated_plugin_registrant.cc.o | plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so plugins/printing/libprinting_plugin.so plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so plugins/url_launcher_linux/liburl_launcher_linux_plugin.so plugins/window_manager/libwindow_manager_plugin.so /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so plugins/printing/libprinting_plugin.so plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so plugins/url_launcher_linux/liburl_launcher_linux_plugin.so plugins/window_manager/libwindow_manager_plugin.so
   DEP_FILE = runner/CMakeFiles/labledger.dir/link.d
   FLAGS = -g
   LINK_FLAGS = -Xlinker --dependency-file=runner/CMakeFiles/labledger.dir/link.d
-  LINK_LIBRARIES = -Wl,-rpath,/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/printing:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/window_manager:/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src/lib:  plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so  plugins/printing/libprinting_plugin.so  plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so  plugins/url_launcher_linux/liburl_launcher_linux_plugin.so  plugins/window_manager/libwindow_manager_plugin.so  /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so  -Wl,-rpath-link,/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src/lib
+  LINK_LIBRARIES = -Wl,-rpath,/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/printing:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/window_manager:/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src/lib:  plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so  plugins/printing/libprinting_plugin.so  plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so  plugins/url_launcher_linux/liburl_launcher_linux_plugin.so  plugins/window_manager/libwindow_manager_plugin.so  -lflutter_linux_gtk  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so  -Wl,-rpath-link,/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src/lib
+  LINK_PATH = -L/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral
   OBJECT_DIR = runner/CMakeFiles/labledger.dir
   POST_BUILD = :
   PRE_LINK = :
+  TARGET_COMPILE_PDB = runner/CMakeFiles/labledger.dir/
   TARGET_FILE = intermediates_do_not_run/labledger
-  TARGET_PDB = labledger.dbg
+  TARGET_PDB = intermediates_do_not_run/labledger.pdb
 
 
 #############################################
 # Utility command for edit_cache
 
 build runner/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/runner && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/runner && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -269,7 +277,7 @@ build runner/edit_cache: phony runner/CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build runner/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/runner && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/LabLedger/linux -B/home/himanshu/Documents/LabLedger/build/linux/x64/debug
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/runner && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/Repositories/LabLedger/linux -B/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -287,7 +295,7 @@ build runner/list_install_components: phony
 # Utility command for install
 
 build runner/CMakeFiles/install.util: CUSTOM_COMMAND runner/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/runner && /usr/bin/cmake -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/runner && /usr/bin/cmake -P cmake_install.cmake
   DESC = Install the project...
   pool = console
   restat = 1
@@ -299,7 +307,7 @@ build runner/install: phony runner/CMakeFiles/install.util
 # Utility command for install/local
 
 build runner/CMakeFiles/install/local.util: CUSTOM_COMMAND runner/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/runner && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/runner && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
   DESC = Installing only the local directory...
   pool = console
   restat = 1
@@ -311,7 +319,7 @@ build runner/install/local: phony runner/CMakeFiles/install/local.util
 # Utility command for install/strip
 
 build runner/CMakeFiles/install/strip.util: CUSTOM_COMMAND runner/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/runner && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/runner && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
   DESC = Installing the project stripped...
   pool = console
   restat = 1
@@ -320,7 +328,7 @@ build runner/install/strip: phony runner/CMakeFiles/install/strip.util
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
-# /home/himanshu/Documents/LabLedger/linux/flutter/generated_plugins.cmake
+# /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/generated_plugins.cmake
 # =============================================================================
 
 # =============================================================================
@@ -332,13 +340,15 @@ build runner/install/strip: phony runner/CMakeFiles/install/strip.util
 
 build cmake_object_order_depends_target_flutter_secure_storage_linux_plugin: phony || flutter/flutter_assemble
 
-build plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir/flutter_secure_storage_linux_plugin.cc.o: CXX_COMPILER__flutter_secure_storage_linux_plugin_unscanned_Debug /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/flutter_secure_storage_linux_plugin.cc || cmake_object_order_depends_target_flutter_secure_storage_linux_plugin
+build plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir/flutter_secure_storage_linux_plugin.cc.o: CXX_COMPILER__flutter_secure_storage_linux_plugin_unscanned_Debug /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/flutter_secure_storage_linux_plugin.cc || cmake_object_order_depends_target_flutter_secure_storage_linux_plugin
   DEFINES = -DAPPLICATION_ID=\"com.chaurasiya.labledger\" -DFLUTTER_PLUGIN_IMPL -Dflutter_secure_storage_linux_plugin_EXPORTS
   DEP_FILE = plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir/flutter_secure_storage_linux_plugin.cc.o.d
   FLAGS = -g -fPIC -fvisibility=hidden -Wall -Werror -pthread
-  INCLUDES = -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral -isystem /usr/include/libsecret-1 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
+  INCLUDES = -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral -isystem /usr/include/libsecret-1 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
   OBJECT_DIR = plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir
   OBJECT_FILE_DIR = plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir
+  TARGET_COMPILE_PDB = plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir/
+  TARGET_PDB = plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.pdb
 
 
 # =============================================================================
@@ -348,25 +358,27 @@ build plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_lin
 #############################################
 # Link the shared library plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so
 
-build plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so: CXX_SHARED_LIBRARY_LINKER__flutter_secure_storage_linux_plugin_Debug plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir/flutter_secure_storage_linux_plugin.cc.o | /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libsecret-1.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble
+build plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so: CXX_SHARED_LIBRARY_LINKER__flutter_secure_storage_linux_plugin_Debug plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir/flutter_secure_storage_linux_plugin.cc.o | /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libsecret-1.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble
   DEP_FILE = plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir/link.d
   LANGUAGE_COMPILE_FLAGS = -g
   LINK_FLAGS = -Xlinker --dependency-file=plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir/link.d
-  LINK_LIBRARIES = -Wl,-rpath,/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral  /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libsecret-1.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so
+  LINK_LIBRARIES = -Wl,-rpath,/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral  -lflutter_linux_gtk  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libsecret-1.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so
+  LINK_PATH = -L/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral
   OBJECT_DIR = plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir
   POST_BUILD = :
   PRE_LINK = :
   SONAME = libflutter_secure_storage_linux_plugin.so
   SONAME_FLAG = -Wl,-soname,
+  TARGET_COMPILE_PDB = plugins/flutter_secure_storage_linux/CMakeFiles/flutter_secure_storage_linux_plugin.dir/
   TARGET_FILE = plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so
-  TARGET_PDB = flutter_secure_storage_linux_plugin.so.dbg
+  TARGET_PDB = plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.pdb
 
 
 #############################################
 # Utility command for edit_cache
 
 build plugins/flutter_secure_storage_linux/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -377,7 +389,7 @@ build plugins/flutter_secure_storage_linux/edit_cache: phony plugins/flutter_sec
 # Utility command for rebuild_cache
 
 build plugins/flutter_secure_storage_linux/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/LabLedger/linux -B/home/himanshu/Documents/LabLedger/build/linux/x64/debug
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/Repositories/LabLedger/linux -B/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -395,7 +407,7 @@ build plugins/flutter_secure_storage_linux/list_install_components: phony
 # Utility command for install
 
 build plugins/flutter_secure_storage_linux/CMakeFiles/install.util: CUSTOM_COMMAND plugins/flutter_secure_storage_linux/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux && /usr/bin/cmake -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux && /usr/bin/cmake -P cmake_install.cmake
   DESC = Install the project...
   pool = console
   restat = 1
@@ -407,7 +419,7 @@ build plugins/flutter_secure_storage_linux/install: phony plugins/flutter_secure
 # Utility command for install/local
 
 build plugins/flutter_secure_storage_linux/CMakeFiles/install/local.util: CUSTOM_COMMAND plugins/flutter_secure_storage_linux/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
   DESC = Installing only the local directory...
   pool = console
   restat = 1
@@ -419,7 +431,7 @@ build plugins/flutter_secure_storage_linux/install/local: phony plugins/flutter_
 # Utility command for install/strip
 
 build plugins/flutter_secure_storage_linux/CMakeFiles/install/strip.util: CUSTOM_COMMAND plugins/flutter_secure_storage_linux/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
   DESC = Installing the project stripped...
   pool = console
   restat = 1
@@ -428,7 +440,7 @@ build plugins/flutter_secure_storage_linux/install/strip: phony plugins/flutter_
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
-# /home/himanshu/Documents/LabLedger/linux/flutter/generated_plugins.cmake
+# /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/generated_plugins.cmake
 # =============================================================================
 
 # =============================================================================
@@ -440,21 +452,25 @@ build plugins/flutter_secure_storage_linux/install/strip: phony plugins/flutter_
 
 build cmake_object_order_depends_target_printing_plugin: phony || flutter/flutter_assemble
 
-build plugins/printing/CMakeFiles/printing_plugin.dir/printing_plugin.cc.o: CXX_COMPILER__printing_plugin_unscanned_Debug /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/printing_plugin.cc || cmake_object_order_depends_target_printing_plugin
+build plugins/printing/CMakeFiles/printing_plugin.dir/printing_plugin.cc.o: CXX_COMPILER__printing_plugin_unscanned_Debug /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/printing_plugin.cc || cmake_object_order_depends_target_printing_plugin
   DEFINES = -DFLUTTER_PLUGIN_IMPL -Dprinting_plugin_EXPORTS
   DEP_FILE = plugins/printing/CMakeFiles/printing_plugin.dir/printing_plugin.cc.o.d
   FLAGS = -g -fPIC -fvisibility=hidden -Wall -Werror -pthread
-  INCLUDES = -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include -isystem /usr/include/gtk-3.0/unix-print -isystem /home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src/include -isystem /home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src/include/cpp
+  INCLUDES = -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include -isystem /usr/include/gtk-3.0/unix-print -isystem /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src/include -isystem /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src/include/cpp
   OBJECT_DIR = plugins/printing/CMakeFiles/printing_plugin.dir
   OBJECT_FILE_DIR = plugins/printing/CMakeFiles/printing_plugin.dir
+  TARGET_COMPILE_PDB = plugins/printing/CMakeFiles/printing_plugin.dir/
+  TARGET_PDB = plugins/printing/libprinting_plugin.pdb
 
-build plugins/printing/CMakeFiles/printing_plugin.dir/print_job.cc.o: CXX_COMPILER__printing_plugin_unscanned_Debug /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/print_job.cc || cmake_object_order_depends_target_printing_plugin
+build plugins/printing/CMakeFiles/printing_plugin.dir/print_job.cc.o: CXX_COMPILER__printing_plugin_unscanned_Debug /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/print_job.cc || cmake_object_order_depends_target_printing_plugin
   DEFINES = -DFLUTTER_PLUGIN_IMPL -Dprinting_plugin_EXPORTS
   DEP_FILE = plugins/printing/CMakeFiles/printing_plugin.dir/print_job.cc.o.d
   FLAGS = -g -fPIC -fvisibility=hidden -Wall -Werror -pthread
-  INCLUDES = -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include -isystem /usr/include/gtk-3.0/unix-print -isystem /home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src/include -isystem /home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src/include/cpp
+  INCLUDES = -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include -isystem /usr/include/gtk-3.0/unix-print -isystem /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src/include -isystem /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src/include/cpp
   OBJECT_DIR = plugins/printing/CMakeFiles/printing_plugin.dir
   OBJECT_FILE_DIR = plugins/printing/CMakeFiles/printing_plugin.dir
+  TARGET_COMPILE_PDB = plugins/printing/CMakeFiles/printing_plugin.dir/
+  TARGET_PDB = plugins/printing/libprinting_plugin.pdb
 
 
 # =============================================================================
@@ -464,25 +480,27 @@ build plugins/printing/CMakeFiles/printing_plugin.dir/print_job.cc.o: CXX_COMPIL
 #############################################
 # Link the shared library plugins/printing/libprinting_plugin.so
 
-build plugins/printing/libprinting_plugin.so: CXX_SHARED_LIBRARY_LINKER__printing_plugin_Debug plugins/printing/CMakeFiles/printing_plugin.dir/printing_plugin.cc.o plugins/printing/CMakeFiles/printing_plugin.dir/print_job.cc.o | pdfium-src/lib/libpdfium.so /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble
+build plugins/printing/libprinting_plugin.so: CXX_SHARED_LIBRARY_LINKER__printing_plugin_Debug plugins/printing/CMakeFiles/printing_plugin.dir/printing_plugin.cc.o plugins/printing/CMakeFiles/printing_plugin.dir/print_job.cc.o | pdfium-src/lib/libpdfium.so /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble
   DEP_FILE = plugins/printing/CMakeFiles/printing_plugin.dir/link.d
   LANGUAGE_COMPILE_FLAGS = -g
   LINK_FLAGS = -Xlinker --dependency-file=plugins/printing/CMakeFiles/printing_plugin.dir/link.d
-  LINK_LIBRARIES = -Wl,-rpath,"\$$ORIGIN:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src/lib"  pdfium-src/lib/libpdfium.so  /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so
+  LINK_LIBRARIES = -Wl,-rpath,"\$$ORIGIN:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src/lib"  pdfium-src/lib/libpdfium.so  -lflutter_linux_gtk  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so
+  LINK_PATH = -L/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral
   OBJECT_DIR = plugins/printing/CMakeFiles/printing_plugin.dir
   POST_BUILD = :
   PRE_LINK = :
   SONAME = libprinting_plugin.so
   SONAME_FLAG = -Wl,-soname,
+  TARGET_COMPILE_PDB = plugins/printing/CMakeFiles/printing_plugin.dir/
   TARGET_FILE = plugins/printing/libprinting_plugin.so
-  TARGET_PDB = printing_plugin.so.dbg
+  TARGET_PDB = plugins/printing/libprinting_plugin.pdb
 
 
 #############################################
 # Utility command for edit_cache
 
 build plugins/printing/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/printing && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/printing && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -493,7 +511,7 @@ build plugins/printing/edit_cache: phony plugins/printing/CMakeFiles/edit_cache.
 # Utility command for rebuild_cache
 
 build plugins/printing/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/printing && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/LabLedger/linux -B/home/himanshu/Documents/LabLedger/build/linux/x64/debug
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/printing && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/Repositories/LabLedger/linux -B/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -511,7 +529,7 @@ build plugins/printing/list_install_components: phony
 # Utility command for install
 
 build plugins/printing/CMakeFiles/install.util: CUSTOM_COMMAND plugins/printing/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/printing && /usr/bin/cmake -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/printing && /usr/bin/cmake -P cmake_install.cmake
   DESC = Install the project...
   pool = console
   restat = 1
@@ -523,7 +541,7 @@ build plugins/printing/install: phony plugins/printing/CMakeFiles/install.util
 # Utility command for install/local
 
 build plugins/printing/CMakeFiles/install/local.util: CUSTOM_COMMAND plugins/printing/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/printing && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/printing && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
   DESC = Installing only the local directory...
   pool = console
   restat = 1
@@ -535,7 +553,7 @@ build plugins/printing/install/local: phony plugins/printing/CMakeFiles/install/
 # Utility command for install/strip
 
 build plugins/printing/CMakeFiles/install/strip.util: CUSTOM_COMMAND plugins/printing/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/printing && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/printing && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
   DESC = Installing the project stripped...
   pool = console
   restat = 1
@@ -544,7 +562,7 @@ build plugins/printing/install/strip: phony plugins/printing/CMakeFiles/install/
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
-# /home/himanshu/Documents/LabLedger/linux/flutter/generated_plugins.cmake
+# /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/generated_plugins.cmake
 # =============================================================================
 
 # =============================================================================
@@ -556,13 +574,15 @@ build plugins/printing/install/strip: phony plugins/printing/CMakeFiles/install/
 
 build cmake_object_order_depends_target_screen_retriever_linux_plugin: phony || flutter/flutter_assemble
 
-build plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir/screen_retriever_linux_plugin.cc.o: CXX_COMPILER__screen_retriever_linux_plugin_unscanned_Debug /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/screen_retriever_linux_plugin.cc || cmake_object_order_depends_target_screen_retriever_linux_plugin
+build plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir/screen_retriever_linux_plugin.cc.o: CXX_COMPILER__screen_retriever_linux_plugin_unscanned_Debug /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/screen_retriever_linux_plugin.cc || cmake_object_order_depends_target_screen_retriever_linux_plugin
   DEFINES = -DFLUTTER_PLUGIN_IMPL -Dscreen_retriever_linux_plugin_EXPORTS
   DEP_FILE = plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir/screen_retriever_linux_plugin.cc.o.d
   FLAGS = -g -fPIC -fvisibility=hidden -Wall -Werror -pthread
-  INCLUDES = -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
+  INCLUDES = -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
   OBJECT_DIR = plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir
   OBJECT_FILE_DIR = plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir
+  TARGET_COMPILE_PDB = plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir/
+  TARGET_PDB = plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.pdb
 
 
 # =============================================================================
@@ -572,25 +592,27 @@ build plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.di
 #############################################
 # Link the shared library plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so
 
-build plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so: CXX_SHARED_LIBRARY_LINKER__screen_retriever_linux_plugin_Debug plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir/screen_retriever_linux_plugin.cc.o | /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble
+build plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so: CXX_SHARED_LIBRARY_LINKER__screen_retriever_linux_plugin_Debug plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir/screen_retriever_linux_plugin.cc.o | /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble
   DEP_FILE = plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir/link.d
   LANGUAGE_COMPILE_FLAGS = -g
   LINK_FLAGS = -Xlinker --dependency-file=plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir/link.d
-  LINK_LIBRARIES = -Wl,-rpath,/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral  /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so
+  LINK_LIBRARIES = -Wl,-rpath,/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral  -lflutter_linux_gtk  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so
+  LINK_PATH = -L/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral
   OBJECT_DIR = plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir
   POST_BUILD = :
   PRE_LINK = :
   SONAME = libscreen_retriever_linux_plugin.so
   SONAME_FLAG = -Wl,-soname,
+  TARGET_COMPILE_PDB = plugins/screen_retriever_linux/CMakeFiles/screen_retriever_linux_plugin.dir/
   TARGET_FILE = plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so
-  TARGET_PDB = screen_retriever_linux_plugin.so.dbg
+  TARGET_PDB = plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.pdb
 
 
 #############################################
 # Utility command for edit_cache
 
 build plugins/screen_retriever_linux/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -601,7 +623,7 @@ build plugins/screen_retriever_linux/edit_cache: phony plugins/screen_retriever_
 # Utility command for rebuild_cache
 
 build plugins/screen_retriever_linux/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/LabLedger/linux -B/home/himanshu/Documents/LabLedger/build/linux/x64/debug
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/Repositories/LabLedger/linux -B/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -619,7 +641,7 @@ build plugins/screen_retriever_linux/list_install_components: phony
 # Utility command for install
 
 build plugins/screen_retriever_linux/CMakeFiles/install.util: CUSTOM_COMMAND plugins/screen_retriever_linux/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux && /usr/bin/cmake -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux && /usr/bin/cmake -P cmake_install.cmake
   DESC = Install the project...
   pool = console
   restat = 1
@@ -631,7 +653,7 @@ build plugins/screen_retriever_linux/install: phony plugins/screen_retriever_lin
 # Utility command for install/local
 
 build plugins/screen_retriever_linux/CMakeFiles/install/local.util: CUSTOM_COMMAND plugins/screen_retriever_linux/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
   DESC = Installing only the local directory...
   pool = console
   restat = 1
@@ -643,7 +665,7 @@ build plugins/screen_retriever_linux/install/local: phony plugins/screen_retriev
 # Utility command for install/strip
 
 build plugins/screen_retriever_linux/CMakeFiles/install/strip.util: CUSTOM_COMMAND plugins/screen_retriever_linux/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
   DESC = Installing the project stripped...
   pool = console
   restat = 1
@@ -652,7 +674,7 @@ build plugins/screen_retriever_linux/install/strip: phony plugins/screen_retriev
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
-# /home/himanshu/Documents/LabLedger/linux/flutter/generated_plugins.cmake
+# /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/generated_plugins.cmake
 # =============================================================================
 
 # =============================================================================
@@ -664,21 +686,25 @@ build plugins/screen_retriever_linux/install/strip: phony plugins/screen_retriev
 
 build cmake_object_order_depends_target_url_launcher_linux_plugin: phony || flutter/flutter_assemble
 
-build plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/messages.g.cc.o: CXX_COMPILER__url_launcher_linux_plugin_unscanned_Debug /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/messages.g.cc || cmake_object_order_depends_target_url_launcher_linux_plugin
+build plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/messages.g.cc.o: CXX_COMPILER__url_launcher_linux_plugin_unscanned_Debug /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/messages.g.cc || cmake_object_order_depends_target_url_launcher_linux_plugin
   DEFINES = -DFLUTTER_PLUGIN_IMPL -Durl_launcher_linux_plugin_EXPORTS
   DEP_FILE = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/messages.g.cc.o.d
   FLAGS = -g -fPIC -fvisibility=hidden -Wall -Werror -pthread
-  INCLUDES = -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
+  INCLUDES = -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
   OBJECT_DIR = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir
   OBJECT_FILE_DIR = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir
+  TARGET_COMPILE_PDB = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/
+  TARGET_PDB = plugins/url_launcher_linux/liburl_launcher_linux_plugin.pdb
 
-build plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/url_launcher_plugin.cc.o: CXX_COMPILER__url_launcher_linux_plugin_unscanned_Debug /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/url_launcher_plugin.cc || cmake_object_order_depends_target_url_launcher_linux_plugin
+build plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/url_launcher_plugin.cc.o: CXX_COMPILER__url_launcher_linux_plugin_unscanned_Debug /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/url_launcher_plugin.cc || cmake_object_order_depends_target_url_launcher_linux_plugin
   DEFINES = -DFLUTTER_PLUGIN_IMPL -Durl_launcher_linux_plugin_EXPORTS
   DEP_FILE = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/url_launcher_plugin.cc.o.d
   FLAGS = -g -fPIC -fvisibility=hidden -Wall -Werror -pthread
-  INCLUDES = -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
+  INCLUDES = -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
   OBJECT_DIR = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir
   OBJECT_FILE_DIR = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir
+  TARGET_COMPILE_PDB = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/
+  TARGET_PDB = plugins/url_launcher_linux/liburl_launcher_linux_plugin.pdb
 
 
 # =============================================================================
@@ -688,25 +714,27 @@ build plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/url_la
 #############################################
 # Link the shared library plugins/url_launcher_linux/liburl_launcher_linux_plugin.so
 
-build plugins/url_launcher_linux/liburl_launcher_linux_plugin.so: CXX_SHARED_LIBRARY_LINKER__url_launcher_linux_plugin_Debug plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/messages.g.cc.o plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/url_launcher_plugin.cc.o | /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble
+build plugins/url_launcher_linux/liburl_launcher_linux_plugin.so: CXX_SHARED_LIBRARY_LINKER__url_launcher_linux_plugin_Debug plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/messages.g.cc.o plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/url_launcher_plugin.cc.o | /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble
   DEP_FILE = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/link.d
   LANGUAGE_COMPILE_FLAGS = -g
   LINK_FLAGS = -Xlinker --dependency-file=plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/link.d
-  LINK_LIBRARIES = -Wl,-rpath,/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral  /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so
+  LINK_LIBRARIES = -Wl,-rpath,/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral  -lflutter_linux_gtk  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so
+  LINK_PATH = -L/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral
   OBJECT_DIR = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir
   POST_BUILD = :
   PRE_LINK = :
   SONAME = liburl_launcher_linux_plugin.so
   SONAME_FLAG = -Wl,-soname,
+  TARGET_COMPILE_PDB = plugins/url_launcher_linux/CMakeFiles/url_launcher_linux_plugin.dir/
   TARGET_FILE = plugins/url_launcher_linux/liburl_launcher_linux_plugin.so
-  TARGET_PDB = url_launcher_linux_plugin.so.dbg
+  TARGET_PDB = plugins/url_launcher_linux/liburl_launcher_linux_plugin.pdb
 
 
 #############################################
 # Utility command for edit_cache
 
 build plugins/url_launcher_linux/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -717,7 +745,7 @@ build plugins/url_launcher_linux/edit_cache: phony plugins/url_launcher_linux/CM
 # Utility command for rebuild_cache
 
 build plugins/url_launcher_linux/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/LabLedger/linux -B/home/himanshu/Documents/LabLedger/build/linux/x64/debug
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/Repositories/LabLedger/linux -B/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -735,7 +763,7 @@ build plugins/url_launcher_linux/list_install_components: phony
 # Utility command for install
 
 build plugins/url_launcher_linux/CMakeFiles/install.util: CUSTOM_COMMAND plugins/url_launcher_linux/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux && /usr/bin/cmake -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux && /usr/bin/cmake -P cmake_install.cmake
   DESC = Install the project...
   pool = console
   restat = 1
@@ -747,7 +775,7 @@ build plugins/url_launcher_linux/install: phony plugins/url_launcher_linux/CMake
 # Utility command for install/local
 
 build plugins/url_launcher_linux/CMakeFiles/install/local.util: CUSTOM_COMMAND plugins/url_launcher_linux/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
   DESC = Installing only the local directory...
   pool = console
   restat = 1
@@ -759,7 +787,7 @@ build plugins/url_launcher_linux/install/local: phony plugins/url_launcher_linux
 # Utility command for install/strip
 
 build plugins/url_launcher_linux/CMakeFiles/install/strip.util: CUSTOM_COMMAND plugins/url_launcher_linux/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
   DESC = Installing the project stripped...
   pool = console
   restat = 1
@@ -768,7 +796,7 @@ build plugins/url_launcher_linux/install/strip: phony plugins/url_launcher_linux
 
 # =============================================================================
 # Write statements declared in CMakeLists.txt:
-# /home/himanshu/Documents/LabLedger/linux/flutter/generated_plugins.cmake
+# /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/generated_plugins.cmake
 # =============================================================================
 
 # =============================================================================
@@ -780,13 +808,15 @@ build plugins/url_launcher_linux/install/strip: phony plugins/url_launcher_linux
 
 build cmake_object_order_depends_target_window_manager_plugin: phony || flutter/flutter_assemble
 
-build plugins/window_manager/CMakeFiles/window_manager_plugin.dir/window_manager_plugin.cc.o: CXX_COMPILER__window_manager_plugin_unscanned_Debug /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/window_manager_plugin.cc || cmake_object_order_depends_target_window_manager_plugin
+build plugins/window_manager/CMakeFiles/window_manager_plugin.dir/window_manager_plugin.cc.o: CXX_COMPILER__window_manager_plugin_unscanned_Debug /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/window_manager_plugin.cc || cmake_object_order_depends_target_window_manager_plugin
   DEFINES = -DFLUTTER_PLUGIN_IMPL -Dwindow_manager_plugin_EXPORTS
   DEP_FILE = plugins/window_manager/CMakeFiles/window_manager_plugin.dir/window_manager_plugin.cc.o.d
   FLAGS = -g -fPIC -fvisibility=hidden -Wall -Werror -pthread
-  INCLUDES = -I/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
+  INCLUDES = -I/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral -isystem /usr/include/gtk-3.0 -isystem /usr/include/pango-1.0 -isystem /usr/include/glib-2.0 -isystem /usr/lib/x86_64-linux-gnu/glib-2.0/include -isystem /usr/include/sysprof-6 -isystem /usr/include/harfbuzz -isystem /usr/include/freetype2 -isystem /usr/include/libpng16 -isystem /usr/include/libmount -isystem /usr/include/blkid -isystem /usr/include/fribidi -isystem /usr/include/cairo -isystem /usr/include/pixman-1 -isystem /usr/include/gdk-pixbuf-2.0 -isystem /usr/include/webp -isystem /usr/include/gio-unix-2.0 -isystem /usr/include/atk-1.0 -isystem /usr/include/at-spi2-atk/2.0 -isystem /usr/include/at-spi-2.0 -isystem /usr/include/dbus-1.0 -isystem /usr/lib/x86_64-linux-gnu/dbus-1.0/include
   OBJECT_DIR = plugins/window_manager/CMakeFiles/window_manager_plugin.dir
   OBJECT_FILE_DIR = plugins/window_manager/CMakeFiles/window_manager_plugin.dir
+  TARGET_COMPILE_PDB = plugins/window_manager/CMakeFiles/window_manager_plugin.dir/
+  TARGET_PDB = plugins/window_manager/libwindow_manager_plugin.pdb
 
 
 # =============================================================================
@@ -796,25 +826,27 @@ build plugins/window_manager/CMakeFiles/window_manager_plugin.dir/window_manager
 #############################################
 # Link the shared library plugins/window_manager/libwindow_manager_plugin.so
 
-build plugins/window_manager/libwindow_manager_plugin.so: CXX_SHARED_LIBRARY_LINKER__window_manager_plugin_Debug plugins/window_manager/CMakeFiles/window_manager_plugin.dir/window_manager_plugin.cc.o | /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble
+build plugins/window_manager/libwindow_manager_plugin.so: CXX_SHARED_LIBRARY_LINKER__window_manager_plugin_Debug plugins/window_manager/CMakeFiles/window_manager_plugin.dir/window_manager_plugin.cc.o | /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so /usr/lib/x86_64-linux-gnu/libgtk-3.so /usr/lib/x86_64-linux-gnu/libgdk-3.so /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so /usr/lib/x86_64-linux-gnu/libpango-1.0.so /usr/lib/x86_64-linux-gnu/libharfbuzz.so /usr/lib/x86_64-linux-gnu/libatk-1.0.so /usr/lib/x86_64-linux-gnu/libcairo-gobject.so /usr/lib/x86_64-linux-gnu/libcairo.so /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so /usr/lib/x86_64-linux-gnu/libgio-2.0.so /usr/lib/x86_64-linux-gnu/libgobject-2.0.so /usr/lib/x86_64-linux-gnu/libglib-2.0.so || flutter/flutter_assemble
   DEP_FILE = plugins/window_manager/CMakeFiles/window_manager_plugin.dir/link.d
   LANGUAGE_COMPILE_FLAGS = -g
   LINK_FLAGS = -Xlinker --dependency-file=plugins/window_manager/CMakeFiles/window_manager_plugin.dir/link.d
-  LINK_LIBRARIES = -Wl,-rpath,/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral  /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so
+  LINK_LIBRARIES = -Wl,-rpath,/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral  -lflutter_linux_gtk  /usr/lib/x86_64-linux-gnu/libgtk-3.so  /usr/lib/x86_64-linux-gnu/libgdk-3.so  /usr/lib/x86_64-linux-gnu/libz.so  /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so  /usr/lib/x86_64-linux-gnu/libpango-1.0.so  /usr/lib/x86_64-linux-gnu/libharfbuzz.so  /usr/lib/x86_64-linux-gnu/libatk-1.0.so  /usr/lib/x86_64-linux-gnu/libcairo-gobject.so  /usr/lib/x86_64-linux-gnu/libcairo.so  /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so  /usr/lib/x86_64-linux-gnu/libgio-2.0.so  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so  /usr/lib/x86_64-linux-gnu/libglib-2.0.so
+  LINK_PATH = -L/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral
   OBJECT_DIR = plugins/window_manager/CMakeFiles/window_manager_plugin.dir
   POST_BUILD = :
   PRE_LINK = :
   SONAME = libwindow_manager_plugin.so
   SONAME_FLAG = -Wl,-soname,
+  TARGET_COMPILE_PDB = plugins/window_manager/CMakeFiles/window_manager_plugin.dir/
   TARGET_FILE = plugins/window_manager/libwindow_manager_plugin.so
-  TARGET_PDB = window_manager_plugin.so.dbg
+  TARGET_PDB = plugins/window_manager/libwindow_manager_plugin.pdb
 
 
 #############################################
 # Utility command for edit_cache
 
 build plugins/window_manager/CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/window_manager && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/window_manager && /usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -825,7 +857,7 @@ build plugins/window_manager/edit_cache: phony plugins/window_manager/CMakeFiles
 # Utility command for rebuild_cache
 
 build plugins/window_manager/CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/window_manager && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/LabLedger/linux -B/home/himanshu/Documents/LabLedger/build/linux/x64/debug
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/window_manager && /usr/bin/cmake --regenerate-during-build -S/home/himanshu/Documents/Repositories/LabLedger/linux -B/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -843,7 +875,7 @@ build plugins/window_manager/list_install_components: phony
 # Utility command for install
 
 build plugins/window_manager/CMakeFiles/install.util: CUSTOM_COMMAND plugins/window_manager/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/window_manager && /usr/bin/cmake -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/window_manager && /usr/bin/cmake -P cmake_install.cmake
   DESC = Install the project...
   pool = console
   restat = 1
@@ -855,7 +887,7 @@ build plugins/window_manager/install: phony plugins/window_manager/CMakeFiles/in
 # Utility command for install/local
 
 build plugins/window_manager/CMakeFiles/install/local.util: CUSTOM_COMMAND plugins/window_manager/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/window_manager && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/window_manager && /usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
   DESC = Installing only the local directory...
   pool = console
   restat = 1
@@ -867,7 +899,7 @@ build plugins/window_manager/install/local: phony plugins/window_manager/CMakeFi
 # Utility command for install/strip
 
 build plugins/window_manager/CMakeFiles/install/strip.util: CUSTOM_COMMAND plugins/window_manager/all
-  COMMAND = cd /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/window_manager && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+  COMMAND = cd /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/window_manager && /usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
   DESC = Installing the project stripped...
   pool = console
   restat = 1
@@ -907,56 +939,56 @@ build window_manager_plugin: phony plugins/window_manager/libwindow_manager_plug
 # =============================================================================
 
 #############################################
-# Folder: /home/himanshu/Documents/LabLedger/build/linux/x64/debug
+# Folder: /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug
 
 build all: phony flutter/all runner/all plugins/flutter_secure_storage_linux/all plugins/printing/all plugins/screen_retriever_linux/all plugins/url_launcher_linux/all plugins/window_manager/all
 
 # =============================================================================
 
 #############################################
-# Folder: /home/himanshu/Documents/LabLedger/build/linux/x64/debug/flutter
+# Folder: /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/flutter
 
 build flutter/all: phony
 
 # =============================================================================
 
 #############################################
-# Folder: /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux
+# Folder: /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux
 
 build plugins/flutter_secure_storage_linux/all: phony plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so
 
 # =============================================================================
 
 #############################################
-# Folder: /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/printing
+# Folder: /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/printing
 
 build plugins/printing/all: phony plugins/printing/libprinting_plugin.so
 
 # =============================================================================
 
 #############################################
-# Folder: /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux
+# Folder: /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux
 
 build plugins/screen_retriever_linux/all: phony plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so
 
 # =============================================================================
 
 #############################################
-# Folder: /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux
+# Folder: /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux
 
 build plugins/url_launcher_linux/all: phony plugins/url_launcher_linux/liburl_launcher_linux_plugin.so
 
 # =============================================================================
 
 #############################################
-# Folder: /home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/window_manager
+# Folder: /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/window_manager
 
 build plugins/window_manager/all: phony plugins/window_manager/libwindow_manager_plugin.so
 
 # =============================================================================
 
 #############################################
-# Folder: /home/himanshu/Documents/LabLedger/build/linux/x64/debug/runner
+# Folder: /home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/runner
 
 build runner/all: phony intermediates_do_not_run/labledger
 
@@ -967,14 +999,14 @@ build runner/all: phony intermediates_do_not_run/labledger
 #############################################
 # Re-run CMake if any of its inputs changed.
 
-build build.ninja: RERUN_CMAKE | /home/himanshu/Documents/LabLedger/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/windows/DownloadProject.CMakeLists.cmake.in /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/windows/DownloadProject.cmake /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/generated_config.cmake /home/himanshu/Documents/LabLedger/linux/flutter/generated_plugins.cmake /home/himanshu/Documents/LabLedger/linux/runner/CMakeLists.txt /usr/share/cmake-3.31/Modules/CMakeCXXInformation.cmake /usr/share/cmake-3.31/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake-3.31/Modules/CMakeGenericSystem.cmake /usr/share/cmake-3.31/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake-3.31/Modules/CMakeLanguageInformation.cmake /usr/share/cmake-3.31/Modules/CMakeParseArguments.cmake /usr/share/cmake-3.31/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake-3.31/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake-3.31/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-CXX.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang.cmake /usr/share/cmake-3.31/Modules/Compiler/GNU.cmake /usr/share/cmake-3.31/Modules/FindPackageHandleStandardArgs.cmake /usr/share/cmake-3.31/Modules/FindPackageMessage.cmake /usr/share/cmake-3.31/Modules/FindPkgConfig.cmake /usr/share/cmake-3.31/Modules/Internal/CMakeCXXLinkerInformation.cmake /usr/share/cmake-3.31/Modules/Internal/CMakeCommonLinkerInformation.cmake /usr/share/cmake-3.31/Modules/Linker/GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Linker/GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/Linux-GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/Linux-GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-Clang-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-Initialize.cmake /usr/share/cmake-3.31/Modules/Platform/Linux.cmake /usr/share/cmake-3.31/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.31.6/CMakeCXXCompiler.cmake CMakeFiles/3.31.6/CMakeSystem.cmake pdfium-src/PDFiumConfig.cmake
+build build.ninja: RERUN_CMAKE | /home/himanshu/Documents/Repositories/LabLedger/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/windows/DownloadProject.CMakeLists.cmake.in /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/windows/DownloadProject.cmake /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/generated_config.cmake /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/generated_plugins.cmake /home/himanshu/Documents/Repositories/LabLedger/linux/runner/CMakeLists.txt /usr/share/cmake-3.31/Modules/CMakeCXXCompiler.cmake.in /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp /usr/share/cmake-3.31/Modules/CMakeCXXInformation.cmake /usr/share/cmake-3.31/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake-3.31/Modules/CMakeCompilerIdDetection.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineCompiler.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineCompilerSupport.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake /usr/share/cmake-3.31/Modules/CMakeGenericSystem.cmake /usr/share/cmake-3.31/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake-3.31/Modules/CMakeLanguageInformation.cmake /usr/share/cmake-3.31/Modules/CMakeNinjaFindMake.cmake /usr/share/cmake-3.31/Modules/CMakeParseArguments.cmake /usr/share/cmake-3.31/Modules/CMakeParseImplicitIncludeInfo.cmake /usr/share/cmake-3.31/Modules/CMakeParseImplicitLinkInfo.cmake /usr/share/cmake-3.31/Modules/CMakeParseLibraryArchitecture.cmake /usr/share/cmake-3.31/Modules/CMakeSystem.cmake.in /usr/share/cmake-3.31/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake-3.31/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake /usr/share/cmake-3.31/Modules/CMakeTestCompilerCommon.cmake /usr/share/cmake-3.31/Modules/Compiler/ADSP-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/ARMCC-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/ARMClang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/AppleClang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Borland-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-CXX-CXXImportStd.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-CXX.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-DetermineCompilerInternal.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-FindBinUtils.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang.cmake /usr/share/cmake-3.31/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Cray-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/CrayClang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Embarcadero-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Fujitsu-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/GHS-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/GNU.cmake /usr/share/cmake-3.31/Modules/Compiler/HP-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/IAR-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake /usr/share/cmake-3.31/Modules/Compiler/IBMClang-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Intel-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/LCC-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/MSVC-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/NVHPC-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/NVIDIA-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/OrangeC-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/PGI-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/PathScale-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/SCO-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/TI-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/TIClang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Tasking-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Watcom-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/XL-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/FindPackageHandleStandardArgs.cmake /usr/share/cmake-3.31/Modules/FindPackageMessage.cmake /usr/share/cmake-3.31/Modules/FindPkgConfig.cmake /usr/share/cmake-3.31/Modules/Internal/CMakeCXXLinkerInformation.cmake /usr/share/cmake-3.31/Modules/Internal/CMakeCommonLinkerInformation.cmake /usr/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake /usr/share/cmake-3.31/Modules/Internal/FeatureTesting.cmake /usr/share/cmake-3.31/Modules/Linker/GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Linker/GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/Linux-GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/Linux-GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-Clang-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-Determine-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-Initialize.cmake /usr/share/cmake-3.31/Modules/Platform/Linux.cmake /usr/share/cmake-3.31/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.31.6/CMakeCXXCompiler.cmake CMakeFiles/3.31.6/CMakeSystem.cmake pdfium-src/PDFiumConfig.cmake
   pool = console
 
 
 #############################################
 # A missing CMake input file is not an error.
 
-build /home/himanshu/Documents/LabLedger/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/windows/DownloadProject.CMakeLists.cmake.in /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/windows/DownloadProject.cmake /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/CMakeLists.txt /home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/generated_config.cmake /home/himanshu/Documents/LabLedger/linux/flutter/generated_plugins.cmake /home/himanshu/Documents/LabLedger/linux/runner/CMakeLists.txt /usr/share/cmake-3.31/Modules/CMakeCXXInformation.cmake /usr/share/cmake-3.31/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake-3.31/Modules/CMakeGenericSystem.cmake /usr/share/cmake-3.31/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake-3.31/Modules/CMakeLanguageInformation.cmake /usr/share/cmake-3.31/Modules/CMakeParseArguments.cmake /usr/share/cmake-3.31/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake-3.31/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake-3.31/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-CXX.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang.cmake /usr/share/cmake-3.31/Modules/Compiler/GNU.cmake /usr/share/cmake-3.31/Modules/FindPackageHandleStandardArgs.cmake /usr/share/cmake-3.31/Modules/FindPackageMessage.cmake /usr/share/cmake-3.31/Modules/FindPkgConfig.cmake /usr/share/cmake-3.31/Modules/Internal/CMakeCXXLinkerInformation.cmake /usr/share/cmake-3.31/Modules/Internal/CMakeCommonLinkerInformation.cmake /usr/share/cmake-3.31/Modules/Linker/GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Linker/GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/Linux-GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/Linux-GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-Clang-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-Initialize.cmake /usr/share/cmake-3.31/Modules/Platform/Linux.cmake /usr/share/cmake-3.31/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.31.6/CMakeCXXCompiler.cmake CMakeFiles/3.31.6/CMakeSystem.cmake pdfium-src/PDFiumConfig.cmake: phony
+build /home/himanshu/Documents/Repositories/LabLedger/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/flutter_secure_storage_linux/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/windows/DownloadProject.CMakeLists.cmake.in /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/printing/windows/DownloadProject.cmake /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/screen_retriever_linux/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/url_launcher_linux/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/.plugin_symlinks/window_manager/linux/CMakeLists.txt /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/generated_config.cmake /home/himanshu/Documents/Repositories/LabLedger/linux/flutter/generated_plugins.cmake /home/himanshu/Documents/Repositories/LabLedger/linux/runner/CMakeLists.txt /usr/share/cmake-3.31/Modules/CMakeCXXCompiler.cmake.in /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp /usr/share/cmake-3.31/Modules/CMakeCXXInformation.cmake /usr/share/cmake-3.31/Modules/CMakeCommonLanguageInclude.cmake /usr/share/cmake-3.31/Modules/CMakeCompilerIdDetection.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineCompiler.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineCompilerSupport.cmake /usr/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake /usr/share/cmake-3.31/Modules/CMakeGenericSystem.cmake /usr/share/cmake-3.31/Modules/CMakeInitializeConfigs.cmake /usr/share/cmake-3.31/Modules/CMakeLanguageInformation.cmake /usr/share/cmake-3.31/Modules/CMakeNinjaFindMake.cmake /usr/share/cmake-3.31/Modules/CMakeParseArguments.cmake /usr/share/cmake-3.31/Modules/CMakeParseImplicitIncludeInfo.cmake /usr/share/cmake-3.31/Modules/CMakeParseImplicitLinkInfo.cmake /usr/share/cmake-3.31/Modules/CMakeParseLibraryArchitecture.cmake /usr/share/cmake-3.31/Modules/CMakeSystem.cmake.in /usr/share/cmake-3.31/Modules/CMakeSystemSpecificInformation.cmake /usr/share/cmake-3.31/Modules/CMakeSystemSpecificInitialize.cmake /usr/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake /usr/share/cmake-3.31/Modules/CMakeTestCompilerCommon.cmake /usr/share/cmake-3.31/Modules/Compiler/ADSP-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/ARMCC-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/ARMClang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/AppleClang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Borland-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/CMakeCommonCompilerMacros.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-CXX-CXXImportStd.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-CXX.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-DetermineCompilerInternal.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang-FindBinUtils.cmake /usr/share/cmake-3.31/Modules/Compiler/Clang.cmake /usr/share/cmake-3.31/Modules/Compiler/Compaq-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Cray-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/CrayClang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Embarcadero-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Fujitsu-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/FujitsuClang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/GHS-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/GNU-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/GNU.cmake /usr/share/cmake-3.31/Modules/Compiler/HP-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/IAR-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/IBMCPP-CXX-DetermineVersionInternal.cmake /usr/share/cmake-3.31/Modules/Compiler/IBMClang-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Intel-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/IntelLLVM-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/LCC-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/MSVC-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/NVHPC-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/NVIDIA-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/OpenWatcom-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/OrangeC-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/PGI-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/PathScale-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/SCO-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/SunPro-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/TI-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/TIClang-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Tasking-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/VisualAge-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/Watcom-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/XL-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/XLClang-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/Compiler/zOS-CXX-DetermineCompiler.cmake /usr/share/cmake-3.31/Modules/FindPackageHandleStandardArgs.cmake /usr/share/cmake-3.31/Modules/FindPackageMessage.cmake /usr/share/cmake-3.31/Modules/FindPkgConfig.cmake /usr/share/cmake-3.31/Modules/Internal/CMakeCXXLinkerInformation.cmake /usr/share/cmake-3.31/Modules/Internal/CMakeCommonLinkerInformation.cmake /usr/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake /usr/share/cmake-3.31/Modules/Internal/FeatureTesting.cmake /usr/share/cmake-3.31/Modules/Linker/GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Linker/GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/Linux-GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linker/Linux-GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-Clang-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-Determine-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-GNU-CXX.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-GNU.cmake /usr/share/cmake-3.31/Modules/Platform/Linux-Initialize.cmake /usr/share/cmake-3.31/Modules/Platform/Linux.cmake /usr/share/cmake-3.31/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.31.6/CMakeCXXCompiler.cmake CMakeFiles/3.31.6/CMakeSystem.cmake pdfium-src/PDFiumConfig.cmake: phony
 
 
 #############################################

@@ -6,22 +6,22 @@ cmake_minimum_required(VERSION ${CMAKE_VERSION}) # this file comes with cmake
 # If CMAKE_DISABLE_SOURCE_CHANGES is set to true and the source directory is an
 # existing directory in our source tree, calling file(MAKE_DIRECTORY) on it
 # would cause a fatal error, even though it would be a no-op.
-if(NOT EXISTS "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src")
-  file(MAKE_DIRECTORY "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src")
+if(NOT EXISTS "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src")
+  file(MAKE_DIRECTORY "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src")
 endif()
 file(MAKE_DIRECTORY
-  "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-build"
-  "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix"
-  "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/tmp"
-  "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-download-stamp"
-  "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src"
-  "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-download-stamp"
+  "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-build"
+  "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix"
+  "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/tmp"
+  "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-download-stamp"
+  "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src"
+  "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-download-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-download-stamp/${subDir}")
+    file(MAKE_DIRECTORY "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-download-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-download-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-download/pdfium-download-prefix/src/pdfium-download-stamp${cfgdir}") # cfgdir has leading slash
 endif()

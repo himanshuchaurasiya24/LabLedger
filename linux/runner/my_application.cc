@@ -54,17 +54,29 @@ static void my_application_activate(GApplication* application) {
 
   gtk_window_set_default_size(window, 1280, 720);
 
-  // Load icon from assets for Debug mode (Fix for missing Linux icon)
+  // DEBUG: Load icon from assets for Debug mode
+  g_print("DEBUG: Current Dir: %s\n", g_get_current_dir());
   GError* err = nullptr;
-  gchar* icon_path = g_build_filename(g_get_current_dir(), "data", "flutter_assets", "assets", "images", "app_icon.png", nullptr);
+  
+  // Try direct path (for flutter run from root)
+  gchar* icon_path = g_build_filename(g_get_current_dir(), "assets", "images", "app_icon.png", nullptr);
+  
+  // Fallback: Try build/bundle path (if running from build dir)
+  if (!g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
+      g_free(icon_path);
+      icon_path = g_build_filename(g_get_current_dir(), "data", "flutter_assets", "assets", "images", "app_icon.png", nullptr);
+  }
+
+  g_print("DEBUG: Trying to load icon from: %s\n", icon_path);
   GdkPixbuf* icon = gdk_pixbuf_new_from_file(icon_path, &err);
   g_free(icon_path);
   
   if (icon) {
+    g_print("DEBUG: Icon loaded successfully!\n");
     gtk_window_set_icon(GTK_WINDOW(window), icon);
     g_object_unref(icon);
   } else {
-    // Silently ignore error or print warning if needed
+    g_print("DEBUG: Failed to load icon: %s\n", err ? err->message : "Unknown error");
     if (err) g_error_free(err);
   }
 
@@ -154,7 +166,9 @@ MyApplication* my_application_new() {
   // like GTK and desktop environments map this running application to its
   // corresponding .desktop file. This ensures better integration by allowing
   // the application to be recognized beyond its binary name.
-  g_set_prgname(APPLICATION_ID);
+  // Set the program name to match the .desktop file name (without .desktop extension)
+  // This is CRITICAL for dock icon recognition in modern GTK applications
+  g_set_prgname("labledger");
 
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID, "flags",

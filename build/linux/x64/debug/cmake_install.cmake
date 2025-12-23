@@ -1,8 +1,8 @@
-# Install script for directory: /home/himanshu/Documents/LabLedger/linux
+# Install script for directory: /home/himanshu/Documents/Repositories/LabLedger/linux
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle")
+  set(CMAKE_INSTALL_PREFIX "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -44,180 +44,180 @@ endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   
-  file(REMOVE_RECURSE "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/")
+  file(REMOVE_RECURSE "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/")
   
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/labledger" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/labledger")
+  if(EXISTS "$ENV{DESTDIR}/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/labledger" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/labledger")
     file(RPATH_CHECK
-         FILE "$ENV{DESTDIR}/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/labledger"
+         FILE "$ENV{DESTDIR}/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/labledger"
          RPATH "$ORIGIN/lib")
   endif()
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/labledger")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/labledger")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle" TYPE EXECUTABLE FILES "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/intermediates_do_not_run/labledger")
-  if(EXISTS "$ENV{DESTDIR}/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/labledger" AND
-     NOT IS_SYMLINK "$ENV{DESTDIR}/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/labledger")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle" TYPE EXECUTABLE FILES "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/intermediates_do_not_run/labledger")
+  if(EXISTS "$ENV{DESTDIR}/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/labledger" AND
+     NOT IS_SYMLINK "$ENV{DESTDIR}/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/labledger")
     file(RPATH_CHANGE
-         FILE "$ENV{DESTDIR}/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/labledger"
-         OLD_RPATH "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/printing:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/window_manager:/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral:/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src/lib:"
+         FILE "$ENV{DESTDIR}/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/labledger"
+         OLD_RPATH "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/printing:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/window_manager:/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral:/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src/lib:"
          NEW_RPATH "$ORIGIN/lib")
     if(CMAKE_INSTALL_DO_STRIP)
-      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/labledger")
+      execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/labledger")
     endif()
   endif()
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/data/icudtl.dat")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/data/icudtl.dat")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/data" TYPE FILE FILES "/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/icudtl.dat")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/data" TYPE FILE FILES "/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/icudtl.dat")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib/libflutter_linux_gtk.so")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib/libflutter_linux_gtk.so")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/Repositories/LabLedger/linux/flutter/ephemeral/libflutter_linux_gtk.so")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib/libflutter_secure_storage_linux_plugin.so")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib/libflutter_secure_storage_linux_plugin.so")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux/libflutter_secure_storage_linux_plugin.so")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib/libprinting_plugin.so")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib/libprinting_plugin.so")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/printing/libprinting_plugin.so")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/printing/libprinting_plugin.so")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib/libpdfium.so")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib/libpdfium.so")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/pdfium-src/lib/libpdfium.so")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/pdfium-src/lib/libpdfium.so")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib/libscreen_retriever_linux_plugin.so")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib/libscreen_retriever_linux_plugin.so")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux/libscreen_retriever_linux_plugin.so")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib/liburl_launcher_linux_plugin.so")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib/liburl_launcher_linux_plugin.so")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux/liburl_launcher_linux_plugin.so")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux/liburl_launcher_linux_plugin.so")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib/libwindow_manager_plugin.so")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib/libwindow_manager_plugin.so")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/window_manager/libwindow_manager_plugin.so")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib" TYPE FILE FILES "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/window_manager/libwindow_manager_plugin.so")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib/")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib/")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/lib" TYPE DIRECTORY FILES "/home/himanshu/Documents/LabLedger/build/native_assets/linux/")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/lib" TYPE DIRECTORY FILES "/home/himanshu/Documents/Repositories/LabLedger/build/native_assets/linux/")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   
-  file(REMOVE_RECURSE "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/data/flutter_assets")
+  file(REMOVE_RECURSE "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/data/flutter_assets")
   
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Runtime" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/data/flutter_assets")
+   "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/data/flutter_assets")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-  file(INSTALL DESTINATION "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/bundle/data" TYPE DIRECTORY FILES "/home/himanshu/Documents/LabLedger/build//flutter_assets")
+  file(INSTALL DESTINATION "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/bundle/data" TYPE DIRECTORY FILES "/home/himanshu/Documents/Repositories/LabLedger/build//flutter_assets")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/himanshu/Documents/LabLedger/build/linux/x64/debug/flutter/cmake_install.cmake")
-  include("/home/himanshu/Documents/LabLedger/build/linux/x64/debug/runner/cmake_install.cmake")
-  include("/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux/cmake_install.cmake")
-  include("/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/printing/cmake_install.cmake")
-  include("/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux/cmake_install.cmake")
-  include("/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux/cmake_install.cmake")
-  include("/home/himanshu/Documents/LabLedger/build/linux/x64/debug/plugins/window_manager/cmake_install.cmake")
+  include("/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/flutter/cmake_install.cmake")
+  include("/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/runner/cmake_install.cmake")
+  include("/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/flutter_secure_storage_linux/cmake_install.cmake")
+  include("/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/printing/cmake_install.cmake")
+  include("/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/screen_retriever_linux/cmake_install.cmake")
+  include("/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/url_launcher_linux/cmake_install.cmake")
+  include("/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/plugins/window_manager/cmake_install.cmake")
 
 endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/install_local_manifest.txt"
+  file(WRITE "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
 if(CMAKE_INSTALL_COMPONENT)
@@ -233,6 +233,6 @@ else()
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "/home/himanshu/Documents/LabLedger/build/linux/x64/debug/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "/home/himanshu/Documents/Repositories/LabLedger/build/linux/x64/debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
