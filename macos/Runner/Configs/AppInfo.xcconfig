@@ -8,7 +8,7 @@
 PRODUCT_NAME = labledger
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.himanshu.labledger
+PRODUCT_BUNDLE_IDENTIFIER = com.chaurasiya.labledger
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 com.himanshu. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 com.chaurasiya. All rights reserved.
