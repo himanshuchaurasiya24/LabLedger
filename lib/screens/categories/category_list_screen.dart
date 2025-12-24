@@ -7,14 +7,56 @@ import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/categories/category_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class CategoryListScreen extends ConsumerWidget {
+class CategoryListScreen extends ConsumerStatefulWidget {
   const CategoryListScreen({super.key, this.baseColor});
 
   final Color? baseColor;
+
+  @override
+  ConsumerState<CategoryListScreen> createState() => _CategoryListScreenState();
+}
+
+class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
+  final TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    searchFocusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query.trim().toLowerCase();
+    });
+  }
+
+  List<DiagnosisCategory> _filterCategories(
+    List<DiagnosisCategory> categories,
+  ) {
+    if (_searchQuery.isEmpty) return categories;
+
+    return categories.where((category) {
+      final name = category.name.toLowerCase();
+      final description = category.description?.toLowerCase() ?? '';
+
+      return name.contains(_searchQuery) || description.contains(_searchQuery);
+    }).toList();
+  }
 
   int getCrossAxisCount(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -39,15 +81,22 @@ class CategoryListScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final effectiveColor = baseColor ?? colorScheme.secondary;
+    final effectiveColor = widget.baseColor ?? colorScheme.secondary;
     final categoriesAsync = ref.watch(categoriesProvider);
 
     return WindowScaffold(
+      centerWidget: CenterSearchBar(
+        controller: searchController,
+        searchFocusNode: searchFocusNode,
+        hintText: "Search Categories...",
+        width: 400,
+        onSearch: _onSearchChanged,
+      ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: baseColor ?? colorScheme.primary,
+        backgroundColor: widget.baseColor ?? colorScheme.primary,
         foregroundColor: Colors.white,
         elevation: 4.0,
         shape: RoundedRectangleBorder(
@@ -65,8 +114,15 @@ class CategoryListScreen extends ConsumerWidget {
         icon: const Icon(LucideIcons.plus),
       ),
       child: categoriesAsync.when(
-        data: (categories) =>
-            _buildCategoryList(context, ref, categories, effectiveColor),
+        data: (categories) {
+          final filteredCategories = _filterCategories(categories);
+          return _buildCategoryList(
+            context,
+            ref,
+            filteredCategories,
+            effectiveColor,
+          );
+        },
         loading: () => _buildLoadingState(context, effectiveColor),
         error: (error, stack) =>
             _buildErrorState(context, ref, error, effectiveColor),

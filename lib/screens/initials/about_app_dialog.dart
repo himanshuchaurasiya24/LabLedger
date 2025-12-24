@@ -86,13 +86,18 @@ class AboutAppDialog extends StatelessWidget {
                           width: 1,
                         ),
                       ),
-                      child: Text(
-                        'v$appVersion',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                        ),
+                      child: FutureBuilder<String>(
+                        future: getAppVersion(),
+                        builder: (context, snapshot) {
+                          return Text(
+                            'v${snapshot.data ?? '...'}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -240,8 +245,7 @@ class AboutAppDialog extends StatelessWidget {
                     // Framework Cards
                     _buildFrameworkCard(
                       context: context,
-                      assetLocation:
-                          'assets/images/flutter.svg',
+                      assetLocation: 'assets/images/flutter.svg',
                       name: 'Flutter',
                       description:
                           'UI toolkit for beautiful, natively compiled applications',
@@ -252,8 +256,7 @@ class AboutAppDialog extends StatelessWidget {
 
                     _buildFrameworkCard(
                       context: context,
-                      assetLocation:
-                          'assets/images/django.svg',
+                      assetLocation: 'assets/images/django.svg',
                       name: 'Django REST Framework',
                       description:
                           'Powerful toolkit for building robust Web APIs',
@@ -333,7 +336,7 @@ class AboutAppDialog extends StatelessWidget {
             child: SvgPicture.asset(
               assetLocation,
               fit: BoxFit.contain,
-              
+
               errorBuilder: (context, error, stackTrace) => Icon(
                 LucideIcons.imageOff,
                 size: 24,

@@ -82,7 +82,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         password: passwordController.text,
       );
       final authResponse = await ref.read(loginProvider(credentials).future);
-  debugPrint(authResponse.toJson().toString());
+      debugPrint(authResponse.toJson().toString());
       if (mounted) {
         navigatorKey.currentState?.pushReplacement(
           MaterialPageRoute(
@@ -258,14 +258,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             borderRadius: 16,
                           ),
                           SizedBox(height: defaultHeight),
-                          Text(
-                            "$appName v$appVersion | $appDescription",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: footerTextColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          FutureBuilder<String>(
+                            future: getFullAppVersion(),
+                            builder: (context, snapshot) {
+                              final version = snapshot.data ?? 'Loading...';
+                              return Text(
+                                "$appName v$version | $appDescription",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: footerTextColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),

@@ -1,5 +1,5 @@
 name: labledger
-description: "A new Flutter project."
+description: "Medical Records Made Simple"
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -30,6 +30,7 @@ dependencies:
   url_launcher: ^6.3.2
   file_picker: ^10.3.3
   flutter_svg: ^2.2.1
+  package_info_plus: ^8.1.2
 
 dev_dependencies:
   flutter_test:

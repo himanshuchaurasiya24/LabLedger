@@ -130,7 +130,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
             foregroundColor: Color(0xFF0072B5),
             elevation: 0,
           ),
-          fontFamily: 'GoogleSans',
+          fontFamily: 'Ubuntu',
           textTheme: const TextTheme(
             headlineSmall: TextStyle(
               color: Color(0xFF0072B5),
@@ -173,7 +173,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 surfaceContainerHighest: const Color(0xFF2A2A2C),
               ),
           scaffoldBackgroundColor: const Color(0xFF0F0F10),
-          fontFamily: 'GoogleSans',
+          fontFamily: 'Ubuntu',
           textTheme: const TextTheme(
             headlineSmall: TextStyle(
               color: Color(0xFF1AA260),

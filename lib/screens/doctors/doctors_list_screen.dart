@@ -9,6 +9,7 @@ import 'package:labledger/screens/doctors/doctor_dashboard_screen.dart';
 import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -31,10 +32,55 @@ extension ColorValues on Color {
   }
 }
 
-class DoctorsListScreen extends ConsumerWidget {
+class DoctorsListScreen extends ConsumerStatefulWidget {
   const DoctorsListScreen({super.key, this.baseColor});
 
   final Color? baseColor;
+
+  @override
+  ConsumerState<DoctorsListScreen> createState() => _DoctorsListScreenState();
+}
+
+class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
+  final TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    searchFocusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query.trim().toLowerCase();
+    });
+  }
+
+  List<Doctor> _filterDoctors(List<Doctor> doctors) {
+    if (_searchQuery.isEmpty) return doctors;
+
+    return doctors.where((doctor) {
+      final firstName = doctor.firstName?.toLowerCase() ?? '';
+      final lastName = doctor.lastName?.toLowerCase() ?? '';
+      final hospitalName = doctor.hospitalName?.toLowerCase() ?? '';
+      final phoneNumber = doctor.phoneNumber?.toLowerCase() ?? '';
+
+      return firstName.contains(_searchQuery) ||
+          lastName.contains(_searchQuery) ||
+          hospitalName.contains(_searchQuery) ||
+          phoneNumber.contains(_searchQuery);
+    }).toList();
+  }
+
   int getCrossAxisCount(BuildContext context) {
     final size = MediaQuery.of(context).size;
     if (size.width < initialWindowWidth && size.width > 1200) {
@@ -60,14 +106,22 @@ class DoctorsListScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final effectiveColor = baseColor ?? colorScheme.secondary;
+    final effectiveColor = widget.baseColor ?? colorScheme.secondary;
     final doctorsAsync = ref.watch(doctorsProvider);
     return WindowScaffold(
+      centerWidget: CenterSearchBar(
+        controller: searchController,
+        searchFocusNode: searchFocusNode,
+        hintText: "Search Doctors...",
+        width: 400,
+        onSearch: _onSearchChanged,
+      ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: baseColor ?? Theme.of(context).colorScheme.primary,
+        backgroundColor:
+            widget.baseColor ?? Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         elevation: 4.0,
         shape: RoundedRectangleBorder(
@@ -89,8 +143,15 @@ class DoctorsListScreen extends ConsumerWidget {
         icon: const Icon(LucideIcons.plus),
       ),
       child: doctorsAsync.when(
-        data: (doctors) =>
-            _buildDoctorsList(context, ref, doctors, effectiveColor),
+        data: (doctors) {
+          final filteredDoctors = _filterDoctors(doctors);
+          return _buildDoctorsList(
+            context,
+            ref,
+            filteredDoctors,
+            effectiveColor,
+          );
+        },
         loading: () => _buildLoadingState(context, effectiveColor),
         error: (error, stack) =>
             _buildErrorState(context, ref, error, effectiveColor),

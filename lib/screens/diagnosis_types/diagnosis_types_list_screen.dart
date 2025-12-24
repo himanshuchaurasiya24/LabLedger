@@ -8,14 +8,59 @@ import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_bills_list_screen.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class DiagnosisTypesListScreen extends ConsumerWidget {
+class DiagnosisTypesListScreen extends ConsumerStatefulWidget {
   const DiagnosisTypesListScreen({super.key, this.baseColor});
 
   final Color? baseColor;
+
+  @override
+  ConsumerState<DiagnosisTypesListScreen> createState() =>
+      _DiagnosisTypesListScreenState();
+}
+
+class _DiagnosisTypesListScreenState
+    extends ConsumerState<DiagnosisTypesListScreen> {
+  final TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    searchFocusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query.trim().toLowerCase();
+    });
+  }
+
+  List<DiagnosisType> _filterDiagnosisTypes(List<DiagnosisType> types) {
+    if (_searchQuery.isEmpty) return types;
+
+    return types.where((type) {
+      final name = type.name.toLowerCase();
+      final categoryName = type.categoryName?.toLowerCase() ?? '';
+      final price = type.price.toString();
+
+      return name.contains(_searchQuery) ||
+          categoryName.contains(_searchQuery) ||
+          price.contains(_searchQuery);
+    }).toList();
+  }
 
   // Reusing the exact same responsive logic from previous screens
   int getCrossAxisCount(BuildContext context) {
@@ -44,16 +89,22 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final effectiveColor = baseColor ?? colorScheme.secondary;
-    // Watching the diagnosis type provider
+    final effectiveColor = widget.baseColor ?? colorScheme.secondary;
     final diagnosisTypesAsync = ref.watch(diagnosisTypeProvider);
 
     return WindowScaffold(
+      centerWidget: CenterSearchBar(
+        controller: searchController,
+        searchFocusNode: searchFocusNode,
+        hintText: "Search Diagnosis Types...",
+        width: 400,
+        onSearch: _onSearchChanged,
+      ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: baseColor ?? colorScheme.primary,
+        backgroundColor: widget.baseColor ?? colorScheme.primary,
         foregroundColor: Colors.white,
         elevation: 4.0,
         shape: RoundedRectangleBorder(
@@ -71,8 +122,15 @@ class DiagnosisTypesListScreen extends ConsumerWidget {
         icon: const Icon(LucideIcons.plus),
       ),
       child: diagnosisTypesAsync.when(
-        data: (types) =>
-            _buildDiagnosisTypeList(context, ref, types, effectiveColor),
+        data: (types) {
+          final filteredTypes = _filterDiagnosisTypes(types);
+          return _buildDiagnosisTypeList(
+            context,
+            ref,
+            filteredTypes,
+            effectiveColor,
+          );
+        },
         loading: () => _buildLoadingState(context, effectiveColor),
         error: (error, stack) =>
             _buildErrorState(context, ref, error, effectiveColor),

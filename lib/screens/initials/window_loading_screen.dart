@@ -42,7 +42,8 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       setState(() => tileText = "Verifying app version...");
       final requiredVersionString = await AuthRepository.instance
           .fetchMinimumAppVersion();
-      final currentVersion = Version.parse(appVersion);
+      final currentVersionString = await getAppVersion();
+      final currentVersion = Version.parse(currentVersionString);
       final requiredVersion = Version.parse(requiredVersionString);
 
       if (currentVersion < requiredVersion) {

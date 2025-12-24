@@ -7,6 +7,7 @@ import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/screens/franchise_labs/franchise_edit_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_lab_bills_list_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -30,10 +31,54 @@ extension ColorValues on Color {
   }
 }
 
-class FranchiseListScreen extends ConsumerWidget {
+class FranchiseListScreen extends ConsumerStatefulWidget {
   const FranchiseListScreen({super.key, this.baseColor});
 
   final Color? baseColor;
+
+  @override
+  ConsumerState<FranchiseListScreen> createState() =>
+      _FranchiseListScreenState();
+}
+
+class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen> {
+  final TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    searchFocusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query.trim().toLowerCase();
+    });
+  }
+
+  List<FranchiseName> _filterFranchises(List<FranchiseName> franchises) {
+    if (_searchQuery.isEmpty) return franchises;
+
+    return franchises.where((franchise) {
+      final franchiseName = franchise.franchiseName?.toLowerCase() ?? '';
+      final address = franchise.address?.toLowerCase() ?? '';
+      final phoneNumber = franchise.phoneNumber?.toLowerCase() ?? '';
+
+      return franchiseName.contains(_searchQuery) ||
+          address.contains(_searchQuery) ||
+          phoneNumber.contains(_searchQuery);
+    }).toList();
+  }
+
   int getCrossAxisCount(BuildContext context) {
     final size = MediaQuery.of(context).size;
     if (size.width < initialWindowWidth && size.width > 1200) {
@@ -59,15 +104,23 @@ class FranchiseListScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final effectiveColor = baseColor ?? colorScheme.secondary;
+    final effectiveColor = widget.baseColor ?? colorScheme.secondary;
     final franchisesAsync = ref.watch(franchiseProvider);
 
     return WindowScaffold(
+      centerWidget: CenterSearchBar(
+        controller: searchController,
+        searchFocusNode: searchFocusNode,
+        hintText: "Search Franchise Labs...",
+        width: 400,
+        onSearch: _onSearchChanged,
+      ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: baseColor ?? Theme.of(context).colorScheme.primary,
+        backgroundColor:
+            widget.baseColor ?? Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         elevation: 4.0,
         shape: RoundedRectangleBorder(
@@ -85,8 +138,15 @@ class FranchiseListScreen extends ConsumerWidget {
         icon: const Icon(LucideIcons.plus),
       ),
       child: franchisesAsync.when(
-        data: (franchises) =>
-            _buildFranchiseList(context, ref, franchises, effectiveColor),
+        data: (franchises) {
+          final filteredFranchises = _filterFranchises(franchises);
+          return _buildFranchiseList(
+            context,
+            ref,
+            filteredFranchises,
+            effectiveColor,
+          );
+        },
         loading: () => _buildLoadingState(context, effectiveColor),
         error: (error, stack) =>
             _buildErrorState(context, ref, error, effectiveColor),
