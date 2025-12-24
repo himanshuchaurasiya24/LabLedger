@@ -53,6 +53,9 @@ static void my_application_activate(GApplication* application) {
   }
 
   gtk_window_set_default_size(window, 1280, 720);
+  
+  // Set icon name for desktop integration (helps window managers find the icon)
+  gtk_window_set_icon_name(GTK_WINDOW(window), "labledger");
 
   // DEBUG: Load icon from assets for Debug mode
   g_print("DEBUG: Current Dir: %s\n", g_get_current_dir());
@@ -73,7 +76,12 @@ static void my_application_activate(GApplication* application) {
   
   if (icon) {
     g_print("DEBUG: Icon loaded successfully!\n");
+    // Set both window icon and default icon list for proper taskbar display
     gtk_window_set_icon(GTK_WINDOW(window), icon);
+    GList* icon_list = nullptr;
+    icon_list = g_list_append(icon_list, icon);
+    gtk_window_set_default_icon_list(icon_list);
+    g_list_free(icon_list);
     g_object_unref(icon);
   } else {
     g_print("DEBUG: Failed to load icon: %s\n", err ? err->message : "Unknown error");

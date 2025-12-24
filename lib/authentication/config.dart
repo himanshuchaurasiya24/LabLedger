@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 const String githubJsonRawUrl =
-    "https://raw.githubusercontent.com/himanshuchaurasiya24/AndroidAppDevelopment/main/random_url.json";
+    "https://raw.githubusercontent.com/himanshuchaurasiya24/SampleLabReports/main/usg.json";
 
 const String localBaseUrl = "http://127.0.0.1:8000/";
 

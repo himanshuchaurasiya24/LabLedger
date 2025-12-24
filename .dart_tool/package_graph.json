@@ -5,7 +5,7 @@
   "packages": [
     {
       "name": "labledger",
-      "version": "1.0.0+1",
+      "version": "2.0.0+2",
       "dependencies": [
         "collection",
         "cupertino_icons",
