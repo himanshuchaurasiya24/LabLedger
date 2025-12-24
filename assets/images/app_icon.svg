@@ -1,90 +1,98 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Primary Color: #0072B5 (Blue), Secondary: #1AA260 (Green) -->
+  <!-- Material Design Icon: Flask + Rupee + Dual Growth Lines -->
   
   <defs>
-    <!-- Shadows -->
-    <filter id="shadow" x="55" y="25" width="370" height="450" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#00375F" flood-opacity="0.2"/>
-    </filter>
-    <filter id="badgeShadow" x="330" y="30" width="160" height="160" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="2" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.2"/>
-    </filter>
-
-    <!-- Gradients -->
-    <linearGradient id="paperGrad" x1="0" y1="0" x2="400" y2="400" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#F5F9FC"/>
+    <!-- Flask Glass Gradient -->
+    <linearGradient id="glassGrad" x1="256" y1="80" x2="256" y2="460" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E1F0F9"/>
+      <stop offset="50%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#B3DAEF"/>
     </linearGradient>
-    <linearGradient id="flaskGrad" x1="360" y1="180" x2="360" y2="480" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#0072B5" stop-opacity="0.1"/>
-      <stop offset="100%" stop-color="#0072B5" stop-opacity="0.6"/>
+    
+    <!-- Liquid Gradient -->
+    <linearGradient id="liquidGrad" x1="256" y1="250" x2="256" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4DADD9"/>
+      <stop offset="100%" stop-color="#0072B5"/>
     </linearGradient>
-    <linearGradient id="rupeeGrad" x1="350" y1="50" x2="470" y2="170" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#1AA260"/>
-      <stop offset="100%" stop-color="#11663C"/>
+    
+    <!-- Long Shadow -->
+    <linearGradient id="shadowGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
     </linearGradient>
   </defs>
 
-  <!-- 1. The Ledger / Report (Background) -->
-  <g filter="url(#shadow)">
-    <!-- Paper Sheet -->
-    <path d="M80 56C80 47.1634 87.1634 40 96 40H320L400 120V424C400 432.837 392.837 440 384 440H96C87.1634 440 80 432.837 80 424V56Z" fill="url(#paperGrad)" stroke="#E1F0F9" stroke-width="2"/>
-    
-    <!-- Top Right Fold -->
-    <path d="M320 40V104C320 112.837 327.163 120 336 120H400" fill="#E1F0F9"/>
-    
-    <!-- Header -->
-    <rect x="115" y="80" width="160" height="14" rx="7" fill="#0072B5"/>
-    <rect x="115" y="110" width="100" height="8" rx="4" fill="#B3DAEF"/>
+  <!-- Long Shadow (Material Design) -->
+  <path d="M 200 150 L 140 210 L 140 470 Q 140 490 160 490 L 380 490 L 440 430 L 440 240 L 312 150 Z" 
+        fill="url(#shadowGrad)"/>
 
-    <!-- Medical Context: ECG Pulse Line -->
-    <path d="M115 160H150L160 140L175 180L190 150L200 160H300" stroke="#FF5252" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Dual Growth Lines (Behind Flask Neck Only) -->
+  <g opacity="0.85">
+    <!-- Teal Growth Line (Top) -->
+    <path d="M 60 380 L 120 320 L 180 350 L 240 280 L 300 310 L 360 200 L 420 80" 
+          stroke="#009688" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     
-    <!-- Content Lines -->
-    <rect x="115" y="200" width="230" height="6" rx="3" fill="#E0E0E0"/>
-    <rect x="115" y="220" width="200" height="6" rx="3" fill="#E0E0E0"/>
+    <!-- Data Points -->
+    <circle cx="120" cy="320" r="4" fill="#009688"/>
+    <circle cx="240" cy="280" r="4" fill="#009688"/>
+    <circle cx="360" cy="200" r="4" fill="#009688"/>
     
-    <!-- Financial Chart (Moved up slightly) -->
-    <g transform="translate(0, -20)">
-        <rect x="115" y="280" width="230" height="1" fill="#CCCCCC"/>
-        <rect x="125" y="280" width="20" height="40" rx="2" fill="#80C3E4"/>
-        <rect x="155" y="250" width="20" height="70" rx="2" fill="#4DADD9"/>
-        <rect x="185" y="220" width="20" height="100" rx="2" fill="#0072B5"/>
-    </g>
-
-    <!-- LabLedger Text ON THE PAPER (Smaller & Moved Left) -->
-    <text x="105" y="390" font-family="Arial, sans-serif" font-weight="900" font-size="38" letter-spacing="-0.5">
-        <tspan fill="#0072B5">Lab</tspan><tspan fill="#1AA260">Ledger</tspan>
-    </text>
+    <!-- Deep Blue Growth Line (Bottom - Parallel) -->
+    <path d="M 60 410 L 120 350 L 180 380 L 240 310 L 300 340 L 360 230 L 420 110" 
+          stroke="#0072B5" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Data Points -->
+    <circle cx="120" cy="350" r="4" fill="#0072B5"/>
+    <circle cx="240" cy="310" r="4" fill="#0072B5"/>
+    <circle cx="360" cy="230" r="4" fill="#0072B5"/>
+    
+    <!-- Arrows -->
+    <path d="M 420 80 L 410 92 M 420 80 L 430 92" 
+          stroke="#009688" stroke-width="10" stroke-linecap="round"/>
+    <path d="M 420 110 L 410 122 M 420 110 L 430 122" 
+          stroke="#0072B5" stroke-width="10" stroke-linecap="round"/>
   </g>
 
-  <!-- 2. The Flask (Foreground) -->
+  <!-- Flask Neck (Drawn AFTER growth lines) -->
   <g>
-    <!-- Body -->
-    <path d="M340 260V190H400V260L470 450C480 475 460 496 434 496H306C280 496 260 475 270 450L340 260Z" 
-          fill="url(#flaskGrad)" stroke="#005A91" stroke-width="4"/>
+    <rect x="210" y="80" width="92" height="100" rx="12" fill="url(#glassGrad)" stroke="#0072B5" stroke-width="10"/>
     
-    <!-- Rim -->
-    <rect x="335" y="180" width="70" height="12" rx="6" fill="#005A91"/>
+    <!-- Neck Opening Top -->
+    <ellipse cx="256" cy="80" rx="46" ry="12" fill="#B3DAEF"/>
+    <ellipse cx="256" cy="80" rx="38" ry="8" fill="#E1F0F9"/>
+  </g>
+
+  <!-- Flask Body (Drawn LAST - covers nothing) -->
+  <g>
+    <!-- Body (Erlenmeyer shape) -->
+    <path d="M 210 180 L 130 400 Q 120 440 150 460 L 362 460 Q 392 440 382 400 L 302 180 Z" 
+          fill="url(#glassGrad)" stroke="#0072B5" stroke-width="10" stroke-linejoin="round"/>
     
-    <!-- Liquid -->
-    <path d="M285 410C285 410 320 395 370 410C420 425 455 410 455 410L464 435C468 445 460 488 434 488H306C280 488 272 445 276 435L285 410Z" fill="#0072B5"/>
+    <!-- Liquid Level -->
+    <path d="M 210 250 L 150 390 Q 142 420 165 440 L 347 440 Q 370 420 362 390 L 302 250 Z" 
+          fill="url(#liquidGrad)"/>
+    
+    <!-- Measurement Lines on Flask -->
+    <line x1="160" y1="350" x2="190" y2="350" stroke="#0072B5" stroke-width="3" opacity="0.3"/>
+    <line x1="160" y1="380" x2="190" y2="380" stroke="#0072B5" stroke-width="3" opacity="0.3"/>
     
     <!-- Bubbles -->
-    <circle cx="370" cy="350" r="6" fill="#0072B5" fill-opacity="0.8"/>
-    <circle cx="400" cy="380" r="4" fill="#0072B5" fill-opacity="0.6"/>
-    <circle cx="340" cy="400" r="3" fill="#0072B5" fill-opacity="0.5"/>
-
-    <!-- Shine -->
-    <path d="M460 450C465 440 470 400 450 350" stroke="white" stroke-width="3" stroke-linecap="round" stroke-opacity="0.4"/>
+    <circle cx="220" cy="350" r="8" fill="#80C3E4" opacity="0.6"/>
+    <circle cx="280" cy="380" r="12" fill="#80C3E4" opacity="0.5"/>
+    <circle cx="250" cy="320" r="6" fill="#80C3E4" opacity="0.7"/>
+    <circle cx="200" cy="400" r="9" fill="#80C3E4" opacity="0.4"/>
+    
+    <!-- Glass Highlight (top only) -->
+    <ellipse cx="256" cy="190" rx="20" ry="8" fill="white" opacity="0.3"/>
   </g>
 
-  <!-- 3. Rupee Token -->
-  <g filter="url(#badgeShadow)">
-    <circle cx="410" cy="110" r="50" fill="white"/>
-    <circle cx="410" cy="110" r="44" fill="url(#rupeeGrad)"/>
-    <circle cx="410" cy="110" r="40" stroke="white" stroke-width="1" fill="none" opacity="0.3"/>
+  <!-- Rupee Symbol in the Middle of Flask -->
+  <g transform="translate(256, 320)">
+    <!-- Subtle circular background for contrast -->
+    <circle r="55" fill="white" opacity="0.85"/>
+    <circle r="52" fill="none" stroke="#0072B5" stroke-width="2" opacity="0.2"/>
     
-    <text x="410" y="132" font-family="Arial, sans-serif" font-weight="900" font-size="55" text-anchor="middle" fill="white" filter="drop-shadow(0px 2px 2px rgba(0,0,0,0.3))">₹</text>
+    <!-- Rupee ₹ -->
+    <text x="0" y="22" font-family="Arial, sans-serif" font-weight="900" font-size="70" text-anchor="middle" fill="#009688">₹</text>
   </g>
 </svg>
