@@ -1,6 +1,7 @@
 name: labledger
 base: core22
-version: git
+adopt-info: labledger
+title: LabLedger
 summary: Medical Records Made Simple
 description: |
   LabLedger is a comprehensive medical records and laboratory management
@@ -8,6 +9,8 @@ description: |
   medical laboratories. It provides an intuitive interface for managing
   bills, doctors, diagnosis types, franchise labs, and patient records.
 
+license: Apache-2.0
+contact: himanshuchaurasiya24@gmail.com
 grade: stable
 confinement: strict
 
@@ -18,7 +21,7 @@ architectures:
 
 apps:
   labledger:
-    command: labledger
+    command: bin/labledger
     extensions: [gnome]
     plugs:
       - desktop
@@ -37,7 +40,7 @@ parts:
   flutter-git:
     plugin: nil
     source: https://github.com/flutter/flutter.git
-    source-tag: 3.27.2
+    source-tag: 3.38.3
     source-depth: 1
     override-build: |
       mkdir -p $CRAFT_PART_INSTALL/usr/bin
@@ -61,9 +64,13 @@ parts:
     after: [flutter-git]
     plugin: nil
     source: .
-    parse-info: [pubspec.yaml]
     override-build: |
       set -eux
+      
+      # Extract version from pubspec.yaml and set it for the snap
+      VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//' | cut -d'+' -f1)
+      snapcraftctl set-version "$VERSION"
+      
       # Export Flutter to PATH
       export PATH="$CRAFT_STAGE/../flutter-git/install/usr/bin:$PATH"
       
@@ -78,13 +85,14 @@ parts:
       mkdir -p $CRAFT_PART_INSTALL/bin/
       cp -r build/linux/x64/release/bundle/* $CRAFT_PART_INSTALL/bin/
       
-      # Create a launch script
+      # Rename the executable and make it executable
+      mv $CRAFT_PART_INSTALL/bin/labledger $CRAFT_PART_INSTALL/bin/.labledger-bin
+      
+      # Create a wrapper script
       cat > $CRAFT_PART_INSTALL/bin/labledger <<'EOF'
       #!/bin/bash
       set -e
-      SNAP_DESKTOP_DIR="$SNAP/bin"
-      cd "$SNAP_DESKTOP_DIR"
-      exec "$SNAP_DESKTOP_DIR/labledger" "$@"
+      exec "$SNAP/bin/.labledger-bin" "$@"
       EOF
       chmod +x $CRAFT_PART_INSTALL/bin/labledger
     build-packages:
