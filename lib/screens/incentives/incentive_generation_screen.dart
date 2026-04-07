@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
@@ -531,7 +532,7 @@ class _ActionPanel extends ConsumerWidget {
       child: Column(
         children: [
           Expanded(
-            child: InkWell(
+            child: AppInkWell(
               borderRadius: BorderRadius.circular(defaultRadius),
               onTap: () {
                 navigatorKey.currentState?.push(
@@ -674,7 +675,7 @@ class _DatePickerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return InkWell(
+    return AppInkWell(
       borderRadius: BorderRadius.circular(defaultRadius),
       onTap: onTap,
       child: Container(
@@ -780,7 +781,7 @@ class __CompactMultiSelectDropdownState<T>
       builder: (context) => Stack(
         children: [
           Positioned.fill(
-            child: GestureDetector(
+            child: AppInkWell(
               onTap: _closeDropdown,
               child: Container(color: Colors.transparent),
             ),
@@ -877,7 +878,7 @@ class __CompactMultiSelectDropdownState<T>
 
     return CompositedTransformTarget(
       link: _layerLink,
-      child: GestureDetector(
+      child: AppInkWell(
         onTap: _toggleDropdown,
         child: Container(
           width: double.infinity,
@@ -955,7 +956,7 @@ class _DropdownItem<T> extends ConsumerWidget {
 
     return Material(
       color: Colors.transparent,
-      child: InkWell(
+      child: AppInkWell(
         onTap: () => onTap(value),
         borderRadius: BorderRadius.circular(defaultRadius / 2),
         child: Padding(

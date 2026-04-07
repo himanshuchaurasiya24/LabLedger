@@ -33,6 +33,41 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
   bool isFullScreen = false;
   late final FocusNode _appKeyboardFocusNode;
 
+  IconButtonThemeData _iconButtonTheme() {
+    return IconButtonThemeData(
+      style: ButtonStyle(
+        mouseCursor: WidgetStateProperty.resolveWith<MouseCursor?>((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return SystemMouseCursors.basic;
+          }
+          return SystemMouseCursors.click;
+        }),
+      ),
+    );
+  }
+
+  ElevatedButtonThemeData _elevatedButtonTheme(Color backgroundColor) {
+    return ElevatedButtonThemeData(
+      style:
+          ElevatedButton.styleFrom(
+            backgroundColor: backgroundColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ).copyWith(
+            mouseCursor: WidgetStateProperty.resolveWith<MouseCursor?>((
+              states,
+            ) {
+              if (states.contains(WidgetState.disabled)) {
+                return SystemMouseCursors.basic;
+              }
+              return SystemMouseCursors.click;
+            }),
+          ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -168,6 +203,8 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
             ),
           ),
           useMaterial3: true,
+          elevatedButtonTheme: _elevatedButtonTheme(const Color(0xFF0072B5)),
+          iconButtonTheme: _iconButtonTheme(),
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: {
               TargetPlatform.android: CupertinoPageTransitionsBuilder(),
@@ -215,15 +252,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
             foregroundColor: Colors.white,
             elevation: 0,
           ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1AA260),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
+          elevatedButtonTheme: _elevatedButtonTheme(const Color(0xFF1AA260)),
           floatingActionButtonTheme: const FloatingActionButtonThemeData(
             backgroundColor: Color(0xFF1AA260),
           ),
@@ -235,6 +264,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
           ),
           useMaterial3: true,
           splashFactory: InkRipple.splashFactory,
+          iconButtonTheme: _iconButtonTheme(),
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: {
               TargetPlatform.android: CupertinoPageTransitionsBuilder(),

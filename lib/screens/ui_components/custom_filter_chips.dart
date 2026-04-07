@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 
 class CustomFilterChips extends StatefulWidget {
   const CustomFilterChips({
@@ -26,7 +27,7 @@ class _CustomFilterChipsState extends State<CustomFilterChips> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: InkWell(
+      child: AppInkWell(
         borderRadius: BorderRadius.circular(25),
 
         onTap: widget.onTap,

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -366,7 +367,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                         _getStatusColor(bill?.billStatus),
                       ),
                       SizedBox(width: defaultWidth / 2),
-                      InkWell(
+                      AppInkWell(
                         onTap: () {
                           showDialog(
                             context: context,
@@ -387,7 +388,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                       ),
                       SizedBox(width: defaultWidth / 2),
                       if (bill != null && bill.reportUrl != null)
-                        InkWell(
+                        AppInkWell(
                           onTap: () async {
                             final uri = Uri.parse(bill.reportUrl!);
                             final isSafeScheme =
@@ -408,7 +409,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                             if (reportAsyncValue.hasValue &&
                                 reportAsyncValue.value != null) {
                               final report = reportAsyncValue.value!;
-                              return InkWell(
+                              return AppInkWell(
                                 onTap: () {
                                   ref.read(
                                     deletePatientReportProvider((
@@ -1225,7 +1226,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     required Color color,
     String? Function(String?)? validator,
   }) {
-    return InkWell(
+    return AppInkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: () async {
         HapticFeedback.selectionClick();

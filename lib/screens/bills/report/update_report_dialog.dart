@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
@@ -735,7 +736,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
         children: [
           SizedBox(height: defaultHeight / 3),
           // Upload Area
-          InkWell(
+          AppInkWell(
             onTap: _pickLocalFile,
             borderRadius: BorderRadius.circular(16),
             child: Container(

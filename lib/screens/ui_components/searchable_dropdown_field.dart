@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_shadowing_type_parameters
 
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter/services.dart';
 import 'package:labledger/constants/constants.dart'; // For defaultPadding, etc.
 import 'package:labledger/screens/ui_components/custom_text_field.dart'; // For CustomTextField
@@ -37,7 +38,7 @@ class _SearchableDropdownFieldState<T>
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return AppInkWell(
       key: anchorKey,
       borderRadius: BorderRadius.circular(12),
       onTap: () {

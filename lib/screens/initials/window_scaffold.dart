@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter/services.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/methods/custom_methods.dart';
@@ -237,7 +238,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                 left: defaultPadding,
                                 top: defaultPadding / 2,
                               ),
-                              child: InkWell(
+                              child: AppInkWell(
                                 onTap: _handleBackButton,
                                 borderRadius: BorderRadius.circular(
                                   defaultRadius,
@@ -251,8 +252,10 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                       defaultRadius,
                                     ),
                                     color: isDark
-                                        ? Theme.of(context).colorScheme.error.withValues(alpha: 0.3)
-                                        : Theme.of(context).colorScheme.error.withValues(alpha: 0.8),
+                                        ? Theme.of(context).colorScheme.error
+                                              .withValues(alpha: 0.3)
+                                        : Theme.of(context).colorScheme.error
+                                              .withValues(alpha: 0.8),
                                   ),
                                   child: Center(
                                     child: Icon(
@@ -292,7 +295,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     )
-                                  : InkWell(
+                                  : AppInkWell(
                                       onTap: () {
                                         showDialog(
                                           context: context,
@@ -431,7 +434,7 @@ class _WindowControlButtonState extends State<_WindowControlButton> {
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
-        child: GestureDetector(
+        child: AppInkWell(
           onTap: widget.onPressed,
           child: Container(
             width: 46,

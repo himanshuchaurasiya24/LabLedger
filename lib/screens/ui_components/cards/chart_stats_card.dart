@@ -1,6 +1,7 @@
 // screens/ui_components/cards/chart_stats_card.dart
 
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
@@ -274,8 +275,9 @@ Widget buildChartStatsCard(
   return chartStatsAsync.when(
     data: (chartResponse) {
       final chartData = chartResponse.getDataForPeriod(selectedPeriod);
-      return InkWell(
+      return AppInkWell(
         borderRadius: BorderRadius.circular(defaultRadius),
+        mouseCursor: SystemMouseCursors.click,
         onTap: () {
           navigatorKey.currentState?.push(
             MaterialPageRoute(builder: (context) => const BillsScreen()),

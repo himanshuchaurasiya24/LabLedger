@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
@@ -194,7 +195,7 @@ class _DiagnosisTypesListScreenState
 
     return TintedContainer(
       baseColor: effectiveColor,
-      child: InkWell(
+      child: AppInkWell(
         borderRadius: BorderRadius.circular(defaultRadius),
         onTap: onTap,
         child: Row(

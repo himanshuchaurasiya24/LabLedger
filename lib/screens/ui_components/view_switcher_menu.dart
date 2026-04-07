@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/constants/constants.dart'; // Or your own constants
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -43,7 +44,7 @@ class _ViewSwitcherMenuState extends State<ViewSwitcherMenu> {
     return Material(
       color: theme.colorScheme.surface,
       borderRadius: BorderRadius.circular(defaultRadius),
-      child: InkWell(
+      child: AppInkWell(
         borderRadius: BorderRadius.circular(defaultRadius),
         onTap: () {
           showViewMenu(color);

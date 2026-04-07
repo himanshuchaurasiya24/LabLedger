@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -770,7 +771,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
   }
 
   Widget _buildBillNumberCell(IncentiveBill bill, ThemeData theme) {
-    return GestureDetector(
+    return AppInkWell(
       onDoubleTap: () {
         Clipboard.setData(ClipboardData(text: bill.billNumber));
         _showSnackBar(
@@ -781,7 +782,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          InkWell(
+          AppInkWell(
             onTap: () {
               navigatorKey.currentState?.push(
                 MaterialPageRoute(

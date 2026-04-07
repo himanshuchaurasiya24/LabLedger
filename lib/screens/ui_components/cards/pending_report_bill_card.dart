@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
@@ -114,7 +115,7 @@ class PendingReportsCard extends StatelessWidget {
   ) {
     return Material(
       color: Colors.transparent,
-      child: InkWell(
+      child: AppInkWell(
         borderRadius: BorderRadius.circular(defaultRadius),
         onTap: () {
           navigatorKey.currentState?.push(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -83,7 +84,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           return asyncCenterDetail.when(
             data: (centerDetail) {
-              return InkWell(
+              return AppInkWell(
                 borderRadius: BorderRadius.circular(defaultRadius),
                 onTap: () {
                   if (widget.authResponse.isAdmin) {
@@ -329,7 +330,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: InkWell(
+                          child: AppInkWell(
                             borderRadius: BorderRadius.circular(defaultRadius),
 
                             onTap: () {
@@ -373,7 +374,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         SizedBox(width: defaultWidth),
                         Expanded(
-                          child: InkWell(
+                          child: AppInkWell(
                             borderRadius: BorderRadius.circular(defaultRadius),
 
                             onTap: () {
@@ -418,7 +419,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         SizedBox(width: defaultWidth),
                         Expanded(
-                          child: InkWell(
+                          child: AppInkWell(
                             borderRadius: BorderRadius.circular(defaultRadius),
 
                             onTap: () {
@@ -462,7 +463,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         SizedBox(width: defaultWidth),
                         Expanded(
-                          child: InkWell(
+                          child: AppInkWell(
                             borderRadius: BorderRadius.circular(defaultRadius),
 
                             onTap: () {
@@ -510,7 +511,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   } else {
                     return Column(
                       children: [
-                        InkWell(
+                        AppInkWell(
                           borderRadius: BorderRadius.circular(defaultRadius),
 
                           onTap: () {
@@ -551,7 +552,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
                         SizedBox(height: defaultHeight),
-                        InkWell(
+                        AppInkWell(
                           borderRadius: BorderRadius.circular(defaultRadius),
 
                           onTap: () {
@@ -593,7 +594,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
                         SizedBox(height: defaultHeight),
-                        InkWell(
+                        AppInkWell(
                           borderRadius: BorderRadius.circular(defaultRadius),
 
                           onTap: () {
@@ -634,7 +635,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
                         SizedBox(height: defaultHeight),
-                        InkWell(
+                        AppInkWell(
                           borderRadius: BorderRadius.circular(defaultRadius),
 
                           onTap: () {
@@ -691,7 +692,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: InkWell(
+                            child: AppInkWell(
                               borderRadius: BorderRadius.circular(
                                 defaultRadius,
                               ),
@@ -737,7 +738,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                           SizedBox(width: defaultWidth),
                           Expanded(
-                            child: InkWell(
+                            child: AppInkWell(
                               borderRadius: BorderRadius.circular(
                                 defaultRadius,
                               ),
@@ -786,7 +787,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     } else {
                       return Column(
                         children: [
-                          InkWell(
+                          AppInkWell(
                             borderRadius: BorderRadius.circular(defaultRadius),
 
                             onTap: () {
@@ -828,7 +829,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           ),
                           SizedBox(height: defaultHeight),
-                          InkWell(
+                          AppInkWell(
                             borderRadius: BorderRadius.circular(defaultRadius),
 
                             onTap: () {

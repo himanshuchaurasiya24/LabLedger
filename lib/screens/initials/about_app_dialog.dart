@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -140,67 +141,62 @@ class AboutAppDialog extends StatelessWidget {
                     SizedBox(height: defaultHeight * 1.2),
 
                     // Developer Info Card
-                    GestureDetector(
+                    AppInkWell(
                       onTap: () =>
                           _launchURL('https://github.com/himanshuchaurasiya24'),
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surface.withValues(
-                              alpha: 0.5,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: theme.colorScheme.primary.withValues(
-                                alpha: 0.2,
-                              ),
-                              width: 1,
-                            ),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface.withValues(
+                            alpha: 0.5,
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                LucideIcons.github,
-                                size: 24,
-                                color: theme.colorScheme.primary,
-                              ),
-                              const SizedBox(width: 12),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Developed by',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onSurface,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.2,
+                            ),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              LucideIcons.github,
+                              size: 24,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Developed by',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurface,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  Text(
-                                    developer,
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(
-                                          color: theme.colorScheme.primary,
-                                          fontWeight: FontWeight.w800,
-                                          decoration: TextDecoration.underline,
-                                          decorationColor:
-                                              theme.colorScheme.primary,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(
-                                LucideIcons.externalLink,
-                                size: 16,
-                                color: theme.colorScheme.primary.withValues(
-                                  alpha: 0.7,
                                 ),
+                                Text(
+                                  developer,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.w800,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: theme.colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              LucideIcons.externalLink,
+                              size: 16,
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.7,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -379,7 +375,6 @@ class AboutAppDialog extends StatelessWidget {
 
   Future<void> _launchURL(String urlString) async {
     final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-    }
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {}
   }
 }

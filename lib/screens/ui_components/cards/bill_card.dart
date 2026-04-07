@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -134,7 +135,7 @@ class BillCard extends StatelessWidget {
       color: textColor,
     );
 
-    return InkWell(
+    return AppInkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
 
@@ -250,7 +251,7 @@ class BillCard extends StatelessWidget {
                       ],
                     ),
                     if (bill.reportUrl != null)
-                      InkWell(
+                      AppInkWell(
                         onTap: () async {
                           final uri = Uri.parse(bill.reportUrl!);
 

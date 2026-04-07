@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
@@ -96,7 +97,7 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
         "${widget.authResponse.firstName} ${widget.authResponse.lastName}";
     final String initials = _getInitials(userName);
 
-    return InkWell(
+    return AppInkWell(
       borderRadius: BorderRadius.circular(20),
       onTap: () => _showCustomMenu(context),
       child: Container(
@@ -266,7 +267,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
     final String userRole = authResponse.isAdmin ? "Admin" : "User";
     final String initials = _getInitials(userName);
 
-    return GestureDetector(
+    return AppInkWell(
       onTap: onDismiss,
       child: Container(
         color: Colors.transparent,
@@ -295,7 +296,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                     children: [
                       Container(
                         padding: EdgeInsets.all(defaultPadding),
-                        child: InkWell(
+                        child: AppInkWell(
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
@@ -393,7 +394,6 @@ class _CustomDropdownMenu extends ConsumerWidget {
                           isDark: isDark,
                         ),
 
-                     
                       _buildMenuItem(
                         icon: Icons.palette_outlined,
                         label: 'Theme',
@@ -411,7 +411,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                           ),
                         ),
                       ),
-                       _buildMenuItem(
+                      _buildMenuItem(
                         icon: FontAwesomeIcons.circleInfo,
                         label: 'About this app',
                         onTap: onAboutAppTap,
@@ -494,7 +494,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
     Widget? trailing,
     bool isLogout = false,
   }) {
-    return InkWell(
+    return AppInkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Container(
@@ -546,7 +546,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
   ) {
     final isSelected = currentMode == themeMode;
 
-    return InkWell(
+    return AppInkWell(
       onTap: () => onSelect(themeMode),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),

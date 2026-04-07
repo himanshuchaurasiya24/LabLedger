@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/constants/constants.dart';
 
 class CustomActionButton extends StatelessWidget {
@@ -20,7 +21,7 @@ class CustomActionButton extends StatelessWidget {
     final theme = Theme.of(context);
 
     final baseColor = color ?? theme.colorScheme.primary;
-    return InkWell(
+    return AppInkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(defaultPadding),
       child: Container(

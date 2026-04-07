@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
@@ -313,7 +314,7 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                     final key = _selectedFields.keys.elementAt(index);
                     final isSelected = _selectedFields[key] ?? false;
 
-                    return InkWell(
+                    return AppInkWell(
                       borderRadius: BorderRadius.circular(8),
                       onTap: () =>
                           setState(() => _selectedFields[key] = !isSelected),

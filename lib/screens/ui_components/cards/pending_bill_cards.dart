@@ -1,6 +1,7 @@
 // screens/ui_components/cards/pending_bill_cards.dart
 
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
@@ -162,7 +163,7 @@ class PendingBillsCard extends StatelessWidget {
     final solidChipBg = importantTextColor(context);
     final solidChipFg = isDark ? baseColor : Colors.white;
 
-    return InkWell(
+    return AppInkWell(
       onTap: onBillTap != null ? () => onBillTap!(bill) : null,
       child: Container(
         padding: const EdgeInsets.all(8),

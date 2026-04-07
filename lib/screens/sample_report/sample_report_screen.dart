@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
@@ -181,7 +182,7 @@ class _SampleReportManagementScreenState
 
     return TintedContainer(
       baseColor: effectiveColor,
-      child: InkWell(
+      child: AppInkWell(
         borderRadius: BorderRadius.circular(defaultRadius),
         onTap: () {
           _showEditDialog(context, report, effectiveColor);

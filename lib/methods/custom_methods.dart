@@ -6,6 +6,7 @@ import 'package:labledger/providers/secure_storage_provider.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -211,7 +212,7 @@ class PageNavigatorBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppInkWell(
       onTap: () {
         onTapFunction(context: context);
       },
