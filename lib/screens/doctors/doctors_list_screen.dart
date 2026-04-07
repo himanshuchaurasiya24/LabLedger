@@ -8,8 +8,9 @@ import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/doctors/doctor_dashboard_screen.dart';
 import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
+import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -361,109 +362,36 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
     Color effectiveColor,
   ) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
-    return Center(
-      child: TintedContainer(
-        baseColor: Theme.of(context).colorScheme.error,
-        intensity: 0.1,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            SizedBox(height: defaultPadding),
-            Text(
-              'Failed to load doctors',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error.toString(),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: defaultPadding),
-            ElevatedButton.icon(
-              onPressed: () {
-                ref.invalidate(doctorsProvider);
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: effectiveColor,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return buildErrorState(
+      context: context,
+      error: error,
+      theme: theme,
+      onTap: () => ref.invalidate(doctorsProvider),
+      errorHeading: 'Failed to load doctors',
+      errorTitle: error.toString(),
+      buttonLabel: 'Retry',
+      icon: const Icon(Icons.refresh),
     );
   }
 
   Widget _buildEmptyState(BuildContext context, Color effectiveColor) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Center(
-      child: TintedContainer(
-        height: 400,
-        width: 400,
-        baseColor: effectiveColor,
-        intensity: 0.08,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              FontAwesomeIcons.userDoctor,
-              size: 94,
-              color: effectiveColor,
-            ), // Updated Icon
-            SizedBox(height: defaultPadding),
-            Text(
-              'No doctors found', // Updated Text
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add a doctor to get started', // Updated Text
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            // SizedBox(height: defaultPadding),
-            Spacer(),
-            CustomElevatedButton(
-              width: double.infinity,
-              onPressed: () {
-                navigatorKey.currentState?.push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return DoctorEditScreen();
-                    },
-                  ),
-                );
-              },
-              label: "Add a doctor",
-              backgroundColor: effectiveColor,
-              icon: Icon(Icons.add),
-            ),
-          ],
-        ),
-      ),
+    return buildEmptyState(
+      context: context,
+      effectiveColor: effectiveColor,
+      onAddPressed: () {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) {
+              return DoctorEditScreen();
+            },
+          ),
+        );
+      },
+      title: 'No doctors found',
+      subtitle: 'Add a doctor to get started',
+      icon: FontAwesomeIcons.userDoctor,
+      label: 'Add a doctor',
     );
   }
 

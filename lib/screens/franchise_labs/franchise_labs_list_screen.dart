@@ -9,6 +9,7 @@ import 'package:labledger/screens/franchise_labs/franchise_lab_bills_list_screen
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
+import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -364,53 +365,16 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen> {
     Color effectiveColor,
   ) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
-    return Center(
-      child: TintedContainer(
-        baseColor: Theme.of(context).colorScheme.error,
-        intensity: 0.1,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            SizedBox(height: defaultPadding),
-            Text(
-              'Failed to load franchise labs', // Updated text
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error.toString(),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: defaultPadding),
-            ElevatedButton.icon(
-              onPressed: () {
-                ref.invalidate(
-                  franchiseProvider,
-                ); // Invalidate correct provider
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: effectiveColor,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return buildErrorState(
+      context: context,
+      error: error,
+      theme: theme,
+      onTap: () => ref.invalidate(franchiseProvider),
+      errorHeading: 'Failed to load franchise labs',
+      errorTitle: error.toString(),
+      buttonLabel: 'Retry',
+      icon: const Icon(Icons.refresh),
     );
   }
 

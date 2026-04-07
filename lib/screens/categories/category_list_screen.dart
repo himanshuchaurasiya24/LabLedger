@@ -8,7 +8,8 @@ import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/categories/category_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
+import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
+import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -351,98 +352,32 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
     Color effectiveColor,
   ) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
-    return Center(
-      child: TintedContainer(
-        baseColor: colorScheme.error,
-        intensity: 0.1,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: colorScheme.error),
-            SizedBox(height: defaultPadding),
-            Text(
-              'Failed to load categories',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error.toString(),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: defaultPadding),
-            ElevatedButton.icon(
-              onPressed: () {
-                ref.invalidate(categoriesProvider);
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: effectiveColor,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return buildErrorState(
+      context: context,
+      error: error,
+      theme: theme,
+      onTap: () => ref.invalidate(categoriesProvider),
+      errorHeading: 'Failed to load categories',
+      errorTitle: error.toString(),
+      buttonLabel: 'Retry',
+      icon: const Icon(Icons.refresh),
     );
   }
 
   Widget _buildEmptyState(BuildContext context, Color effectiveColor) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Center(
-      child: TintedContainer(
-        height: 400,
-        width: 400,
-        baseColor: effectiveColor,
-        intensity: 0.08,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(LucideIcons.tags, size: 94, color: effectiveColor),
-            SizedBox(height: defaultPadding),
-            Text(
-              'No categories found',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add your first category to get started',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const Spacer(),
-            CustomElevatedButton(
-              width: double.infinity,
-              onPressed: () {
-                navigatorKey.currentState?.push(
-                  MaterialPageRoute(
-                    builder: (context) => const CategoryEditScreen(),
-                  ),
-                );
-              },
-              label: "Add Category",
-              backgroundColor: effectiveColor,
-              icon: const Icon(Icons.add),
-            ),
-          ],
-        ),
-      ),
+    return buildEmptyState(
+      context: context,
+      effectiveColor: effectiveColor,
+      onAddPressed: () {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (context) => const CategoryEditScreen()),
+        );
+      },
+      title: 'No categories found',
+      subtitle: 'Add your first category to get started',
+      icon: LucideIcons.tags,
+      label: 'Add Category',
     );
   }
 }

@@ -12,7 +12,7 @@ import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
+import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
@@ -150,23 +150,30 @@ class _FranchiseBillsListScreenState
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (error, stackTrace) => WindowScaffold(
-        child: Center(
-          child: ErrorDialog(title: "Error", errorMessage: error.toString()),
+        child: buildErrorState(
+          context: context,
+          error: error,
+          theme: Theme.of(context),
+          onTap: () => ref.invalidate(singleFranchiseProvider(widget.id)),
+          errorHeading: 'Failed to load franchise details',
+          errorTitle: error.toString(),
+          buttonLabel: 'Retry',
+          icon: const Icon(Icons.refresh),
         ),
       ),
       data: (data) {
         return WindowScaffold(
-                      centerWidget: franchiseAsync.when(
-          data: (franchise) => CenterSearchBar(
-            controller: searchController,
-            searchFocusNode: searchFocusNode,
-            hintText: "Search bills for ${franchise.franchiseName}...",
-            width: 400,
-            onSearch: _onSearchChanged,
+          centerWidget: franchiseAsync.when(
+            data: (franchise) => CenterSearchBar(
+              controller: searchController,
+              searchFocusNode: searchFocusNode,
+              hintText: "Search bills for ${franchise.franchiseName}...",
+              width: 400,
+              onSearch: _onSearchChanged,
+            ),
+            loading: () => const SizedBox(),
+            error: (_, _) => const SizedBox(),
           ),
-          loading: () => const SizedBox(),
-          error: (_, _) => const SizedBox(),
-        ),
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Column(

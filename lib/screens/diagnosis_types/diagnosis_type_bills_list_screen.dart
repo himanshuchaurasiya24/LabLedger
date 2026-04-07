@@ -13,7 +13,7 @@ import 'package:labledger/providers/diagnosis_type_provider.dart'; // You will n
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
+import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
@@ -155,8 +155,15 @@ class _DiagnosisTypeBillsListScreenState
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (error, stackTrace) => WindowScaffold(
-        child: Center(
-          child: ErrorDialog(title: "Error", errorMessage: error.toString()),
+        child: buildErrorState(
+          context: context,
+          error: error,
+          theme: Theme.of(context),
+          onTap: () => ref.invalidate(diagnosisTypeDetailProvider(widget.id)),
+          errorHeading: 'Failed to load diagnosis type details',
+          errorTitle: error.toString(),
+          buttonLabel: 'Retry',
+          icon: const Icon(Icons.refresh),
         ),
       ),
       data: (data) {

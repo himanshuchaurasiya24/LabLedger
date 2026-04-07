@@ -5,6 +5,8 @@ import 'package:labledger/models/paginated_response.dart';
 import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/screens/ui_components/cards/bill_card.dart';
+import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
+import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/constants/constants.dart';
 
 class PaginatedBillsView extends ConsumerWidget {
@@ -30,8 +32,8 @@ class PaginatedBillsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final size = MediaQuery.of(context).size;
-     Color positiveColor = Theme.of(context).colorScheme.secondary;
-     Color negativeColor = Theme.of(context).colorScheme.error;
+    Color positiveColor = Theme.of(context).colorScheme.secondary;
+    Color negativeColor = Theme.of(context).colorScheme.error;
     const Color neutralColor = Colors.amber;
 
     return billsProvider.when(
@@ -39,14 +41,12 @@ class PaginatedBillsView extends ConsumerWidget {
         final bills = response.bills;
 
         if (bills.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 50.0),
-              child: Text(
-                emptyListMessage,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-            ),
+          return buildEmptyState(
+            context: context,
+            effectiveColor: Theme.of(context).colorScheme.secondary,
+            title: emptyListMessage,
+            subtitle: 'Try changing your filters or search query.',
+            icon: Icons.receipt_long,
           );
         }
 
@@ -109,29 +109,16 @@ class PaginatedBillsView extends ConsumerWidget {
         ),
       ),
       error: (err, stack) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 50.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48),
-                const SizedBox(height: 16),
-                Text(
-                  "Failed to load bills",
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 8),
-                Text(err.toString(), textAlign: TextAlign.center),
-                const SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: onRetry,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text("Retry"),
-                ),
-              ],
-            ),
-          ),
+        final theme = Theme.of(context);
+        return buildErrorState(
+          context: context,
+          error: err,
+          theme: theme,
+          onTap: onRetry,
+          errorHeading: 'Failed to load bills',
+          errorTitle: err.toString(),
+          buttonLabel: 'Retry',
+          icon: const Icon(Icons.refresh),
         );
       },
     );

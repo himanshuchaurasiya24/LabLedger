@@ -9,7 +9,8 @@ import 'package:labledger/screens/diagnosis_types/diagnosis_type_bills_list_scre
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
+import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
+import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -317,104 +318,35 @@ class _DiagnosisTypesListScreenState
     Color effectiveColor,
   ) {
     final theme = Theme.of(context);
-    return Center(
-      child: TintedContainer(
-        baseColor: Theme.of(context).colorScheme.error,
-        intensity: 0.1,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            SizedBox(height: defaultPadding),
-            Text(
-              'Failed to load diagnosis types', // Updated text
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error.toString(),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: defaultPadding),
-            ElevatedButton.icon(
-              onPressed: () => ref.invalidate(diagnosisTypeProvider),
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: effectiveColor,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return buildErrorState(
+      context: context,
+      error: error,
+      theme: theme,
+      onTap: () => ref.invalidate(diagnosisTypeProvider),
+      errorHeading: 'Failed to load diagnosis types',
+      errorTitle: error.toString(),
+      buttonLabel: 'Retry',
+      icon: const Icon(Icons.refresh),
     );
   }
 
   Widget _buildEmptyState(BuildContext context, Color effectiveColor) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Center(
-      child: TintedContainer(
-        height: 400,
-        width: 400,
-        baseColor: effectiveColor,
-        intensity: 0.08,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              FontAwesomeIcons.microscope,
-              size: 94,
-              color: effectiveColor,
-            ), // Updated Icon
-            SizedBox(height: defaultPadding),
-            Text(
-              'No diagnosis type found', // Updated Text
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add a diagnosis type to get started', // Updated Text
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Spacer(),
-            CustomElevatedButton(
-              width: double.infinity,
-              onPressed: () {
-                navigatorKey.currentState?.push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return DiagnosisTypeEditScreen();
-                    },
-                  ),
-                );
-              },
-              label: "Add a diagnosis type",
-              backgroundColor: effectiveColor,
-              icon: Icon(Icons.add),
-            ),
-          ],
-        ),
-      ),
+    return buildEmptyState(
+      context: context,
+      effectiveColor: effectiveColor,
+      onAddPressed: () {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) {
+              return DiagnosisTypeEditScreen();
+            },
+          ),
+        );
+      },
+      title: 'No diagnosis type found',
+      subtitle: 'Add a diagnosis type to get started',
+      icon: FontAwesomeIcons.microscope,
+      label: 'Add a diagnosis type',
     );
   }
 

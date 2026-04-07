@@ -7,6 +7,8 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/user_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
+import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
+import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -373,77 +375,33 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
     final theme = Theme.of(context);
 
-    return Center(
-      child: TintedContainer(
-        baseColor: Theme.of(context).colorScheme.error,
-        intensity: 0.1,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            SizedBox(height: defaultPadding),
-            Text(
-              'Failed to load users',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: defaultHeight),
-            ElevatedButton.icon(
-              onPressed: () => ref.invalidate(usersDetailsProvider),
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.secondary,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return buildErrorState(
+      context: context,
+      error: error,
+      theme: theme,
+      onTap: () => ref.invalidate(usersDetailsProvider),
+      errorHeading: 'Failed to load users',
+      errorTitle: error.toString(),
+      buttonLabel: 'Retry',
+      icon: const Icon(Icons.refresh),
     );
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    final theme = Theme.of(context);
-    final effectiveColor = theme.colorScheme.secondary;
+    final effectiveColor = Theme.of(context).colorScheme.secondary;
 
-    return Center(
-      child: TintedContainer(
-        baseColor: effectiveColor,
-        intensity: 0.08,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.person_add_outlined, size: 64, color: effectiveColor),
-            SizedBox(height: defaultPadding),
-            Text(
-              'No users found',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: defaultHeight),
-            ElevatedButton.icon(
-              onPressed: () {
-                /* Navigate to add user screen */
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Add User'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: effectiveColor,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return buildEmptyState(
+      context: context,
+      effectiveColor: effectiveColor,
+      onAddPressed: () {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (context) => UserAddEditScreen()),
+        );
+      },
+      title: 'No users found',
+      subtitle: 'Add a user to get started',
+      icon: Icons.person_add_outlined,
+      label: 'Add User',
     );
   }
 

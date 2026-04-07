@@ -15,7 +15,7 @@ import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/bill_growth_stats_view.dart';
-import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
+import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
@@ -154,8 +154,15 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (error, stackTrace) => WindowScaffold(
-        child: Center(
-          child: ErrorDialog(title: "Error", errorMessage: error.toString()),
+        child: buildErrorState(
+          context: context,
+          error: error,
+          theme: Theme.of(context),
+          onTap: () => ref.invalidate(singleDoctorProvider(widget.doctorId)),
+          errorHeading: 'Failed to load doctor details',
+          errorTitle: error.toString(),
+          buttonLabel: 'Retry',
+          icon: const Icon(Icons.refresh),
         ),
       ),
       data: (doctor) {

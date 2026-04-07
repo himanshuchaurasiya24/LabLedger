@@ -10,7 +10,9 @@ import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
+import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
+import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -60,14 +62,14 @@ class _SampleReportManagementScreenState
           .trim()
           .toLowerCase()
           .replaceAll(RegExp(r'\s+'), ' ');
-      final category = report.category
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-      final fileName = report.sampleReportFile
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
+      final category = report.category.trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+      final fileName = report.sampleReportFile.trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
 
       return diagnosisName.contains(_searchQuery) ||
           category.contains(_searchQuery) ||
@@ -120,7 +122,7 @@ class _SampleReportManagementScreenState
         ),
         onPressed: () => _showCreateDialog(context, effectiveColor),
         label: const Text(
-          "Add Report",
+          'Add Report',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         icon: const Icon(LucideIcons.plus),
@@ -128,7 +130,12 @@ class _SampleReportManagementScreenState
       child: sampleReportsAsync.when(
         data: (reports) {
           final filteredReports = _filterReports(reports);
-          return _buildReportsList(context, ref, filteredReports, effectiveColor);
+          return _buildReportsList(
+            context,
+            ref,
+            filteredReports,
+            effectiveColor,
+          );
         },
         loading: () => _buildLoadingState(context, effectiveColor),
         error: (error, stack) =>
@@ -373,102 +380,29 @@ class _SampleReportManagementScreenState
     Color effectiveColor,
   ) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Center(
-      child: TintedContainer(
-        baseColor: Theme.of(context).colorScheme.error,
-        intensity: 0.1,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            SizedBox(height: defaultPadding),
-            Text(
-              'Failed to load sample reports',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error.toString(),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: defaultPadding),
-            ElevatedButton.icon(
-              onPressed: () {
-                ref.invalidate(allSampleReportsProvider);
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: effectiveColor,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return buildErrorState(
+      context: context,
+      error: error,
+      theme: theme,
+      onTap: () => ref.invalidate(allSampleReportsProvider),
+      errorHeading: 'Failed to load sample reports',
+      errorTitle: error.toString(),
+      buttonLabel: 'Retry',
+      icon: const Icon(Icons.refresh),
     );
   }
 
   Widget _buildEmptyState(BuildContext context, Color effectiveColor) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Center(
-      child: TintedContainer(
-        height: 400,
-        width: 400,
-        baseColor: effectiveColor,
-        intensity: 0.08,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              LucideIcons.server,
-              size: 94,
-              color: effectiveColor,
-            ), // Updated Icon
-            SizedBox(height: defaultPadding),
-            Text(
-              'No reports found', // Updated Text
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add your first report to get started', // Updated Text
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Spacer(),
-            CustomElevatedButton(
-              width: double.infinity,
-              onPressed: () {
-                _showCreateDialog(context, effectiveColor);
-              },
-              label: "Add Report",
-              backgroundColor: effectiveColor,
-              icon: Icon(Icons.add),
-            ),
-          ],
-        ),
-      ),
+    return buildEmptyState(
+      context: context,
+      effectiveColor: effectiveColor,
+      onAddPressed: () {
+        _showCreateDialog(context, effectiveColor);
+      },
+      title: 'No reports found',
+      subtitle: 'Add your first report to get started',
+      icon: LucideIcons.server,
+      label: 'Add Report',
     );
   }
 
