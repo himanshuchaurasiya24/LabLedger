@@ -67,6 +67,7 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
       address: _addressController.text,
       ownerName: _ownerNameController.text,
       ownerPhone: _ownerPhoneController.text,
+      isActive: widget.centerDetail.isActive,
       subscription: widget.centerDetail.subscription,
     );
 
@@ -75,7 +76,7 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(
+          SnackBar(
             behavior: SnackBarBehavior.floating,
 
             content: Text("Center details updated successfully!"),
@@ -105,6 +106,7 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final centerDetail = widget.centerDetail;
     return Dialog(
       backgroundColor:
           Colors.transparent, // Let TintedContainer handle the background
@@ -190,6 +192,7 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
               padding: EdgeInsets.symmetric(horizontal: defaultPadding),
               child: _SubscriptionInfoCard(
                 subscription: widget.centerDetail.subscription,
+                isActive: centerDetail.isActive,
               ),
             ),
             Spacer(),
@@ -274,12 +277,15 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
 
 class _SubscriptionInfoCard extends StatelessWidget {
   final Subscription subscription;
-  const _SubscriptionInfoCard({required this.subscription});
+  final bool isActive;
+  const _SubscriptionInfoCard({
+    required this.subscription,
+    required this.isActive,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bool isActive = subscription.isActive;
 
     final Color cardColor = isActive
         ? theme.colorScheme.secondary

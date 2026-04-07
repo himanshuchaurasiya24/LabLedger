@@ -77,64 +77,69 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       centerWidget: Consumer(
         builder: (context, ref, child) {
-          // Watch the provider for real-time updates
-          final asyncCenterDetail = ref.watch(
-            singleCenterDetailProvider(widget.authResponse.centerDetail.id),
-          );
+          final centerDetail = widget.authResponse.centerDetail;
+          final asyncCenterDetail = centerDetail.id > 0
+              ? ref.watch(singleCenterDetailProvider(centerDetail.id))
+              : null;
 
-          return asyncCenterDetail.when(
-            data: (centerDetail) {
-              return AppInkWell(
-                borderRadius: BorderRadius.circular(defaultRadius),
-                onTap: () {
-                  if (widget.authResponse.isAdmin) {
-                    showDialog(
-                      context: context,
-                      builder: (_) =>
-                          CenterDetailDialog(centerDetail: centerDetail),
-                    );
-                  }
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: defaultPadding * 2,
-                    vertical: defaultPadding / 2,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(defaultRadius),
-                    border: Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Text(
-                    "${centerDetail.centerName}, ${centerDetail.address}",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              );
+          final resolvedCenterDetail = asyncCenterDetail?.when(
+            data: (centerDetail) => centerDetail,
+            loading: () => centerDetail,
+            error: (_, _) => centerDetail,
+          ) ?? centerDetail;
+          final centerLabel = resolvedCenterDetail.centerName.isNotEmpty &&
+                  resolvedCenterDetail.address.isNotEmpty
+              ? "${resolvedCenterDetail.centerName}, ${resolvedCenterDetail.address}"
+              : "Center unavailable";
+
+          return AppInkWell(
+            borderRadius: BorderRadius.circular(defaultRadius),
+            onTap: () {
+              if (widget.authResponse.isAdmin) {
+                showDialog(
+                  context: context,
+                  builder: (_) =>
+                      CenterDetailDialog(centerDetail: resolvedCenterDetail),
+                );
+              }
             },
-            loading: () => const SizedBox(
-              height: 40,
-              width: 40,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-            // Error state
-            error: (error, _) => Container(
+            child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: defaultPadding * 2,
                 vertical: defaultPadding / 2,
               ),
-              child: Text(
-                'Error loading center',
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(defaultRadius),
+                border: Border.all(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (asyncCenterDetail?.isLoading ?? false) ...[
+                    SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: defaultWidth),
+                  ],
+                  Flexible(
+                    child: Text(
+                      centerLabel,
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
           );

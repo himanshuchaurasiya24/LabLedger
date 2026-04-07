@@ -39,7 +39,7 @@ class AuthRepository {
         case 401:
           throw InvalidCredentialsException(detail);
         case 403:
-          throw AccountLockedException(detail!);
+          throw _mapForbidden(detail);
         default:
           throw ServerException(
             detail ?? "Login failed: An unknown error occurred.",
@@ -113,7 +113,7 @@ class AuthRepository {
       await logout();
       final detail = _parseErrorDetail(response.body);
       if (response.statusCode == 403) {
-        throw AccountLockedException(detail!);
+        throw _mapForbidden(detail);
       }
       throw ServerException(detail ?? "Authentication failed.");
     }
@@ -130,10 +130,10 @@ class AuthRepository {
   }
 
   void _validateSubscription(AuthResponse authResponse) {
-    final subscription = authResponse.centerDetail.subscription;
-    if (!subscription.isActive) throw const SubscriptionInactiveException();
-    if (subscription.daysLeft <= 0) {
-      throw SubscriptionExpiredException(subscription.daysLeft);
+    if (authResponse.isAdmin) return;
+
+    if (!authResponse.centerDetail.isActive) {
+      throw const SubscriptionInactiveException();
     }
   }
 
@@ -144,6 +144,16 @@ class AuthRepository {
     } catch (_) {
       return null; // Return null if body is not valid JSON or doesn't contain 'detail'
     }
+  }
+
+  AuthException _mapForbidden(String? detail) {
+    final message = (detail ?? '').toLowerCase();
+    if (message.contains('subscription')) {
+      return SubscriptionInactiveException();
+    }
+    return AccountLockedException(
+      detail ?? 'Your account is locked. Please contact an administrator.',
+    );
   }
 
   // --- Centralized HTTP Request Helpers ---

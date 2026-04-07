@@ -78,7 +78,13 @@ class AuthHttpClient {
         if (errorData.containsKey('detail')) {
           final String detail =
               errorData['detail'] ?? 'An unknown server error occurred.';
-          if (response.statusCode == 403) return AccountLockedException(detail);
+          if (response.statusCode == 403) {
+            final lower = detail.toLowerCase();
+            if (lower.contains('subscription')) {
+              return SubscriptionInactiveException();
+            }
+            return AccountLockedException(detail);
+          }
           return ApiException(detail);
         } else {
           final String formattedMessage = _formatValidationErrors(errorData);

@@ -21,7 +21,7 @@ class CenterInfoWidget extends StatelessWidget {
     final address = centerDetail.address;
     final subscription = centerDetail.subscription;
     final planType =subscription.planType;
-    final isActive = subscription.isActive;
+    final isActive = centerDetail.isActive;
     final daysLeft = subscription.daysLeft;
 
     // Get status color based on days left

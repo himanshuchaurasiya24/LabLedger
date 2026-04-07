@@ -27,17 +27,21 @@ class AuthResponse {
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    final dynamic centerDetailRaw = json['center_detail'];
+
     return AuthResponse(
       refresh: json['refresh'] as String?,
       access: json['access'] as String?,
       success: json['success'] as bool?,
-      isAdmin: json['is_admin'] as bool,
-      isLocked: json['is_locked'] as bool, // <-- ADDED
-      username: json['username'] as String,
-      firstName: json['first_name'] as String,
-      lastName: json['last_name'] as String,
-      id: json['id'] as int,
-      centerDetail: CenterDetail.fromJson(json['center_detail'] as Map<String, dynamic>),
+      isAdmin: (json['is_admin'] as bool?) ?? false,
+      isLocked: (json['is_locked'] as bool?) ?? false, // <-- ADDED
+      username: (json['username'] as String?) ?? '',
+      firstName: (json['first_name'] as String?) ?? '',
+      lastName: (json['last_name'] as String?) ?? '',
+      id: (json['id'] as int?) ?? 0,
+      centerDetail: centerDetailRaw is Map<String, dynamic>
+          ? CenterDetail.fromJson(centerDetailRaw)
+          : const CenterDetail.fallback(),
     );
   }
 

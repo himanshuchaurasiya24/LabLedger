@@ -43,10 +43,11 @@ final loginProvider =
 final subscriptionStatusProvider =
     FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
   final authResponse = await ref.watch(currentUserProvider.future);
-  final subscription = authResponse.centerDetail.subscription;
+  final centerDetail = authResponse.centerDetail;
+  final subscription = centerDetail.subscription;
 
   return {
-    'isActive': subscription.isActive,
+    'isActive': centerDetail.isActive,
     'daysLeft': subscription.daysLeft,
     'planType': subscription.planType,
     'expiryDate': subscription.expiryDate,
