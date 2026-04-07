@@ -267,220 +267,222 @@ class _CustomDropdownMenu extends ConsumerWidget {
     final String userRole = authResponse.isAdmin ? "Admin" : "User";
     final String initials = _getInitials(userName);
 
-    return AppInkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: onDismiss,
-      child: Container(
-        color: Colors.transparent,
-        child: Stack(
-          children: [
-            Positioned(
-              left: offset.dx - 250 + size.width,
-              top: offset.dy + size.height + 10,
-              child: Material(
-                elevation: 100,
-                shadowColor: Colors.black.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(16),
-                color: isDark ? Colors.grey.shade900 : Colors.white,
-                child: Container(
-                  width: 250,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isDark
-                          ? Colors.grey.shade700
-                          : Colors.grey.shade300,
-                      width: 0.5,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.basic,
+        child: Container(
+          color: Colors.transparent,
+          child: Stack(
+            children: [
+              Positioned(
+                left: offset.dx - 250 + size.width,
+                top: offset.dy + size.height + 10,
+                child: Material(
+                  elevation: 100,
+                  shadowColor: Colors.black.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(16),
+                  color: isDark ? Colors.grey.shade900 : Colors.white,
+                  child: Container(
+                    width: 250,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.grey.shade700
+                            : Colors.grey.shade300,
+                        width: 0.5,
+                      ),
                     ),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(defaultPadding),
-                        child: AppInkWell(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return UserAddEditScreen(
-                                    targetUserId: authResponse.id,
-                                  );
-                                },
-                              ),
-                            );
-                            onDismiss();
-                          },
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 20,
-                                    backgroundColor: baseColor,
-                                    child: Text(
-                                      initials,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(defaultPadding),
+                          child: AppInkWell(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return UserAddEditScreen(
+                                      targetUserId: authResponse.id,
+                                    );
+                                  },
+                                ),
+                              );
+                              onDismiss();
+                            },
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 20,
+                                      backgroundColor: baseColor,
+                                      child: Text(
+                                        initials,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(width: defaultWidth / 2),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          userName,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                            color: isDark
-                                                ? Colors.white
-                                                : Colors.grey.shade800,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: baseColor.withValues(
-                                              alpha: 0.1,
+                                    SizedBox(width: defaultWidth / 2),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            userName,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                              color: isDark
+                                                  ? Colors.white
+                                                  : Colors.grey.shade800,
                                             ),
-                                            borderRadius: BorderRadius.circular(
-                                              12,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
                                             ),
-                                            border: Border.all(
+                                            decoration: BoxDecoration(
                                               color: baseColor.withValues(
-                                                alpha: 0.3,
+                                                alpha: 0.1,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: baseColor.withValues(
+                                                  alpha: 0.3,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              userRole,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: baseColor,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                           ),
-                                          child: Text(
-                                            userRole,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: baseColor,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
 
-                      Divider(
-                        height: 20,
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300,
-                      ),
-                      if (authResponse.isAdmin)
+                        Divider(
+                          height: 20,
+                          color: isDark
+                              ? Colors.grey.shade700
+                              : Colors.grey.shade300,
+                        ),
+                        if (authResponse.isAdmin)
+                          _buildMenuItem(
+                            icon: LucideIcons.user2,
+                            label: 'Profile',
+                            onTap: onProfileTap,
+                            isDark: isDark,
+                          ),
+
                         _buildMenuItem(
-                          icon: LucideIcons.user2,
-                          label: 'Profile',
-                          onTap: onProfileTap,
+                          icon: Icons.palette_outlined,
+                          label: 'Theme',
+                          onTap: onThemeToggle,
+                          isDark: isDark,
+                          trailing: AnimatedRotation(
+                            turns: isThemeExpanded ? 0.5 : 0,
+                            duration: const Duration(milliseconds: 200),
+                            child: Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 20,
+                              color: isDark
+                                  ? Colors.grey.shade400
+                                  : Colors.grey.shade600,
+                            ),
+                          ),
+                        ),
+
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          height: isThemeExpanded ? 144 : 0,
+                          child: ClipRect(
+                            child: isThemeExpanded
+                                ? Column(
+                                    children: [
+                                      _buildThemeOption(
+                                        'System',
+                                        Icons.brightness_auto,
+                                        ThemeMode.system,
+                                        currentThemeMode,
+                                        isDark,
+                                        onThemeSelect,
+                                      ),
+                                      _buildThemeOption(
+                                        'Light',
+                                        Icons.light_mode,
+                                        ThemeMode.light,
+                                        currentThemeMode,
+                                        isDark,
+                                        onThemeSelect,
+                                      ),
+                                      _buildThemeOption(
+                                        'Dark',
+                                        Icons.dark_mode,
+                                        ThemeMode.dark,
+                                        currentThemeMode,
+                                        isDark,
+                                        onThemeSelect,
+                                      ),
+                                    ],
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ),
+
+                        Divider(
+                          height: 20,
+                          color: isDark
+                              ? Colors.grey.shade700
+                              : Colors.grey.shade300,
+                        ),
+
+                        _buildMenuItem(
+                          icon: FontAwesomeIcons.circleInfo,
+                          label: 'About this app',
+                          onTap: onAboutAppTap,
                           isDark: isDark,
                         ),
 
-                      _buildMenuItem(
-                        icon: Icons.palette_outlined,
-                        label: 'Theme',
-                        onTap: onThemeToggle,
-                        isDark: isDark,
-                        trailing: AnimatedRotation(
-                          turns: isThemeExpanded ? 0.5 : 0,
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(
-                            Icons.keyboard_arrow_down,
-                            size: 20,
-                            color: isDark
-                                ? Colors.grey.shade400
-                                : Colors.grey.shade600,
-                          ),
+                        // Logout Option
+                        _buildMenuItem(
+                          icon: Icons.logout_rounded,
+                          label: 'Logout',
+                          onTap: onLogoutTap,
+                          isDark: isDark,
+                          isLogout: true,
                         ),
-                      ),
-                      _buildMenuItem(
-                        icon: FontAwesomeIcons.circleInfo,
-                        label: 'About this app',
-                        onTap: onAboutAppTap,
-                        isDark: isDark,
-                      ),
 
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        height: isThemeExpanded
-                            ? 144
-                            : 0, // 3 options × 48px each
-                        child: ClipRect(
-                          child: isThemeExpanded
-                              ? Column(
-                                  children: [
-                                    _buildThemeOption(
-                                      'System',
-                                      Icons.brightness_auto,
-                                      ThemeMode.system,
-                                      currentThemeMode,
-                                      isDark,
-                                      onThemeSelect,
-                                    ),
-                                    _buildThemeOption(
-                                      'Light',
-                                      Icons.light_mode,
-                                      ThemeMode.light,
-                                      currentThemeMode,
-                                      isDark,
-                                      onThemeSelect,
-                                    ),
-                                    _buildThemeOption(
-                                      'Dark',
-                                      Icons.dark_mode,
-                                      ThemeMode.dark,
-                                      currentThemeMode,
-                                      isDark,
-                                      onThemeSelect,
-                                    ),
-                                  ],
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                      ),
-
-                      Divider(
-                        height: 20,
-                        color: isDark
-                            ? Colors.grey.shade700
-                            : Colors.grey.shade300,
-                      ),
-
-                      // Logout Option
-                      _buildMenuItem(
-                        icon: Icons.logout_rounded,
-                        label: 'Logout',
-                        onTap: onLogoutTap,
-                        isDark: isDark,
-                        isLogout: true,
-                      ),
-
-                      const SizedBox(height: 8),
-                    ],
+                        const SizedBox(height: 8),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
