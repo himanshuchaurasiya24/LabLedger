@@ -88,10 +88,6 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     final stopwatch = Stopwatch()..start();
 
     _showProgressDialog();
-    final includeNegativeIncentives =
-        selectedFields['negativeIncentives'] ?? false;
-    final includeZeroIncentives =
-        selectedFields['zeroIncentives'] ?? false;
     final pdfFieldSelection = Map<String, bool>.from(selectedFields)
       ..remove('negativeIncentives')
       ..remove('zeroIncentives');
@@ -118,8 +114,9 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
 
           final pdfReports = _applyIncentiveFiltersForPdf(
             filteredReports,
-            includeNegativeIncentives: includeNegativeIncentives,
-            includeZeroIncentives: includeZeroIncentives,
+            includeNegativeIncentives:
+                selectedFields['negativeIncentives'] ?? false,
+            includeZeroIncentives: selectedFields['zeroIncentives'] ?? false,
           );
 
           if (pdfReports.isEmpty) {
@@ -324,38 +321,17 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     required bool includeNegativeIncentives,
     required bool includeZeroIncentives,
   }) {
-    bool includeBill(IncentiveBill bill) {
-      if (!includeNegativeIncentives && bill.incentiveAmount < 0) {
+    bool includeDoctor(DoctorReport report) {
+      if (!includeNegativeIncentives && report.totalIncentive < 0) {
         return false;
       }
-      if (!includeZeroIncentives && bill.incentiveAmount == 0) {
+      if (!includeZeroIncentives && report.totalIncentive == 0) {
         return false;
       }
       return true;
     }
 
-    final List<DoctorReport> filtered = [];
-
-    for (final report in reports) {
-      final filteredBills = report.bills.where(includeBill).toList();
-      if (filteredBills.isEmpty) {
-        continue;
-      }
-      final totalIncentive = filteredBills.fold<int>(
-        0,
-        (sum, bill) => sum + bill.incentiveAmount,
-      );
-
-      filtered.add(
-        DoctorReport(
-          doctor: report.doctor,
-          totalIncentive: totalIncentive,
-          bills: filteredBills,
-        ),
-      );
-    }
-
-    return filtered;
+    return reports.where(includeDoctor).toList();
   }
 
   Widget _buildSearchBar(ThemeData theme) {

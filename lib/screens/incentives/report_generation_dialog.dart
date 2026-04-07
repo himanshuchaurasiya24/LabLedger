@@ -92,6 +92,9 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
 
   void _onGeneratePressed() {
     if (_selectedFields.values.any((isSelected) => isSelected)) {
+      debugPrint(
+        "Selected Fields (key: value): ${_selectedFields.entries.where((e) => e.value).map((e) => '${e.key}: ${e.value}').join(', ')}",
+      );
       Navigator.of(context).pop({
         'generate': true,
         'selectedFields': _selectedFields,
