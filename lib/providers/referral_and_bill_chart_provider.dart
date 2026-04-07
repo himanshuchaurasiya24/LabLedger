@@ -31,7 +31,7 @@ final selectedTimePeriodProvider = StateProvider.autoDispose<String>(
 final doctorGrowthStatsProvider = FutureProvider.autoDispose
     .family<BillStats, int>((ref, doctorId) async {
       final String doctorGrowthStatsEndpoint =
-          "${globalBaseUrl}diagnosis/doctors/$doctorId/incentives/";
+          "${globalBaseUrl}diagnosis/doctors/$doctorId/growth-stats/";
 
       final response = await AuthHttpClient.get(ref, doctorGrowthStatsEndpoint);
       return BillStats.fromJson(jsonDecode(response.body));

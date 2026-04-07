@@ -34,6 +34,7 @@ class IncentiveDetailScreen extends ConsumerStatefulWidget {
 class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
   String searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  bool _isRefreshingReport = false;
 
   @override
   void dispose() {
@@ -87,6 +88,13 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     final stopwatch = Stopwatch()..start();
 
     _showProgressDialog();
+    final includeNegativeIncentives =
+        selectedFields['negativeIncentives'] ?? false;
+    final includeZeroIncentives =
+        selectedFields['zeroIncentives'] ?? false;
+    final pdfFieldSelection = Map<String, bool>.from(selectedFields)
+      ..remove('negativeIncentives')
+      ..remove('zeroIncentives');
 
     try {
       final reportState = ref.read(incentiveReportProvider);
@@ -108,14 +116,20 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
             return fullName.contains(searchQuery);
           }).toList();
 
-          if (filteredReports.isEmpty) {
+          final pdfReports = _applyIncentiveFiltersForPdf(
+            filteredReports,
+            includeNegativeIncentives: includeNegativeIncentives,
+            includeZeroIncentives: includeZeroIncentives,
+          );
+
+          if (pdfReports.isEmpty) {
             _showSnackBar('No filtered data to generate report', isError: true);
             return;
           }
 
           final pdfBytes = await createPDF(
-            reports: filteredReports,
-            selectedFields: selectedFields,
+            reports: pdfReports,
+            selectedFields: pdfFieldSelection,
             ref: ref,
             pdfIndex: pdfIndex,
           );
@@ -220,6 +234,10 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
         children: [
           _buildHeader(theme),
           SizedBox(height: defaultHeight),
+          if (_isRefreshingReport) ...[
+            const LinearProgressIndicator(minHeight: 3),
+            SizedBox(height: defaultHeight),
+          ],
           _buildSearchBar(theme),
           SizedBox(height: defaultHeight),
           Expanded(
@@ -255,7 +273,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Incentive Reports",
+                "Incentive Report",
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -272,10 +290,72 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
         IconButton(
           icon: Icon(LucideIcons.refreshCw, color: theme.colorScheme.primary),
           tooltip: "Refresh Report",
-          onPressed: () => ref.invalidate(incentiveReportProvider),
+          onPressed: () async {
+            if (_isRefreshingReport) {
+              return;
+            }
+            setState(() {
+              _isRefreshingReport = true;
+            });
+            try {
+              final refreshedReport = await ref.refresh(
+                incentiveReportProvider.future,
+              );
+              if (refreshedReport.isEmpty && mounted) {
+                _showSnackBar('Report refreshed', isError: false);
+              }
+            } catch (e) {
+              _showSnackBar('Refresh failed: $e', isError: true);
+            } finally {
+              if (mounted) {
+                setState(() {
+                  _isRefreshingReport = false;
+                });
+              }
+            }
+          },
         ),
       ],
     );
+  }
+
+  List<DoctorReport> _applyIncentiveFiltersForPdf(
+    List<DoctorReport> reports, {
+    required bool includeNegativeIncentives,
+    required bool includeZeroIncentives,
+  }) {
+    bool includeBill(IncentiveBill bill) {
+      if (!includeNegativeIncentives && bill.incentiveAmount < 0) {
+        return false;
+      }
+      if (!includeZeroIncentives && bill.incentiveAmount == 0) {
+        return false;
+      }
+      return true;
+    }
+
+    final List<DoctorReport> filtered = [];
+
+    for (final report in reports) {
+      final filteredBills = report.bills.where(includeBill).toList();
+      if (filteredBills.isEmpty) {
+        continue;
+      }
+      final totalIncentive = filteredBills.fold<int>(
+        0,
+        (sum, bill) => sum + bill.incentiveAmount,
+      );
+
+      filtered.add(
+        DoctorReport(
+          doctor: report.doctor,
+          totalIncentive: totalIncentive,
+          bills: filteredBills,
+        ),
+      );
+    }
+
+    return filtered;
   }
 
   Widget _buildSearchBar(ThemeData theme) {
@@ -375,7 +455,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
             title: "Total Incentives",
             value:
                 "₹${NumberFormat.decimalPattern('en_IN').format(totalIncentives)}",
-            color: theme.colorScheme.primary,
+            color: _getIncentiveColor(totalIncentives, theme),
             theme: theme,
           ),
         ),
@@ -437,6 +517,10 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
     ThemeData theme,
   ) {
     final cardColor = _getDoctorCardColor(index, context);
+    final incentiveColor = _getIncentiveColor(
+      doctorReport.totalIncentive,
+      theme,
+    );
     final startDate = ref.read(reportStartDateProvider);
     final endDate = ref.read(reportEndDateProvider);
     final subtitleText =
@@ -484,18 +568,21 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: cardColor.withAlpha(51),
+          color: incentiveColor.withAlpha(51),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(LucideIcons.indianRupee, color: cardColor, size: 16),
+            Icon(LucideIcons.indianRupee, color: incentiveColor, size: 16),
             Text(
               NumberFormat.decimalPattern(
                 'en_IN',
               ).format(doctorReport.totalIncentive),
-              style: TextStyle(color: cardColor, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: incentiveColor,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -646,7 +733,10 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
                     Text(
                       "₹${NumberFormat.decimalPattern('en_IN').format(bill.incentiveAmount)}",
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
+                        color: _getIncentiveColor(
+                          bill.incentiveAmount,
+                          Theme.of(context),
+                        ),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -803,7 +893,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
         children: [
           CircularProgressIndicator(),
           SizedBox(height: 16),
-          Text("Loading incentive reports..."),
+          Text("Loading incentive report..."),
         ],
       ),
     );
@@ -869,5 +959,15 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
       default:
         return Colors.grey;
     }
+  }
+
+  Color _getIncentiveColor(int amount, ThemeData theme) {
+    if (amount < 0) {
+      return theme.colorScheme.error;
+    }
+    if (amount == 0) {
+      return Colors.amber;
+    }
+    return theme.colorScheme.secondary;
   }
 }

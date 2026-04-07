@@ -134,7 +134,8 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
   Widget _buildBreakdownRow(MapEntry<String, int> entry, int maxValue) {
     final label = entry.key;
     final value = entry.value;
-    final barWidth = (value / maxValue);
+    final rawBarWidth = (value / maxValue);
+    final barWidth = rawBarWidth.isFinite ? rawBarWidth.clamp(0.0, 1.0) : 0.0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -261,39 +262,38 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
   }
 }
 
-  Widget buildChartStatsCard(
-    AsyncValue<ChartStatsResponse> chartStatsAsync,
-    Color? baseColor,
-    BuildContext context,
-    String selectedPeriod
-  ) {
-    final Color accentColor =
-        baseColor ?? Theme.of(context).colorScheme.secondary;
-    final Color errorColor = Theme.of(context).colorScheme.error;
-    return chartStatsAsync.when(
-      data: (chartResponse) {
-        final chartData = chartResponse.getDataForPeriod(selectedPeriod);
-        return InkWell(
-          borderRadius: BorderRadius.circular(defaultRadius),
-          onTap: () {
-            navigatorKey.currentState?.push(
-              MaterialPageRoute(builder: (context) => const BillsScreen()),
-            );
-          },
-          child: ChartStatsCard(
-            title: selectedPeriod,
-            baseColor: accentColor,
-            data: chartData,
-          ),
-        );
-      },
-      loading: () =>
-          Center(child: CircularProgressIndicator(color: accentColor)),
-      error: (err, _) => Center(
-        child: Text(
-          "Error: Failed to load chart data.",
-          style: TextStyle(color: errorColor),
+Widget buildChartStatsCard(
+  AsyncValue<ChartStatsResponse> chartStatsAsync,
+  Color? baseColor,
+  BuildContext context,
+  String selectedPeriod,
+) {
+  final Color accentColor =
+      baseColor ?? Theme.of(context).colorScheme.secondary;
+  final Color errorColor = Theme.of(context).colorScheme.error;
+  return chartStatsAsync.when(
+    data: (chartResponse) {
+      final chartData = chartResponse.getDataForPeriod(selectedPeriod);
+      return InkWell(
+        borderRadius: BorderRadius.circular(defaultRadius),
+        onTap: () {
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (context) => const BillsScreen()),
+          );
+        },
+        child: ChartStatsCard(
+          title: selectedPeriod,
+          baseColor: accentColor,
+          data: chartData,
         ),
+      );
+    },
+    loading: () => Center(child: CircularProgressIndicator(color: accentColor)),
+    error: (err, _) => Center(
+      child: Text(
+        "Error: Failed to load chart data.",
+        style: TextStyle(color: errorColor),
       ),
-    );
-  }
+    ),
+  );
+}

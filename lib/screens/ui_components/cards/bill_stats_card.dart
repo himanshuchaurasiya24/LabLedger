@@ -298,8 +298,11 @@ class _BillStatsCardState extends State<BillStatsCard> {
               itemBuilder: (context, i) {
                 final key = serviceKeys[i];
                 final value = data.diagnosisCounts[key] ?? 0;
-                final percentage = data.totalBills > 0
+                final rawPercentage = data.totalBills > 0
                     ? (value / data.totalBills)
+                    : 0.0;
+                final percentage = rawPercentage.isFinite
+                    ? rawPercentage.clamp(0.0, 1.0)
                     : 0.0;
                 return _buildBreakdownRow(
                   key,

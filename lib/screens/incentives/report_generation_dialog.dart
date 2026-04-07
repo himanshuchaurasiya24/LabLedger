@@ -33,6 +33,8 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
     'discByCenter': true,
     'incentivePercentage': true,
     'incentiveAmount': true,
+    'negativeIncentives': false,
+    'zeroIncentives': false,
     'billNumber': false,
     'billStatus': false,
   };
@@ -49,6 +51,8 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
     'discByCenter': "Center's Discount",
     'incentivePercentage': 'Incentive %',
     'incentiveAmount': 'Incentive Amount',
+    'negativeIncentives': 'Include Negative Incentives',
+    'zeroIncentives': 'Include Zero Incentives',
     'billNumber': 'Bill Number',
     'billStatus': 'Payment Status',
   };
@@ -67,6 +71,8 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
     'incentivePercentage': Icons.percent,
     'incentiveAmount': Icons.account_balance_wallet,
     'billNumber': Icons.receipt_long,
+    'negativeIncentives': Icons.trending_down,
+    'zeroIncentives': Icons.sentiment_neutral,
   };
 
   @override
