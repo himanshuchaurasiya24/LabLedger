@@ -14,7 +14,9 @@ import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/incentives/pdf_api.dart';
 import 'package:labledger/screens/incentives/report_generation_dialog.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
+import 'package:labledger/screens/ui_components/error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:open_file_plus/open_file_plus.dart';
@@ -230,18 +232,27 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(theme),
-          SizedBox(height: defaultHeight),
           if (_isRefreshingReport) ...[
-            const LinearProgressIndicator(minHeight: 3),
-            SizedBox(height: defaultHeight),
+            AnimatedLabProgressIndicator(),
+            // SizedBox(height: defaultHeight),
           ],
+          SizedBox(height: defaultHeight),
           _buildSearchBar(theme),
           SizedBox(height: defaultHeight),
           Expanded(
             child: reportAsync.when(
               data: (report) => _buildReportContent(report, theme),
               loading: () => _buildLoadingState(),
-              error: (err, stack) => _buildErrorState(err, theme),
+              error: (err, stack) => buildErrorState(
+                context: context,
+                error: err,
+                theme: theme,
+                onTap: () => ref.refresh(incentiveReportProvider),
+                errorHeading: "Failed to Load Report",
+                errorTitle: err.toString(),
+                buttonLabel: "Retry",
+                icon: Icon(LucideIcons.refreshCcw),
+              ),
             ),
           ),
         ],
@@ -870,47 +881,6 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
           CircularProgressIndicator(),
           SizedBox(height: 16),
           Text("Loading incentive report..."),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorState(Object error, ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            LucideIcons.alertCircle,
-            color: Theme.of(context).colorScheme.error,
-            size: 48,
-          ),
-          SizedBox(height: defaultPadding),
-          Text(
-            "Failed to Load Report",
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: Theme.of(context).colorScheme.error,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            error.toString(),
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withAlpha(178),
-            ),
-          ),
-          SizedBox(height: defaultPadding),
-          ElevatedButton.icon(
-            onPressed: () => ref.invalidate(incentiveReportProvider),
-            icon: const Icon(LucideIcons.refreshCw),
-            label: const Text("Retry"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Colors.white,
-            ),
-          ),
         ],
       ),
     );

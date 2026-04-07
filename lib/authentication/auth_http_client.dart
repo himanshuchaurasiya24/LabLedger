@@ -40,6 +40,7 @@ class AuthHttpClient {
         final authRepo = AuthRepository.instance;
         await authRepo.verifyAuth();
 
+        ref.invalidate(tokenProvider);
         final newToken = await ref.read(tokenProvider.future);
         final refreshedHeaders = {
           ...requestHeaders,
@@ -264,6 +265,7 @@ class AuthHttpClient {
         final authRepo = AuthRepository.instance;
         await authRepo.verifyAuth();
 
+        ref.invalidate(tokenProvider);
         final newToken = await ref.read(tokenProvider.future);
         // Retry the request with the new token
         response = await sendRequest(newToken!);
