@@ -188,7 +188,6 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
                 setState(() {
                   _layoutController.text = selectedLayout;
                   _selectedLayoutIndex = _pdfLayouts.indexOf(selectedLayout);
-                  debugPrint("selected layoutindex is: $_selectedLayoutIndex");
                 });
               },
             ),

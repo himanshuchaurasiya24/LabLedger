@@ -203,18 +203,17 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
       if (mounted) setState(() {});
     } catch (e) {
-      debugPrint("Error updating display controllers: $e");
+      //
     }
   }
 
   /// Recalculates total amount based on selected diagnosis types
   void _updateTotalAmount() {
     // Calculate total from selected diagnosis types
-    int total = _selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price);
+    _selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price);
 
     // The Bill model will recalculate when saved, but this helps user see the total
     // Note: There's no totalAmountController because total is calculated from diagnosis types
-    debugPrint("Total amount recalculated: $total");
   }
 
   @override
@@ -392,7 +391,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                             if (await canLaunchUrl(uri)) {
                               await launchUrl(uri);
                             } else {
-                              debugPrint('Could not launch ${bill.reportUrl}');
                             }
                           },
                           child: _buildStatusBadge("Download Report", color),

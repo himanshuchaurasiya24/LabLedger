@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/auth_exceptions.dart';
@@ -155,7 +154,6 @@ class AuthRepository {
       if (token != null) {
         headers['Authorization'] = 'Bearer $token';
       }
-      debugPrint('get endpoint $globalBaseUrl$endpoint');
       return await http
           .get(Uri.parse('$globalBaseUrl$endpoint'), headers: headers)
           .timeout(_defaultTimeout);

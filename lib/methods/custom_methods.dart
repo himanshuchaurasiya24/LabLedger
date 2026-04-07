@@ -72,7 +72,6 @@ Future<void> setWindowBehavior({
   bool? isForLogin,
   bool? isLoadingScreen,
 }) async {
-  debugPrint("Setting window behavior...");
   final isLogin = isForLogin ?? false;
   final isForLoadingScreen = isLoadingScreen ?? false;
 

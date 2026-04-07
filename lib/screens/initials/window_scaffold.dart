@@ -150,7 +150,6 @@ class _WindowScaffoldState extends State<WindowScaffold>
       await windowManager.focus();
       isLoginScreen.value = false;
     } catch (e) {
-      debugPrint("Error setting up main window: $e");
       await windowManager.center();
     }
   }

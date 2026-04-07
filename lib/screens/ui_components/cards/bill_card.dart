@@ -257,7 +257,6 @@ class BillCard extends StatelessWidget {
                           if (await canLaunchUrl(uri)) {
                             await launchUrl(uri);
                           } else {
-                            debugPrint('Could not launch ${bill.reportUrl}');
                           }
                         },
 

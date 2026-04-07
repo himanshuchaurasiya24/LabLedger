@@ -71,7 +71,6 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
       }
     } catch (e) {
       // Handle error
-      debugPrint('Error loading categories: $e');
     }
   }
 

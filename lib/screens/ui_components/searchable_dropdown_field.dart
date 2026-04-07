@@ -41,18 +41,14 @@ class _SearchableDropdownFieldState<T>
       key: anchorKey,
       borderRadius: BorderRadius.circular(12),
       onTap: () {
-        debugPrint(
-          'DEBUG: SearchableDropdownField tapped. Label: ${widget.label}, Items: ${widget.items.length}',
-        );
         if (widget.items.isEmpty) {
-          debugPrint('DEBUG: Items empty, returning.');
           return;
         }
         HapticFeedback.selectionClick();
         try {
           _showSearchableMenu(context);
-        } catch (e, stack) {
-          debugPrint('DEBUG: Error showing menu: $e\n$stack');
+        } catch (e) {
+          // Ignore error silently in production
         }
       },
       child: AbsorbPointer(
@@ -78,7 +74,6 @@ class _SearchableDropdownFieldState<T>
 
     // Ensure the key is mounted
     if (anchorKey.currentContext == null) {
-      debugPrint('DEBUG: anchorKey context is null');
       return;
     }
 

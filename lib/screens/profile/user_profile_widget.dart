@@ -529,7 +529,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
               ),
             ),
             const Spacer(),
-            if (trailing != null) trailing,
+            ?trailing,
           ],
         ),
       ),

@@ -41,9 +41,11 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
 
   Future<void> _checkFullScreen() async {
     bool isFullScreen = await windowManager.isFullScreen();
-    setState(() {
-      this.isFullScreen = isFullScreen;
-    });
+    if (mounted) {
+      setState(() {
+        this.isFullScreen = isFullScreen;
+      });
+    }
   }
 
   @override

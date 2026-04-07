@@ -119,7 +119,6 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
     if (_reportFileToUpload == null) return;
     final int fileSizeBytes = await _reportFileToUpload!.length();
     if (fileSizeBytes > maxFileSize) {
-      debugPrint("file size limit is 1 MB only");
 
       showDialog(
         context: navigatorKey.currentContext!,
