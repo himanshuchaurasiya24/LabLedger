@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/user_model.dart'; // Assuming your user model is here
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/user_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
@@ -29,10 +30,81 @@ extension ColorValues on Color {
   }
 }
 
-class UserListScreen extends ConsumerWidget {
+class UserListScreen extends ConsumerStatefulWidget {
   const UserListScreen({super.key, required this.adminId});
 
   final int adminId;
+
+  @override
+  ConsumerState<UserListScreen> createState() => _UserListScreenState();
+}
+
+class _UserListScreenState extends ConsumerState<UserListScreen> {
+  final TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    searchFocusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+  }
+
+  List<User> _filterUsers(List<User> users) {
+    if (_searchQuery.isEmpty) return users;
+
+    return users.where((user) {
+      final username = user.username.trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+      final fullName = '${user.firstName} ${user.lastName}'
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
+      final firstName = user.firstName.trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+      final lastName = user.lastName.trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+      final email = user.email.trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+      final phoneNumber = user.phoneNumber.trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+      final address = user.address.trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+
+      return username.contains(_searchQuery) ||
+          fullName.contains(_searchQuery) ||
+          firstName.contains(_searchQuery) ||
+          lastName.contains(_searchQuery) ||
+          email.contains(_searchQuery) ||
+          phoneNumber.contains(_searchQuery) ||
+          address.contains(_searchQuery);
+    }).toList();
+  }
 
   int getCrossAxisCount(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -59,9 +131,16 @@ class UserListScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final usersAsync = ref.watch(usersDetailsProvider);
     return WindowScaffold(
+      centerWidget: CenterSearchBar(
+        controller: searchController,
+        searchFocusNode: searchFocusNode,
+        hintText: 'Search Users...',
+        width: 400,
+        onSearch: _onSearchChanged,
+      ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
@@ -81,7 +160,10 @@ class UserListScreen extends ConsumerWidget {
         icon: const Icon(LucideIcons.plus),
       ),
       child: usersAsync.when(
-        data: (users) => _buildUsersList(context, ref, users),
+        data: (users) {
+          final filteredUsers = _filterUsers(users);
+          return _buildUsersList(context, ref, filteredUsers);
+        },
         loading: () => _buildLoadingState(context),
         error: (error, stack) => _buildErrorState(context, ref, error),
       ),
@@ -298,7 +380,11 @@ class UserListScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-             Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.error,
+            ),
             SizedBox(height: defaultPadding),
             Text(
               'Failed to load users',

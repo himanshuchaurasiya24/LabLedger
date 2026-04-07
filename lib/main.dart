@@ -31,12 +31,20 @@ class MyApp extends ConsumerStatefulWidget {
 
 class _MyAppState extends ConsumerState<MyApp> with WindowListener {
   bool isFullScreen = false;
+  late final FocusNode _appKeyboardFocusNode;
 
   @override
   void initState() {
     super.initState();
+    _appKeyboardFocusNode = FocusNode();
     windowManager.addListener(this);
     _checkFullScreen();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _appKeyboardFocusNode.requestFocus();
+      }
+    });
   }
 
   Future<void> _checkFullScreen() async {
@@ -51,6 +59,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
   @override
   void dispose() {
     windowManager.removeListener(this);
+    _appKeyboardFocusNode.dispose();
     super.dispose();
   }
 
@@ -72,22 +81,34 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeNotifierProvider);
     return KeyboardListener(
-      focusNode: FocusNode()..requestFocus(),
+      focusNode: _appKeyboardFocusNode,
       autofocus: true,
       onKeyEvent: (event) async {
-        if (isLoginScreen.value) return; // ⛔ Block keys on login screen
-        if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.escape && isFullScreen) {
-            await windowManager.setFullScreen(false);
-          }
-          if (event.logicalKey == LogicalKeyboardKey.f11) {
-            if (!isFullScreen) {
-              await windowManager.setFullScreen(true);
-            } else {
-              await windowManager.setFullScreen(false);
+        try {
+          if (isLoginScreen.value) return; // ⛔ Block keys on login screen
+          if (event is KeyDownEvent) {
+            if (event.logicalKey == LogicalKeyboardKey.escape && isFullScreen) {
+              try {
+                await windowManager.setFullScreen(false);
+              } catch (e) {
+                debugPrint("Error toggling fullscreen (escape): $e");
+              }
             }
-            await _checkFullScreen();
+            if (event.logicalKey == LogicalKeyboardKey.f11) {
+              try {
+                if (!isFullScreen) {
+                  await windowManager.setFullScreen(true);
+                } else {
+                  await windowManager.setFullScreen(false);
+                }
+                await _checkFullScreen();
+              } catch (e) {
+                debugPrint("Error toggling fullscreen (F11): $e");
+              }
+            }
           }
+        } catch (e) {
+          debugPrint("Error in keyboard listener: $e");
         }
       },
       child: MaterialApp(

@@ -8,7 +8,7 @@ import 'package:labledger/screens/franchise_labs/franchise_edit_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_lab_bills_list_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
+import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -61,7 +61,7 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen> {
 
   void _onSearchChanged(String query) {
     setState(() {
-      _searchQuery = query.trim().toLowerCase();
+      _searchQuery = query;
     });
   }
 
@@ -69,9 +69,18 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen> {
     if (_searchQuery.isEmpty) return franchises;
 
     return franchises.where((franchise) {
-      final franchiseName = franchise.franchiseName?.toLowerCase() ?? '';
-      final address = franchise.address?.toLowerCase() ?? '';
-      final phoneNumber = franchise.phoneNumber?.toLowerCase() ?? '';
+      final franchiseName = (franchise.franchiseName ?? '')
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
+      final address = (franchise.address ?? '').trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+      final phoneNumber = (franchise.phoneNumber ?? '')
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
 
       return franchiseName.contains(_searchQuery) ||
           address.contains(_searchQuery) ||
@@ -161,7 +170,19 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen> {
     Color effectiveColor,
   ) {
     if (franchises.isEmpty) {
-      return _buildEmptyState(context, effectiveColor);
+      return buildEmptyState(
+        context: context,
+        onAddPressed: () {
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (context) => FranchiseEditScreen()),
+          );
+        },
+        title: "No Franchise Labs Found",
+        subtitle: "Try adjusting your search or add a new franchise lab.",
+        label: "Add Franchise Lab",
+        effectiveColor: effectiveColor,
+        icon: LucideIcons.building,
+      );
     }
 
     return GridView.builder(
@@ -393,62 +414,62 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen> {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, Color effectiveColor) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  // Widget _buildEmptyState(BuildContext context, Color effectiveColor) {
+  //   final theme = Theme.of(context);
+  //   final colorScheme = theme.colorScheme;
 
-    return Center(
-      child: TintedContainer(
-        height: 400,
-        width: 400,
-        baseColor: effectiveColor,
-        intensity: 0.08,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              LucideIcons.building,
-              size: 94,
-              color: effectiveColor,
-            ), // Updated Icon
-            SizedBox(height: defaultPadding),
-            Text(
-              'No franchise labs found', // Updated Text
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add your first franchise lab to get started', // Updated Text
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Spacer(),
-            CustomElevatedButton(
-              width: double.infinity,
-              onPressed: () {
-                navigatorKey.currentState?.push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return FranchiseEditScreen();
-                    },
-                  ),
-                );
-              },
-              label: "Add Franchise Lab",
-              backgroundColor: effectiveColor,
-              icon: Icon(Icons.add),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  //   return Center(
+  //     child: TintedContainer(
+  //       height: 400,
+  //       width: 400,
+  //       baseColor: effectiveColor,
+  //       intensity: 0.08,
+  //       child: Column(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           Icon(
+  //             LucideIcons.building,
+  //             size: 94,
+  //             color: effectiveColor,
+  //           ), // Updated Icon
+  //           SizedBox(height: defaultPadding),
+  //           Text(
+  //             'No franchise labs found', // Updated Text
+  //             style: theme.textTheme.titleMedium?.copyWith(
+  //               color: colorScheme.onSurface,
+  //               fontWeight: FontWeight.bold,
+  //               fontSize: 20,
+  //             ),
+  //           ),
+  //           const SizedBox(height: 8),
+  //           Text(
+  //             'Add your first franchise lab to get started', // Updated Text
+  //             style: theme.textTheme.bodyMedium?.copyWith(
+  //               color: colorScheme.onSurface,
+  //             ),
+  //             textAlign: TextAlign.center,
+  //           ),
+  //           Spacer(),
+  //           CustomElevatedButton(
+  //             width: double.infinity,
+  //             onPressed: () {
+  //               navigatorKey.currentState?.push(
+  //                 MaterialPageRoute(
+  //                   builder: (context) {
+  //                     return FranchiseEditScreen();
+  //                   },
+  //                 ),
+  //               );
+  //             },
+  //             label: "Add Franchise Lab",
+  //             backgroundColor: effectiveColor,
+  //             icon: Icon(Icons.add),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   // Helper method to get initials from the franchise name
   String _getInitials(String? name) {

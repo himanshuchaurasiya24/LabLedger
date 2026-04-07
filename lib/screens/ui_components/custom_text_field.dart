@@ -148,6 +148,7 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       focusNode: focusNode,
       keyboardType: keyboardType,
+      textCapitalization: _getTextCapitalization(),
       readOnly: readOnly,
       obscureText: obscureText,
       onChanged: onChanged,
@@ -230,6 +231,25 @@ class CustomTextField extends StatelessWidget {
     }
 
     return formatters;
+  }
+
+  TextCapitalization _getTextCapitalization() {
+    final lowerLabel = label.toLowerCase();
+
+    if (keyboardType == TextInputType.number ||
+        keyboardType == TextInputType.phone ||
+        keyboardType == TextInputType.datetime) {
+      return TextCapitalization.none;
+    }
+
+    if (lowerLabel.contains('username') ||
+        lowerLabel.contains('email') ||
+        obscureText ||
+        lowerLabel.contains('password')) {
+      return TextCapitalization.none;
+    }
+
+    return TextCapitalization.words;
   }
 }
 

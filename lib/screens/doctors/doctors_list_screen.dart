@@ -61,7 +61,7 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
 
   void _onSearchChanged(String query) {
     setState(() {
-      _searchQuery = query.trim().toLowerCase();
+      _searchQuery = query;
     });
   }
 
@@ -69,13 +69,30 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
     if (_searchQuery.isEmpty) return doctors;
 
     return doctors.where((doctor) {
-      final firstName = doctor.firstName?.toLowerCase() ?? '';
-      final lastName = doctor.lastName?.toLowerCase() ?? '';
-      final hospitalName = doctor.hospitalName?.toLowerCase() ?? '';
-      final phoneNumber = doctor.phoneNumber?.toLowerCase() ?? '';
+      final firstName = (doctor.firstName ?? '')
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
+      final lastName = (doctor.lastName ?? '').trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+      final fullName = '${doctor.firstName ?? ''} ${doctor.lastName ?? ''}'
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
+      final hospitalName = (doctor.hospitalName ?? '')
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
+      final phoneNumber = (doctor.phoneNumber ?? '')
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
 
       return firstName.contains(_searchQuery) ||
           lastName.contains(_searchQuery) ||
+          fullName.contains(_searchQuery) ||
           hospitalName.contains(_searchQuery) ||
           phoneNumber.contains(_searchQuery);
     }).toList();

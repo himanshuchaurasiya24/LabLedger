@@ -7,6 +7,7 @@ import 'package:labledger/main.dart';
 import 'package:labledger/models/sample_report_model.dart';
 import 'package:labledger/providers/sample_reports_provider.dart';
 import 'package:labledger/providers/category_provider.dart';
+import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
@@ -16,10 +17,63 @@ import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SampleReportManagementScreen extends ConsumerWidget {
+class SampleReportManagementScreen extends ConsumerStatefulWidget {
   const SampleReportManagementScreen({super.key, this.baseColor});
 
   final Color? baseColor;
+
+  @override
+  ConsumerState<SampleReportManagementScreen> createState() =>
+      _SampleReportManagementScreenState();
+}
+
+class _SampleReportManagementScreenState
+    extends ConsumerState<SampleReportManagementScreen> {
+  final TextEditingController searchController = TextEditingController();
+  final FocusNode searchFocusNode = FocusNode();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    searchFocusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+  }
+
+  List<SampleReportModel> _filterReports(List<SampleReportModel> reports) {
+    if (_searchQuery.isEmpty) return reports;
+
+    return reports.where((report) {
+      final diagnosisName = report.diagnosisName
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
+      final category = report.category
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
+      final fileName = report.sampleReportFile
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
+
+      return diagnosisName.contains(_searchQuery) ||
+          category.contains(_searchQuery) ||
+          fileName.contains(_searchQuery);
+    }).toList();
+  }
 
   int getCrossAxisCount(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -44,13 +98,20 @@ class SampleReportManagementScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final effectiveColor = baseColor ?? colorScheme.secondary;
+    final effectiveColor = widget.baseColor ?? colorScheme.secondary;
     final sampleReportsAsync = ref.watch(allSampleReportsProvider);
 
     return WindowScaffold(
+      centerWidget: CenterSearchBar(
+        controller: searchController,
+        searchFocusNode: searchFocusNode,
+        hintText: 'Search Reports...',
+        width: 400,
+        onSearch: _onSearchChanged,
+      ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
@@ -65,8 +126,10 @@ class SampleReportManagementScreen extends ConsumerWidget {
         icon: const Icon(LucideIcons.plus),
       ),
       child: sampleReportsAsync.when(
-        data: (reports) =>
-            _buildReportsList(context, ref, reports, effectiveColor),
+        data: (reports) {
+          final filteredReports = _filterReports(reports);
+          return _buildReportsList(context, ref, filteredReports, effectiveColor);
+        },
         loading: () => _buildLoadingState(context, effectiveColor),
         error: (error, stack) =>
             _buildErrorState(context, ref, error, effectiveColor),

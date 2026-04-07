@@ -41,7 +41,9 @@ class AuthHttpClient {
         await authRepo.verifyAuth();
 
         ref.invalidate(tokenProvider);
+
         final newToken = await ref.read(tokenProvider.future);
+
         final refreshedHeaders = {
           ...requestHeaders,
           "Authorization": "Bearer $newToken",

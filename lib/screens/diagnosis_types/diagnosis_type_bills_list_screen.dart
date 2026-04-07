@@ -69,7 +69,7 @@ class _DiagnosisTypeBillsListScreenState
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      ref.read(currentSearchQueryProvider.notifier).state = query.trim();
+      ref.read(currentSearchQueryProvider.notifier).state = query;
       ref.read(currentPageProvider.notifier).state = 1;
     });
   }

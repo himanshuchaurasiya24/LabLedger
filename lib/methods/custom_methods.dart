@@ -52,6 +52,15 @@ class CenterSearchBar extends StatelessWidget {
     this.onClear,
   });
 
+  String _normalizeSearchText(String value) {
+    return value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  void _handleSearchChanged(String value) {
+    final normalized = _normalizeSearchText(value);
+    onSearch(normalized);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -61,7 +70,7 @@ class CenterSearchBar extends StatelessWidget {
         focusNode: searchFocusNode,
         controller: controller,
         label: hintText,
-        onChanged: onSearch,
+        onChanged: _handleSearchChanged,
         tintColor: Theme.of(context).colorScheme.secondary,
       ),
     );

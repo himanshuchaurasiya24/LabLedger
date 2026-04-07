@@ -44,7 +44,7 @@ class _DiagnosisTypesListScreenState
 
   void _onSearchChanged(String query) {
     setState(() {
-      _searchQuery = query.trim().toLowerCase();
+      _searchQuery = query;
     });
   }
 
@@ -52,8 +52,14 @@ class _DiagnosisTypesListScreenState
     if (_searchQuery.isEmpty) return types;
 
     return types.where((type) {
-      final name = type.name.toLowerCase();
-      final categoryName = type.categoryName?.toLowerCase() ?? '';
+      final name = type.name.trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+      final categoryName = (type.categoryName ?? '')
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
       final price = type.price.toString();
 
       return name.contains(_searchQuery) ||

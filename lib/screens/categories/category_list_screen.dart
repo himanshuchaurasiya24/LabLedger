@@ -41,7 +41,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
 
   void _onSearchChanged(String query) {
     setState(() {
-      _searchQuery = query.trim().toLowerCase();
+      _searchQuery = query;
     });
   }
 
@@ -51,8 +51,14 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
     if (_searchQuery.isEmpty) return categories;
 
     return categories.where((category) {
-      final name = category.name.toLowerCase();
-      final description = category.description?.toLowerCase() ?? '';
+      final name = category.name.trim().toLowerCase().replaceAll(
+        RegExp(r'\s+'),
+        ' ',
+      );
+      final description = (category.description ?? '')
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'\s+'), ' ');
 
       return name.contains(_searchQuery) || description.contains(_searchQuery);
     }).toList();

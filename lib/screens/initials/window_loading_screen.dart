@@ -31,57 +31,96 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
     _determineInitialRoute();
 
     Future.delayed(const Duration(milliseconds: 800), () {
-      if (mounted) setState(() => _isContentVisible = true);
+      if (mounted) {
+        try {
+          setState(() => _isContentVisible = true);
+        } catch (e) {
+          // Widget disposed, ignore
+        }
+      }
     });
   }
 
   Future<void> _determineInitialRoute() async {
-    await Future.delayed(const Duration(seconds: 3));
-
     try {
-      setState(() => tileText = "Verifying app version...");
+      await Future.delayed(const Duration(seconds: 3));
+      if (!mounted) return;
+
+      if (mounted) {
+        try {
+          setState(() => tileText = "Verifying app version...");
+        } catch (e) {
+          // Ignore if disposed
+        }
+      }
+      if (!mounted) return;
+
       final requiredVersionString = await AuthRepository.instance
           .fetchMinimumAppVersion();
+      if (!mounted) return;
+
       final currentVersionString = await getAppVersion();
       final currentVersion = Version.parse(currentVersionString);
       final requiredVersion = Version.parse(requiredVersionString);
 
       if (currentVersion < requiredVersion) {
-        navigatorKey.currentState?.pushReplacement(
-          MaterialPageRoute(
-            builder: (context) {
-              return UpdateRequiredScreen(
-                requiredVersion: requiredVersion.toString(),
-              );
-            },
-          ),
+        if (!mounted) return;
+        _navigateTo(
+          UpdateRequiredScreen(requiredVersion: requiredVersion.toString()),
         );
         return;
       }
 
-      setState(() => tileText = "Verifying session...");
+      if (mounted) {
+        try {
+          setState(() => tileText = "Verifying session...");
+        } catch (e) {
+          // Ignore if disposed
+        }
+      }
+      if (!mounted) return;
 
       final authResponse = await ref.read(currentUserProvider.future);
+      if (!mounted) return;
 
-      setState(() => tileText = "Authentication successful!");
+      if (mounted) {
+        try {
+          setState(() => tileText = "Authentication successful!");
+        } catch (e) {
+          // Ignore if disposed
+        }
+      }
+      if (!mounted) return;
+
       await Future.delayed(const Duration(milliseconds: 1000));
+      if (!mounted) return;
+
       _navigateTo(HomeScreen(authResponse: authResponse));
     } on AuthException catch (e) {
-      _navigateTo(LoginScreen(initialErrorMessage: e.message));
-    } catch (e) {
-      _navigateTo(
-        const LoginScreen(
-          initialErrorMessage: "Network error. Please check your connection.",
-        ),
-      );
+      if (mounted) {
+        _navigateTo(LoginScreen(initialErrorMessage: e.message));
+      }
+    } catch (e, stackTrace) {
+      debugPrint("ERROR in _determineInitialRoute: $e\n$stackTrace");
+      if (mounted) {
+        _navigateTo(
+          const LoginScreen(
+            initialErrorMessage: "An error occurred. Please try again.",
+          ),
+        );
+      }
     }
   }
 
   void _navigateTo(Widget screen) {
-    if (mounted) {
-      navigatorKey.currentState?.pushReplacement(
-        MaterialPageRoute(builder: (context) => screen),
-      );
+    try {
+      if (mounted && navigatorKey.currentState != null) {
+        navigatorKey.currentState!.pushReplacement(
+          MaterialPageRoute(builder: (context) => screen),
+        );
+      }
+    } catch (e, stackTrace) {
+      debugPrint("ERROR in _navigateTo: $e\n$stackTrace");
     }
   }
 
