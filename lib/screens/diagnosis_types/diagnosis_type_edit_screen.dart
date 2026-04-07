@@ -34,6 +34,7 @@ class _DiagnosisTypeEditScreenState
 
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
+  final _categoryController = TextEditingController();
   int? _selectedCategoryId; // Store selected category ID
 
   bool _isSaving = false;
@@ -64,6 +65,7 @@ class _DiagnosisTypeEditScreenState
   void dispose() {
     _nameController.dispose();
     _priceController.dispose();
+    _categoryController.dispose();
     super.dispose();
   }
 
@@ -71,6 +73,7 @@ class _DiagnosisTypeEditScreenState
     if (!_isDataInitialized) {
       _nameController.text = diagnosis.name;
       _selectedCategoryId = diagnosis.category; // Store category ID
+      _categoryController.text = diagnosis.categoryName ?? '';
       _priceController.text = diagnosis.price.toString();
       _isDataInitialized = true;
     }
@@ -303,19 +306,15 @@ class _DiagnosisTypeEditScreenState
                     SizedBox(height: defaultHeight),
                     SearchableDropdownField<DiagnosisCategory>(
                       label: 'Category',
-                      controller: TextEditingController(
-                        text:
-                            _categories
-                                .where((c) => c.id == _selectedCategoryId)
-                                .map((c) => c.name)
-                                .firstOrNull ??
-                            '',
-                      ),
+                      controller: _categoryController,
                       items: _categories,
                       color: color,
                       valueMapper: (item) => item.name,
                       onSelected: (selected) {
-                        setState(() => _selectedCategoryId = selected.id);
+                        setState(() {
+                          _selectedCategoryId = selected.id;
+                          _categoryController.text = selected.name;
+                        });
                       },
                       validator: (v) => _selectedCategoryId == null
                           ? 'Category is required'

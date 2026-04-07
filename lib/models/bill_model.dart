@@ -81,12 +81,16 @@ class Bill {
       referredByDoctor: json['referred_by_doctor_output']?['id'] ?? 0,
       franchiseName: json['franchise_name_output']?['id'],
       diagnosisTypesOutput: json['diagnosis_types_output'] != null
-          ? (json['diagnosis_types_output'] as List)
-                .map(
-                  (dt) =>
-                      Map<String, dynamic>.from(dt['diagnosis_type_detail']),
-                )
-                .toList()
+          ? (json['diagnosis_types_output'] as List).map((dt) {
+              final detail = Map<String, dynamic>.from(
+                dt['diagnosis_type_detail'],
+              );
+              if (dt['price_at_time'] != null) {
+                detail['price'] = dt['price_at_time'];
+                detail['price_at_time'] = dt['price_at_time'];
+              }
+              return detail;
+            }).toList()
           : null,
       referredByDoctorOutput: json['referred_by_doctor_output'],
       franchiseNameOutput: json['franchise_name_output'],

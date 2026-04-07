@@ -53,6 +53,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   final diagnosisTypeDisplayController = TextEditingController();
   final franchiseNameDisplayController = TextEditingController();
   final refByDoctorDisplayController = TextEditingController();
+  final _diagnosisTypeSearchController = TextEditingController();
 
   String selectedTestDateISO = DateTime.now().toIso8601String();
   String selectedBillDateISO = DateTime.now().toIso8601String();
@@ -106,6 +107,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     diagnosisTypeDisplayController.dispose();
     franchiseNameDisplayController.dispose();
     refByDoctorDisplayController.dispose();
+    _diagnosisTypeSearchController.dispose();
     super.dispose();
   }
 
@@ -388,10 +390,11 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                         InkWell(
                           onTap: () async {
                             final uri = Uri.parse(bill.reportUrl!);
-                            if (await canLaunchUrl(uri)) {
+                            final isSafeScheme =
+                                uri.scheme == 'https' || uri.scheme == 'http';
+                            if (isSafeScheme && await canLaunchUrl(uri)) {
                               await launchUrl(uri);
-                            } else {
-                            }
+                            } else {}
                           },
                           child: _buildStatusBadge("Download Report", color),
                         ),
@@ -767,8 +770,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                     SizedBox(height: defaultHeight / 2),
                     SearchableDropdownField<DiagnosisType>(
                       label: 'Add Diagnosis Type',
-                      controller:
-                          TextEditingController(), // Empty controller for adding
+                      controller: _diagnosisTypeSearchController,
                       items: types,
                       color: defaultColor,
                       valueMapper: (item) =>

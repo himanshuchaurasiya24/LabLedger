@@ -117,13 +117,14 @@ class IncentiveDiagnosisType {
   factory IncentiveDiagnosisType.fromJson(Map<String, dynamic> json) {
     // The API returns diagnosis type info nested in 'diagnosis_type_detail'
     final detail = json['diagnosis_type_detail'] as Map<String, dynamic>;
+    final billedPrice = json['price_at_time'] as int?;
 
     return IncentiveDiagnosisType(
       id: detail['id'] as int? ?? 0,
       name: detail['name'] as String? ?? '',
       category: detail['category'] as int? ?? 0, // Default to 0 if null
       categoryName: detail['category_name'] as String?,
-      price: detail['price'] as int? ?? 0,
+      price: billedPrice ?? (detail['price'] as int? ?? 0),
     );
   }
 }

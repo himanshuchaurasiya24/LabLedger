@@ -95,8 +95,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       });
     } catch (e) {
       setState(() {
-        // errorMessage = "An unexpected error occurred. Please try again.";
-        errorMessage = e.toString();
+        errorMessage = "An unexpected error occurred. Please try again.";
       });
     } finally {
       if (mounted) {

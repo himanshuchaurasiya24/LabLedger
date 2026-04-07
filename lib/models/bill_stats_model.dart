@@ -54,15 +54,15 @@ class BillPeriodStats {
     final diagnosisMap = <String, int>{};
     if (json['diagnosis_counts'] != null) {
       json['diagnosis_counts'].forEach((key, value) {
-        diagnosisMap[key] = value as int;
+        diagnosisMap[key] = (value as num?)?.toInt() ?? 0;
       });
     }
 
     return BillPeriodStats(
-      totalBills: json['total_bills'] ?? 0,
+      totalBills: (json['total_bills'] as num?)?.toInt() ?? 0,
       diagnosisCounts: diagnosisMap, // This already defaults to empty
       // ✅ 3. Parse 'total_incentive', defaulting to 0 if it's not in the JSON
-      totalIncentive: json['total_incentive'] ?? 0,
+      totalIncentive: (json['total_incentive'] as num?)?.toInt() ?? 0,
     );
   }
 
