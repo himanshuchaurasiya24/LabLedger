@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:labledger/authentication/config.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/center_detail_model_with_subscription.dart';
 import 'package:labledger/models/subscription_model.dart';
@@ -7,6 +11,7 @@ import 'package:labledger/providers/center_detail_provider.dart'; // Your provid
 import 'package:labledger/screens/ui_components/custom_text_field.dart'; // Import CustomTextField
 import 'package:labledger/screens/ui_components/tinted_container.dart'; // Import TintedContainer
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CenterDetailDialog extends ConsumerStatefulWidget {
   final CenterDetail centerDetail;
@@ -18,11 +23,13 @@ class CenterDetailDialog extends ConsumerStatefulWidget {
 }
 
 class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
+  static const String _supportEmail = 'support@your-domain.com';
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _centerNameController;
   late final TextEditingController _addressController;
   late final TextEditingController _ownerNameController;
   late final TextEditingController _ownerPhoneController;
+  late final Future<bool> _canUpgradeFuture;
 
   bool _isEditing = false;
   bool _isLoading = false;
@@ -42,6 +49,7 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
     _ownerPhoneController = TextEditingController(
       text: widget.centerDetail.ownerPhone,
     );
+    _canUpgradeFuture = _canUpgradeCurrentPlan();
   }
 
   @override
@@ -103,6 +111,75 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
     }
   }
 
+  Future<bool> _canUpgradeCurrentPlan() async {
+    final current = widget.centerDetail.subscription;
+
+    if (current.isCustom) {
+      return false;
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('${globalBaseUrl}center-details/subscription-plan/'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      final dynamic decoded = jsonDecode(response.body);
+      final List<dynamic> raw = decoded is List
+          ? decoded
+          : (decoded is Map<String, dynamic> && decoded['results'] is List)
+          ? decoded['results'] as List<dynamic>
+          : const [];
+
+      final int currentIndex = current.planIndex;
+      for (final item in raw) {
+        if (item is! Map<String, dynamic>) continue;
+        final int planIndex = (item['plan_index'] as int?) ?? 0;
+        final bool isCustom = (item['is_custom'] as bool?) ?? false;
+        if (!isCustom && planIndex > currentIndex) {
+          return true;
+        }
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _contactSupportForUpgrade() async {
+    final center = widget.centerDetail;
+    final subscription = center.subscription;
+
+    final body =
+        '''Dear Support Team,
+
+Please assist with upgrading our center subscription.
+
+Center Details:
+- Center ID: ${center.id}
+- Center Name: ${center.centerName}
+
+Current Plan:
+- Plan: ${subscription.planType}
+- Expiry Date: ${subscription.expiryDate}
+
+Regards,
+LabLedger Center Admin''';
+
+    final uri = Uri.https('mail.google.com', '/mail/', {
+      'view': 'cm',
+      'fs': '1',
+      'to': _supportEmail,
+      'su': 'Upgrade request: ${center.centerName}',
+      'body': body,
+    });
+
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      final fallback = Uri(scheme: 'mailto', path: _supportEmail);
+      await launchUrl(fallback, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -118,8 +195,8 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
         height: 550, // Let the content define the height
         radius: 20,
         disablePadding: true,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: ListView(
+          // mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
               padding: EdgeInsets.all(defaultPadding),
@@ -193,6 +270,8 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
               child: _SubscriptionInfoCard(
                 subscription: widget.centerDetail.subscription,
                 isActive: centerDetail.isActive,
+                canUpgradeFuture: _canUpgradeFuture,
+                onUpgradeTap: _contactSupportForUpgrade,
               ),
             ),
             Spacer(),
@@ -278,52 +357,122 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
 class _SubscriptionInfoCard extends StatelessWidget {
   final Subscription subscription;
   final bool isActive;
+  final Future<bool> canUpgradeFuture;
+  final VoidCallback onUpgradeTap;
+
   const _SubscriptionInfoCard({
     required this.subscription,
     required this.isActive,
+    required this.canUpgradeFuture,
+    required this.onUpgradeTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final Color cardColor = isActive
+    final statusColor = isActive
         ? theme.colorScheme.secondary
         : theme.colorScheme.error;
 
-    return Card(
-      elevation: 0,
-      color: cardColor.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: statusColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(defaultRadius),
-        side: BorderSide(color: cardColor),
+        border: Border.all(color: statusColor.withValues(alpha: 0.75)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildInfoRow(
-              'Plan Type',
-              subscription.planType,
-              LucideIcons.gem,
-              context,
-            ),
-            const Divider(height: 16),
-            _buildInfoRow(
-              'Expires On',
-              subscription.expiryDate,
-              LucideIcons.calendarClock,
-              context,
-            ),
-            const Divider(height: 16),
-            _buildInfoRow(
-              'Days Left',
-              '${subscription.daysLeft} days',
-              LucideIcons.hourglass,
-              context,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Current Subscription',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Text(
+                  isActive ? 'Active' : 'Expired',
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _buildInfoRow(
+            'Plan',
+            subscription.planType,
+            LucideIcons.gem,
+            context,
+          ),
+          const Divider(height: 16),
+          _buildInfoRow(
+            'Expires On',
+            subscription.expiryDate,
+            LucideIcons.calendarClock,
+            context,
+          ),
+          const Divider(height: 16),
+          _buildInfoRow(
+            'Days Left',
+            '${subscription.daysLeft} days',
+            LucideIcons.hourglass,
+            context,
+          ),
+          if (!subscription.isCustom)...[
+            const SizedBox(height: 12),
+            FutureBuilder<bool>(
+              future: canUpgradeFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  );
+                }
+
+                final canUpgrade = snapshot.data ?? false;
+                if (!canUpgrade) {
+                  return const SizedBox.shrink();
+                }
+
+                return Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton.icon(
+                    onPressed: onUpgradeTap,
+                    icon: const Icon(Icons.trending_up),
+                    label: const Text('Upgrade Plan'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(defaultRadius),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ],
-        ),
+        ],
       ),
     );
   }

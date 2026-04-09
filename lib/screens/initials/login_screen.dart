@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/auth_exceptions.dart';
+import 'package:labledger/authentication/config.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
+import 'package:labledger/screens/initials/subscription_renewal_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/reusable_ui_components.dart';
+import 'package:window_manager/window_manager.dart';
+import 'dart:convert';
 
 class LoginScreen extends ConsumerStatefulWidget {
   final String? initialErrorMessage;
@@ -26,6 +31,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   String errorMessage = "";
   bool isLoading = false;
   bool _isPasswordObscured = true;
+  bool _isSubscriptionDialogVisible = false;
 
   late AnimationController _fadeController;
 
@@ -36,6 +42,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     if (widget.initialErrorMessage != null) {
       errorMessage = widget.initialErrorMessage!;
+    }
+
+    final initialError = (widget.initialErrorMessage ?? '').toLowerCase();
+    if (initialError.contains('subscription')) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _handleSubscriptionRestriction();
+        }
+      });
     }
 
     _fadeController = AnimationController(
@@ -93,6 +108,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       setState(() {
         errorMessage = e.message;
       });
+
+      if (e is SubscriptionInactiveException ||
+          e.message.toLowerCase().contains('subscription')) {
+        await _handleSubscriptionRestriction();
+      }
     } catch (e) {
       setState(() {
         errorMessage = "An unexpected error occurred. Please try again.";
@@ -103,6 +123,75 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           isLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _handleSubscriptionRestriction() async {
+    final identifier = usernameController.text.trim();
+    final shouldShowDialog = await _shouldShowUpgradeDialog(identifier);
+    if (shouldShowDialog) {
+      await _showSubscriptionDialog();
+    }
+  }
+
+  Future<bool> _shouldShowUpgradeDialog(String identifier) async {
+    if (identifier.isEmpty) {
+      return false;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('${globalBaseUrl}center-details/subscription-plan-context/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'username': identifier}),
+      );
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        return false;
+      }
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic>) {
+        return false;
+      }
+
+      return (decoded['can_show_upgrade_dialog'] as bool?) ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _showSubscriptionDialog() async {
+    if (!mounted || _isSubscriptionDialogVisible) return;
+
+    _isSubscriptionDialogVisible = true;
+    await _setSubscriptionDialogWindowSize();
+
+    try {
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => SubscriptionRenewalDialog(
+          loginIdentifier: usernameController.text.trim(),
+        ),
+      );
+    } finally {
+      _isSubscriptionDialogVisible = false;
+      await setWindowBehavior(isForLogin: true);
+    }
+  }
+
+  Future<void> _setSubscriptionDialogWindowSize() async {
+    try {
+      const dialogSize = Size(1000, 700);
+      await windowManager.setSkipTaskbar(false);
+      await windowManager.setMinimumSize(dialogSize);
+      await windowManager.setMaximumSize(dialogSize);
+      await windowManager.setSize(dialogSize);
+      await windowManager.center();
+    } catch (_) {
+      // Best effort only. Login flow should continue even if window resize fails.
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/providers/theme_providers.dart';
+import 'package:labledger/screens/profile/audit_log_dialog.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -57,6 +58,10 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
         onThemeSelect: (themeMode) {
           ref.read(themeNotifierProvider.notifier).toggleTheme(themeMode);
           _removeOverlay();
+        },
+        onViewAuditLogsTap: () {
+          _removeOverlay();
+          showDialog(context: context, builder: (_) => const AuditLogDialog());
         },
         onAboutAppTap: () {
           _removeOverlay();
@@ -237,6 +242,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
   final VoidCallback onThemeToggle;
   final Function(ThemeMode) onThemeSelect;
   final VoidCallback onAboutAppTap;
+  final VoidCallback onViewAuditLogsTap;
   final VoidCallback onProfileTap;
   final VoidCallback onLogoutTap;
 
@@ -252,6 +258,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
     required this.isThemeExpanded,
     required this.onThemeToggle,
     required this.onThemeSelect,
+    required this.onViewAuditLogsTap,
     required this.onAboutAppTap,
     required this.onLogoutTap,
   });
@@ -393,6 +400,14 @@ class _CustomDropdownMenu extends ConsumerWidget {
                             icon: LucideIcons.user2,
                             label: 'Profile',
                             onTap: onProfileTap,
+                            isDark: isDark,
+                          ),
+
+                        if (authResponse.isAdmin)
+                          _buildMenuItem(
+                            icon: LucideIcons.history,
+                            label: 'View Audit Logs',
+                            onTap: onViewAuditLogsTap,
                             isDark: isDark,
                           ),
 
