@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/center_detail_model_with_subscription.dart';
 import 'package:labledger/models/subscription_model.dart';
 import 'package:labledger/providers/center_detail_provider.dart'; // Your provider file
@@ -120,7 +121,7 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
 
     try {
       final response = await http.get(
-        Uri.parse('${globalBaseUrl}center-details/subscription-plan/'),
+        Uri.parse('$globalBaseUrl${AppUrls.subscriptionPlan}'),
         headers: {'Content-Type': 'application/json'},
       );
 

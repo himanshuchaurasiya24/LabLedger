@@ -1,17 +1,19 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-const String githubJsonRawUrl =
-    "https://raw.githubusercontent.com/himanshuchaurasiya24/SampleLabReports/main/usg.json";
-
-const String localBaseUrl = "http://127.0.0.1:8000/";
+import 'package:labledger/constants/urls.dart';
 
 late String globalBaseUrl;
+
+String _normalizeBaseUrl(String baseUrl) {
+  final trimmed = baseUrl.trim();
+  if (trimmed.isEmpty) return trimmed;
+  return trimmed.endsWith('/') ? trimmed : '$trimmed/';
+}
 
 Future<void> initializeBaseUrl() async {
   try {
     // Add timestamp to bust cache
-    final uri = Uri.parse(githubJsonRawUrl).replace(
+    final uri = Uri.parse(AppUrls.githubJsonRaw).replace(
       queryParameters: {"t": DateTime.now().millisecondsSinceEpoch.toString()},
     );
 
@@ -23,11 +25,12 @@ Future<void> initializeBaseUrl() async {
       final hostedUrl = jsonBody["ll"] as String?;
 
       if (hostedUrl != null && hostedUrl.isNotEmpty) {
+        final normalizedHostedUrl = _normalizeBaseUrl(hostedUrl);
         try {
           // Optional: Ping the hosted URL before using
-          final ping = await http.get(Uri.parse(hostedUrl));
+          final ping = await http.get(Uri.parse(normalizedHostedUrl));
           if (ping.statusCode == 200) {
-            globalBaseUrl = hostedUrl;
+            globalBaseUrl = normalizedHostedUrl;
             return;
           }
         } catch (_) {}
@@ -38,5 +41,5 @@ Future<void> initializeBaseUrl() async {
   }
 
   // Fallback to local URL
-  globalBaseUrl = localBaseUrl;
+  globalBaseUrl = _normalizeBaseUrl(AppUrls.localBaseUrl);
 }

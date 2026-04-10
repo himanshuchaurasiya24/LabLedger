@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/diagnosis_category_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 
-final String categoryEndpoint = "${globalBaseUrl}diagnosis/categories/";
+final String categoryEndpoint = '$globalBaseUrl${AppUrls.diagnosisCategories}';
 
 // Provider for categories list
 final categoriesProvider = FutureProvider.autoDispose<List<DiagnosisCategory>>((

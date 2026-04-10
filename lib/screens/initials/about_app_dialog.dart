@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -142,8 +143,7 @@ class AboutAppDialog extends StatelessWidget {
 
                     // Developer Info Card
                     AppInkWell(
-                      onTap: () =>
-                          _launchURL('https://github.com/himanshuchaurasiya24'),
+                      onTap: () => _launchURL(AppUrls.developerGithub),
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(

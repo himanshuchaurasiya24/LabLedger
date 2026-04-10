@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -42,7 +43,7 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
 
   Future<List<SubscriptionPlanViewData>> _fetchPlans() async {
     final response = await http.get(
-      Uri.parse('${globalBaseUrl}center-details/subscription-plan/'),
+      Uri.parse('$globalBaseUrl${AppUrls.subscriptionPlan}'),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -73,7 +74,7 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
 
     try {
       final response = await http.post(
-        Uri.parse('${globalBaseUrl}center-details/subscription-plan-context/'),
+        Uri.parse('$globalBaseUrl${AppUrls.subscriptionPlanContext}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'username': identifier}),
       );

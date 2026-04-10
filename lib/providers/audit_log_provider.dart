@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/paginated_audit_log_response.dart';
 
-final String auditLogsEndpoint = '${globalBaseUrl}diagnosis/audit-logs/';
+final String auditLogsEndpoint = '$globalBaseUrl${AppUrls.diagnosisAuditLogs}';
 final auditLogsCurrentPageProvider = StateProvider.autoDispose<int>((ref) => 1);
 
 final auditLogsProvider = FutureProvider.autoDispose<PaginatedAuditLogResponse>(

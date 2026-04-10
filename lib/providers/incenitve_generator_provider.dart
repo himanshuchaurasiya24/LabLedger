@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/incentive_model.dart';
 
 import '../authentication/auth_http_client.dart';
 
-final String incentiveReportEndpoint = "${globalBaseUrl}diagnosis/incentives/";
+final String incentiveReportEndpoint =
+    '$globalBaseUrl${AppUrls.diagnosisIncentives}';
 
 final selectedDoctorIdsProvider = StateProvider<Set<int>>((ref) => {});
 

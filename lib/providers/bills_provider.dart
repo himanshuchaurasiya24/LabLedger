@@ -2,17 +2,18 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/bill_stats_model.dart';
 import 'package:labledger/models/paginated_response.dart';
 import 'package:labledger/models/pending_report_bill_model.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 
-final String billsEndpoint = "${globalBaseUrl}diagnosis/bill/";
+final String billsEndpoint = '$globalBaseUrl${AppUrls.diagnosisBill}';
 final String pendingReportsEndpoint =
-    "${globalBaseUrl}diagnosis/pending-reports/";
+    '$globalBaseUrl${AppUrls.diagnosisPendingReports}';
 final String billGrowthStatsEndpoint =
-    "${globalBaseUrl}diagnosis/bills/growth-stats/";
+    '$globalBaseUrl${AppUrls.diagnosisBillGrowthStats}';
 
 final currentPageProvider = StateProvider.autoDispose<int>((ref) => 1);
 final currentSearchQueryProvider = StateProvider.autoDispose<String>(

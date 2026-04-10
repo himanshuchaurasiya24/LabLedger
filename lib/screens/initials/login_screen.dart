@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/authentication_provider.dart';
@@ -141,7 +142,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     try {
       final response = await http.post(
-        Uri.parse('${globalBaseUrl}center-details/subscription-plan-context/'),
+        Uri.parse('$globalBaseUrl${AppUrls.subscriptionPlanContext}'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'username': identifier}),
       );

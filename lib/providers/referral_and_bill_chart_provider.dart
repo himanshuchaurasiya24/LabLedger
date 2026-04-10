@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/bill_stats_model.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 
-final String referralStatsEndpoint = "${globalBaseUrl}diagnosis/referral-stat/";
-final String chartStatsEndpoint = "${globalBaseUrl}diagnosis/bill-chart-stat/";
+final String referralStatsEndpoint =
+    '$globalBaseUrl${AppUrls.diagnosisReferralStat}';
+final String chartStatsEndpoint =
+    '$globalBaseUrl${AppUrls.diagnosisBillChartStat}';
 
 final referralStatsProvider = FutureProvider.autoDispose<ReferralStatsResponse>(
   (ref) async {
@@ -31,7 +34,7 @@ final selectedTimePeriodProvider = StateProvider.autoDispose<String>(
 final doctorGrowthStatsProvider = FutureProvider.autoDispose
     .family<BillStats, int>((ref, doctorId) async {
       final String doctorGrowthStatsEndpoint =
-          "${globalBaseUrl}diagnosis/doctors/$doctorId/growth-stats/";
+          '$globalBaseUrl${AppUrls.diagnosisDoctorGrowthStats(doctorId)}';
 
       final response = await AuthHttpClient.get(ref, doctorGrowthStatsEndpoint);
       return BillStats.fromJson(jsonDecode(response.body));

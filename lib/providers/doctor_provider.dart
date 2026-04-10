@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 
-final String doctorsEndpoint = "${globalBaseUrl}diagnosis/doctor/";
+final String doctorsEndpoint = '$globalBaseUrl${AppUrls.diagnosisDoctor}';
 
 final doctorsProvider = FutureProvider.autoDispose<List<Doctor>>((ref) async {
   final response = await AuthHttpClient.get(ref, doctorsEndpoint);

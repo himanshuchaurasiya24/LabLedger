@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 
-final String franchiseEndpoint = "${globalBaseUrl}diagnosis/franchise-name/";
+final String franchiseEndpoint =
+    '$globalBaseUrl${AppUrls.diagnosisFranchiseName}';
 final franchiseProvider = FutureProvider.autoDispose<List<FranchiseName>>((
   ref,
 ) async {

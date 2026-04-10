@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/screens/ui_components/reusable_ui_components.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -8,8 +9,7 @@ class UpdateRequiredScreen extends StatelessWidget {
 
   Future<void> _launchURL(String urlString) async {
     final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-    }
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {}
   }
 
   @override
@@ -43,9 +43,7 @@ class UpdateRequiredScreen extends StatelessWidget {
             ReusableButton(
               text: 'Click here to download',
               onPressed: () {
-                _launchURL(
-                  "https://github.com/himanshuchaurasiya24/LabLedger/releases/",
-                );
+                _launchURL(AppUrls.releasesPage);
               },
               width: 253,
               variant: ButtonVariant.elevated,

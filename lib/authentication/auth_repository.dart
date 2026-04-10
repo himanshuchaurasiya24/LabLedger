@@ -4,13 +4,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/auth_response_model.dart';
 
 class AuthRepository {
-  static const _tokenEndpoint = 'api/token/';
-  static const _refreshEndpoint = 'api/token/refresh/';
-  static const _verifyEndpoint = 'verify-auth/';
-  static const _appInfoEndpoint = 'api/app-info/';
+  static const _tokenEndpoint = AppUrls.token;
+  static const _refreshEndpoint = AppUrls.tokenRefresh;
+  static const _verifyEndpoint = AppUrls.verifyAuth;
+  static const _appInfoEndpoint = AppUrls.appInfo;
   static const _defaultTimeout = Duration(seconds: 10);
 
   static AuthRepository? _instance;

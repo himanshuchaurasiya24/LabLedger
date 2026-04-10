@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
 
 final String diagnosisTypeEndpoint =
-    "${globalBaseUrl}diagnosis/diagnosis-type/";
+    '$globalBaseUrl${AppUrls.diagnosisDiagnosisType}';
 
 final diagnosisTypeProvider = FutureProvider.autoDispose<List<DiagnosisType>>((
   ref,
@@ -34,7 +35,7 @@ final addDiagnosisTypeProvider = FutureProvider.autoDispose
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(diagnosis.toJson()),
       );
-      _invalidateDiagnosisTypeCache(ref :ref);
+      _invalidateDiagnosisTypeCache(ref: ref);
       return DiagnosisType.fromJson(jsonDecode(response.body));
     });
 
@@ -49,14 +50,14 @@ final updateDiagnosisTypeProvider = FutureProvider.autoDispose
         body: jsonEncode(updatedDiagnosis.toJson()),
       );
 
-      _invalidateDiagnosisTypeCache(ref :ref,id: id);
+      _invalidateDiagnosisTypeCache(ref: ref, id: id);
       return DiagnosisType.fromJson(jsonDecode(response.body));
     });
 
 final deleteDiagnosisTypeProvider = FutureProvider.autoDispose
     .family<void, int>((ref, id) async {
       await AuthHttpClient.delete(ref, "$diagnosisTypeEndpoint$id/");
-      _invalidateDiagnosisTypeCache(ref :ref,id: id);
+      _invalidateDiagnosisTypeCache(ref: ref, id: id);
     });
 
 void _invalidateDiagnosisTypeCache({required Ref ref, int? id}) {
