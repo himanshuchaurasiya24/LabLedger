@@ -23,7 +23,7 @@ class CenterDetailDialog extends ConsumerStatefulWidget {
 }
 
 class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
-  static const String _supportEmail = 'support@your-domain.com';
+  static const String _supportEmail = 'himanshuchaurasiya24@gmail.com';
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _centerNameController;
   late final TextEditingController _addressController;
@@ -274,7 +274,7 @@ LabLedger Center Admin''';
                 onUpgradeTap: _contactSupportForUpgrade,
               ),
             ),
-            Spacer(),
+            SizedBox(height: defaultHeight),
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: defaultPadding,
@@ -436,7 +436,7 @@ class _SubscriptionInfoCard extends StatelessWidget {
             LucideIcons.hourglass,
             context,
           ),
-          if (!subscription.isCustom)...[
+          if (!subscription.isCustom) ...[
             const SizedBox(height: 12),
             FutureBuilder<bool>(
               future: canUpgradeFuture,
