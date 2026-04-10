@@ -6,6 +6,7 @@ import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
@@ -398,40 +399,14 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
   }
 
   Future<void> _handleDelete(FranchiseName franchise) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(
-              Icons.warning_amber_rounded,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(width: 8),
-            const Text('Confirm Deletion'),
-          ],
-        ),
-        content: Text(
+      title: 'Confirm Deletion',
+      message:
           'Are you sure you want to delete ${franchise.franchiseName}?\n\nThis action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ),
-        ],
-      ),
     );
 
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     setState(() => _isDeleting = true);
     try {

@@ -8,6 +8,7 @@ import 'package:labledger/models/bill_stats_model.dart';
 import 'package:labledger/models/paginated_response.dart';
 import 'package:labledger/models/pending_report_bill_model.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
+import 'package:labledger/providers/report_quota_provider.dart';
 
 final String billsEndpoint = '$globalBaseUrl${AppUrls.diagnosisBill}';
 final String pendingReportsEndpoint =
@@ -167,6 +168,7 @@ void _invalidateBillCache(Ref ref) {
   ref.invalidate(paginatedUnpaidPartialBillsProvider);
   ref.invalidate(latestBillsProvider);
   ref.invalidate(pendingReportBillProvider);
+  ref.invalidate(reportQuotaSummaryProvider);
   ref.invalidate(billGrowthStatsProvider);
   ref.invalidate(doctorGrowthStatsProvider);
   ref.invalidate(paginatedDiagnosisTypeBillProvider);

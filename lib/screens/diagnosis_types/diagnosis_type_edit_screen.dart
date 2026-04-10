@@ -8,6 +8,7 @@ import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/models/diagnosis_category_model.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
@@ -376,28 +377,14 @@ class _DiagnosisTypeEditScreenState
   }
 
   Future<void> _handleDelete(DiagnosisType diagnosis) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showDeleteConfirmationDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Confirm Deletion'),
-        content: Text('Are you sure you want to delete "${diagnosis.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ),
-        ],
-      ),
+      title: 'Confirm Deletion',
+      message: 'Are you sure you want to delete "${diagnosis.name}"?',
+      showWarningIcon: false,
     );
 
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     setState(() => _isDeleting = true);
     try {

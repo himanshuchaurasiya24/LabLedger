@@ -35,6 +35,8 @@ class AppUrls {
   static const String diagnosisReferralStat = 'diagnosis/referral-stat/';
   static const String diagnosisBillChartStat = 'diagnosis/bill-chart-stat/';
   static const String diagnosisAuditLogs = 'diagnosis/audit-logs/';
+  static const String diagnosisReportQuotaSummary =
+      'diagnosis/report-quota-summary/';
   static const String diagnosisIncentives = 'diagnosis/incentives/';
   static const String diagnosisCategories = 'diagnosis/categories/';
   static const String diagnosisPatientReport = 'diagnosis/patient-report/';

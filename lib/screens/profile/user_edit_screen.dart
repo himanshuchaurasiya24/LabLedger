@@ -8,6 +8,7 @@ import 'package:labledger/providers/password_reset_provider.dart';
 import 'package:labledger/providers/user_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
+import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class UserAddEditScreen extends ConsumerStatefulWidget {
@@ -235,7 +236,9 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
                 SizedBox(height: defaultHeight / 2),
                 _buildStatusBadge(
                   _isEditMode ? 'Edit Mode' : 'Create Mode',
-                  _isEditMode ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
+                  _isEditMode
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.secondary,
                 ),
               ],
             ),
@@ -713,30 +716,15 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
   }
 
   Future<void> _handleDelete(User user) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Deletion'),
-        content: Text(
+      title: 'Confirm Deletion',
+      message:
           'Are you sure you want to delete ${user.firstName} ${user.lastName}? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ),
-        ],
-      ),
+      showWarningIcon: false,
     );
 
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     setState(() => _isDeleting = true);
     try {
@@ -854,7 +842,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-            behavior: SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.floating,
 
         content: Row(
           children: [
@@ -971,7 +959,11 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
             SizedBox(height: defaultHeight),
             Text('Error Loading User', style: TextStyle(fontSize: 20)),
             SizedBox(height: defaultHeight / 2),

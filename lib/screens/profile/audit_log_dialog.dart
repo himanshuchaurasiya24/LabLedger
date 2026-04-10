@@ -5,7 +5,6 @@ import 'package:labledger/models/audit_log_model.dart';
 import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/providers/audit_log_provider.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
-import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class AuditLogDialog extends ConsumerWidget {
@@ -18,103 +17,156 @@ class AuditLogDialog extends ConsumerWidget {
     final currentPage = ref.watch(auditLogsCurrentPageProvider);
 
     return Dialog(
-      backgroundColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       clipBehavior: Clip.antiAlias,
-      child: TintedContainer(
-        baseColor: theme.colorScheme.primary,
-        width: 900,
-        height: 650,
-        radius: 20,
-        disablePadding: true,
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(defaultPadding),
-              child: Row(
-                children: [
-                  Icon(
-                    LucideIcons.history,
-                    color: theme.colorScheme.primary,
-                    size: 24,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 980,
+          height: 700,
+          constraints: const BoxConstraints(maxHeight: 760),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
                   ),
-                  SizedBox(width: defaultWidth / 2),
-                  Text(
-                    'Center Audit Logs',
-                    style: theme.textTheme.headlineSmall,
-                  ),
-                  const Spacer(),
-                  AppInkWell(
-                    borderRadius: BorderRadius.circular(defaultRadius),
-                    onTap: () {
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withValues(
+                          alpha: 0.16,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        LucideIcons.history,
+                        color: theme.colorScheme.primary,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Center Audit Logs',
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Review create, update, delete and auth events',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    AppInkWell(
+                      borderRadius: BorderRadius.circular(defaultRadius),
+                      onTap: () {
+                        ref.read(auditLogsCurrentPageProvider.notifier).state =
+                            1;
+                        ref.invalidate(auditLogsProvider);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Icon(
+                          Icons.refresh,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: IconButton.styleFrom(
+                        backgroundColor: theme.colorScheme.surface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: logsAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (error, _) => _AuditErrorView(
+                    message: error.toString(),
+                    onRetry: () {
                       ref.read(auditLogsCurrentPageProvider.notifier).state = 1;
                       ref.invalidate(auditLogsProvider);
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Icon(
-                        Icons.refresh,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-            Divider(
-              height: 1,
-              color: theme.dividerColor.withValues(alpha: 0.4),
-            ),
-            Expanded(
-              child: logsAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, _) => _AuditErrorView(
-                  message: error.toString(),
-                  onRetry: () {
-                    ref.read(auditLogsCurrentPageProvider.notifier).state = 1;
-                    ref.invalidate(auditLogsProvider);
+                  data: (response) {
+                    if (response.logs.isEmpty) {
+                      return const _AuditEmptyView();
+                    }
+
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: ListView.separated(
+                            padding: EdgeInsets.all(defaultPadding),
+                            itemCount: response.logs.length,
+                            separatorBuilder: (_, _) =>
+                                SizedBox(height: defaultHeight / 2),
+                            itemBuilder: (context, index) {
+                              final log = response.logs[index];
+                              return _AuditLogCard(log: log);
+                            },
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.35),
+                            border: Border(
+                              top: BorderSide(
+                                color: theme.colorScheme.outline.withValues(
+                                  alpha: 0.2,
+                                ),
+                              ),
+                            ),
+                          ),
+                          child: PaginationControls(
+                            totalItems: response.count,
+                            itemsPerPage: 40,
+                            currentPage: currentPage,
+                            onPageChanged: (newPage) {
+                              ref
+                                      .read(
+                                        auditLogsCurrentPageProvider.notifier,
+                                      )
+                                      .state =
+                                  newPage;
+                            },
+                          ),
+                        ),
+                      ],
+                    );
                   },
                 ),
-                data: (response) {
-                  if (response.logs.isEmpty) {
-                    return const _AuditEmptyView();
-                  }
-
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: ListView.separated(
-                          padding: EdgeInsets.all(defaultPadding),
-                          itemCount: response.logs.length,
-                          separatorBuilder: (_, _) =>
-                              SizedBox(height: defaultHeight / 2),
-                          itemBuilder: (context, index) {
-                            final log = response.logs[index];
-                            return _AuditLogCard(log: log);
-                          },
-                        ),
-                      ),
-                      PaginationControls(
-                        totalItems: response.count,
-                        itemsPerPage: 40,
-                        currentPage: currentPage,
-                        onPageChanged: (newPage) {
-                          ref
-                                  .read(auditLogsCurrentPageProvider.notifier)
-                                  .state =
-                              newPage;
-                        },
-                      ),
-                    ],
-                  );
-                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

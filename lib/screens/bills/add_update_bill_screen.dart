@@ -19,6 +19,7 @@ import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
+import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -240,6 +241,25 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
   Widget _buildContent({Bill? bill}) {
     final isLargeScreen = MediaQuery.of(context).size.width > 1200;
+
+    if (isLargeScreen) {
+      return Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            _buildBillHeaderCard(color: widget.themeColor, bill: bill),
+            SizedBox(height: defaultHeight),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: defaultPadding),
+                child: _buildLargeScreenLayout(color: widget.themeColor),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Form(
       key: _formKey,
       child: Column(
@@ -247,16 +267,12 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
           _buildBillHeaderCard(color: widget.themeColor, bill: bill),
           SizedBox(height: defaultHeight),
           Expanded(
-            child: isLargeScreen
-                ? _buildLargeScreenLayout(color: widget.themeColor)
-                : Column(
-                    children: [
-                      _buildTabBar(color: widget.themeColor),
-                      Expanded(
-                        child: _buildTabContent(color: widget.themeColor),
-                      ),
-                    ],
-                  ),
+            child: Column(
+              children: [
+                _buildTabBar(color: widget.themeColor),
+                Expanded(child: _buildTabContent(color: widget.themeColor)),
+              ],
+            ),
           ),
         ],
       ),
@@ -568,7 +584,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               _buildPatientDetailsCard(defaultColor: color),
               SizedBox(height: defaultHeight),
               _buildDiagnosisDetailsCard(defaultColor: color),
-              const Spacer(),
             ],
           ),
         ),
@@ -585,7 +600,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                     ? _buildAmountDetailsCard(defaultColor: color)
                     : const SizedBox.shrink(),
               ),
-              const Spacer(),
             ],
           ),
         ),
@@ -1115,29 +1129,13 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
   // Updated _deleteBill to accept the Bill object
   Future<void> _deleteBill(Bill bill) async {
-    final shouldDelete = await showDialog<bool>(
+    final shouldDelete = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Bill'),
-        content: const Text(
+      title: 'Delete Bill',
+      message:
           'Are you sure you want to delete this bill? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
     );
-    if (shouldDelete == true) {
+    if (shouldDelete) {
       try {
         await ref.read(deleteBillProvider(bill.id!).future);
         if (mounted) {

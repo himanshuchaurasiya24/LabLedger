@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/auth_response_model.dart';
+import 'package:labledger/models/report_quota_model.dart';
 import 'package:labledger/providers/theme_providers.dart';
+import 'package:labledger/providers/report_quota_provider.dart';
 import 'package:labledger/screens/profile/audit_log_dialog.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -268,6 +270,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final currentThemeMode = ref.watch(themeNotifierProvider);
+    final quotaAsync = ref.watch(reportQuotaSummaryProvider);
 
     final String userName =
         "${authResponse.firstName} ${authResponse.lastName}";
@@ -385,6 +388,26 @@ class _CustomDropdownMenu extends ConsumerWidget {
                                   ],
                                 ),
                               ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            defaultPadding,
+                            0,
+                            defaultPadding,
+                            defaultPadding,
+                          ),
+                          child: quotaAsync.when(
+                            loading: () => _QuotaLoadingView(isDark: isDark),
+                            error: (error, _) => _QuotaErrorView(
+                              message: error.toString(),
+                              isDark: isDark,
+                            ),
+                            data: (summary) => _QuotaSummaryView(
+                              summary: summary,
+                              baseColor: baseColor,
+                              isDark: isDark,
                             ),
                           ),
                         ),
@@ -604,5 +627,165 @@ class _CustomDropdownMenu extends ConsumerWidget {
       return names[0][0].toUpperCase();
     }
     return authResponse.username[0].toUpperCase();
+  }
+}
+
+class _QuotaSummaryView extends StatelessWidget {
+  final ReportQuotaSummary summary;
+  final Color baseColor;
+  final bool isDark;
+
+  const _QuotaSummaryView({
+    required this.summary,
+    required this.baseColor,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _QuotaBar(
+          label: 'Server reports',
+          bucket: summary.serverReport,
+          accent: scheme.primary,
+          isDark: isDark,
+        ),
+        const SizedBox(height: 8),
+        _QuotaBar(
+          label: 'Patient reports',
+          bucket: summary.patientReport,
+          accent: baseColor,
+          isDark: isDark,
+        ),
+      ],
+    );
+  }
+}
+
+class _QuotaBar extends StatelessWidget {
+  final String label;
+  final ReportQuotaBucket bucket;
+  final Color accent;
+  final bool isDark;
+
+  const _QuotaBar({
+    required this.label,
+    required this.bucket,
+    required this.accent,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final progressColor = bucket.quotaMb <= 0
+        ? theme.colorScheme.error
+        : accent;
+    final progressValue = bucket.quotaMb <= 0
+        ? (bucket.usedBytes > 0 ? 1.0 : 0.0)
+        : bucket.normalizedUsage;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey.shade800 : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: progressColor.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                bucket.quotaMb <= 0
+                    ? '${bucket.usedMb.toStringAsFixed(2)} MB'
+                    : '${bucket.usedMb.toStringAsFixed(2)} / ${bucket.quotaMb} MB',
+                style: theme.textTheme.labelSmall,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              minHeight: 6,
+              value: progressValue.clamp(0, 1),
+              backgroundColor: progressColor.withValues(alpha: 0.15),
+              valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            bucket.quotaMb <= 0
+                ? 'No quota available on this plan'
+                : '${bucket.remainingMb.toStringAsFixed(2)} MB remaining',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.75),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuotaLoadingView extends StatelessWidget {
+  final bool isDark;
+
+  const _QuotaLoadingView({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey.shade800 : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const SizedBox(
+        height: 42,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+    );
+  }
+}
+
+class _QuotaErrorView extends StatelessWidget {
+  final String message;
+  final bool isDark;
+
+  const _QuotaErrorView({required this.message, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey.shade800 : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        message,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.error,
+        ),
+      ),
+    );
   }
 }

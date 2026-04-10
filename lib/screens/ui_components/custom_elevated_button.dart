@@ -10,6 +10,9 @@ class CustomElevatedButton extends StatelessWidget {
     required this.icon,
     this.width,
     this.height,
+    this.fontSize = 16,
+    this.fontWeight = FontWeight.w600,
+    this.iconSize = 20,
   });
   final VoidCallback? onPressed;
   final String label;
@@ -17,25 +20,36 @@ class CustomElevatedButton extends StatelessWidget {
   final Widget icon;
   final double? width;
   final double? height;
+  final double fontSize;
+  final FontWeight fontWeight;
+  final double iconSize;
   @override
   Widget build(BuildContext context) {
+    final buttonWidth = width ?? 180;
+    final buttonHeight = height ?? 60;
+
     return SizedBox(
-      width: width,
-      height: height,
+      width: buttonWidth,
+      height: buttonHeight,
       child: ElevatedButton.icon(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          fixedSize: const Size(180, 60),
+          fixedSize: Size(buttonWidth, buttonHeight),
           backgroundColor: backgroundColor,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(defaultRadius),
           ),
         ),
-        icon: icon,
+        icon: IconTheme(
+          data: IconThemeData(size: iconSize, color: Colors.white),
+          child: icon,
+        ),
         label: Text(
           label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
         ),
       ),
     );

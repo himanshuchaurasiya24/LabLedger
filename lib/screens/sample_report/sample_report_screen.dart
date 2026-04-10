@@ -15,6 +15,7 @@ import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
+import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -459,53 +460,34 @@ class _SampleReportManagementScreenState
     WidgetRef ref,
     SampleReportModel report,
   ) {
-    showDialog(
+    showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Report'),
-        content: Text(
-          'Are you sure you want to delete "${report.diagnosisName}"?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              try {
-                await ref.read(deleteSampleReportProvider(report.id!).future);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      behavior: SnackBarBehavior.floating,
+      title: 'Delete Report',
+      message: 'Are you sure you want to delete "${report.diagnosisName}"?',
+      showWarningIcon: false,
+    ).then((confirmed) async {
+      if (!confirmed) return;
+      try {
+        await ref.read(deleteSampleReportProvider(report.id!).future);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              behavior: SnackBarBehavior.floating,
 
-                      content: Text('Report deleted successfully'),
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  showDialog(
-                    context: context,
-                    builder: (context) => ErrorDialog(
-                      title: 'Delete Failed',
-                      errorMessage: e.toString(),
-                    ),
-                  );
-                }
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Colors.white,
+              content: Text('Report deleted successfully'),
             ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (context) =>
+                ErrorDialog(title: 'Delete Failed', errorMessage: e.toString()),
+          );
+        }
+      }
+    });
   }
 }
 
@@ -567,38 +549,43 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
     final theme = Theme.of(context);
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(defaultRadius),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 700, maxHeight: 800),
-        child: TintedContainer(
-          height: 800,
-          baseColor: widget.themeColor,
-          intensity: 0.05,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 700, maxHeight: 800),
+          color: theme.colorScheme.surface,
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header
-                Padding(
-                  padding: EdgeInsets.all(defaultPadding),
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: widget.themeColor.withValues(alpha: 0.1),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: widget.themeColor.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
+                    ),
+                  ),
                   child: Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(defaultPadding * 0.75),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: widget.themeColor.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
+                          color: widget.themeColor.withValues(alpha: 0.16),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
                           Icons.description,
                           color: widget.themeColor,
-                          size: 28,
+                          size: 26,
                         ),
                       ),
-                      SizedBox(width: defaultPadding),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -607,14 +594,17 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                               widget.mode == FormMode.create
                                   ? 'Add Sample Report'
                                   : 'Edit Report',
-                              style: theme.textTheme.titleLarge?.copyWith(
+                              style: theme.textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            const SizedBox(height: 2),
                             Text(
                               'Upload or select a report template',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: Colors.grey.shade600,
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.75,
+                                ),
                               ),
                             ),
                           ],
@@ -622,20 +612,17 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                       ),
                       IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close),
+                        icon: const Icon(Icons.close_rounded),
+                        style: IconButton.styleFrom(
+                          backgroundColor: theme.colorScheme.surface,
+                        ),
                       ),
                     ],
                   ),
                 ),
-
-                SizedBox(height: defaultHeight * 0.5),
-                Divider(height: 1, color: Colors.grey.shade300),
-                SizedBox(height: defaultHeight),
-
-                // Form content
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+                    padding: EdgeInsets.all(defaultPadding),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -714,10 +701,16 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                         SizedBox(height: defaultHeight),
 
                         // File Upload Section
-                        TintedContainer(
-                          baseColor: widget.themeColor,
-                          intensity: 0.08,
+                        Container(
                           height: 330,
+                          padding: EdgeInsets.all(defaultPadding),
+                          decoration: BoxDecoration(
+                            color: widget.themeColor.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(defaultRadius),
+                            border: Border.all(
+                              color: widget.themeColor.withValues(alpha: 0.2),
+                            ),
+                          ),
                           child: Column(
                             children: [
                               Icon(
@@ -735,7 +728,14 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                               ),
                               SizedBox(height: defaultHeight * 0.5),
                               Text(
-                                'Supported formats: DOC, DOCX, RTF',
+                                'Supported formats: DOC, DOCX, RTF, ODT',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Max file size: $maxFileSizeMb MB (1 MB = 1024 KB)',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: Colors.grey.shade600,
                                 ),
@@ -822,43 +822,71 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                   ),
                 ),
 
-                Padding(
-                  padding: EdgeInsetsGeometry.all(defaultPadding),
-                  child: ElevatedButton.icon(
-                    onPressed: _isSubmitting ? null : _submitForm,
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(160, 50),
-                      backgroundColor: widget.themeColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(defaultRadius),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.35,
+                    ),
+                    border: Border(
+                      top: BorderSide(
+                        color: theme.colorScheme.outline.withValues(alpha: 0.2),
                       ),
                     ),
-                    icon: _isSubmitting
-                        ? const SizedBox(
-                            height: 16,
-                            width: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
-                          )
-                        : Icon(
-                            widget.mode == FormMode.create
-                                ? Icons.add
-                                : LucideIcons.upload,
-                            size: 16,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: _isSubmitting
+                            ? null
+                            : () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          fixedSize: const Size(130, 46),
+                          foregroundColor: widget.themeColor,
+                          side: BorderSide(color: widget.themeColor),
+                        ),
+                        icon: const Icon(Icons.close_outlined),
+                        label: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton.icon(
+                        onPressed: _isSubmitting ? null : _submitForm,
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(160, 46),
+                          backgroundColor: widget.themeColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(defaultRadius),
                           ),
-                    label: Text(
-                      _isSubmitting
-                          ? 'Saving...'
-                          : (widget.mode == FormMode.create
-                                ? 'Create'
-                                : 'Update'),
-                      style: const TextStyle(fontSize: 16),
-                    ),
+                        ),
+                        icon: _isSubmitting
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Icon(
+                                widget.mode == FormMode.create
+                                    ? Icons.add
+                                    : LucideIcons.upload,
+                                size: 16,
+                              ),
+                        label: Text(
+                          _isSubmitting
+                              ? 'Saving...'
+                              : (widget.mode == FormMode.create
+                                    ? 'Create'
+                                    : 'Update'),
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -873,7 +901,7 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['doc', 'docx', 'rtf'],
+        allowedExtensions: ['doc', 'docx', 'rtf', 'odt'],
       );
 
       if (result != null && result.files.single.path != null) {
@@ -928,7 +956,7 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
           builder: (context) {
             return ErrorDialog(
               title: "Size Limit",
-              errorMessage: "File size limit is 1 MB only.",
+              errorMessage: "File size limit is $maxFileSizeMb MB only.",
             );
           },
         );
@@ -955,13 +983,19 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
       }
     } catch (e) {
       if (mounted) {
+        final errorText = e.toString();
+        final String? infoMessage = errorText.contains('Status: 500')
+            ? 'The server encountered an internal error while processing this update. If this happens again, please retry after a few seconds or contact support with the operation details.'
+            : null;
+
         showDialog(
           context: context,
           builder: (context) => ErrorDialog(
             title: widget.mode == FormMode.create
                 ? 'Creation Failed'
                 : 'Update Failed',
-            errorMessage: e.toString(),
+            errorMessage: errorText,
+            infoMessage: infoMessage,
           ),
         );
       }

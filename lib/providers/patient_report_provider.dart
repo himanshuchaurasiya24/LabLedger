@@ -6,6 +6,7 @@ import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/patient_report_model.dart';
 import 'package:labledger/models/report_upload_data_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
+import 'package:labledger/providers/report_quota_provider.dart';
 
 import '../authentication/auth_http_client.dart';
 
@@ -78,4 +79,5 @@ void _invalidateReportCache(Ref ref, int billId) {
   ref.invalidate(paginatedBillsProvider);
   ref.invalidate(singleBillProvider(billId));
   ref.invalidate(pendingReportBillProvider);
+  ref.invalidate(reportQuotaSummaryProvider);
 }

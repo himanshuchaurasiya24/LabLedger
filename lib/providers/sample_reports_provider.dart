@@ -4,6 +4,7 @@ import 'package:labledger/authentication/config.dart';
 import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/sample_report_model.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
+import 'package:labledger/providers/report_quota_provider.dart';
 
 final String sampleReportsEndpoint =
     '$globalBaseUrl${AppUrls.diagnosisSampleTestReport}';
@@ -13,6 +14,7 @@ String singleSampleReportEndpoint(int id) => "$sampleReportsEndpoint$id/";
 // Invalidate related caches when any sample report changes
 void _invalidateSampleReportCache(Ref ref) {
   ref.invalidate(allSampleReportsProvider);
+  ref.invalidate(reportQuotaSummaryProvider);
 }
 
 // Fetch all sample reports

@@ -13,6 +13,7 @@ import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
+import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
@@ -87,31 +88,14 @@ class _FranchiseBillsListScreenState
   }
 
   Future<void> _confirmDeleteFranchise(FranchiseName franchise) async {
-    final shouldDelete = await showDialog<bool>(
+    final shouldDelete = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Franchise'),
-        content: Text(
+      title: 'Delete Franchise',
+      message:
           'All bills associated with "${franchise.franchiseName}" will be deleted.\nThis action cannot be undone.\nAre you sure?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
     );
 
-    if (shouldDelete == true) {
+    if (shouldDelete) {
       try {
         await ref.read(deleteFranchiseProvider(widget.id).future);
         if (mounted) {

@@ -8,6 +8,7 @@ import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/models/diagnosis_category_model.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -905,42 +906,15 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   }
 
   Future<void> _handleDelete(Doctor doctor) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
-        ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.warning_amber_rounded,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(width: 8),
-            const Text('Confirm Deletion'),
-          ],
-        ),
-        content: Text(
+      borderRadius: defaultRadius,
+      title: 'Confirm Deletion',
+      message:
           'Are you sure you want to delete Dr. ${doctor.firstName} ${doctor.lastName}?\n\nAll bills and records related to this doctor will be permanently deleted. This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ),
-        ],
-      ),
     );
 
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     setState(() => _isDeleting = true);
     try {

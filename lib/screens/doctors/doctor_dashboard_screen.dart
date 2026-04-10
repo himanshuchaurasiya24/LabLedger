@@ -16,6 +16,7 @@ import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/bill_growth_stats_view.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
+import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
@@ -90,31 +91,14 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
   }
 
   Future<void> _confirmDeleteDoctor(Doctor doctor) async {
-    final shouldDelete = await showDialog<bool>(
+    final shouldDelete = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Doctor'),
-        content: Text(
+      title: 'Delete Doctor',
+      message:
           'All the records for Dr. ${doctor.firstName} ${doctor.lastName} will be deleted including bills.\nThis action cannot be undone.\nAre you sure?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
     );
 
-    if (shouldDelete == true) {
+    if (shouldDelete) {
       try {
         await ref.read(deleteDoctorProvider(widget.doctorId).future);
         if (mounted) {
@@ -294,7 +278,6 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
           Row(
             children: [
               IconButton(
-                
                 onPressed: () {
                   navigatorKey.currentState?.push(
                     MaterialPageRoute(

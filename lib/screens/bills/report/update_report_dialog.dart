@@ -60,7 +60,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
   Future<void> _pickLocalFile() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['doc', 'docx', 'pdf'],
+      allowedExtensions: ['pdf', 'doc', 'docx', 'odt', 'jpg', 'jpeg', 'png'],
     );
 
     if (result != null && result.files.single.path != null) {
@@ -120,13 +120,12 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
     if (_reportFileToUpload == null) return;
     final int fileSizeBytes = await _reportFileToUpload!.length();
     if (fileSizeBytes > maxFileSize) {
-
       showDialog(
         context: navigatorKey.currentContext!,
         builder: (context) {
           return ErrorDialog(
             title: "Size Limit",
-            errorMessage: "File size limit is 1 MB only.",
+            errorMessage: "File size limit is $maxFileSizeMb MB only.",
           );
         },
       );
@@ -530,6 +529,25 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: widget.color.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: widget.color.withValues(alpha: 0.25),
+                  ),
+                ),
+                child: Text(
+                  'Supported upload formats: PDF, DOC, DOCX, ODT, JPG, JPEG, PNG  •  Max file size: $maxFileSizeMb MB (1 MB = 1024 KB)',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // Category Selection Card
               Container(
                 padding: const EdgeInsets.all(20),
@@ -775,8 +793,15 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Supported formats: PDF, DOC, DOCX',
+                    'Supported formats: PDF, DOC, DOCX, ODT, JPG, JPEG, PNG',
                     style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Max file size: $maxFileSizeMb MB (1 MB = 1024 KB)',
+                    style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
@@ -876,6 +901,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
         return Icons.picture_as_pdf_rounded;
       case 'doc':
       case 'docx':
+      case 'odt':
         return Icons.description_rounded;
       default:
         return Icons.insert_drive_file_rounded;
