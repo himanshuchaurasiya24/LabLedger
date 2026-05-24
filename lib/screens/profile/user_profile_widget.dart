@@ -433,6 +433,15 @@ class _CustomDropdownMenu extends ConsumerWidget {
                             onTap: onViewAuditLogsTap,
                             isDark: isDark,
                           ),
+                        if (authResponse.isAdmin)
+                          _buildMenuItem(
+                            icon: LucideIcons.messageSquare,
+                            label: 'SMS Gateway',
+                            onTap: () {
+                              //TODO Implement SMS Gateway screen
+                            },
+                            isDark: isDark,
+                          ),
 
                         _buildMenuItem(
                           icon: Icons.palette_outlined,
