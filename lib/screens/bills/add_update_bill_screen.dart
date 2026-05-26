@@ -17,11 +17,14 @@ import 'package:labledger/providers/patient_report_provider.dart';
 import 'package:labledger/screens/ui_components/update_report_dialog.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
-import 'package:labledger/screens/ui_components/custom_text_field.dart';
+
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:labledger/screens/bills/components/patient_details_card.dart';
+import 'package:labledger/screens/bills/components/billing_details_card.dart';
+import 'package:labledger/screens/bills/components/amount_details_card.dart';
 
 class AddUpdateBillScreen extends ConsumerStatefulWidget {
   final int? billId;
@@ -581,7 +584,16 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         Expanded(
           child: Column(
             children: [
-              _buildPatientDetailsCard(defaultColor: color),
+              PatientDetailsCard(
+                defaultColor: color,
+                nameController: patientNameController,
+                sexController: patientSexController,
+                ageController: patientAgeController,
+                phoneController: patientPhoneNumberController,
+                sexDropDownList: sexDropDownList,
+                onSexSelected: (value) =>
+                    setState(() => patientSexController.text = value),
+              ),
               SizedBox(height: defaultHeight),
               _buildDiagnosisDetailsCard(defaultColor: color),
             ],
@@ -591,13 +603,28 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         Expanded(
           child: Column(
             children: [
-              _buildBillingDetailsCard(defaultColor: color),
+              BillingDetailsCard(
+                defaultColor: color,
+                dateOfTestController: dateOfTestController,
+                dateOfBillController: dateOfBillController,
+                billStatusController: billStatusController,
+                billStatusList: billStatusList,
+                onTestDateSelected: (iso) => selectedTestDateISO = iso,
+                onBillDateSelected: (iso) => selectedBillDateISO = iso,
+                onStatusSelected: (value) => setState(() => billStatusController.text = value),
+              ),
               SizedBox(height: defaultHeight),
               AnimatedSize(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeInOutCubic,
                 child: billStatusController.text != "Unpaid"
-                    ? _buildAmountDetailsCard(defaultColor: color)
+                    ? AmountDetailsCard(
+                        defaultColor: color,
+                        totalAmount: _selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price),
+                        paidAmountController: paidAmountController,
+                        discByDoctorController: discByDoctorController,
+                        discByCenterController: discByCenterController,
+                      )
                     : const SizedBox.shrink(),
               ),
             ],
@@ -613,7 +640,17 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       children: [
         SingleChildScrollView(
           padding: EdgeInsets.all(defaultPadding),
-          child: _buildPatientDetailsCard(defaultColor: color, height: 254),
+          child: PatientDetailsCard(
+            defaultColor: color,
+            height: 254,
+            nameController: patientNameController,
+            sexController: patientSexController,
+            ageController: patientAgeController,
+            phoneController: patientPhoneNumberController,
+            sexDropDownList: sexDropDownList,
+            onSexSelected: (value) =>
+                setState(() => patientSexController.text = value),
+          ),
         ),
         SingleChildScrollView(
           padding: EdgeInsets.all(defaultPadding),
@@ -623,13 +660,30 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
           padding: EdgeInsets.all(defaultPadding),
           child: Column(
             children: [
-              _buildBillingDetailsCard(defaultColor: color, height: 254),
+              BillingDetailsCard(
+                defaultColor: color,
+                height: 254,
+                dateOfTestController: dateOfTestController,
+                dateOfBillController: dateOfBillController,
+                billStatusController: billStatusController,
+                billStatusList: billStatusList,
+                onTestDateSelected: (iso) => selectedTestDateISO = iso,
+                onBillDateSelected: (iso) => selectedBillDateISO = iso,
+                onStatusSelected: (value) => setState(() => billStatusController.text = value),
+              ),
               SizedBox(height: defaultHeight),
               AnimatedSize(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeInOutCubic,
                 child: billStatusController.text != "Unpaid"
-                    ? _buildAmountDetailsCard(defaultColor: color, height: 254)
+                    ? AmountDetailsCard(
+                        defaultColor: color,
+                        height: 254,
+                        totalAmount: _selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price),
+                        paidAmountController: paidAmountController,
+                        discByDoctorController: discByDoctorController,
+                        discByCenterController: discByCenterController,
+                      )
                     : const SizedBox.shrink(),
               ),
             ],
@@ -639,77 +693,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     );
   }
 
-  Widget _buildPatientDetailsCard({
-    required Color defaultColor,
-    double? height,
-  }) {
-    return TintedContainer(
-      baseColor: defaultColor,
-      height: height ?? 258,
-      radius: defaultRadius,
-      elevationLevel: 1,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          children: [
-            _buildCardHeader(
-              icon: Icons.person_outline,
-              title: 'Patient Details',
-              color: defaultColor,
-            ),
-            SizedBox(height: defaultHeight),
-            CustomTextField(
-              label: 'Patient Name',
-              controller: patientNameController,
-              isRequired: true,
-              tintColor: defaultColor,
-            ),
-            SizedBox(height: defaultHeight),
-            Row(
-              children: [
-                Expanded(
-                  child: SearchableDropdownField<String>(
-                    label: 'Select Sex',
-                    controller: patientSexController,
-                    items: sexDropDownList,
-                    color: defaultColor,
-                    onSelected: (value) =>
-                        setState(() => patientSexController.text = value),
-                    valueMapper: (item) => item,
-                    validator: (v) => v!.isEmpty ? 'Please select sex' : null,
-                  ),
-                ),
-                SizedBox(width: defaultWidth / 2),
-                Expanded(
-                  child: CustomTextField(
-                    label: 'Age',
-                    controller: patientAgeController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    isRequired: true,
-                    isNumeric: true,
-                    tintColor: defaultColor,
-                  ),
-                ),
-                SizedBox(width: defaultWidth / 2),
-                Expanded(
-                  child: CustomTextField(
-                    label: 'Phone Number',
-                    controller: patientPhoneNumberController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    isRequired: true,
-                    isNumeric: true,
-                    tintColor: defaultColor,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildDiagnosisDetailsCard({
     required Color defaultColor,
@@ -902,154 +885,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     );
   }
 
-  Widget _buildBillingDetailsCard({
-    required Color defaultColor,
-    double? height,
-  }) {
-    return TintedContainer(
-      baseColor: defaultColor,
-      height: height ?? 258,
-      radius: defaultRadius,
-      elevationLevel: 1,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          children: [
-            _buildCardHeader(
-              icon: Icons.receipt_long,
-              title: 'Billing Details',
-              color: defaultColor,
-            ),
-            SizedBox(height: defaultHeight),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildDateSelector(
-                    label: 'Date of Test',
-                    controller: dateOfTestController,
-                    color: defaultColor,
-                    onDateSelected: (iso) => selectedTestDateISO = iso,
-                    validator: (v) =>
-                        v!.isEmpty ? 'Test date is required' : null,
-                  ),
-                ),
-                SizedBox(width: defaultWidth / 2),
-                Expanded(
-                  child: _buildDateSelector(
-                    label: 'Date of Bill',
-                    controller: dateOfBillController,
-                    color: defaultColor,
-                    onDateSelected: (iso) => selectedBillDateISO = iso,
-                    validator: (v) =>
-                        v!.isEmpty ? 'Bill date is required' : null,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: defaultHeight),
-            SearchableDropdownField<String>(
-              label: 'Bill Status',
-              controller: billStatusController,
-              items: billStatusList,
-              color: defaultColor,
-              valueMapper: (item) => item,
-              onSelected: (value) =>
-                  setState(() => billStatusController.text = value),
-              validator: (v) => v!.isEmpty ? 'Bill status is required' : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAmountDetailsCard({
-    required Color defaultColor,
-    double? height,
-  }) {
-    return TintedContainer(
-      baseColor: defaultColor,
-      height: height ?? 318,
-      radius: defaultRadius,
-      elevationLevel: 1,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          children: [
-            _buildCardHeader(
-              icon: Icons.payments_rounded,
-              title: 'Amount Details',
-              color: defaultColor,
-            ),
-            SizedBox(height: defaultHeight),
-            // Display calculated total from selected diagnosis types
-            Container(
-              padding: EdgeInsets.all(defaultPadding),
-              decoration: BoxDecoration(
-                color: defaultColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: defaultColor.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Total Amount:',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '₹${_selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price)}',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: defaultColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: defaultHeight),
-            CustomTextField(
-              label: 'Paid Amount',
-              controller: paidAmountController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              isRequired: true,
-              isNumeric: true,
-              tintColor: defaultColor,
-            ),
-            SizedBox(height: defaultHeight),
-            Row(
-              children: [
-                Expanded(
-                  child: CustomTextField(
-                    label: "Doctor's Discount",
-                    controller: discByDoctorController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    tintColor: defaultColor,
-                    isNumeric: true,
-                  ),
-                ),
-                SizedBox(width: defaultWidth),
-                Expanded(
-                  child: CustomTextField(
-                    label: "Center's Discount",
-                    controller: discByCenterController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    tintColor: defaultColor,
-                    isNumeric: true,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // Updated _saveBill to accept the original bill for preserving output fields
   Future<void> _saveBill(Bill? originalBill) async {
@@ -1217,53 +1052,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     );
   }
 
-  Widget _buildDateSelector({
-    required String label,
-    required TextEditingController controller,
-    required Function(String isoDate) onDateSelected,
-    required Color color,
-    String? Function(String?)? validator,
-  }) {
-    return AppInkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () async {
-        HapticFeedback.selectionClick();
-        final pickedDate = await showDatePicker(
-          context: context,
-          initialDate: DateTime.now(),
-          firstDate: DateTime(2020),
-          lastDate: DateTime(2100),
-        );
-        if (pickedDate != null) {
-          final now = DateTime.now();
-          final fullDateTime = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            now.hour,
-            now.minute,
-            now.second,
-          );
-          controller.text = DateFormat('dd-MM-yyyy').format(fullDateTime);
-          onDateSelected(fullDateTime.toIso8601String());
-        }
-      },
-      child: AbsorbPointer(
-        child: CustomTextField(
-          label: label,
-          controller: controller,
-          readOnly: true,
-          validator: validator,
-          tintColor: color,
-          suffixIcon: Icon(
-            Icons.calendar_month_rounded,
-            size: 22,
-            color: color.withValues(alpha: 0.9),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildLoadingField() {
     return Container(

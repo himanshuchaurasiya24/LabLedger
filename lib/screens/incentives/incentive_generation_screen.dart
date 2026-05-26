@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/main.dart';
+
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/providers/incenitve_generator_provider.dart';
-import 'package:labledger/screens/incentives/incentive_detail_screen.dart';
+
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:intl/intl.dart';
+import 'package:labledger/screens/incentives/components/quick_stats_panel.dart';
+import 'package:labledger/screens/incentives/components/action_panel.dart';
 
 class IncentiveGenerationScreen extends ConsumerStatefulWidget {
   const IncentiveGenerationScreen({super.key});
@@ -156,9 +158,9 @@ class _IncentiveGenerationScreenState
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(flex: 3, child: _QuickStatsPanel()),
+                      Expanded(flex: 3, child: QuickStatsPanel()),
                       SizedBox(width: defaultWidth),
-                      Expanded(flex: 2, child: _ActionPanel()),
+                      Expanded(flex: 2, child: ActionPanel()),
                     ],
                   ),
                   SizedBox(height: defaultHeight * 2),
@@ -406,209 +408,6 @@ class _FilterPanel extends ConsumerWidget {
   }
 }
 
-class _QuickStatsPanel extends ConsumerWidget {
-  const _QuickStatsPanel();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final selectedDoctors = ref.watch(selectedDoctorIdsProvider);
-    final selectedFranchises = ref.watch(selectedFranchiseIdsProvider);
-    final selectedDiagnosisTypes = ref.watch(selectedDiagnosisTypeIdsProvider);
-    final selectedBillStatuses = ref.watch(selectedBillStatusesProvider);
-    final Color cardColor = Theme.of(context).colorScheme.secondary;
-
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            count: selectedDoctors.length,
-            label: "Doctors",
-            icon: LucideIcons.userCheck,
-            color: cardColor,
-          ),
-        ),
-        SizedBox(width: defaultWidth),
-        Expanded(
-          child: _StatCard(
-            count: selectedFranchises.length,
-            label: "Labs",
-            icon: LucideIcons.building,
-            color: cardColor,
-          ),
-        ),
-        SizedBox(width: defaultWidth),
-        Expanded(
-          child: _StatCard(
-            count: selectedDiagnosisTypes.length,
-            label: "Types",
-            icon: LucideIcons.clipboardList,
-            color: cardColor,
-          ),
-        ),
-        SizedBox(width: defaultWidth),
-        Expanded(
-          child: _StatCard(
-            count: selectedBillStatuses.length,
-            label: "Statuses",
-            icon: LucideIcons.creditCard,
-            color: cardColor,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final int count;
-  final String label;
-  final IconData icon;
-  final Color color;
-
-  const _StatCard({
-    required this.count,
-    required this.label,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return TintedContainer(
-      baseColor: color,
-      height: 130,
-      intensity: 0.08,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 24),
-          SizedBox(height: 8),
-          Text(
-            count.toString(),
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActionPanel extends ConsumerWidget {
-  const _ActionPanel();
-
-  void _clearFilters(WidgetRef ref) {
-    ref.invalidate(selectedDoctorIdsProvider);
-    ref.invalidate(selectedFranchiseIdsProvider);
-    ref.invalidate(selectedDiagnosisTypeIdsProvider);
-    ref.read(selectedBillStatusesProvider.notifier).state = {'Fully Paid'};
-    final now = DateTime.now();
-    final firstDayOfMonth = DateTime(now.year, now.month, 1);
-    ref.read(reportStartDateProvider.notifier).state = firstDayOfMonth;
-    ref.read(reportEndDateProvider.notifier).state = now;
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-
-    return TintedContainer(
-      height: 130,
-      baseColor: theme.colorScheme.secondary,
-      intensity: 0.08,
-      child: Column(
-        children: [
-          Expanded(
-            child: AppInkWell(
-              borderRadius: BorderRadius.circular(defaultRadius),
-              onTap: () {
-                navigatorKey.currentState?.push(
-                  MaterialPageRoute(
-                    builder: (context) => IncentiveDetailScreen(),
-                  ),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      theme.colorScheme.secondary,
-                      theme.colorScheme.secondary.withValues(alpha: 0.8),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(defaultRadius),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.secondary.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(LucideIcons.fileText, color: Colors.white, size: 20),
-                    SizedBox(width: 10),
-                    Text(
-                      "Generate Report",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: defaultHeight / 2),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              icon: Icon(
-                LucideIcons.rotateCcw,
-                size: 16,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-              label: Text(
-                "Clear Filters",
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  fontSize: 14,
-                ),
-              ),
-              onPressed: () => _clearFilters(ref),
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                side: BorderSide(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(defaultRadius),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _DateRangePicker extends ConsumerWidget {
   const _DateRangePicker();

@@ -9,6 +9,8 @@ import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/providers/report_quota_provider.dart';
 import 'package:labledger/screens/profile/audit_log_dialog.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
+import 'package:labledger/methods/string_utils.dart';
+import 'package:labledger/screens/profile/components/profile_menu_widgets.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class UserProfileWidget extends ConsumerStatefulWidget {
@@ -100,9 +102,7 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
   @override
   Widget build(BuildContext context) {
     // Extract data for clarity
-    final String userName =
-        "${widget.authResponse.firstName} ${widget.authResponse.lastName}";
-    final String initials = _getInitials(userName);
+    final String initials = getInitials(widget.authResponse.firstName, widget.authResponse.lastName);
 
     return AppInkWell(
       borderRadius: BorderRadius.circular(20),
@@ -132,17 +132,6 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
         ),
       ),
     );
-  }
-
-  // Helper method to get user initials
-  String _getInitials(String name) {
-    List<String> names = name.trim().split(' ');
-    if (names.length >= 2) {
-      return '${names[0][0]}${names[1][0]}'.toUpperCase();
-    } else if (names.length == 1 && names[0].isNotEmpty) {
-      return names[0][0].toUpperCase();
-    }
-    return widget.authResponse.username[0].toUpperCase();
   }
 
   // Show logout confirmation dialog
@@ -275,7 +264,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
     final String userName =
         "${authResponse.firstName} ${authResponse.lastName}";
     final String userRole = authResponse.isAdmin ? "Admin" : "User";
-    final String initials = _getInitials(userName);
+    final String initials = getInitials(authResponse.firstName, authResponse.lastName);
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -419,7 +408,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                               : Colors.grey.shade300,
                         ),
                         if (authResponse.isAdmin)
-                          _buildMenuItem(
+                          ProfileMenuItem(
                             icon: LucideIcons.user2,
                             label: 'Profile',
                             onTap: onProfileTap,
@@ -427,14 +416,14 @@ class _CustomDropdownMenu extends ConsumerWidget {
                           ),
 
                         if (authResponse.isAdmin)
-                          _buildMenuItem(
+                          ProfileMenuItem(
                             icon: LucideIcons.history,
                             label: 'View Audit Logs',
                             onTap: onViewAuditLogsTap,
                             isDark: isDark,
                           ),
                         if (authResponse.isAdmin)
-                          _buildMenuItem(
+                          ProfileMenuItem(
                             icon: LucideIcons.messageSquare,
                             label: 'SMS Gateway',
                             onTap: () {
@@ -448,7 +437,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                             isDark: isDark,
                           ),
 
-                        _buildMenuItem(
+                        ProfileMenuItem(
                           icon: Icons.palette_outlined,
                           label: 'Theme',
                           onTap: onThemeToggle,
@@ -474,29 +463,32 @@ class _CustomDropdownMenu extends ConsumerWidget {
                             child: isThemeExpanded
                                 ? Column(
                                     children: [
-                                      _buildThemeOption(
-                                        'System',
-                                        Icons.brightness_auto,
-                                        ThemeMode.system,
-                                        currentThemeMode,
-                                        isDark,
-                                        onThemeSelect,
+                                      ProfileThemeOption(
+                                        label: 'System',
+                                        icon: Icons.brightness_auto,
+                                        themeMode: ThemeMode.system,
+                                        currentMode: currentThemeMode,
+                                        isDark: isDark,
+                                        onSelect: onThemeSelect,
+                                        baseColor: baseColor,
                                       ),
-                                      _buildThemeOption(
-                                        'Light',
-                                        Icons.light_mode,
-                                        ThemeMode.light,
-                                        currentThemeMode,
-                                        isDark,
-                                        onThemeSelect,
+                                      ProfileThemeOption(
+                                        label: 'Light',
+                                        icon: Icons.light_mode,
+                                        themeMode: ThemeMode.light,
+                                        currentMode: currentThemeMode,
+                                        isDark: isDark,
+                                        onSelect: onThemeSelect,
+                                        baseColor: baseColor,
                                       ),
-                                      _buildThemeOption(
-                                        'Dark',
-                                        Icons.dark_mode,
-                                        ThemeMode.dark,
-                                        currentThemeMode,
-                                        isDark,
-                                        onThemeSelect,
+                                      ProfileThemeOption(
+                                        label: 'Dark',
+                                        icon: Icons.dark_mode,
+                                        themeMode: ThemeMode.dark,
+                                        currentMode: currentThemeMode,
+                                        isDark: isDark,
+                                        onSelect: onThemeSelect,
+                                        baseColor: baseColor,
                                       ),
                                     ],
                                   )
@@ -511,7 +503,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                               : Colors.grey.shade300,
                         ),
 
-                        _buildMenuItem(
+                        ProfileMenuItem(
                           icon: FontAwesomeIcons.circleInfo,
                           label: 'About this app',
                           onTap: onAboutAppTap,
@@ -519,7 +511,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                         ),
 
                         // Logout Option
-                        _buildMenuItem(
+                        ProfileMenuItem(
                           icon: Icons.logout_rounded,
                           label: 'Logout',
                           onTap: onLogoutTap,
@@ -538,109 +530,6 @@ class _CustomDropdownMenu extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildMenuItem({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    required bool isDark,
-    Widget? trailing,
-    bool isLogout = false,
-  }) {
-    return AppInkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isLogout
-                    ? Colors.red.shade50
-                    : (isDark ? Colors.grey.shade800 : Colors.grey.shade100),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                size: 18,
-                color: isLogout
-                    ? Colors.red.shade600
-                    : (isDark ? Colors.grey.shade300 : Colors.grey.shade700),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(
-                color: isLogout
-                    ? Colors.red.shade600
-                    : (isDark ? Colors.grey.shade300 : Colors.grey.shade700),
-                fontWeight: FontWeight.w500,
-                fontSize: 15,
-              ),
-            ),
-            const Spacer(),
-            ?trailing,
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildThemeOption(
-    String label,
-    IconData icon,
-    ThemeMode themeMode,
-    ThemeMode currentMode,
-    bool isDark,
-    Function(ThemeMode) onSelect,
-  ) {
-    final isSelected = currentMode == themeMode;
-
-    return AppInkWell(
-      onTap: () => onSelect(themeMode),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isSelected
-                  ? baseColor
-                  : (isDark ? Colors.grey.shade500 : Colors.grey.shade600),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected
-                    ? baseColor
-                    : (isDark ? Colors.grey.shade400 : Colors.grey.shade700),
-              ),
-            ),
-            const Spacer(),
-            if (isSelected)
-              Icon(Icons.check_circle, size: 16, color: baseColor),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _getInitials(String name) {
-    List<String> names = name.trim().split(' ');
-    if (names.length >= 2) {
-      return '${names[0][0]}${names[1][0]}'.toUpperCase();
-    } else if (names.length == 1 && names[0].isNotEmpty) {
-      return names[0][0].toUpperCase();
-    }
-    return authResponse.username[0].toUpperCase();
   }
 }
 

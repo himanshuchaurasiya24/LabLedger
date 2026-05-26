@@ -10,7 +10,7 @@ import 'package:labledger/providers/sample_reports_provider.dart';
 import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
+
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
@@ -20,6 +20,7 @@ import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:labledger/screens/sample_report/components/file_upload_widget.dart';
 
 class SampleReportManagementScreen extends ConsumerStatefulWidget {
   const SampleReportManagementScreen({super.key, this.baseColor});
@@ -700,122 +701,17 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
                         ),
                         SizedBox(height: defaultHeight),
 
-                        // File Upload Section
-                        Container(
-                          height: 340,
-                          padding: EdgeInsets.all(defaultPadding),
-                          decoration: BoxDecoration(
-                            color: widget.themeColor.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(defaultRadius),
-                            border: Border.all(
-                              color: widget.themeColor.withValues(alpha: 0.2),
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.upload_file,
-                                size: 64,
-                                color: widget.themeColor,
-                              ),
-                              SizedBox(height: defaultHeight),
-                              Text(
-                                'Choose File from Device',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: widget.themeColor,
-                                ),
-                              ),
-                              SizedBox(height: defaultHeight * 0.5),
-                              Text(
-                                'Supported formats: DOC, DOCX, RTF, ODT',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Max file size: $maxFileSizeMb MB (1 MB = 1024 KB)',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              SizedBox(height: defaultHeight),
-                              if (_selectedFile != null ||
-                                  _currentFileName != null)
-                                Container(
-                                  padding: EdgeInsets.all(
-                                    defaultPadding * 0.75,
-                                  ),
-                                  margin: EdgeInsets.only(
-                                    bottom: defaultPadding,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.surface,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: widget.themeColor.withValues(
-                                        alpha: 0.3,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.description,
-                                        color: widget.themeColor,
-                                        size: 20,
-                                      ),
-                                      SizedBox(width: defaultPadding * 0.5),
-                                      Expanded(
-                                        child: Text(
-                                          _selectedFile?.path.split('/').last ??
-                                              _currentFileName ??
-                                              '',
-                                          style: theme.textTheme.bodyMedium,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      if (_selectedFile != null)
-                                        IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _selectedFile = null;
-                                            });
-                                          },
-                                          icon: Icon(
-                                            Icons.close,
-                                            color: theme.colorScheme.error,
-                                            size: 20,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              CustomElevatedButton(
-                                onPressed: _pickFile,
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.secondary,
-                                icon: _isSubmitting
-                                    ? const SizedBox(
-                                        height: 16,
-                                        width: 16,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
-                                              ),
-                                        ),
-                                      )
-                                    : const Icon(Icons.folder_open),
-                                label: _isSubmitting
-                                    ? 'Saving...'
-                                    : "Browse Files",
-                              ),
-                            ],
-                          ),
+                        FileUploadWidget(
+                          themeColor: widget.themeColor,
+                          selectedFile: _selectedFile,
+                          currentFileName: _currentFileName,
+                          isSubmitting: _isSubmitting,
+                          onClearFile: () {
+                            setState(() {
+                              _selectedFile = null;
+                            });
+                          },
+                          onPickFile: _pickFile,
                         ),
                       ],
                     ),
