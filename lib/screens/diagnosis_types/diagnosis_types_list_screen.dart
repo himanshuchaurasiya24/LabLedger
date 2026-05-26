@@ -13,6 +13,8 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/methods/responsive_helpers.dart';
+import 'package:labledger/methods/string_utils.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class DiagnosisTypesListScreen extends ConsumerStatefulWidget {
@@ -70,31 +72,6 @@ class _DiagnosisTypesListScreenState
     }).toList();
   }
 
-  // Reusing the exact same responsive logic from previous screens
-  int getCrossAxisCount(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    if (size.width < initialWindowWidth && size.width > 1200) {
-      return 3;
-    }
-    if (size.width < 1200) {
-      return 2;
-    }
-    return 4;
-  }
-
-  // Reusing the exact same responsive logic
-  double getChildAspectRatio(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    if (size.width < initialWindowWidth && size.width > 1200) {
-      return 2.0; // Increased from 2.3
-    }
-    if (size.width < 1200 || size.width > initialWindowWidth) {
-      return 2.4; // Increased from 2.7
-    }
-
-    return 2.0; // Increased from 2.3
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,10 +135,10 @@ class _DiagnosisTypesListScreenState
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context, baseSmall: 2.0, baseLarge: 2.4),
       ),
       itemCount: types.length,
       itemBuilder: (context, index) {
@@ -206,7 +183,7 @@ class _DiagnosisTypesListScreenState
               radius: 40,
               backgroundColor: effectiveColor.withValues(alpha: 0.2),
               child: Text(
-                _getInitials(diagnosis.name),
+                getInitials(diagnosis.name),
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: textColor,
                   fontWeight: FontWeight.bold,
@@ -263,10 +240,10 @@ class _DiagnosisTypesListScreenState
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context, baseSmall: 2.0, baseLarge: 2.4),
       ),
       itemCount: 8,
       itemBuilder: (context, index) {
@@ -351,13 +328,5 @@ class _DiagnosisTypesListScreenState
     );
   }
 
-  String _getInitials(String name) {
-    if (name.isEmpty) return '??';
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.length > 1) {
-      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    } else {
-      return name.substring(0, name.length >= 2 ? 2 : 1).toUpperCase();
-    }
-  }
+
 }

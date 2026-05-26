@@ -702,7 +702,7 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
 
                         // File Upload Section
                         Container(
-                          height: 330,
+                          height: 340,
                           padding: EdgeInsets.all(defaultPadding),
                           decoration: BoxDecoration(
                             color: widget.themeColor.withValues(alpha: 0.08),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/urls.dart';
-import 'package:labledger/screens/ui_components/reusable_ui_components.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UpdateRequiredScreen extends StatelessWidget {
@@ -40,13 +40,13 @@ class UpdateRequiredScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
-            ReusableButton(
-              text: 'Click here to download',
+            CustomElevatedButton(
+              label: 'Click here to download',
+              icon: const Icon(Icons.download),
               onPressed: () {
                 _launchURL(AppUrls.releasesPage);
               },
               width: 253,
-              variant: ButtonVariant.elevated,
             ),
           ],
         ),

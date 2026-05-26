@@ -13,7 +13,9 @@ import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-
+import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
+import 'package:labledger/methods/snackbar_utils.dart';
+import 'package:labledger/methods/string_utils.dart';
 class DiagnosisTypeEditScreen extends ConsumerStatefulWidget {
   const DiagnosisTypeEditScreen({
     super.key,
@@ -127,130 +129,24 @@ class _DiagnosisTypeEditScreenState
   }
 
   Widget _buildHeaderCard(bool isAdmin, Color color, DiagnosisType? diagnosis) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final title = _isEditMode ? diagnosis?.name ?? '' : 'New Diagnosis Type';
     final subtitle = _isEditMode
         ? (diagnosis?.categoryName ?? 'Unknown Category')
         : 'Enter details below';
-    final initials = _isEditMode ? _getInitials(diagnosis?.name) : 'DT';
-    final lightThemeColor = Color.lerp(
-      color,
-      isDark ? Colors.black : Colors.white,
-      isDark ? 0.3 : 0.2,
-    )!;
+    final initials = _isEditMode ? getInitials(diagnosis?.name) : 'DT';
 
-    return TintedContainer(
-      baseColor: color,
-      height: 160,
-      radius: defaultRadius,
-      useGradient: true,
-      elevationLevel: 2,
-      child: Row(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [color, lightThemeColor],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                initials,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: defaultWidth / 2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(subtitle, style: theme.textTheme.bodyMedium),
-              ],
-            ),
-          ),
-          // ✅ Conditional visibility for the entire button column.
-          // It only shows if it's "create mode" OR if the user is an admin.
-          if (!_isEditMode || isAdmin)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _isSaving ? null : () => _handleSave(diagnosis),
-                  style: ElevatedButton.styleFrom(
-                    fixedSize: const Size(180, 60),
-                    backgroundColor: color,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(defaultRadius),
-                    ),
-                  ),
-                  icon: _isSaving
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Icon(_isEditMode ? Icons.update : Icons.save),
-                  label: Text(
-                    _isSaving
-                        ? 'Saving...'
-                        : (_isEditMode ? 'Update Type' : 'Create Type'),
-                  ),
-                ),
-                // ✅ The delete button is now conditional on BOTH edit mode AND admin status.
-                if (_isEditMode && isAdmin) ...[
-                  SizedBox(height: defaultHeight / 2),
-                  OutlinedButton.icon(
-                    onPressed: _isDeleting
-                        ? null
-                        : () => _handleDelete(diagnosis!),
-                    style: OutlinedButton.styleFrom(
-                      fixedSize: const Size(180, 60),
-                      foregroundColor: Theme.of(context).colorScheme.error,
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(defaultRadius),
-                      ),
-                    ),
-                    icon: _isDeleting
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.delete_outline),
-                    label: Text(_isDeleting ? 'Deleting...' : 'Delete'),
-                  ),
-                ],
-              ],
-            ),
-        ],
-      ),
+    return EditScreenHeaderCard(
+      title: title,
+      subtitle: subtitle,
+      initials: initials,
+      color: color,
+      isEditMode: _isEditMode,
+      isAdmin: isAdmin,
+      isSaving: _isSaving,
+      isDeleting: _isDeleting,
+      onSave: () => _handleSave(diagnosis),
+      onDelete: () => _handleDelete(diagnosis!),
+      saveLabel: _isEditMode ? 'Update Type' : 'Create Type',
     );
   }
 
@@ -357,7 +253,9 @@ class _DiagnosisTypeEditScreenState
           price: int.parse(_priceController.text.trim()),
         );
         await ref.read(updateDiagnosisTypeProvider(updatedDiagnosis).future);
-        _showSuccessSnackBar('Diagnosis Type updated successfully!');
+        if (mounted) {
+          showSuccessSnackBar(context, 'Diagnosis Type updated successfully!');
+        }
       } else {
         final newDiagnosis = DiagnosisType(
           name: _nameController.text.trim(),
@@ -365,7 +263,9 @@ class _DiagnosisTypeEditScreenState
           price: int.parse(_priceController.text.trim()),
         );
         await ref.read(addDiagnosisTypeProvider(newDiagnosis).future);
-        _showSuccessSnackBar('Diagnosis Type created successfully!');
+        if (mounted) {
+          showSuccessSnackBar(context, 'Diagnosis Type created successfully!');
+        }
       }
 
       if (mounted) Navigator.of(context).pop(true);
@@ -389,8 +289,10 @@ class _DiagnosisTypeEditScreenState
     setState(() => _isDeleting = true);
     try {
       await ref.read(deleteDiagnosisTypeProvider(diagnosis.id!).future);
-      _showSuccessSnackBar('Diagnosis Type deleted successfully!');
-      if (mounted) Navigator.of(context).pop(true);
+      if (mounted) {
+        showSuccessSnackBar(context, 'Diagnosis Type deleted successfully!');
+        Navigator.of(context).pop(true);
+      }
     } catch (e) {
       if (mounted) _showErrorDialog('Delete Failed', e.toString());
     } finally {
@@ -398,34 +300,7 @@ class _DiagnosisTypeEditScreenState
     }
   }
 
-  // --- Helper Widgets & Methods ---
 
-  String _getInitials(String? name) {
-    if (name == null || name.isEmpty) return '??';
-    final parts = name.trim().split(RegExp(r'\s+'));
-    return parts.length > 1
-        ? '${parts[0][0]}${parts[1][0]}'.toUpperCase()
-        : name.substring(0, name.length >= 2 ? 2 : 1).toUpperCase();
-  }
-
-  void _showSuccessSnackBar(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 8),
-            Text(message),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
-  }
 
   void _showErrorDialog(String title, String errorMessage) {
     if (!mounted) return;

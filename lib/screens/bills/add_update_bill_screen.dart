@@ -14,7 +14,7 @@ import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/providers/patient_report_provider.dart';
-import 'package:labledger/screens/bills/report/update_report_dialog.dart';
+import 'package:labledger/screens/ui_components/update_report_dialog.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';

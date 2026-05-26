@@ -11,6 +11,9 @@ import 'package:labledger/screens/profile/user_edit_screen.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/screens/ui_components/status_badge.dart';
+import 'package:labledger/methods/responsive_helpers.dart';
+import 'package:labledger/methods/string_utils.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 // Assuming ColorValues extension is defined elsewhere in your project
@@ -109,29 +112,6 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
     }).toList();
   }
 
-  int getCrossAxisCount(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    if (size.width < initialWindowWidth && size.width > 1200) {
-      return 3;
-    }
-    if (size.width < 1200) {
-      return 2;
-    }
-    return 4;
-  }
-
-  double getChildAspectRatio(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    if (size.width < initialWindowWidth && size.width > 1200) {
-      return 2.3;
-    }
-    if (size.width < 1200 || size.width > initialWindowWidth) {
-      return 2.7;
-    }
-
-    return 2.3;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,10 +164,10 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context),
       ),
       itemCount: users.length,
       itemBuilder: (context, index) {
@@ -229,7 +209,7 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
               radius: 40,
               backgroundColor: cardColor.withValues(alpha: 0.2),
               child: Text(
-                _getInitials(user.firstName, user.lastName),
+                getInitials(user.firstName, user.lastName),
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: textColor,
                   fontWeight: FontWeight.bold,
@@ -255,25 +235,9 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: cardColor.withValues(alpha: 0.9),
-                          borderRadius: BorderRadius.circular(
-                            defaultRadius * 2,
-                          ),
-                        ),
-                        child: Text(
-                          "${user.isAdmin ? "Admin" : "User"}${user.isLocked ? " (Locked)" : ""}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
+                      StatusBadge(
+                        text: "${user.isAdmin ? "Admin" : "User"}${user.isLocked ? " (Locked)" : ""}",
+                        color: cardColor,
                       ),
                     ],
                   ),
@@ -318,10 +282,10 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
     return GridView.builder(
       padding: EdgeInsets.all(defaultPadding),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context),
       ),
       itemCount: 8,
       itemBuilder: (context, index) {
@@ -404,13 +368,5 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
       icon: Icons.person_add_outlined,
       label: 'Add User',
     );
-  }
-
-  String _getInitials(String? firstName, String? lastName) {
-    final first = firstName?.isNotEmpty == true
-        ? firstName![0].toUpperCase()
-        : '';
-    final last = lastName?.isNotEmpty == true ? lastName![0].toUpperCase() : '';
-    return '$first$last'.isEmpty ? '??' : '$first$last';
   }
 }

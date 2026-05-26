@@ -6,12 +6,13 @@ import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
-import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
-import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
-import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
+import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
+import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
+import 'package:labledger/methods/snackbar_utils.dart';
+import 'package:labledger/methods/string_utils.dart';
 
 class FranchiseEditScreen extends ConsumerStatefulWidget {
   const FranchiseEditScreen({super.key, this.franchiseId, this.themeColor});
@@ -96,158 +97,28 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
     Color color,
     FranchiseName? franchise,
   ) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final title = _isEditMode
         ? franchise?.franchiseName ?? ''
         : 'New Franchise Lab';
     final subtitle = _isEditMode
         ? franchise?.address ?? ''
         : 'Enter lab details below';
-
     final initials = _isEditMode
-        ? _getInitials(franchise?.franchiseName)
+        ? getInitials(franchise?.franchiseName)
         : 'FL';
 
-    final lightThemeColor = Color.lerp(
-      color,
-      isDark ? Colors.black : Colors.white,
-      isDark ? 0.3 : 0.2,
-    )!;
-
-    return TintedContainer(
-      baseColor: color,
-      height: 160,
-      radius: defaultRadius,
-      intensity: isDark ? 0.15 : 0.08,
-      useGradient: true,
-      elevationLevel: 2,
-      child: Row(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [color, lightThemeColor],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                initials,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: defaultWidth / 2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: isDark
-                        ? Colors.white70
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-                SizedBox(height: defaultHeight / 2),
-                Row(
-                  children: [
-                    if (isAdmin && _isEditMode) ...[
-                      _buildStatusBadge('Admin Edit Mode', Colors.purple),
-                      SizedBox(width: defaultWidth / 2),
-                    ],
-                    _buildStatusBadge(
-                      _isEditMode ? 'Edit Mode' : 'Create Mode',
-                      _isEditMode
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.secondary,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          if (!_isEditMode || isAdmin)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CustomElevatedButton(
-                  onPressed: _isSaving == true
-                      ? null
-                      : () => _handleSave(franchise),
-
-                  label: _isSaving
-                      ? 'Saving...'
-                      : (_isEditMode)
-                      ? 'Update Lab'
-                      : 'Create Lab',
-                  backgroundColor: color,
-                  icon: _isSaving
-                      ? SizedBox(
-                          height: defaultHeight,
-                          width: defaultWidth,
-                          child: const CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                      : Icon(_isEditMode ? Icons.update : Icons.save),
-                ),
-
-                if (_isEditMode && isAdmin) ...[
-                  SizedBox(height: defaultHeight / 2),
-                  CustomOutlinedButton(
-                    onPressed: _isDeleting
-                        ? null
-                        : () => _handleDelete(franchise!),
-
-                    label: _isDeleting ? 'Deleting...' : 'Delete',
-                    icon: _isDeleting
-                        ? SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          )
-                        : const Icon(Icons.delete_outline),
-                  ),
-
-                  // ),
-                ],
-              ],
-            ),
-        ],
-      ),
+    return EditScreenHeaderCard(
+      title: title,
+      subtitle: subtitle,
+      initials: initials,
+      color: color,
+      isEditMode: _isEditMode,
+      isAdmin: isAdmin,
+      isSaving: _isSaving,
+      isDeleting: _isDeleting,
+      onSave: () => _handleSave(franchise),
+      onDelete: () => _handleDelete(franchise!),
+      saveLabel: _isEditMode ? 'Update Lab' : 'Create Lab',
     );
   }
 
@@ -373,7 +244,9 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
             ),
           ).future,
         );
-        _showSuccessSnackBar('Franchise Lab updated successfully!');
+        if (mounted) {
+          showSuccessSnackBar(context, 'Franchise Lab updated successfully!');
+        }
       } else {
         final newFranchise = FranchiseName(
           franchiseName: _franchiseNameController.text.trim(),
@@ -382,7 +255,9 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
         );
 
         await ref.read(createFranchiseProvider(newFranchise).future);
-        _showSuccessSnackBar('Franchise Lab created successfully!');
+        if (mounted) {
+          showSuccessSnackBar(context, 'Franchise Lab created successfully!');
+        }
       }
 
       if (mounted) Navigator.of(context).pop(true);
@@ -412,7 +287,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
     try {
       await ref.read(deleteFranchiseProvider(franchise.id!).future);
       if (mounted) {
-        _showSuccessSnackBar('Franchise Lab deleted successfully!');
+        showSuccessSnackBar(context, 'Franchise Lab deleted successfully!');
         Navigator.of(context).pop(true);
       }
     } catch (e) {
@@ -429,54 +304,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
 
   // --- Helper Widgets & Methods ---
 
-  String _getInitials(String? name) {
-    if (name == null || name.isEmpty) {
-      return '??';
-    }
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.length > 1) {
-      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    } else {
-      return name.substring(0, name.length >= 2 ? 2 : 1).toUpperCase();
-    }
-  }
 
-  void _showSuccessSnackBar(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 8),
-            Text(message),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 12,
-          color: color,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
 
   void _showErrorDialog(String title, String errorMessage) {
     showDialog(

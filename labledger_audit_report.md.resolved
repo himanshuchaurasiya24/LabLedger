@@ -1,0 +1,367 @@
+# LabLedger Frontend — Reusability & Optimization Audit Report
+
+> **Scanned**: Every file under `lib/` (screens, ui_components, methods, models, providers, constants, authentication, main.dart)
+
+---
+
+## Table of Contents
+1. [Duplicate `ColorValues` Extension](#1-duplicate-colorvalues-extension)
+2. [Duplicate `_getInitials` Helper](#2-duplicate-_getinitials-helper)
+3. [Duplicate `_showSuccessSnackBar`](#3-duplicate-_showsuccesssnackbar)
+4. [Duplicate `_showErrorDialog`](#4-duplicate-_showerrordialog)
+5. [Duplicate `_buildStatusBadge`](#5-duplicate-_buildstatusbadge)
+6. [Duplicate `_buildErrorWidget`](#6-duplicate-_builderrorwidget)
+7. [Duplicate Edit-Screen Header Card Pattern](#7-duplicate-edit-screen-header-card-pattern)
+8. [Duplicate Details-Card Section Header](#8-duplicate-details-card-section-header)
+9. [Duplicate List-Screen Scaffold (Search + FAB + Grid + Loading/Error/Empty)](#9-duplicate-list-screen-scaffold)
+10. [Duplicate Skeleton / Shimmer Loader](#10-duplicate-skeleton-shimmer-loader)
+11. [Duplicate Responsive Grid Helpers](#11-duplicate-responsive-grid-helpers)
+12. [Duplicate Navigation Link Tiles on Home Screen](#12-duplicate-navigation-link-tiles-on-home-screen)
+13. [Two Competing TextField Widgets](#13-two-competing-textfield-widgets)
+14. [Three Competing Button Widgets](#14-three-competing-button-widgets)
+15. [Non-`const` Constants](#15-non-const-constants)
+16. [Summary & Priority Matrix](#16-summary--priority-matrix)
+
+---
+
+## 1. Duplicate `ColorValues` Extension
+
+> [!CAUTION]
+> The same `extension ColorValues on Color` is copy-pasted into **3 separate files**. This will cause **compile-time conflicts** if any file imports two of them.
+
+| File | Lines |
+|---|---|
+| [doctors_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/doctors/doctors_list_screen.dart#L18-L35) | 18–35 |
+| [franchise_labs_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/franchise_labs/franchise_labs_list_screen.dart#L17-L34) | 17–34 |
+| [user_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/profile/user_list_screen.dart#L17-L34) | 17–34 |
+
+**What's wrong:** Dart's `Color` class already has `withValues()` in Flutter 3.x. This extension shadows the SDK method and will break when you upgrade Flutter.
+
+**Recommendation:** Delete all three copies. Use the SDK-provided `Color.withValues()` or `Color.withAlpha()` directly.
+
+---
+
+## 2. Duplicate `_getInitials` Helper
+
+The exact same initials-extraction logic is duplicated as a **private method** in **7+ files**:
+
+| File | Method Signature |
+|---|---|
+| [category_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/categories/category_list_screen.dart) | *(uses inline)* |
+| [category_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/categories/category_edit_screen.dart#L386-L394) | `_getInitials(String name)` |
+| [doctors_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/doctors/doctors_list_screen.dart#L399-L405) | `_getInitials(String?, String?)` |
+| [diagnosis_types_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/diagnosis_types/diagnosis_types_list_screen.dart#L354-L362) | `_getInitials(String name)` |
+| [diagnosis_type_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/diagnosis_types/diagnosis_type_edit_screen.dart#L403-L409) | `_getInitials(String? name)` |
+| [franchise_labs_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/franchise_labs/franchise_labs_list_screen.dart#L440-L453) | `_getInitials(String? name)` |
+| [franchise_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/franchise_labs/franchise_edit_screen.dart#L432-L442) | `_getInitials(String? name)` |
+| [user_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/profile/user_list_screen.dart#L409-L415) | `_getInitials(String?, String?)` |
+
+**What's wrong:** Two different signatures exist (`single name` vs `firstName + lastName`), but the core logic is identical. Any bug fix must be applied 7+ times.
+
+**Recommendation:** Create a single top-level utility:
+```dart
+// lib/methods/string_utils.dart
+String getInitials(String? firstName, [String? lastName]) { ... }
+```
+
+---
+
+## 3. Duplicate `_showSuccessSnackBar`
+
+Identical success-snackbar code appears in **4+ edit screens**:
+
+| File | Lines |
+|---|---|
+| [category_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/categories/category_edit_screen.dart#L396-L412) | 396–412 |
+| [diagnosis_type_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/diagnosis_types/diagnosis_type_edit_screen.dart#L411-L428) | 411–428 |
+| [franchise_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/franchise_labs/franchise_edit_screen.dart#L444-L460) | 444–460 |
+| doctor_edit_screen.dart | similar pattern |
+
+**What's wrong:** Every screen re-implements the same floating SnackBar with a check icon. Changing the style requires editing every file.
+
+**Recommendation:** Create a single utility function:
+```dart
+// lib/methods/snackbar_utils.dart
+void showSuccessSnackBar(BuildContext context, String message) { ... }
+void showErrorSnackBar(BuildContext context, String message) { ... }
+```
+
+---
+
+## 4. Duplicate `_showErrorDialog`
+
+Same error-dialog invocation code in **4+ edit screens**:
+
+| File | Lines |
+|---|---|
+| [category_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/categories/category_edit_screen.dart#L433-L439) | 433–439 |
+| [diagnosis_type_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/diagnosis_types/diagnosis_type_edit_screen.dart#L430-L437) | 430–437 |
+| [franchise_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/franchise_labs/franchise_edit_screen.dart#L481-L487) | 481–487 |
+
+**What's wrong:** Trivial wrapper, but duplicated across files.
+
+**Recommendation:** Move to a shared utility or make `ErrorDialog` callable via a static method like `ErrorDialog.show(context, title, message)`.
+
+---
+
+## 5. Duplicate `_buildStatusBadge`
+
+Identical badge widget in **3+ edit screens**:
+
+| File | Lines |
+|---|---|
+| [category_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/categories/category_edit_screen.dart#L414-L431) | 414–431 |
+| [franchise_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/franchise_labs/franchise_edit_screen.dart#L462-L479) | 462–479 |
+| doctor_edit_screen.dart | same pattern (inline) |
+
+**Recommendation:** Extract to `ui_components/status_badge.dart`:
+```dart
+class StatusBadge extends StatelessWidget {
+  final String text;
+  final Color color;
+  // ...
+}
+```
+
+---
+
+## 6. Duplicate `_buildErrorWidget`
+
+Inline error placeholder appears in **3+ edit screens** with different styling each time:
+
+| File | Style |
+|---|---|
+| doctor_edit_screen.dart | Simple `Text` with error color |
+| diagnosis_type_edit_screen.dart | Simple `Text` with padding |
+| franchise_edit_screen.dart | Full `TintedContainer` with icon + retry button (~60 lines) |
+
+**What's wrong:** Inconsistent error UX. Franchise screen has a rich retry widget; others show plain text.
+
+**Recommendation:** Standardize into a single `InlineErrorWidget` that always supports a retry callback.
+
+---
+
+## 7. Duplicate Edit-Screen Header Card Pattern
+
+> [!IMPORTANT]
+> This is the **highest-impact** reusability opportunity. The exact same header card structure (avatar circle → title/subtitle/badges → save/delete buttons) is copy-pasted across **4 edit screens** (~80–100 lines each).
+
+| File | Method | ~Lines |
+|---|---|---|
+| [category_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/categories/category_edit_screen.dart#L70-L211) | `_buildHeaderCard` | 140 |
+| [doctor_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/doctors/doctor_edit_screen.dart#L181-L343) | `_buildDoctorHeaderCard` | 160 |
+| [diagnosis_type_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/diagnosis_types/diagnosis_type_edit_screen.dart#L129-L255) | `_buildHeaderCard` | 125 |
+| [franchise_edit_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/franchise_labs/franchise_edit_screen.dart#L94-L252) | `_buildFranchiseHeaderCard` | 158 |
+
+**What's wrong:** ~580 lines of nearly identical layout code. The only differences are: title, subtitle, initials, save/delete callbacks, and button labels.
+
+**Recommendation:** Create a generic `EditScreenHeaderCard` widget:
+```dart
+class EditScreenHeaderCard extends StatelessWidget {
+  final String title, subtitle, initials;
+  final Color color;
+  final bool isEditMode, isAdmin, isSaving, isDeleting;
+  final VoidCallback? onSave, onDelete;
+  final String saveLabel, deleteLabel;
+  // ...
+}
+```
+**Estimated savings:** ~450 lines.
+
+---
+
+## 8. Duplicate Details-Card Section Header
+
+Every edit screen has an identical "section header" inside the details card — an icon container + title text inside a tinted row:
+
+| File | Pattern |
+|---|---|
+| category_edit_screen.dart L224–L253 | `Container > Row > [icon-box, title]` |
+| doctor_edit_screen.dart L433–L466 | identical |
+| diagnosis_type_edit_screen.dart L265–L291 | identical |
+| franchise_edit_screen.dart L265–L297 | identical |
+
+**Recommendation:** Extract to a `SectionHeader` widget:
+```dart
+class SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Color color;
+}
+```
+
+---
+
+## 9. Duplicate List-Screen Scaffold
+
+> [!IMPORTANT]
+> The **5 list screens** follow an identical structural pattern that could be abstracted.
+
+All of these screens share this **exact same structure**:
+1. `WindowScaffold` with `CenterSearchBar` + `FloatingActionButton`
+2. `asyncProvider.when(data → filter → grid/empty, loading → skeleton grid, error → buildErrorState)`
+3. Grid with `TintedContainer` + `AppInkWell` cards
+4. Private `_filter*`, `getCrossAxisCount`, `getChildAspectRatio`, `_buildLoadingState`, `_buildSkeletonLoader`, `_buildErrorState`, `_buildEmptyState` methods
+
+| File | Lines | Entity |
+|---|---|---|
+| [category_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/categories/category_list_screen.dart) | 385 | Categories |
+| [doctors_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/doctors/doctors_list_screen.dart) | 407 | Doctors |
+| [diagnosis_types_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/diagnosis_types/diagnosis_types_list_screen.dart) | 364 | Diagnosis Types |
+| [franchise_labs_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/franchise_labs/franchise_labs_list_screen.dart) | 455 | Franchise Labs |
+| [user_list_screen.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/profile/user_list_screen.dart) | 417 | Users |
+
+**Total duplicated lines:** ~2,028 lines doing essentially the same thing.
+
+**Recommendation:** Create a generic `EntityListScreen<T>` widget that accepts:
+- Provider, filter function, card builder, FAB label, empty/error messages
+- Or at minimum, extract `getCrossAxisCount`, `getChildAspectRatio`, and `_buildLoadingState` into shared helpers.
+
+---
+
+## 10. Duplicate Skeleton / Shimmer Loader
+
+Every list screen has its own `_buildSkeletonLoader` with slightly different layouts but the same core pattern (CircleAvatar + rectangular placeholders):
+
+| File | Variant |
+|---|---|
+| category_list_screen.dart | Column-based |
+| doctors_list_screen.dart | Row-based |
+| diagnosis_types_list_screen.dart | Row-based (identical to doctors) |
+| franchise_labs_list_screen.dart | Row-based (identical to doctors) |
+| user_list_screen.dart | Row-based |
+
+**Recommendation:** Create a `SkeletonCardLoader` widget with a `variant` parameter (`row` or `column`).
+
+---
+
+## 11. Duplicate Responsive Grid Helpers
+
+`getCrossAxisCount()` and `getChildAspectRatio()` are **identical** (or near-identical) across all 5 list screens:
+
+```dart
+// Identical in all 5 screens
+int getCrossAxisCount(BuildContext context) {
+  final size = MediaQuery.of(context).size;
+  if (size.width < initialWindowWidth && size.width > 1200) return 3;
+  if (size.width < 1200) return 2;
+  return 4;
+}
+```
+
+**Recommendation:** Move to a shared utility:
+```dart
+// lib/methods/responsive_helpers.dart
+int getResponsiveCrossAxisCount(BuildContext context) { ... }
+double getResponsiveAspectRatio(BuildContext context, {double base = 2.3}) { ... }
+```
+
+---
+
+## 12. Duplicate Navigation Link Tiles on Home Screen
+
+> [!WARNING]
+> The home screen has **8 identical navigation tile blocks** (4 in wide layout + 4 in narrow layout) that are ~40 lines each — totaling ~320 lines of duplicated code.
+
+Each tile follows this pattern:
+```dart
+AppInkWell(
+  onTap: () => navigate to screen,
+  child: TintedContainer(
+    child: Row(children: [Icon, Text, ArrowIcon]),
+  ),
+)
+```
+
+**What's wrong:** The wide and narrow layouts duplicate the same 4 tiles. The `LayoutBuilder` should build the tile list once and wrap it in either `Row` or `Column`.
+
+**Recommendation:** Create a `NavigationTile` widget and a list of tile configs:
+```dart
+class NavigationTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color color;
+  final double height;
+}
+```
+Then use a single list and wrap with `Row`/`Column` based on breakpoint. **Savings: ~250 lines**.
+
+---
+
+## 13. Two Competing TextField Widgets
+
+| Widget | File | Usage |
+|---|---|---|
+| `CustomTextField` | [custom_text_field.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/ui_components/custom_text_field.dart) | Used **everywhere** |
+| `ReusableTextField` | [reusable_ui_components.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/ui_components/reusable_ui_components.dart#L1-L146) | Lines 1–146 — **appears unused** |
+
+**What's wrong:** `ReusableTextField` has a different API (different border radius `16` vs `12`, different fill color logic, different label/hint handling). Having two text field widgets creates confusion and inconsistency.
+
+**Recommendation:** Audit usage. If `ReusableTextField` is truly unused, **delete it**. If it's used somewhere, consolidate into `CustomTextField`.
+
+---
+
+## 14. Three Competing Button Widgets
+
+| Widget | File | Description |
+|---|---|---|
+| `CustomElevatedButton` | [custom_elevated_button.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/ui_components/custom_elevated_button.dart) | Simple elevated button with icon |
+| `CustomOutlinedButton` | [custom_outlined_button.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/ui_components/custom_outlined_button.dart) | Hardcoded `error` color, fixed size |
+| `CustomActionButton` | [custom_action_button.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/ui_components/custom_action_button.dart) | Uses `AppInkWell` + custom container |
+| `ReusableButton` | [reusable_ui_components.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/screens/ui_components/reusable_ui_components.dart#L148-L345) | Full variant system (6 variants) — **appears unused** |
+
+**What's wrong:**
+- `CustomOutlinedButton` hardcodes `error` color — not customizable.
+- `ReusableButton` supports 6 variants but appears to be unused.
+- `CustomActionButton` bypasses Flutter's button system entirely (no semantics, no disabled state).
+- Edit screens sometimes use `CustomElevatedButton`, sometimes inline `ElevatedButton.icon` (inconsistent).
+
+**Recommendation:** Either adopt `ReusableButton` as the single source of truth (it already supports all variants), or delete it and standardize the existing three buttons. Do not keep 4 competing button APIs.
+
+---
+
+## 15. Non-`const` Constants
+
+In [constants.dart](file:///home/himanshu/Documents/Repositories/LabLedger/lib/constants/constants.dart):
+
+```dart
+final appName = 'LabLedger';          // Should be: const
+final double defaultPadding = 12;     // Should be: const
+final double defaultRadius = 12;      // Should be: const
+// ... all 10 values are `final` instead of `const`
+```
+
+**What's wrong:** `final` creates a new object per reference. `const` enables compile-time inlining and widget-tree optimization. Using `final` for compile-time-known values prevents Flutter from optimizing widget rebuilds.
+
+**Recommendation:** Change all to `const`. This is a one-line-per-variable fix with zero risk.
+
+---
+
+## 16. Summary & Priority Matrix
+
+| # | Issue | Impact | Risk | Effort | Files Affected |
+|---|---|---|---|---|---|
+| 1 | `ColorValues` extension duplication | 🔴 High (compile conflict) | ⚠️ Medium | ✅ Easy | 3 |
+| 7 | Edit-screen header card duplication | 🔴 High (~580 lines) | ✅ Low | ⚙️ Medium | 4 |
+| 9 | List-screen scaffold duplication | 🔴 High (~2000 lines) | ⚠️ Medium | ⚙️ Medium | 5 |
+| 12 | Home screen nav tiles duplication | 🟡 Medium (~320 lines) | ✅ Low | ✅ Easy | 1 |
+| 2 | `_getInitials` duplication | 🟡 Medium | ✅ Low | ✅ Easy | 7 |
+| 3 | `_showSuccessSnackBar` duplication | 🟡 Medium | ✅ Low | ✅ Easy | 4 |
+| 4 | `_showErrorDialog` duplication | 🟢 Low | ✅ Low | ✅ Easy | 4 |
+| 5 | `_buildStatusBadge` duplication | 🟢 Low | ✅ Low | ✅ Easy | 3 |
+| 6 | `_buildErrorWidget` inconsistency | 🟡 Medium (UX inconsistency) | ✅ Low | ✅ Easy | 3 |
+| 8 | Section header duplication | 🟢 Low | ✅ Low | ✅ Easy | 4 |
+| 10 | Skeleton loader duplication | 🟡 Medium | ✅ Low | ✅ Easy | 5 |
+| 11 | Responsive grid helper duplication | 🟡 Medium | ✅ Low | ✅ Easy | 5 |
+| 13 | Two competing TextField widgets | 🟡 Medium (confusion) | ✅ Low | ✅ Easy | 2 |
+| 14 | Four competing Button widgets | 🟡 Medium (confusion) | ⚠️ Medium | ⚙️ Medium | 4 |
+| 15 | Non-const constants | 🟢 Low (perf micro-opt) | ✅ Zero | ✅ Trivial | 1 |
+
+### Recommended Action Order
+1. **Immediate** (zero risk): Items 15, 1, 2, 3, 4, 5, 11
+2. **Short-term** (low risk, high reward): Items 7, 8, 12, 6, 10
+3. **Planned refactor** (medium effort): Items 9, 13, 14
+
+> [!TIP]
+> Items 1–6 and 11 are **pure extraction refactors** — no UI change at all, just moving private methods to shared utilities. Items 7–10 and 12 involve creating new reusable widgets that replace inline code, which requires more careful testing.

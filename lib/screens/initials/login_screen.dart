@@ -11,7 +11,7 @@ import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/initials/subscription_renewal_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
-import 'package:labledger/screens/ui_components/reusable_ui_components.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:convert';
 
@@ -311,9 +311,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           Row(
                             children: [
                               const Spacer(),
-                              ReusableButton(
-                                text: 'Forgot Password?',
-                                variant: ButtonVariant.text,
+                              TextButton(
                                 onPressed: !isLoading
                                     ? () {
                                         ScaffoldMessenger.of(
@@ -329,21 +327,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         );
                                       }
                                     : null,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                                child: Text(
+                                  'Forgot Password?',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                           Spacer(),
-                          ReusableButton(
-                            text: 'Sign In',
-                            variant: ButtonVariant.primary,
-                            icon: Icons.login,
+                          CustomElevatedButton(
+                            label: isLoading ? 'Signing In...' : 'Sign In',
+                            icon: isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : const Icon(Icons.login),
                             onPressed: !isLoading ? _login : null,
-                            isLoading: isLoading,
                             width: double.infinity,
                             height: 56,
-                            borderRadius: 16,
+                            backgroundColor: theme.colorScheme.primary,
                           ),
                           SizedBox(height: defaultHeight),
                           FutureBuilder<String>(

@@ -12,6 +12,8 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/screens/ui_components/status_badge.dart';
+import 'package:labledger/methods/responsive_helpers.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class CategoryListScreen extends ConsumerStatefulWidget {
@@ -66,27 +68,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
     }).toList();
   }
 
-  int getCrossAxisCount(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    if (size.width < initialWindowWidth && size.width > 1200) {
-      return 3;
-    }
-    if (size.width < 1200) {
-      return 2;
-    }
-    return 4;
-  }
 
-  double getChildAspectRatio(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    if (size.width < initialWindowWidth && size.width > 1200) {
-      return 2.2; // Decreased from 2.7 for more height
-    }
-    if (size.width < 1200 || size.width > initialWindowWidth) {
-      return 2.5; // Decreased from 3.2 for more height
-    }
-    return 2.2; // Decreased from 2.7 for more height
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -150,10 +132,10 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context, baseSmall: 2.2, baseLarge: 2.5),
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
@@ -247,34 +229,10 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
               ),
               const SizedBox(height: 12),
               if (category.isFranchiseLab)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: effectiveColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: effectiveColor.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(LucideIcons.building2, size: 14, color: textColor),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Franchise Lab',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: textColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
+                StatusBadge(
+                  text: 'Franchise Lab',
+                  color: textColor,
+                  icon: LucideIcons.building2,
                 ),
             ],
           ),
@@ -290,10 +248,10 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context, baseSmall: 2.2, baseLarge: 2.5),
       ),
       itemCount: 8,
       itemBuilder: (context, index) {

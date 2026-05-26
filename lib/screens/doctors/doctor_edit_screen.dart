@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/methods/snackbar_utils.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
@@ -12,7 +13,8 @@ import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart'
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-
+import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
+import 'package:labledger/methods/string_utils.dart';
 class DoctorEditScreen extends ConsumerStatefulWidget {
   const DoctorEditScreen({super.key, this.doctorId, this.themeColor});
 
@@ -179,166 +181,26 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   }
 
   Widget _buildDoctorHeaderCard(bool isAdmin, Color color, Doctor? doctor) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final title = _isEditMode
         ? '${doctor?.firstName ?? ''} ${doctor?.lastName ?? ''}'
         : 'New Doctor Profile';
     final subtitle = _isEditMode
         ? doctor?.hospitalName ?? ''
         : 'Enter doctor details below';
-    final initials = _isEditMode
-        ? '${doctor?.firstName?.isNotEmpty == true ? doctor!.firstName![0].toUpperCase() : 'D'}${doctor?.lastName?.isNotEmpty == true ? doctor!.lastName![0].toUpperCase() : 'R'}'
-        : 'DR';
+    final initials = _isEditMode ? getInitials(doctor?.firstName, doctor?.lastName) : 'DR';
 
-    final lightThemeColor = Color.lerp(
-      color,
-      isDark ? Colors.black : Colors.white,
-      isDark ? 0.3 : 0.2,
-    )!;
-
-    return TintedContainer(
-      baseColor: color,
-      height: 160,
-      radius: defaultRadius,
-      intensity: isDark ? 0.15 : 0.08,
-      useGradient: true,
-      elevationLevel: 2,
-      child: Row(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [color, lightThemeColor],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withValues(
-                    alpha: 0.3,
-                  ), // Using withValues alpha:  for simplicity
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                initials,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: defaultWidth / 2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: isDark
-                        ? Colors.white70
-                        : theme.colorScheme.onSurface.withValues(
-                            alpha: 0.7,
-                          ), // Using withValues alpha:  for simplicity
-                  ),
-                ),
-                SizedBox(height: defaultHeight / 2),
-                Row(
-                  children: [
-                    if (isAdmin && _isEditMode) ...[
-                      _buildStatusBadge('Admin Edit Mode', Colors.purple),
-                      SizedBox(width: defaultWidth / 2),
-                    ],
-                    _buildStatusBadge(
-                      _isEditMode ? 'Edit Mode' : 'Create Mode',
-                      _isEditMode
-                          ? Colors.blue
-                          : Theme.of(context).colorScheme.secondary,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // ✅ Conditional visibility for the entire button column
-          if (!_isEditMode || isAdmin)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _isSaving ? null : () => _handleSave(doctor),
-                  style: ElevatedButton.styleFrom(
-                    fixedSize: const Size(180, 60),
-                    backgroundColor: color,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(defaultRadius),
-                    ),
-                  ),
-                  icon: _isSaving
-                      ? SizedBox(
-                          height: defaultHeight,
-                          width: defaultWidth,
-                          child: const CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                      : Icon(_isEditMode ? Icons.update : Icons.save),
-                  label: Text(
-                    _isSaving
-                        ? 'Saving...'
-                        : (_isEditMode ? 'Update Doctor' : 'Create Doctor'),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                // ✅ The delete button is now conditional on BOTH edit mode AND admin status
-                if (_isEditMode && isAdmin) ...[
-                  SizedBox(height: defaultHeight / 2),
-                  OutlinedButton.icon(
-                    onPressed: () => _handleDelete(doctor!),
-                    style: OutlinedButton.styleFrom(
-                      fixedSize: const Size(180, 60),
-                      foregroundColor: Theme.of(context).colorScheme.error,
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(defaultRadius),
-                      ),
-                    ),
-                    icon: const Icon(Icons.delete_outline),
-                    label: const Text('Delete'),
-                  ),
-                ],
-              ],
-            ),
-        ],
-      ),
+    return EditScreenHeaderCard(
+      title: title,
+      subtitle: subtitle,
+      initials: initials,
+      color: color,
+      isEditMode: _isEditMode,
+      isAdmin: isAdmin,
+      isSaving: _isSaving,
+      isDeleting: _isDeleting,
+      onSave: () => _handleSave(doctor),
+      onDelete: () => _handleDelete(doctor!),
+      saveLabel: _isEditMode ? 'Update Doctor' : 'Create Doctor',
     );
   }
 
@@ -835,23 +697,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         );
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-
-              content: const Row(
-                children: [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text('Doctor updated successfully!'),
-                ],
-              ),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          );
+        if (mounted) {
+          showSuccessSnackBar(context, 'Doctor updated successfully!');
+        }
         }
       } else {
         final newDoctor = Doctor(
@@ -869,23 +717,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         await ref.read(createDoctorProvider(newDoctor).future);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-
-              content: const Row(
-                children: [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text('Doctor created successfully!'),
-                ],
-              ),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          );
+        if (mounted) {
+          showSuccessSnackBar(context, 'Doctor created successfully!');
+        }
         }
       }
 
@@ -951,24 +785,6 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     }
   }
 
-  Widget _buildStatusBadge(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 12,
-          color: color,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
 
   void _showErrorDialog(String title, String errorMessage) {
     showDialog(

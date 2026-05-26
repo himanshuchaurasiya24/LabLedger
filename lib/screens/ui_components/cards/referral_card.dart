@@ -238,6 +238,7 @@ class _ReferralCardState extends State<ReferralCard> {
                 "Total Incentives",
                 referrer.incentiveAmount.toString(),
                 CrossAxisAlignment.end,
+                isRightSide: true,
               ),
             ],
           ),
@@ -330,42 +331,50 @@ class _ReferralCardState extends State<ReferralCard> {
     IconData icon,
     String label,
     String value,
-    CrossAxisAlignment crossAxisAlignment,
-  ) {
-    return Row(
+    CrossAxisAlignment crossAxisAlignment, {
+    bool isRightSide = false,
+  }) {
+    Widget iconContainer = Container(
+      height: 55,
+      width: 55,
+      decoration: BoxDecoration(
+        color: accentFillColor,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(icon, color: importantTextColor, size: 40),
+    );
+    Widget valueWidget = Column(
+      crossAxisAlignment: crossAxisAlignment,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          height: 55,
-          width: 55,
-          decoration: BoxDecoration(
-            color: accentFillColor,
-            borderRadius: BorderRadius.circular(8),
+        Text(label, style: TextStyle(color: importantTextColor, fontSize: 12)),
+        Text(
+          value,
+          style: TextStyle(
+            color: importantTextColor,
+            fontSize: 30,
+            fontWeight: FontWeight.w800,
           ),
-          child: Icon(icon, color: importantTextColor, size: 40),
-        ),
-        SizedBox(width: defaultWidth / 2),
-        Column(
-          crossAxisAlignment: crossAxisAlignment,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              label,
-              style: TextStyle(color: importantTextColor, fontSize: 12),
-            ),
-            Text(
-              value,
-              style: TextStyle(
-                color: importantTextColor,
-                fontSize: 30,
-                fontWeight: FontWeight.w800,
-              ),
-              maxLines: 1, // NEW: Prevent wrapping
-              overflow: TextOverflow.ellipsis, // NEW: Add ellipsis if too long
-            ),
-          ],
+          maxLines: 1, // NEW: Prevent wrapping
+          overflow: TextOverflow.ellipsis, // NEW: Add ellipsis if too long
         ),
       ],
     );
+    return isRightSide
+        ? Row(
+            children: [
+              valueWidget,
+              SizedBox(width: defaultWidth / 2),
+              iconContainer,
+            ],
+          )
+        : Row(
+            children: [
+              iconContainer,
+              SizedBox(width: defaultWidth / 2),
+              valueWidget,
+            ],
+          );
   }
 
   Map<String, int> _getServiceBreakdown(ReferralStat referrer) {
