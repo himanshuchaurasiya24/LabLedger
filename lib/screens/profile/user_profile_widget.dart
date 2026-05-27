@@ -433,10 +433,6 @@ class _CustomDropdownMenu extends ConsumerWidget {
                             label: 'SMS Gateway',
                             onTap: () {
                               //TODO Implement SMS Gateway screen
-                              // TODO fix report asking to be saved
-                              //previously it was not asking the report were being saved from the temp location
-                              //and were deleted after being uploaded on server download report is showing the server report only
-                              //and not the actual edited patient report
                               // TODO multiple subscription entry for same center
                             },
                             isDark: isDark,

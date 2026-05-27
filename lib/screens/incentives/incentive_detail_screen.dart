@@ -44,6 +44,12 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
   bool _isRefreshingReport = false;
 
   @override
+  void initState() {
+    super.initState();
+    _searchController = createController();
+  }
+
+  @override
   void dispose() {
     disposeControllers();
     super.dispose();
