@@ -7,13 +7,20 @@ import 'package:labledger/authentication/auth_repository.dart';
 
 class AuthHttpClient {
   static Future<http.Response> request(
-    Ref ref, {
+    dynamic ref, {
     required String method,
     required String url,
     Map<String, String>? headers,
     String? body,
     Duration timeout = const Duration(seconds: 10),
+    bool throwOnError = true,
   }) async {
+    // Debug-time check: ensure callers pass a Riverpod Ref or WidgetRef.
+    // This is an assertion (no-op in release) to catch incorrect usages early.
+    assert(
+      ref is Ref || ref is WidgetRef,
+      'AuthHttpClient.request requires a Ref or WidgetRef; got ${ref.runtimeType}',
+    );
     String? token;
     try {
       token = await ref.read(tokenProvider.future);
@@ -61,6 +68,10 @@ class AuthHttpClient {
       } catch (e) {
         throw const NetworkException();
       }
+    }
+
+    if (!throwOnError) {
+      return response;
     }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -137,15 +148,22 @@ class AuthHttpClient {
   }
 
   static Future<http.Response> get(
-    Ref ref,
+    dynamic ref,
     String url, {
     Map<String, String>? headers,
     Duration timeout = const Duration(seconds: 10),
-  }) =>
-      request(ref, method: 'GET', url: url, headers: headers, timeout: timeout);
+    bool throwOnError = true,
+  }) => request(
+    ref,
+    method: 'GET',
+    url: url,
+    headers: headers,
+    timeout: timeout,
+    throwOnError: throwOnError,
+  );
 
   static Future<http.Response> post(
-    Ref ref,
+    dynamic ref,
     String url, {
     Map<String, String>? headers,
     String? body,
@@ -160,7 +178,7 @@ class AuthHttpClient {
   );
 
   static Future<http.Response> put(
-    Ref ref,
+    dynamic ref,
     String url, {
     Map<String, String>? headers,
     String? body,
@@ -175,7 +193,7 @@ class AuthHttpClient {
   );
 
   static Future<http.Response> delete(
-    Ref ref,
+    dynamic ref,
     String url, {
     Map<String, String>? headers,
     Duration timeout = const Duration(seconds: 10),
@@ -188,7 +206,7 @@ class AuthHttpClient {
   );
 
   static Future<http.Response> postMultipart(
-    Ref ref,
+    dynamic ref,
     String url, {
     required Map<String, String> fields,
     required String filePath,
@@ -210,7 +228,7 @@ class AuthHttpClient {
 
   /// ⭐️ NEW: Handles multipart (file upload) PUT requests.
   static Future<http.Response> putMultipart(
-    Ref ref,
+    dynamic ref,
     String url, {
     required Map<String, String> fields,
     required String filePath,
@@ -230,7 +248,7 @@ class AuthHttpClient {
 
   /// ⭐️ NEW HELPER: Private method to handle the core logic for multipart requests.
   static Future<http.Response> _requestMultipart(
-    Ref ref, {
+    dynamic ref, {
     required String method,
     required String url,
     required Map<String, String> fields,

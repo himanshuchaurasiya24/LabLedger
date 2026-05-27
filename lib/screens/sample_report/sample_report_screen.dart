@@ -9,11 +9,13 @@ import 'package:labledger/models/sample_report_model.dart';
 import 'package:labledger/providers/sample_reports_provider.dart';
 import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
@@ -443,6 +445,26 @@ class _SampleReportManagementScreenState
 
     try {
       final uri = Uri.parse(report.sampleReportFile);
+      final response = await AuthHttpClient.get(
+        ref,
+        uri.toString(),
+        throwOnError: false,
+      );
+
+      if (response.statusCode != 200) {
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => ErrorDialog(
+              title: 'Download Error',
+              errorMessage:
+                  'HTTP ${response.statusCode}: The report file is missing on the server. Please upload it again or contact support.',
+            ),
+          );
+        }
+        return;
+      }
+
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
@@ -600,6 +622,9 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog>
                                   : 'Edit Report',
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.87,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -736,29 +761,24 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      OutlinedButton.icon(
+                      CustomElevatedButton(
                         onPressed: _isSubmitting
                             ? null
                             : () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          fixedSize: const Size(130, 46),
-                          foregroundColor: widget.themeColor,
-                          side: BorderSide(color: widget.themeColor),
-                        ),
+                        label: 'Cancel',
                         icon: const Icon(Icons.close_outlined),
-                        label: const Text('Cancel'),
+                        width: 130,
+                        height: 46,
+                        outlined: true,
+                        foregroundColor: widget.themeColor,
+                        borderColor: widget.themeColor,
                       ),
                       const SizedBox(width: 10),
-                      ElevatedButton.icon(
+                      CustomElevatedButton(
                         onPressed: _isSubmitting ? null : _submitForm,
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(160, 46),
-                          backgroundColor: widget.themeColor,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(defaultRadius),
-                          ),
-                        ),
+                        width: 160,
+                        height: 46,
+                        backgroundColor: widget.themeColor,
                         icon: _isSubmitting
                             ? const SizedBox(
                                 height: 16,
@@ -776,14 +796,12 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog>
                                     : LucideIcons.upload,
                                 size: 16,
                               ),
-                        label: Text(
-                          _isSubmitting
-                              ? 'Saving...'
-                              : (widget.mode == FormMode.create
-                                    ? 'Create'
-                                    : 'Update'),
-                          style: const TextStyle(fontSize: 16),
-                        ),
+                        label: _isSubmitting
+                            ? 'Saving...'
+                            : (widget.mode == FormMode.create
+                                  ? 'Create'
+                                  : 'Update'),
+                        fontSize: 16,
                       ),
                     ],
                   ),

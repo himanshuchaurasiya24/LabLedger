@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
+import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/providers/sample_reports_provider.dart';
 import 'package:labledger/providers/category_provider.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -76,9 +77,27 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
     setState(() => _isLoading = true);
 
     try {
-      final response = await http.get(
-        Uri.parse(_selectedReportFromServer!.sampleReportFile),
+      final reportUri = Uri.parse(_selectedReportFromServer!.sampleReportFile);
+      final response = await AuthHttpClient.get(
+        ref,
+        reportUri.toString(),
+        throwOnError: false,
       );
+
+      if (response.statusCode != 200) {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => ErrorDialog(
+              title: 'Download Error',
+              errorMessage:
+                  'HTTP ${response.statusCode}: The selected report is not available on the server right now. Please upload it again or select another report.',
+            ),
+          );
+        }
+        return;
+      }
+
       final tempDir = await getTemporaryDirectory();
       final fileName =
           'LabLedgerServerReport${DateFormat("dd MMM yyy hh ss SSS").format(DateTime.now())}.${_selectedReportFromServer!.sampleReportFile.split('.').last}';
@@ -117,6 +136,42 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
     }
   }
 
+  Future<bool> _deleteTempFile(File file) async {
+    try {
+      if (await file.exists()) {
+        await file.delete();
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _showCleanupWarning() {
+    debugPrint("warning was called!");
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 7),
+        content: const Row(
+          children: [
+            Icon(Icons.warning_rounded, color: Colors.white),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Report uploaded, but the temporary file could not be deleted. Close the editor after saving to avoid higher disk usage.',
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Theme.of(
+          navigatorKey.currentContext!,
+        ).colorScheme.secondary,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   Future<void> _uploadReport() async {
     if (_reportFileToUpload == null) return;
     final int fileSizeBytes = await _reportFileToUpload!.length();
@@ -144,52 +199,34 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
 
       if (await _reportFileToUpload!.exists()) {
         await ref.read(createPatientReportProvider(uploadData).future);
-        try {
-          final Directory tempDir = await getTemporaryDirectory();
-
-          if (_reportFileToUpload!.path.startsWith(tempDir.path)) {
-            await _reportFileToUpload!.delete();
-          }
-        } catch (e) {
+        if (mounted) {
           ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
             SnackBar(
-              duration: const Duration(seconds: 7),
               content: const Row(
                 children: [
                   Icon(Icons.check_circle, color: Colors.white),
                   SizedBox(width: 12),
-                  Expanded(
-                    // Use Expanded to prevent overflow
-                    child: Text(
-                      "Please close the editor before pressing the \"Upload Report\" button to optimize disk usage",
-                    ),
-                  ),
+                  Text('Report uploaded successfully!'),
                 ],
               ),
               backgroundColor: Theme.of(
                 navigatorKey.currentContext!,
-              ).colorScheme.error,
+              ).colorScheme.secondary,
               behavior: SnackBarBehavior.floating,
             ),
           );
+        }
+
+        final bool deletedTempFile = await _deleteTempFile(
+          _reportFileToUpload!,
+        );
+        if (!deletedTempFile && mounted) {
+          _showCleanupWarning();
+        }
+
+        if (mounted) {
           Navigator.of(navigatorKey.currentContext!).pop();
         }
-        ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 12),
-                Text('Report uploaded successfully!'),
-              ],
-            ),
-            backgroundColor: Theme.of(
-              navigatorKey.currentContext!,
-            ).colorScheme.secondary,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        Navigator.of(navigatorKey.currentContext!).pop();
       } else {
         ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
           SnackBar(
@@ -363,7 +400,6 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // File indicator
                     if (isReadyToUpload)
                       Expanded(
                         child: Container(
@@ -404,25 +440,18 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                     else
                       const SizedBox.shrink(),
                     const SizedBox(width: 12),
-                    // Action buttons
                     Row(
                       children: [
-                        OutlinedButton.icon(
+                        CustomElevatedButton(
                           onPressed: () => Navigator.of(context).pop(),
-                          style: OutlinedButton.styleFrom(
-                            fixedSize: const Size(160, 50),
-                            foregroundColor: widget.color,
-                            side: BorderSide(color: widget.color),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                defaultRadius,
-                              ),
-                            ),
-                          ),
+                          label: 'Cancel',
                           icon: const Icon(Icons.close_outlined),
-                          label: const Text('Cancel'),
+                          width: 160,
+                          height: 50,
+                          outlined: true,
+                          foregroundColor: widget.color,
+                          borderColor: widget.color,
                         ),
-
                         const SizedBox(width: 8),
                         if (_isLoading && isReadyToUpload)
                           Container(
@@ -437,20 +466,13 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                             ),
                           )
                         else if (isReadyToUpload)
-                          ElevatedButton.icon(
+                          CustomElevatedButton(
                             onPressed: _uploadReport,
-                            icon: const Icon(Icons.upload_rounded, size: 20),
-                            label: const Text('Upload Report'),
-                            style: ElevatedButton.styleFrom(
-                              fixedSize: const Size(200, 50),
-                              backgroundColor: widget.color,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  defaultRadius,
-                                ),
-                              ),
-                            ),
+                            label: 'Upload Report',
+                            icon: const Icon(Icons.upload_rounded),
+                            width: 200,
+                            height: 50,
+                            backgroundColor: widget.color,
                           ),
                       ],
                     ),
@@ -720,20 +742,13 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                       if (_isLoading)
                         const CircularProgressIndicator()
                       else
-                        ElevatedButton.icon(
+                        CustomElevatedButton(
                           onPressed: _downloadAndOpenFile,
+                          label: 'Download Template',
                           icon: const Icon(Icons.download_rounded),
-                          label: const Text('Download Template'),
-                          style: ElevatedButton.styleFrom(
-                            fixedSize: const Size(200, 50),
-                            backgroundColor: widget.color,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                defaultRadius,
-                              ),
-                            ),
-                          ),
+                          width: 260,
+                          height: 50,
+                          backgroundColor: widget.color,
                         ),
                     ],
                   ),
@@ -807,18 +822,13 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                     ),
                   ),
                   SizedBox(height: defaultHeight),
-                  ElevatedButton.icon(
+                  CustomElevatedButton(
                     onPressed: _pickLocalFile,
+                    label: 'Browse Files',
                     icon: const Icon(Icons.folder_open_rounded),
-                    label: const Text('Browse Files'),
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(160, 50),
-                      backgroundColor: widget.color,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(defaultRadius),
-                      ),
-                    ),
+                    width: 190,
+                    height: 50,
+                    backgroundColor: widget.color,
                   ),
                 ],
               ),
