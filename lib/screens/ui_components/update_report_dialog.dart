@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
@@ -12,6 +13,7 @@ import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:open_file_plus/open_file_plus.dart';
+import 'package:labledger/utils/file_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:labledger/models/sample_report_model.dart';
 import 'package:labledger/models/report_upload_data_model.dart';
@@ -40,6 +42,8 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
   SampleReportModel? _selectedReportFromServer;
   File? _reportFileToUpload;
   bool _isLoading = false;
+  bool _isWaitingForEditorClose = false;
+  Timer? _editorCloseTimer;
   late TabController _tabController;
 
   late final TextEditingController _reportNameController;
@@ -55,6 +59,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
 
   @override
   void dispose() {
+    _editorCloseTimer?.cancel();
     disposeControllers();
     _tabController.dispose();
     super.dispose();
@@ -105,19 +110,73 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
       final file = File('${tempDir.path}/$fileName');
       await file.writeAsBytes(response.bodyBytes);
 
-      final openResult = await OpenFile.open(file.path);
-
-      if (openResult.type == ResultType.done) {
+      if (mounted) {
         setState(() {
           _reportFileToUpload = file;
+          _isWaitingForEditorClose = true;
         });
+      }
+
+      final openResult = await FileUtils.openFile(file.path);
+
+      if (openResult.type == ResultType.done) {
+        _startWaitingForEditorClose(file);
       } else {
-        showErrorSnackBar(navigatorKey.currentContext!, 'Could not open file: ${openResult.message}');
+        _editorCloseTimer?.cancel();
+        if (mounted) {
+          setState(() {
+            _isWaitingForEditorClose = false;
+          });
+        }
+        showErrorSnackBar(
+          navigatorKey.currentContext!,
+          'Could not open file: ${openResult.message}',
+        );
       }
     } catch (e) {
-      showErrorSnackBar(navigatorKey.currentContext!, 'Failed to download report: $e');
+      _editorCloseTimer?.cancel();
+      if (mounted) {
+        setState(() {
+          _isWaitingForEditorClose = false;
+        });
+      }
+      showErrorSnackBar(
+        navigatorKey.currentContext!,
+        'Failed to download report: $e',
+      );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted && !_isWaitingForEditorClose) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _startWaitingForEditorClose(File file) {
+    _editorCloseTimer?.cancel();
+    _editorCloseTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
+      if (!mounted) return;
+
+      final bool isFileStillInUse = await _isFileStillInUse(file);
+      if (!mounted) return;
+
+      if (!isFileStillInUse) {
+        _editorCloseTimer?.cancel();
+        _editorCloseTimer = null;
+        setState(() {
+          _isLoading = false;
+          _isWaitingForEditorClose = false;
+        });
+      }
+    });
+  }
+
+  Future<bool> _isFileStillInUse(File file) async {
+    try {
+      final access = await file.open(mode: FileMode.writeOnlyAppend);
+      await access.close();
+      return false;
+    } on FileSystemException {
+      return true;
     }
   }
 
@@ -136,9 +195,12 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
     debugPrint("warning was called!");
     showCustomSnackBar(
       context: navigatorKey.currentContext!,
-      message: 'Report uploaded, but the temporary file could not be deleted. Close the editor after saving to avoid higher disk usage.',
+      message:
+          'Report uploaded, but the temporary file could not be deleted. Close the editor after saving to avoid higher disk usage.',
       icon: Icons.warning_rounded,
-      backgroundColor: Theme.of(navigatorKey.currentContext!).colorScheme.secondary,
+      backgroundColor: Theme.of(
+        navigatorKey.currentContext!,
+      ).colorScheme.secondary,
       clearSnackBars: true,
     );
   }
@@ -171,7 +233,10 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
       if (await _reportFileToUpload!.exists()) {
         await ref.read(createPatientReportProvider(uploadData).future);
         if (mounted) {
-          showSuccessSnackBar(navigatorKey.currentContext!, 'Report uploaded successfully!');
+          showSuccessSnackBar(
+            navigatorKey.currentContext!,
+            'Report uploaded successfully!',
+          );
         }
 
         final bool deletedTempFile = await _deleteTempFile(
@@ -198,7 +263,8 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
 
   @override
   Widget build(BuildContext context) {
-    final bool isReadyToUpload = _reportFileToUpload != null;
+    final bool isReadyToUpload =
+        _reportFileToUpload != null && !_isWaitingForEditorClose;
     final theme = Theme.of(context);
 
     return Dialog(
@@ -400,7 +466,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                               horizontal: 32,
                               vertical: 12,
                             ),
-                            child: const SizedBox(
+                            child: SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
@@ -681,7 +747,21 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                       ),
                       const SizedBox(height: 16),
                       if (_isLoading)
-                        const CircularProgressIndicator()
+                        Column(
+                          children: [
+                            CircularProgressIndicator(color: widget.color),
+                            if (_isWaitingForEditorClose) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                'Waiting for the editor to close...',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ],
+                        )
                       else
                         CustomElevatedButton(
                           onPressed: _downloadAndOpenFile,
@@ -829,8 +909,10 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                   ),
                   IconButton(
                     onPressed: () {
+                      _editorCloseTimer?.cancel();
                       setState(() {
                         _reportFileToUpload = null;
+                        _isWaitingForEditorClose = false;
                       });
                     },
                     icon: const Icon(Icons.close_rounded),
