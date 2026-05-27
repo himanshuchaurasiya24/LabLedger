@@ -102,7 +102,10 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
   @override
   Widget build(BuildContext context) {
     // Extract data for clarity
-    final String initials = getInitials(widget.authResponse.firstName, widget.authResponse.lastName);
+    final String initials = getInitials(
+      widget.authResponse.firstName,
+      widget.authResponse.lastName,
+    );
 
     return AppInkWell(
       borderRadius: BorderRadius.circular(20),
@@ -264,7 +267,10 @@ class _CustomDropdownMenu extends ConsumerWidget {
     final String userName =
         "${authResponse.firstName} ${authResponse.lastName}";
     final String userRole = authResponse.isAdmin ? "Admin" : "User";
-    final String initials = getInitials(authResponse.firstName, authResponse.lastName);
+    final String initials = getInitials(
+      authResponse.firstName,
+      authResponse.lastName,
+    );
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -429,10 +435,11 @@ class _CustomDropdownMenu extends ConsumerWidget {
                             onTap: () {
                               //TODO Implement SMS Gateway screen
                               // TODO fixing server report opening in office if not present
-                              // TODO fix report asking to be saved 
-                              //previously it was not asking the report were being saved from the temp location 
-                              //and were deleted after being uploaded on server download report is showing the server report only 
+                              // TODO fix report asking to be saved
+                              //previously it was not asking the report were being saved from the temp location
+                              //and were deleted after being uploaded on server download report is showing the server report only
                               //and not the actual edited patient report
+                              // TODO multiple subscription entry for same center
                             },
                             isDark: isDark,
                           ),
@@ -510,13 +517,11 @@ class _CustomDropdownMenu extends ConsumerWidget {
                           isDark: isDark,
                         ),
 
-                        // Logout Option
                         ProfileMenuItem(
                           icon: Icons.logout_rounded,
                           label: 'Logout',
                           onTap: onLogoutTap,
                           isDark: isDark,
-                          isLogout: true,
                         ),
 
                         const SizedBox(height: 8),

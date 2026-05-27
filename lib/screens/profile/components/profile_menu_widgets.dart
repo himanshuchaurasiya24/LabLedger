@@ -7,7 +7,6 @@ class ProfileMenuItem extends StatelessWidget {
   final VoidCallback onTap;
   final bool isDark;
   final Widget? trailing;
-  final bool isLogout;
 
   const ProfileMenuItem({
     super.key,
@@ -15,8 +14,7 @@ class ProfileMenuItem extends StatelessWidget {
     required this.label,
     required this.onTap,
     required this.isDark,
-    this.trailing,
-    this.isLogout = false,
+    this.trailing, 
   });
 
   @override
