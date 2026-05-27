@@ -25,6 +25,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
 // ignore: depend_on_referenced_packages
 import "package:path/path.dart" as p;
+import 'package:labledger/utils/controller_disposer.dart';
 
 class IncentiveDetailScreen extends ConsumerStatefulWidget {
   const IncentiveDetailScreen({super.key});
@@ -34,14 +35,15 @@ class IncentiveDetailScreen extends ConsumerStatefulWidget {
       _IncentiveDetailScreenState();
 }
 
-class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen> {
+class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
+    with ControllerDisposer {
   String searchQuery = '';
-  final TextEditingController _searchController = TextEditingController();
+  late final TextEditingController _searchController;
   bool _isRefreshingReport = false;
 
   @override
   void dispose() {
-    _searchController.dispose();
+    disposeControllers();
     super.dispose();
   }
 

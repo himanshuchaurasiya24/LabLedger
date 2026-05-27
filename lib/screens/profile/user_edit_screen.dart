@@ -10,6 +10,7 @@ import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class UserAddEditScreen extends ConsumerStatefulWidget {
   const UserAddEditScreen({super.key, this.targetUserId, this.baseColor});
@@ -22,23 +23,23 @@ class UserAddEditScreen extends ConsumerStatefulWidget {
 }
 
 class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, ControllerDisposer {
   late TabController _tabController;
   final _detailsFormKey = GlobalKey<FormState>();
   final _passwordFormKey = GlobalKey<FormState>();
 
   // Controllers for user details
-  final _usernameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
+  late final TextEditingController _usernameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _firstNameController;
+  late final TextEditingController _lastNameController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _addressController;
 
   // Controllers for password
-  final _currentPasswordController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
+  late final TextEditingController _currentPasswordController;
+  late final TextEditingController _newPasswordController;
+  late final TextEditingController _confirmPasswordController;
 
   // State variables
   bool get _isEditMode => widget.targetUserId != null;
@@ -58,20 +59,22 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    // register controllers with the disposer helper
+    _usernameController = createController();
+    _emailController = createController();
+    _firstNameController = createController();
+    _lastNameController = createController();
+    _phoneController = createController();
+    _addressController = createController();
+    _currentPasswordController = createController();
+    _newPasswordController = createController();
+    _confirmPasswordController = createController();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _usernameController.dispose();
-    _emailController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _phoneController.dispose();
-    _addressController.dispose();
-    _currentPasswordController.dispose();
-    _newPasswordController.dispose();
-    _confirmPasswordController.dispose();
+    disposeControllers();
     super.dispose();
   }
 

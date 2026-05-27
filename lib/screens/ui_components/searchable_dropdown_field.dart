@@ -5,6 +5,7 @@ import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter/services.dart';
 import 'package:labledger/constants/constants.dart'; // For defaultPadding, etc.
 import 'package:labledger/screens/ui_components/custom_text_field.dart'; // For CustomTextField
+import 'package:labledger/utils/controller_disposer.dart';
 
 /// A reusable, searchable popup menu form field that looks like a CustomTextField.
 class SearchableDropdownField<T> extends StatefulWidget {
@@ -149,19 +150,21 @@ class _SearchableMenuContent<T> extends StatefulWidget {
       _SearchableMenuContentState<T>();
 }
 
-class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>> {
+class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>>
+    with ControllerDisposer {
   late List<T> _filteredItems;
-  final _searchController = TextEditingController();
+  late final TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
     _filteredItems = widget.items;
+    _searchController = createController();
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
+    disposeControllers();
     super.dispose();
   }
 

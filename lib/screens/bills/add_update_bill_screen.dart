@@ -25,6 +25,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:labledger/screens/bills/components/patient_details_card.dart';
 import 'package:labledger/screens/bills/components/billing_details_card.dart';
 import 'package:labledger/screens/bills/components/amount_details_card.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class AddUpdateBillScreen extends ConsumerStatefulWidget {
   final int? billId;
@@ -38,27 +39,28 @@ class AddUpdateBillScreen extends ConsumerStatefulWidget {
 }
 
 class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, ControllerDisposer {
   late TabController _tabController;
+  late final VoidCallback _billStatusListener;
   final _formKey = GlobalKey<FormState>();
 
-  final patientNameController = TextEditingController();
-  final patientAgeController = TextEditingController();
-  final patientSexController = TextEditingController();
-  final patientPhoneNumberController = TextEditingController();
-  final diagnosisTypeController = TextEditingController();
-  final franchiseNameController = TextEditingController();
-  final refByDoctorController = TextEditingController();
-  final dateOfTestController = TextEditingController();
-  final dateOfBillController = TextEditingController();
-  final billStatusController = TextEditingController();
-  final paidAmountController = TextEditingController();
-  final discByDoctorController = TextEditingController();
-  final discByCenterController = TextEditingController();
-  final diagnosisTypeDisplayController = TextEditingController();
-  final franchiseNameDisplayController = TextEditingController();
-  final refByDoctorDisplayController = TextEditingController();
-  final _diagnosisTypeSearchController = TextEditingController();
+  late final TextEditingController patientNameController;
+  late final TextEditingController patientAgeController;
+  late final TextEditingController patientSexController;
+  late final TextEditingController patientPhoneNumberController;
+  late final TextEditingController diagnosisTypeController;
+  late final TextEditingController franchiseNameController;
+  late final TextEditingController refByDoctorController;
+  late final TextEditingController dateOfTestController;
+  late final TextEditingController dateOfBillController;
+  late final TextEditingController billStatusController;
+  late final TextEditingController paidAmountController;
+  late final TextEditingController discByDoctorController;
+  late final TextEditingController discByCenterController;
+  late final TextEditingController diagnosisTypeDisplayController;
+  late final TextEditingController franchiseNameDisplayController;
+  late final TextEditingController refByDoctorDisplayController;
+  late final TextEditingController _diagnosisTypeSearchController;
 
   String selectedTestDateISO = DateTime.now().toIso8601String();
   String selectedBillDateISO = DateTime.now().toIso8601String();
@@ -83,7 +85,31 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    billStatusController.addListener(() => setState(() {}));
+    _billStatusListener = () {
+      if (mounted) {
+        setState(() {});
+      }
+    };
+    // create controllers via disposer
+    patientNameController = createController();
+    patientAgeController = createController();
+    patientSexController = createController();
+    patientPhoneNumberController = createController();
+    diagnosisTypeController = createController();
+    franchiseNameController = createController();
+    refByDoctorController = createController();
+    dateOfTestController = createController();
+    dateOfBillController = createController();
+    billStatusController = createController();
+    paidAmountController = createController();
+    discByDoctorController = createController();
+    discByCenterController = createController();
+    diagnosisTypeDisplayController = createController();
+    franchiseNameDisplayController = createController();
+    refByDoctorDisplayController = createController();
+    _diagnosisTypeSearchController = createController();
+
+    billStatusController.addListener(_billStatusListener);
 
     if (!_isEditMode) {
       final defaultDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
@@ -96,23 +122,8 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   @override
   void dispose() {
     _tabController.dispose();
-    patientNameController.dispose();
-    patientAgeController.dispose();
-    patientSexController.dispose();
-    diagnosisTypeController.dispose();
-    franchiseNameController.dispose();
-    refByDoctorController.dispose();
-    dateOfTestController.dispose();
-    dateOfBillController.dispose();
-    billStatusController.dispose();
-    paidAmountController.dispose();
-    discByDoctorController.dispose();
-    discByCenterController.dispose();
-    patientPhoneNumberController.dispose();
-    diagnosisTypeDisplayController.dispose();
-    franchiseNameDisplayController.dispose();
-    refByDoctorDisplayController.dispose();
-    _diagnosisTypeSearchController.dispose();
+    billStatusController.removeListener(_billStatusListener);
+    disposeControllers();
     super.dispose();
   }
 
@@ -284,6 +295,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
   Widget _buildBillHeaderCard({required Color color, Bill? bill}) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final lightThemeColor = Color.lerp(
       color,
@@ -334,7 +346,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                   _isEditMode ? 'Edit Bill' : 'Create New Bill',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                    color: isDark ? Colors.white : colorScheme.onSurface,
                   ),
                 ),
                 SizedBox(height: defaultHeight / 2),
@@ -347,9 +359,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: isDark
                             ? Colors.white70
-                            : theme.colorScheme.onSurface.withValues(
-                                alpha: 0.7,
-                              ),
+                            : colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                     if (_isEditMode)
@@ -357,7 +367,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                         tooltip: "Copy bill number",
                         icon: Icon(
                           Icons.copy,
-                          color: theme.colorScheme.outline,
+                          color: colorScheme.outline,
                           size: 14,
                         ),
                         onPressed: () {
@@ -611,7 +621,8 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                 billStatusList: billStatusList,
                 onTestDateSelected: (iso) => selectedTestDateISO = iso,
                 onBillDateSelected: (iso) => selectedBillDateISO = iso,
-                onStatusSelected: (value) => setState(() => billStatusController.text = value),
+                onStatusSelected: (value) =>
+                    setState(() => billStatusController.text = value),
               ),
               SizedBox(height: defaultHeight),
               AnimatedSize(
@@ -620,7 +631,10 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                 child: billStatusController.text != "Unpaid"
                     ? AmountDetailsCard(
                         defaultColor: color,
-                        totalAmount: _selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price),
+                        totalAmount: _selectedDiagnosisTypes.fold(
+                          0,
+                          (sum, dt) => sum + dt.price,
+                        ),
                         paidAmountController: paidAmountController,
                         discByDoctorController: discByDoctorController,
                         discByCenterController: discByCenterController,
@@ -638,61 +652,76 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     return TabBarView(
       controller: _tabController,
       children: [
-        SingleChildScrollView(
-          padding: EdgeInsets.all(defaultPadding),
-          child: PatientDetailsCard(
-            defaultColor: color,
-            height: 254,
-            nameController: patientNameController,
-            sexController: patientSexController,
-            ageController: patientAgeController,
-            phoneController: patientPhoneNumberController,
-            sexDropDownList: sexDropDownList,
-            onSexSelected: (value) =>
-                setState(() => patientSexController.text = value),
-          ),
-        ),
-        SingleChildScrollView(
-          padding: EdgeInsets.all(defaultPadding),
-          child: _buildDiagnosisDetailsCard(defaultColor: color, height: 318),
-        ),
-        SingleChildScrollView(
-          padding: EdgeInsets.all(defaultPadding),
-          child: Column(
-            children: [
-              BillingDetailsCard(
-                defaultColor: color,
-                height: 254,
-                dateOfTestController: dateOfTestController,
-                dateOfBillController: dateOfBillController,
-                billStatusController: billStatusController,
-                billStatusList: billStatusList,
-                onTestDateSelected: (iso) => selectedTestDateISO = iso,
-                onBillDateSelected: (iso) => selectedBillDateISO = iso,
-                onStatusSelected: (value) => setState(() => billStatusController.text = value),
-              ),
-              SizedBox(height: defaultHeight),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 400),
-                curve: Curves.easeInOutCubic,
-                child: billStatusController.text != "Unpaid"
-                    ? AmountDetailsCard(
-                        defaultColor: color,
-                        height: 254,
-                        totalAmount: _selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price),
-                        paidAmountController: paidAmountController,
-                        discByDoctorController: discByDoctorController,
-                        discByCenterController: discByCenterController,
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            ],
-          ),
-        ),
+        _buildPatientTab(color),
+        _buildDiagnosisTab(color),
+        _buildBillingTab(color),
       ],
     );
   }
 
+  Widget _buildPatientTab(Color color) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(defaultPadding),
+      child: PatientDetailsCard(
+        defaultColor: color,
+        height: 254,
+        nameController: patientNameController,
+        sexController: patientSexController,
+        ageController: patientAgeController,
+        phoneController: patientPhoneNumberController,
+        sexDropDownList: sexDropDownList,
+        onSexSelected: (value) =>
+            setState(() => patientSexController.text = value),
+      ),
+    );
+  }
+
+  Widget _buildDiagnosisTab(Color color) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(defaultPadding),
+      child: _buildDiagnosisDetailsCard(defaultColor: color, height: 318),
+    );
+  }
+
+  Widget _buildBillingTab(Color color) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(defaultPadding),
+      child: Column(
+        children: [
+          BillingDetailsCard(
+            defaultColor: color,
+            height: 254,
+            dateOfTestController: dateOfTestController,
+            dateOfBillController: dateOfBillController,
+            billStatusController: billStatusController,
+            billStatusList: billStatusList,
+            onTestDateSelected: (iso) => selectedTestDateISO = iso,
+            onBillDateSelected: (iso) => selectedBillDateISO = iso,
+            onStatusSelected: (value) =>
+                setState(() => billStatusController.text = value),
+          ),
+          SizedBox(height: defaultHeight),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOutCubic,
+            child: billStatusController.text != "Unpaid"
+                ? AmountDetailsCard(
+                    defaultColor: color,
+                    height: 254,
+                    totalAmount: _selectedDiagnosisTypes.fold(
+                      0,
+                      (sum, dt) => sum + dt.price,
+                    ),
+                    paidAmountController: paidAmountController,
+                    discByDoctorController: discByDoctorController,
+                    discByCenterController: discByCenterController,
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildDiagnosisDetailsCard({
     required Color defaultColor,
@@ -885,7 +914,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     );
   }
 
-
   // Updated _saveBill to accept the original bill for preserving output fields
   Future<void> _saveBill(Bill? originalBill) async {
     if (billStatusController.text == "Unpaid") {
@@ -1051,7 +1079,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       ),
     );
   }
-
 
   Widget _buildLoadingField() {
     return Container(

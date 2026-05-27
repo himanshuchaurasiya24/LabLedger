@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
@@ -10,11 +9,13 @@ import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
-import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/screens/ui_components/entity_summary_card.dart';
 import 'package:labledger/screens/ui_components/status_badge.dart';
 import 'package:labledger/methods/responsive_helpers.dart';
 import 'package:labledger/methods/string_utils.dart';
+import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 // Assuming ColorValues extension is defined elsewhere in your project
 extension ColorValues on Color {
@@ -45,20 +46,22 @@ class UserListScreen extends ConsumerStatefulWidget {
   ConsumerState<UserListScreen> createState() => _UserListScreenState();
 }
 
-class _UserListScreenState extends ConsumerState<UserListScreen> {
-  final TextEditingController searchController = TextEditingController();
+class _UserListScreenState extends ConsumerState<UserListScreen>
+    with ControllerDisposer {
+  late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    searchController = createController();
     searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
-    searchController.dispose();
+    disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
   }
@@ -111,7 +114,6 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
           address.contains(_searchQuery);
     }).toList();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -188,92 +190,72 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
     // Identical text color logic from Doctors screen
     final textColor = isDark ? Colors.white : cardColor;
 
-    return TintedContainer(
+    return EntitySummaryCard(
       baseColor: cardColor,
-      child: AppInkWell(
-        borderRadius: BorderRadius.circular(defaultRadius),
-        onTap: () {
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(
-              builder: (context) {
-                return UserAddEditScreen(targetUserId: user.id);
-              },
-            ),
-          );
-        },
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundColor: cardColor.withValues(alpha: 0.2),
-              child: Text(
-                getInitials(user.firstName, user.lastName),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(width: defaultWidth),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        user.username,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                          fontSize: 22,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      StatusBadge(
-                        text: "${user.isAdmin ? "Admin" : "User"}${user.isLocked ? " (Locked)" : ""}",
-                        color: cardColor,
-                      ),
-                    ],
-                  ),
-                  Text(
-                    "${user.firstName} ${user.lastName}",
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: textColor,
-                      fontSize: 16,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    user.phoneNumber,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: textColor,
-                      fontSize: 16,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    user.address,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: textColor,
-                      fontSize: 16,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
+      onTap: () {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (context) {
+              return UserAddEditScreen(targetUserId: user.id);
+            },
+          ),
+        );
+      },
+      avatar: CircleAvatar(
+        radius: 40,
+        backgroundColor: cardColor.withValues(alpha: 0.2),
+        child: Text(
+          getInitials(user.firstName, user.lastName),
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: textColor,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
+      title: Text(
+        user.username,
+        style: theme.textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: textColor,
+          fontSize: 22,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: StatusBadge(
+        text:
+            "${user.isAdmin ? "Admin" : "User"}${user.isLocked ? " (Locked)" : ""}",
+        color: cardColor,
+      ),
+      details: [
+        Text(
+          "${user.firstName} ${user.lastName}",
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: textColor,
+            fontSize: 16,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          user.phoneNumber,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: textColor,
+            fontSize: 16,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          user.address,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: textColor,
+            fontSize: 16,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 

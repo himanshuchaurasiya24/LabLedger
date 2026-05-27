@@ -22,6 +22,7 @@ import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class DoctorDashboardScreen extends ConsumerStatefulWidget {
   final int doctorId;
@@ -34,8 +35,8 @@ class DoctorDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
-    with WindowListener {
-  final TextEditingController searchController = TextEditingController();
+    with WindowListener, ControllerDisposer {
+  late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   String _selectedView = 'grid';
@@ -45,6 +46,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
   void initState() {
     super.initState();
     windowManager.addListener(this);
+    searchController = createController();
     searchFocusNode.requestFocus();
     _loadSavedView();
   }
@@ -53,7 +55,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
   void dispose() {
     windowManager.removeListener(this);
     _debounce?.cancel();
-    searchController.dispose();
+    disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
   }

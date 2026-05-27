@@ -9,9 +9,12 @@ import 'package:labledger/constants/urls.dart';
 import 'package:labledger/models/center_detail_model_with_subscription.dart';
 import 'package:labledger/models/subscription_model.dart';
 import 'package:labledger/providers/center_detail_provider.dart'; // Your provider file
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
+import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart'; // Import CustomTextField
 import 'package:labledger/screens/ui_components/tinted_container.dart'; // Import TintedContainer
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CenterDetailDialog extends ConsumerStatefulWidget {
@@ -23,7 +26,8 @@ class CenterDetailDialog extends ConsumerStatefulWidget {
   ConsumerState<CenterDetailDialog> createState() => _CenterDetailDialogState();
 }
 
-class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
+class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog>
+    with ControllerDisposer {
   static const String _supportEmail = 'himanshuchaurasiya24@gmail.com';
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _centerNameController;
@@ -38,27 +42,16 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog> {
   @override
   void initState() {
     super.initState();
-    _centerNameController = TextEditingController(
-      text: widget.centerDetail.centerName,
-    );
-    _addressController = TextEditingController(
-      text: widget.centerDetail.address,
-    );
-    _ownerNameController = TextEditingController(
-      text: widget.centerDetail.ownerName,
-    );
-    _ownerPhoneController = TextEditingController(
-      text: widget.centerDetail.ownerPhone,
-    );
+    _centerNameController = createController(widget.centerDetail.centerName);
+    _addressController = createController(widget.centerDetail.address);
+    _ownerNameController = createController(widget.centerDetail.ownerName);
+    _ownerPhoneController = createController(widget.centerDetail.ownerPhone);
     _canUpgradeFuture = _canUpgradeCurrentPlan();
   }
 
   @override
   void dispose() {
-    _centerNameController.dispose();
-    _addressController.dispose();
-    _ownerNameController.dispose();
-    _ownerPhoneController.dispose();
+    disposeControllers();
     super.dispose();
   }
 
@@ -298,7 +291,7 @@ LabLedger Center Admin''';
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          OutlinedButton.icon(
+          CustomOutlinedButton(
             onPressed: () {
               _formKey.currentState?.reset();
               _centerNameController.text = widget.centerDetail.centerName;
@@ -308,47 +301,31 @@ LabLedger Center Admin''';
               setState(() => _isEditing = false);
             },
             icon: const Icon(Icons.cancel_outlined),
-            label: const Text('Cancel'),
-            style: OutlinedButton.styleFrom(
-              fixedSize: const Size(160, 50),
-              foregroundColor: Theme.of(context).colorScheme.error,
-              side: BorderSide(color: Theme.of(context).colorScheme.error),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(defaultRadius),
-              ),
-            ),
+            label: 'Cancel',
+            width: 160,
+            height: 50,
           ),
           SizedBox(width: defaultWidth),
-          ElevatedButton.icon(
+          CustomElevatedButton(
             onPressed: _handleUpdate,
-            style: ElevatedButton.styleFrom(
-              fixedSize: const Size(160, 50),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(defaultRadius),
-              ),
-            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
             icon: const Icon(LucideIcons.save),
-            label: Text('Update', style: const TextStyle(fontSize: 16)),
+            label: 'Update',
+            width: 160,
+            height: 50,
           ),
         ],
       );
     } else {
       return Align(
         alignment: Alignment.centerRight,
-        child: ElevatedButton.icon(
+        child: CustomElevatedButton(
           onPressed: () => setState(() => _isEditing = true),
-          style: ElevatedButton.styleFrom(
-            fixedSize: const Size(160, 50),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(defaultRadius),
-            ),
-          ),
+          backgroundColor: Theme.of(context).colorScheme.primary,
           icon: const Icon(LucideIcons.edit, size: 16),
-          label: Text('Edit Details', style: const TextStyle(fontSize: 16)),
+          label: 'Edit Details',
+          width: 160,
+          height: 50,
         ),
       );
     }

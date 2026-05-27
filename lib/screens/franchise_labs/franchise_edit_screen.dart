@@ -11,6 +11,7 @@ import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart'
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 import 'package:labledger/methods/snackbar_utils.dart';
 import 'package:labledger/methods/string_utils.dart';
 
@@ -25,12 +26,13 @@ class FranchiseEditScreen extends ConsumerStatefulWidget {
       _FranchiseEditScreenState();
 }
 
-class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
+class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen>
+    with ControllerDisposer {
   final _detailsFormKey = GlobalKey<FormState>();
 
-  final _franchiseNameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
+  late final TextEditingController _franchiseNameController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _addressController;
 
   bool _isSaving = false;
   bool _isDeleting = false;
@@ -40,10 +42,16 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
 
   @override
   void dispose() {
-    _franchiseNameController.dispose();
-    _phoneController.dispose();
-    _addressController.dispose();
+    disposeControllers();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _franchiseNameController = createController();
+    _phoneController = createController();
+    _addressController = createController();
   }
 
   void _initializeData(FranchiseName franchise) {
@@ -103,9 +111,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
     final subtitle = _isEditMode
         ? franchise?.address ?? ''
         : 'Enter lab details below';
-    final initials = _isEditMode
-        ? getInitials(franchise?.franchiseName)
-        : 'FL';
+    final initials = _isEditMode ? getInitials(franchise?.franchiseName) : 'FL';
 
     return EditScreenHeaderCard(
       title: title,
@@ -303,8 +309,6 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen> {
   }
 
   // --- Helper Widgets & Methods ---
-
-
 
   void _showErrorDialog(String title, String errorMessage) {
     showDialog(

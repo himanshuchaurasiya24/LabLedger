@@ -14,6 +14,7 @@ import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class BillsScreen extends ConsumerStatefulWidget {
   const BillsScreen({super.key});
@@ -22,8 +23,9 @@ class BillsScreen extends ConsumerStatefulWidget {
   ConsumerState<BillsScreen> createState() => _BillsScreenState();
 }
 
-class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
-  final TextEditingController searchController = TextEditingController();
+class _BillsScreenState extends ConsumerState<BillsScreen>
+    with WindowListener, ControllerDisposer {
+  late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   String _selectedView = 'grid'; // default view
@@ -33,6 +35,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   void initState() {
     super.initState();
     windowManager.addListener(this);
+    searchController = createController();
     searchFocusNode.requestFocus();
     _loadSavedView();
   }
@@ -41,7 +44,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> with WindowListener {
   void dispose() {
     windowManager.removeListener(this);
     _debounce?.cancel();
-    searchController.dispose();
+    disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
   }

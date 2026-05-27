@@ -14,6 +14,7 @@ import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:convert';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   final String? initialErrorMessage;
@@ -24,9 +25,9 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen>
-    with TickerProviderStateMixin {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+    with TickerProviderStateMixin, ControllerDisposer {
+  late final TextEditingController usernameController;
+  late final TextEditingController passwordController;
   final _formKey = GlobalKey<FormState>();
 
   String errorMessage = "";
@@ -54,6 +55,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       });
     }
 
+    usernameController = createController();
+    passwordController = createController();
+
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -62,8 +66,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   @override
   void dispose() {
-    usernameController.dispose();
-    passwordController.dispose();
+    disposeControllers();
     _fadeController.dispose();
     super.dispose();
   }
@@ -347,7 +350,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
+                                        Colors.white,
+                                      ),
                                     ),
                                   )
                                 : const Icon(Icons.login),

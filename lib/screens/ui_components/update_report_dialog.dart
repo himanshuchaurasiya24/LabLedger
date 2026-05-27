@@ -16,6 +16,7 @@ import 'package:labledger/models/sample_report_model.dart';
 import 'package:labledger/models/report_upload_data_model.dart';
 import 'package:labledger/providers/patient_report_provider.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class UpdateReportDialog extends ConsumerStatefulWidget {
   final Color color;
@@ -32,28 +33,28 @@ class UpdateReportDialog extends ConsumerStatefulWidget {
 }
 
 class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, ControllerDisposer {
   String? _selectedCategory;
   SampleReportModel? _selectedReportFromServer;
   File? _reportFileToUpload;
   bool _isLoading = false;
   late TabController _tabController;
 
-  final _reportNameController = TextEditingController();
-  final _categoryNameController =
-      TextEditingController(); // ✅ Add this controller
+  late final TextEditingController _reportNameController;
+  late final TextEditingController _categoryNameController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _reportNameController = createController();
+    _categoryNameController = createController();
   }
 
   @override
   void dispose() {
-    _reportNameController.dispose();
+    disposeControllers();
     _tabController.dispose();
-    _categoryNameController.dispose();
     super.dispose();
   }
 

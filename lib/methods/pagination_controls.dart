@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:labledger/screens/ui_components/custom_text_field.dart'; 
+import 'package:labledger/screens/ui_components/custom_text_field.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class PaginationControls extends StatefulWidget {
   const PaginationControls({
@@ -21,16 +22,17 @@ class PaginationControls extends StatefulWidget {
   State<PaginationControls> createState() => _PaginationControlsState();
 }
 
-class _PaginationControlsState extends State<PaginationControls> {
+class _PaginationControlsState extends State<PaginationControls>
+    with ControllerDisposer {
   late final TextEditingController _pageController;
   late final FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
-    _pageController = TextEditingController(text: widget.currentPage.toString());
+    _pageController = createController(widget.currentPage.toString());
     _focusNode = FocusNode();
-        _focusNode.addListener(() {
+    _focusNode.addListener(() {
       if (!_focusNode.hasFocus) {
         _submitPage();
       }
@@ -40,7 +42,7 @@ class _PaginationControlsState extends State<PaginationControls> {
   @override
   void didUpdateWidget(covariant PaginationControls oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // This is crucial. If the parent updates the page (e.g., via arrow buttons),
     // we must update our text controller to match the new state,
     // but only if the user isn't currently typing in it.
@@ -53,7 +55,8 @@ class _PaginationControlsState extends State<PaginationControls> {
     _pageController.text = widget.currentPage.toString();
     // Move cursor to the end
     _pageController.selection = TextSelection.fromPosition(
-        TextPosition(offset: _pageController.text.length));
+      TextPosition(offset: _pageController.text.length),
+    );
   }
 
   void _submitPage() {
@@ -73,7 +76,7 @@ class _PaginationControlsState extends State<PaginationControls> {
     if (newPage != widget.currentPage) {
       widget.onPageChanged(newPage);
     }
-    
+
     // After submitting, always reset the text to the (potentially validated) new page
     // This handles cases where the user types an invalid page like "999"
     _pageController.text = newPage.toString();
@@ -82,7 +85,7 @@ class _PaginationControlsState extends State<PaginationControls> {
 
   @override
   void dispose() {
-    _pageController.dispose();
+    disposeControllers();
     _focusNode.removeListener(_submitPage); // Clean up listener
     _focusNode.dispose();
     super.dispose();
@@ -110,10 +113,7 @@ class _PaginationControlsState extends State<PaginationControls> {
                   },
           ),
           const SizedBox(width: 8),
-          Text(
-            'Page',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Page', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(width: 8),
           SizedBox(
             width: 60, // Constrain the width of the text field

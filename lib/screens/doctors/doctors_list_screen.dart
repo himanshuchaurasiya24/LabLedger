@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
@@ -12,8 +11,10 @@ import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
+import 'package:labledger/screens/ui_components/entity_summary_card.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 extension ColorValues on Color {
   Color withValues({double? alpha, double? red, double? green, double? blue}) {
@@ -43,20 +44,22 @@ class DoctorsListScreen extends ConsumerStatefulWidget {
   ConsumerState<DoctorsListScreen> createState() => _DoctorsListScreenState();
 }
 
-class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
-  final TextEditingController searchController = TextEditingController();
+class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
+    with ControllerDisposer {
+  late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    searchController = createController();
     searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
-    searchController.dispose();
+    disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
   }
@@ -222,81 +225,58 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
     // This is the identical color logic copied from UserListScreen
     final textColor = isDark ? Colors.white : effectiveColor;
 
-    return TintedContainer(
+    return EntitySummaryCard(
       baseColor: effectiveColor,
-      child: AppInkWell(
-        borderRadius: BorderRadius.circular(defaultRadius),
-        onTap: onTap,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundColor: effectiveColor.withValues(alpha: 0.2),
-              child: Text(
-                _getInitials(doctor.firstName, doctor.lastName),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  // Applied identical text color logic
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(width: defaultWidth),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${doctor.firstName ?? ''} ${doctor.lastName ?? ''}',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      // Applied identical text color logic
-                      color: textColor,
-                      fontSize: 22,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (doctor.hospitalName != null) ...[
-                    Text(
-                      doctor.hospitalName!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        // Applied identical text color logic
-                        color: textColor,
-                        fontSize: 16,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                  if (doctor.phoneNumber != null) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        // Icon color matches the text color logic
-                        Icon(Icons.phone, size: 16, color: textColor),
-                        const SizedBox(width: 4),
-                        Text(
-                          doctor.phoneNumber!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            // Applied identical text color logic
-                            color: textColor,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
+      onTap: onTap,
+      avatar: CircleAvatar(
+        radius: 40,
+        backgroundColor: effectiveColor.withValues(alpha: 0.2),
+        child: Text(
+          _getInitials(doctor.firstName, doctor.lastName),
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: textColor,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
+      title: Text(
+        '${doctor.firstName ?? ''} ${doctor.lastName ?? ''}',
+        style: theme.textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: textColor,
+          fontSize: 22,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      details: [
+        if (doctor.hospitalName != null)
+          Text(
+            doctor.hospitalName!,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: textColor,
+              fontSize: 16,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        if (doctor.phoneNumber != null) ...[
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(Icons.phone, size: 16, color: textColor),
+              const SizedBox(width: 4),
+              Text(
+                doctor.phoneNumber!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: textColor,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 

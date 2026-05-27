@@ -16,6 +16,7 @@ import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/methods/responsive_helpers.dart';
 import 'package:labledger/methods/string_utils.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class DiagnosisTypesListScreen extends ConsumerStatefulWidget {
   const DiagnosisTypesListScreen({super.key, this.baseColor});
@@ -28,20 +29,22 @@ class DiagnosisTypesListScreen extends ConsumerStatefulWidget {
 }
 
 class _DiagnosisTypesListScreenState
-    extends ConsumerState<DiagnosisTypesListScreen> {
-  final TextEditingController searchController = TextEditingController();
+    extends ConsumerState<DiagnosisTypesListScreen>
+    with ControllerDisposer {
+  late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    searchController = createController();
     searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
-    searchController.dispose();
+    disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
   }
@@ -71,7 +74,6 @@ class _DiagnosisTypesListScreenState
           price.contains(_searchQuery);
     }).toList();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +140,11 @@ class _DiagnosisTypesListScreenState
         crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getResponsiveAspectRatio(context, baseSmall: 2.0, baseLarge: 2.4),
+        childAspectRatio: getResponsiveAspectRatio(
+          context,
+          baseSmall: 2.0,
+          baseLarge: 2.4,
+        ),
       ),
       itemCount: types.length,
       itemBuilder: (context, index) {
@@ -243,7 +249,11 @@ class _DiagnosisTypesListScreenState
         crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getResponsiveAspectRatio(context, baseSmall: 2.0, baseLarge: 2.4),
+        childAspectRatio: getResponsiveAspectRatio(
+          context,
+          baseSmall: 2.0,
+          baseLarge: 2.4,
+        ),
       ),
       itemCount: 8,
       itemBuilder: (context, index) {
@@ -327,6 +337,4 @@ class _DiagnosisTypesListScreenState
       label: 'Add a diagnosis type',
     );
   }
-
-
 }

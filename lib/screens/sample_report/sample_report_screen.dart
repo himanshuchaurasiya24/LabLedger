@@ -21,6 +21,7 @@ import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:labledger/screens/sample_report/components/file_upload_widget.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class SampleReportManagementScreen extends ConsumerStatefulWidget {
   const SampleReportManagementScreen({super.key, this.baseColor});
@@ -33,20 +34,22 @@ class SampleReportManagementScreen extends ConsumerStatefulWidget {
 }
 
 class _SampleReportManagementScreenState
-    extends ConsumerState<SampleReportManagementScreen> {
-  final TextEditingController searchController = TextEditingController();
+    extends ConsumerState<SampleReportManagementScreen>
+    with ControllerDisposer {
+  late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    searchController = createController();
     searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
-    searchController.dispose();
+    disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
   }
@@ -509,7 +512,8 @@ class _ReportFormDialog extends ConsumerStatefulWidget {
   ConsumerState<_ReportFormDialog> createState() => _ReportFormDialogState();
 }
 
-class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
+class _ReportFormDialogState extends ConsumerState<_ReportFormDialog>
+    with ControllerDisposer {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _diagnosisNameController;
   late final TextEditingController _categoryController;
@@ -523,11 +527,11 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
   @override
   void initState() {
     super.initState();
-    _diagnosisNameController = TextEditingController(
-      text: widget.existingReport?.diagnosisName ?? '',
+    _diagnosisNameController = createController(
+      widget.existingReport?.diagnosisName ?? '',
     );
-    _categoryController = TextEditingController(
-      text: widget.existingReport?.category ?? '',
+    _categoryController = createController(
+      widget.existingReport?.category ?? '',
     );
     _selectedCategory = widget.existingReport?.category;
 
@@ -540,8 +544,7 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog> {
 
   @override
   void dispose() {
-    _diagnosisNameController.dispose();
-    _categoryController.dispose();
+    disposeControllers();
     super.dispose();
   }
 

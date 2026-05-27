@@ -16,6 +16,8 @@ import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
 import 'package:labledger/methods/snackbar_utils.dart';
 import 'package:labledger/methods/string_utils.dart';
+import 'package:labledger/utils/controller_disposer.dart';
+
 class DiagnosisTypeEditScreen extends ConsumerStatefulWidget {
   const DiagnosisTypeEditScreen({
     super.key,
@@ -32,12 +34,12 @@ class DiagnosisTypeEditScreen extends ConsumerStatefulWidget {
 }
 
 class _DiagnosisTypeEditScreenState
-    extends ConsumerState<DiagnosisTypeEditScreen> {
+    extends ConsumerState<DiagnosisTypeEditScreen>
+    with ControllerDisposer {
   final _detailsFormKey = GlobalKey<FormState>();
-
-  final _nameController = TextEditingController();
-  final _priceController = TextEditingController();
-  final _categoryController = TextEditingController();
+  late final TextEditingController _nameController;
+  late final TextEditingController _priceController;
+  late final TextEditingController _categoryController;
   int? _selectedCategoryId; // Store selected category ID
 
   bool _isSaving = false;
@@ -50,6 +52,9 @@ class _DiagnosisTypeEditScreenState
   @override
   void initState() {
     super.initState();
+    _nameController = createController();
+    _priceController = createController();
+    _categoryController = createController();
     _loadCategories();
   }
 
@@ -66,9 +71,7 @@ class _DiagnosisTypeEditScreenState
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _priceController.dispose();
-    _categoryController.dispose();
+    disposeControllers();
     super.dispose();
   }
 
@@ -299,8 +302,6 @@ class _DiagnosisTypeEditScreenState
       if (mounted) setState(() => _isDeleting = false);
     }
   }
-
-
 
   void _showErrorDialog(String title, String errorMessage) {
     if (!mounted) return;

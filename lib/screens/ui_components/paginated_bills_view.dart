@@ -31,9 +31,10 @@ class PaginatedBillsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final size = MediaQuery.of(context).size;
-    Color positiveColor = Theme.of(context).colorScheme.secondary;
-    Color negativeColor = Theme.of(context).colorScheme.error;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final positiveColor = colorScheme.secondary;
+    final negativeColor = colorScheme.error;
     const Color neutralColor = Colors.amber;
 
     return billsProvider.when(
@@ -54,43 +55,47 @@ class PaginatedBillsView extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (selectedView == "grid")
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  childAspectRatio: size.width > 1600 ? 2.4 : 2.0,
-                  crossAxisSpacing: defaultWidth,
-                  mainAxisSpacing: defaultHeight,
-                ),
-                itemCount: bills.length,
-                itemBuilder: (ctx, index) {
-                  final bill = bills[index];
-                  return BillCard(
-                    bill: bill,
-                    onTap: () => onBillTap(bill),
-                    fullyPaidColor: positiveColor,
-                    partiallyPaidColor: neutralColor,
-                    unpaidColor: negativeColor,
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  const columns = 4;
+                  final cardWidth =
+                      (constraints.maxWidth - ((columns - 1) * defaultWidth)) /
+                      columns;
+
+                  return Wrap(
+                    spacing: defaultWidth,
+                    runSpacing: defaultHeight,
+                    children: [
+                      for (final bill in bills)
+                        SizedBox(
+                          width: cardWidth,
+                          child: BillCard(
+                            bill: bill,
+                            onTap: () => onBillTap(bill),
+                            fullyPaidColor: positiveColor,
+                            partiallyPaidColor: neutralColor,
+                            unpaidColor: negativeColor,
+                          ),
+                        ),
+                    ],
                   );
                 },
               ),
             if (selectedView == "list")
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const BouncingScrollPhysics(),
-                itemCount: bills.length,
-                separatorBuilder: (_, _) => SizedBox(height: defaultHeight),
-                itemBuilder: (ctx, index) {
-                  final bill = bills[index];
-                  return BillCard(
-                    bill: bill,
-                    onTap: () => onBillTap(bill),
-                    fullyPaidColor: positiveColor,
-                    partiallyPaidColor: neutralColor,
-                    unpaidColor: negativeColor,
-                  );
-                },
+              Column(
+                children: [
+                  for (var index = 0; index < bills.length; index++) ...[
+                    BillCard(
+                      bill: bills[index],
+                      onTap: () => onBillTap(bills[index]),
+                      fullyPaidColor: positiveColor,
+                      partiallyPaidColor: neutralColor,
+                      unpaidColor: negativeColor,
+                    ),
+                    if (index < bills.length - 1)
+                      SizedBox(height: defaultHeight),
+                  ],
+                ],
               ),
             const SizedBox(height: 20),
             PaginationControls(

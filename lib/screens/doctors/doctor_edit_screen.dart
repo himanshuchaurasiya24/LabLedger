@@ -15,6 +15,8 @@ import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
 import 'package:labledger/methods/string_utils.dart';
+import 'package:labledger/utils/controller_disposer.dart';
+
 class DoctorEditScreen extends ConsumerStatefulWidget {
   const DoctorEditScreen({super.key, this.doctorId, this.themeColor});
 
@@ -26,18 +28,18 @@ class DoctorEditScreen extends ConsumerStatefulWidget {
 }
 
 class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, ControllerDisposer {
   late TabController _tabController;
   final _detailsFormKey = GlobalKey<FormState>();
   final _incentivesFormKey = GlobalKey<FormState>();
 
   // Doctor details controllers
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _hospitalController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _addressController = TextEditingController();
+  late final TextEditingController _firstNameController;
+  late final TextEditingController _lastNameController;
+  late final TextEditingController _hospitalController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _addressController;
 
   // Dynamic incentives controllers map: category_id -> controller
   final Map<int, TextEditingController> _categoryControllers = {};
@@ -54,6 +56,12 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _firstNameController = createController();
+    _lastNameController = createController();
+    _hospitalController = createController();
+    _emailController = createController();
+    _phoneController = createController();
+    _addressController = createController();
     _loadCategories();
   }
 
@@ -64,7 +72,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         _categories = categories;
         // Create controllers for each category
         for (var category in categories) {
-          _categoryControllers[category.id] = TextEditingController();
+          _categoryControllers[category.id] = createController();
         }
       });
 
@@ -83,16 +91,8 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   @override
   void dispose() {
     _tabController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _hospitalController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _addressController.dispose();
-    // Dispose all dynamic category controllers
-    for (var controller in _categoryControllers.values) {
-      controller.dispose();
-    }
+    disposeControllers();
+    // Note: disposeControllers will also dispose controllers created via createController
     super.dispose();
   }
 
@@ -187,7 +187,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     final subtitle = _isEditMode
         ? doctor?.hospitalName ?? ''
         : 'Enter doctor details below';
-    final initials = _isEditMode ? getInitials(doctor?.firstName, doctor?.lastName) : 'DR';
+    final initials = _isEditMode
+        ? getInitials(doctor?.firstName, doctor?.lastName)
+        : 'DR';
 
     return EditScreenHeaderCard(
       title: title,
@@ -697,9 +699,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         );
 
         if (mounted) {
-        if (mounted) {
-          showSuccessSnackBar(context, 'Doctor updated successfully!');
-        }
+          if (mounted) {
+            showSuccessSnackBar(context, 'Doctor updated successfully!');
+          }
         }
       } else {
         final newDoctor = Doctor(
@@ -717,9 +719,9 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         await ref.read(createDoctorProvider(newDoctor).future);
 
         if (mounted) {
-        if (mounted) {
-          showSuccessSnackBar(context, 'Doctor created successfully!');
-        }
+          if (mounted) {
+            showSuccessSnackBar(context, 'Doctor created successfully!');
+          }
         }
       }
 
@@ -784,7 +786,6 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
       if (mounted) setState(() => _isDeleting = false);
     }
   }
-
 
   void _showErrorDialog(String title, String errorMessage) {
     showDialog(

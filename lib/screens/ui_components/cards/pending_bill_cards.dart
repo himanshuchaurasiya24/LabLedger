@@ -49,7 +49,7 @@ class PendingBillsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final pendingBillsToShow = bills.take(10).toList();
+    final pendingBillsCount = bills.length > 10 ? 10 : bills.length;
 
     // NEW: Give the card a consistent height to align with other cards
     return TintedContainer(
@@ -91,7 +91,7 @@ class PendingBillsCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  "${pendingBillsToShow.length} Bills",
+                  "$pendingBillsCount Bills",
                   style: TextStyle(
                     color: importantTextColor(context),
                     fontWeight: FontWeight.bold,
@@ -105,7 +105,7 @@ class PendingBillsCard extends StatelessWidget {
 
           // Bills List
           Expanded(
-            child: pendingBillsToShow.isEmpty
+            child: pendingBillsCount == 0
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -133,11 +133,11 @@ class PendingBillsCard extends StatelessWidget {
                   )
                 : ListView.separated(
                     padding: EdgeInsets.zero,
-                    itemCount: pendingBillsToShow.length,
+                    itemCount: pendingBillsCount,
                     separatorBuilder: (context, index) =>
                         SizedBox(height: defaultHeight / 2),
                     itemBuilder: (context, index) {
-                      final bill = pendingBillsToShow[index];
+                      final bill = bills[index];
                       return _buildBillItem(context, bill, index);
                     },
                   ),

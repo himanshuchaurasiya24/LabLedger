@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/screens/bills/components/bill_section_card.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
-import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class BillingDetailsCard extends StatelessWidget {
   final Color defaultColor;
@@ -30,27 +30,6 @@ class BillingDetailsCard extends StatelessWidget {
     required this.onBillDateSelected,
     required this.onStatusSelected,
   });
-
-  Widget _buildCardHeader({
-    required IconData icon,
-    required String title,
-    required Color color,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, color: color, size: 24),
-        SizedBox(width: defaultWidth / 2),
-        Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: color,
-            fontSize: 18,
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildDateSelector(
     BuildContext context, {
@@ -103,60 +82,49 @@ class BillingDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TintedContainer(
+    return BillSectionCard(
       baseColor: defaultColor,
       height: height ?? 258,
-      radius: defaultRadius,
-      elevationLevel: 1,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Column(
-          children: [
-            _buildCardHeader(
-              icon: Icons.receipt_long,
-              title: 'Billing Details',
-              color: defaultColor,
-            ),
-            SizedBox(height: defaultHeight),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildDateSelector(
-                    context,
-                    label: 'Date of Test',
-                    controller: dateOfTestController,
-                    color: defaultColor,
-                    onDateSelected: onTestDateSelected,
-                    validator: (v) =>
-                        v!.isEmpty ? 'Test date is required' : null,
-                  ),
+      icon: Icons.receipt_long,
+      title: 'Billing Details',
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _buildDateSelector(
+                  context,
+                  label: 'Date of Test',
+                  controller: dateOfTestController,
+                  color: defaultColor,
+                  onDateSelected: onTestDateSelected,
+                  validator: (v) => v!.isEmpty ? 'Test date is required' : null,
                 ),
-                SizedBox(width: defaultWidth / 2),
-                Expanded(
-                  child: _buildDateSelector(
-                    context,
-                    label: 'Date of Bill',
-                    controller: dateOfBillController,
-                    color: defaultColor,
-                    onDateSelected: onBillDateSelected,
-                    validator: (v) =>
-                        v!.isEmpty ? 'Bill date is required' : null,
-                  ),
+              ),
+              SizedBox(width: defaultWidth / 2),
+              Expanded(
+                child: _buildDateSelector(
+                  context,
+                  label: 'Date of Bill',
+                  controller: dateOfBillController,
+                  color: defaultColor,
+                  onDateSelected: onBillDateSelected,
+                  validator: (v) => v!.isEmpty ? 'Bill date is required' : null,
                 ),
-              ],
-            ),
-            SizedBox(height: defaultHeight),
-            SearchableDropdownField<String>(
-              label: 'Bill Status',
-              controller: billStatusController,
-              items: billStatusList,
-              color: defaultColor,
-              valueMapper: (item) => item,
-              onSelected: onStatusSelected,
-              validator: (v) => v!.isEmpty ? 'Bill status is required' : null,
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          SizedBox(height: defaultHeight),
+          SearchableDropdownField<String>(
+            label: 'Bill Status',
+            controller: billStatusController,
+            items: billStatusList,
+            color: defaultColor,
+            valueMapper: (item) => item,
+            onSelected: onStatusSelected,
+            validator: (v) => v!.isEmpty ? 'Bill status is required' : null,
+          ),
+        ],
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class ReportGenerationDialog extends StatefulWidget {
   const ReportGenerationDialog({super.key});
@@ -13,7 +14,8 @@ class ReportGenerationDialog extends StatefulWidget {
   State<ReportGenerationDialog> createState() => _ReportGenerationDialogState();
 }
 
-class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
+class _ReportGenerationDialogState extends State<ReportGenerationDialog>
+    with ControllerDisposer {
   late final TextEditingController _layoutController;
   final List<String> _pdfLayouts = const [
     'LabLedger',
@@ -80,14 +82,12 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog> {
   void initState() {
     super.initState();
     // Initialize the controller with the default layout text
-    _layoutController = TextEditingController(
-      text: _pdfLayouts[_selectedLayoutIndex],
-    );
+    _layoutController = createController(_pdfLayouts[_selectedLayoutIndex]);
   }
 
   @override
   void dispose() {
-    _layoutController.dispose(); // Dispose the controller
+    disposeControllers();
     super.dispose();
   }
 

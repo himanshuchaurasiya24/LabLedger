@@ -13,6 +13,7 @@ import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 extension ColorValues on Color {
   Color withValues({double? alpha, double? red, double? green, double? blue}) {
@@ -43,20 +44,22 @@ class FranchiseListScreen extends ConsumerStatefulWidget {
       _FranchiseListScreenState();
 }
 
-class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen> {
-  final TextEditingController searchController = TextEditingController();
+class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
+    with ControllerDisposer {
+  late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    searchController = createController();
     searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
-    searchController.dispose();
+    disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
   }

@@ -13,6 +13,7 @@ import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
 import 'package:labledger/methods/string_utils.dart';
 import 'package:labledger/methods/snackbar_utils.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class CategoryEditScreen extends ConsumerStatefulWidget {
   const CategoryEditScreen({super.key, this.category, this.themeColor});
@@ -24,10 +25,11 @@ class CategoryEditScreen extends ConsumerStatefulWidget {
   ConsumerState<CategoryEditScreen> createState() => _CategoryEditScreenState();
 }
 
-class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
+class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen>
+    with ControllerDisposer {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late final TextEditingController _nameController;
+  late final TextEditingController _descriptionController;
   bool _isFranchiseLab = false;
   bool _isSaving = false;
   bool _isDeleting = false;
@@ -37,17 +39,18 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen> {
   @override
   void initState() {
     super.initState();
+    _nameController = createController(widget.category?.name ?? '');
+    _descriptionController = createController(
+      widget.category?.description ?? '',
+    );
     if (_isEditMode) {
-      _nameController.text = widget.category!.name;
-      _descriptionController.text = widget.category!.description ?? '';
       _isFranchiseLab = widget.category!.isFranchiseLab;
     }
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
+    disposeControllers();
     super.dispose();
   }
 

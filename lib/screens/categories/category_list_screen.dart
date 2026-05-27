@@ -15,6 +15,7 @@ import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/status_badge.dart';
 import 'package:labledger/methods/responsive_helpers.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:labledger/utils/controller_disposer.dart';
 
 class CategoryListScreen extends ConsumerStatefulWidget {
   const CategoryListScreen({super.key, this.baseColor});
@@ -25,20 +26,22 @@ class CategoryListScreen extends ConsumerStatefulWidget {
   ConsumerState<CategoryListScreen> createState() => _CategoryListScreenState();
 }
 
-class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
-  final TextEditingController searchController = TextEditingController();
+class _CategoryListScreenState extends ConsumerState<CategoryListScreen>
+    with ControllerDisposer {
+  late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
   String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    searchController = createController();
     searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
-    searchController.dispose();
+    disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
   }
@@ -67,8 +70,6 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
       return name.contains(_searchQuery) || description.contains(_searchQuery);
     }).toList();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +136,11 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
         crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getResponsiveAspectRatio(context, baseSmall: 2.2, baseLarge: 2.5),
+        childAspectRatio: getResponsiveAspectRatio(
+          context,
+          baseSmall: 2.2,
+          baseLarge: 2.5,
+        ),
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
@@ -251,7 +256,11 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen> {
         crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getResponsiveAspectRatio(context, baseSmall: 2.2, baseLarge: 2.5),
+        childAspectRatio: getResponsiveAspectRatio(
+          context,
+          baseSmall: 2.2,
+          baseLarge: 2.5,
+        ),
       ),
       itemCount: 8,
       itemBuilder: (context, index) {
