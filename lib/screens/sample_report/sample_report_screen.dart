@@ -23,6 +23,7 @@ import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:labledger/screens/sample_report/components/file_upload_widget.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
 class SampleReportManagementScreen extends ConsumerStatefulWidget {
@@ -496,13 +497,7 @@ class _SampleReportManagementScreenState
       try {
         await ref.read(deleteSampleReportProvider(report.id!).future);
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              behavior: SnackBarBehavior.floating,
-
-              content: Text('Report deleted successfully'),
-            ),
-          );
+          showSuccessSnackBar(context, 'Report deleted successfully');
         }
       } catch (e) {
         if (context.mounted) {
@@ -888,15 +883,7 @@ class _ReportFormDialogState extends ConsumerState<_ReportFormDialog>
 
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Report ${widget.mode == FormMode.create ? 'created' : 'updated'} successfully',
-            ),
-            backgroundColor: widget.themeColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        showSuccessSnackBar(context, 'Report ${widget.mode == FormMode.create ? 'created' : 'updated'} successfully');
       }
     } catch (e) {
       if (mounted) {

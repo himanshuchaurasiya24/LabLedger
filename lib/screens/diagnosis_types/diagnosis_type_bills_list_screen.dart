@@ -10,6 +10,7 @@ import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart'; // You will need to import your DiagnosisType model
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart'; // You will need a provider to fetch and delete diagnosis types
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
@@ -102,26 +103,12 @@ class _DiagnosisTypeBillsListScreenState
       try {
         await ref.read(deleteDiagnosisTypeProvider(widget.id).future);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-
-              content: Text("Diagnosis Type deleted successfully"),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-            ),
-          );
+          showSuccessSnackBar(context, "Diagnosis Type deleted successfully");
           Navigator.of(context).pop(); // Go back to the previous screen
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-
-              content: Text("Failed to delete Diagnosis Type: $e"),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
+          showErrorSnackBar(context, "Failed to delete Diagnosis Type: $e");
         }
       }
     }

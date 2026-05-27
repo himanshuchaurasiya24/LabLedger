@@ -17,6 +17,7 @@ import 'package:labledger/models/sample_report_model.dart';
 import 'package:labledger/models/report_upload_data_model.dart';
 import 'package:labledger/providers/patient_report_provider.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
 class UpdateReportDialog extends ConsumerStatefulWidget {
@@ -111,26 +112,10 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
           _reportFileToUpload = file;
         });
       } else {
-        ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-          SnackBar(
-            behavior: SnackBarBehavior.floating,
-            content: Text('Could not open file: ${openResult.message}'),
-            backgroundColor: Theme.of(
-              navigatorKey.currentContext!,
-            ).colorScheme.error,
-          ),
-        );
+        showErrorSnackBar(navigatorKey.currentContext!, 'Could not open file: ${openResult.message}');
       }
     } catch (e) {
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        SnackBar(
-          content: Text('Failed to download report: $e'),
-          backgroundColor: Theme.of(
-            navigatorKey.currentContext!,
-          ).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      showErrorSnackBar(navigatorKey.currentContext!, 'Failed to download report: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -149,26 +134,12 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
 
   void _showCleanupWarning() {
     debugPrint("warning was called!");
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 7),
-        content: const Row(
-          children: [
-            Icon(Icons.warning_rounded, color: Colors.white),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Report uploaded, but the temporary file could not be deleted. Close the editor after saving to avoid higher disk usage.',
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Theme.of(
-          navigatorKey.currentContext!,
-        ).colorScheme.secondary,
-        behavior: SnackBarBehavior.floating,
-      ),
+    showCustomSnackBar(
+      context: navigatorKey.currentContext!,
+      message: 'Report uploaded, but the temporary file could not be deleted. Close the editor after saving to avoid higher disk usage.',
+      icon: Icons.warning_rounded,
+      backgroundColor: Theme.of(navigatorKey.currentContext!).colorScheme.secondary,
+      clearSnackBars: true,
     );
   }
 
@@ -200,21 +171,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
       if (await _reportFileToUpload!.exists()) {
         await ref.read(createPatientReportProvider(uploadData).future);
         if (mounted) {
-          ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-            SnackBar(
-              content: const Row(
-                children: [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 12),
-                  Text('Report uploaded successfully!'),
-                ],
-              ),
-              backgroundColor: Theme.of(
-                navigatorKey.currentContext!,
-              ).colorScheme.secondary,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+          showSuccessSnackBar(navigatorKey.currentContext!, 'Report uploaded successfully!');
         }
 
         final bool deletedTempFile = await _deleteTempFile(
@@ -228,26 +185,10 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
           Navigator.of(navigatorKey.currentContext!).pop();
         }
       } else {
-        ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-          SnackBar(
-            content: const Text('Report not found'),
-            backgroundColor: Theme.of(
-              navigatorKey.currentContext!,
-            ).colorScheme.error,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        showErrorSnackBar(navigatorKey.currentContext!, 'Report not found');
       }
     } catch (e) {
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        SnackBar(
-          content: Text('Upload failed: $e'),
-          backgroundColor: Theme.of(
-            navigatorKey.currentContext!,
-          ).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      showErrorSnackBar(navigatorKey.currentContext!, 'Upload failed: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

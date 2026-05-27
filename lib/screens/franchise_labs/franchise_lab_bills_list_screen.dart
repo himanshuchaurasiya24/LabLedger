@@ -9,6 +9,7 @@ import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/franchise_lab_provider.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
@@ -101,24 +102,12 @@ class _FranchiseBillsListScreenState
       try {
         await ref.read(deleteFranchiseProvider(widget.id).future);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-              content: Text("Franchise deleted successfully"),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-            ),
-          );
+          showSuccessSnackBar(context, "Franchise deleted successfully");
           Navigator.of(context).pop(); // Go back to the previous screen
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-              content: Text("Failed to delete franchise: $e"),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
+          showErrorSnackBar(context, "Failed to delete franchise: $e");
         }
       }
     }

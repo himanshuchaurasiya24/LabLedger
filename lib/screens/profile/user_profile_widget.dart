@@ -10,6 +10,7 @@ import 'package:labledger/providers/report_quota_provider.dart';
 import 'package:labledger/screens/profile/audit_log_dialog.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
 import 'package:labledger/methods/string_utils.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/screens/profile/components/profile_menu_widgets.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -207,13 +208,11 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
 
   // Show coming soon message
   void _showComingSoon(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$feature screen coming soon!'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        backgroundColor: widget.baseColor,
-      ),
+    showCustomSnackBar(
+      context: context,
+      message: '$feature screen coming soon!',
+      icon: Icons.info_outline,
+      backgroundColor: widget.baseColor,
     );
   }
 
@@ -434,7 +433,6 @@ class _CustomDropdownMenu extends ConsumerWidget {
                             label: 'SMS Gateway',
                             onTap: () {
                               //TODO Implement SMS Gateway screen
-                              // TODO fixing server report opening in office if not present
                               // TODO fix report asking to be saved
                               //previously it was not asking the report were being saved from the temp location
                               //and were deleted after being uploaded on server download report is showing the server report only

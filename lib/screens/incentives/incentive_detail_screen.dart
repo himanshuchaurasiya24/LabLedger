@@ -25,6 +25,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
 // ignore: depend_on_referenced_packages
 import "package:path/path.dart" as p;
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
 class IncentiveDetailScreen extends ConsumerStatefulWidget {
@@ -206,15 +207,11 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
   void _showSnackBar(String message, {required bool isError}) {
     final context = navigatorKey.currentContext;
     if (context != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: Text(message),
-          backgroundColor: isError
-              ? Theme.of(context).colorScheme.error
-              : Theme.of(context).colorScheme.secondary,
-        ),
-      );
+      if (isError) {
+        showErrorSnackBar(context, message);
+      } else {
+        showSuccessSnackBar(context, message);
+      }
     }
   }
 

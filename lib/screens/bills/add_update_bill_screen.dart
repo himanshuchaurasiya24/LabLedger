@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/models/doctors_model.dart';
@@ -1023,23 +1024,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   }
 
   void _showSuccessSnackBar({required String message}) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            SizedBox(width: defaultWidth / 2),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    showSuccessSnackBar(context, message);
   }
 
   Widget _buildCardHeader({

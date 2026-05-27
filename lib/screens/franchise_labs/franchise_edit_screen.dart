@@ -12,7 +12,7 @@ import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
 import 'package:labledger/utils/controller_disposer.dart';
-import 'package:labledger/methods/snackbar_utils.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/methods/string_utils.dart';
 
 class FranchiseEditScreen extends ConsumerStatefulWidget {

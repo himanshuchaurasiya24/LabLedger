@@ -14,6 +14,7 @@ import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart'; // Import CustomTextField
 import 'package:labledger/screens/ui_components/tinted_container.dart'; // Import TintedContainer
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -77,26 +78,12 @@ class _CenterDetailDialogState extends ConsumerState<CenterDetailDialog>
       await ref.read(updateCenterDetailProvider(updatedDetail).future);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            behavior: SnackBarBehavior.floating,
-
-            content: Text("Center details updated successfully!"),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-          ),
-        );
+        showSuccessSnackBar(context, "Center details updated successfully!");
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            behavior: SnackBarBehavior.floating,
-
-            content: Text("Failed to update: $e"),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        showErrorSnackBar(context, "Failed to update: $e");
       }
     } finally {
       if (mounted) {

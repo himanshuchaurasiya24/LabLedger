@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/methods/snackbar_utils.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
@@ -756,23 +756,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     try {
       await ref.read(deleteDoctorProvider(doctor.id!).future);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            behavior: SnackBarBehavior.floating,
-
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 8),
-                Text('Doctor deleted successfully!'),
-              ],
-            ),
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        );
+        showSuccessSnackBar(context, 'Doctor deleted successfully!');
         Navigator.of(context).pop(true);
       }
     } catch (e) {

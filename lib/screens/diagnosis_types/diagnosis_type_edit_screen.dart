@@ -14,7 +14,7 @@ import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
-import 'package:labledger/methods/snackbar_utils.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/methods/string_utils.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 

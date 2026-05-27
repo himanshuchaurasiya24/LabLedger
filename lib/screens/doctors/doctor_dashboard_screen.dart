@@ -11,6 +11,7 @@ import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
@@ -104,25 +105,12 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
       try {
         await ref.read(deleteDoctorProvider(widget.doctorId).future);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-              content: Text("Doctor deleted successfully"),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-            ),
-          );
+          showSuccessSnackBar(context, "Doctor deleted successfully");
           Navigator.of(context).pop();
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              behavior: SnackBarBehavior.floating,
-
-              content: Text("Failed to delete doctor: $e"),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
+          showErrorSnackBar(context, "Failed to delete doctor: $e");
         }
       }
     }

@@ -10,6 +10,7 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/initials/subscription_renewal_dialog.dart';
+import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:window_manager/window_manager.dart';
@@ -317,16 +318,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               TextButton(
                                 onPressed: !isLoading
                                     ? () {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            behavior: SnackBarBehavior.floating,
-
-                                            content: Text(
-                                              'Contact administrator to reset password',
-                                            ),
-                                          ),
+                                        showCustomSnackBar(
+                                          context: context,
+                                          message: 'Contact administrator to reset password',
+                                          icon: Icons.info_outline,
+                                          backgroundColor: theme.colorScheme.secondary,
                                         );
                                       }
                                     : null,
