@@ -202,7 +202,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
       isDeleting: _isDeleting,
       onSave: () => _handleSave(doctor),
       onDelete: () => _handleDelete(doctor!),
-      saveLabel: _isEditMode ? 'Update Doctor' : 'Create Doctor',
+      saveLabel: _isEditMode ? 'Update' : 'Create',
     );
   }
 

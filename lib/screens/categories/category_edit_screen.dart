@@ -89,7 +89,7 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen>
       isDeleting: _isDeleting,
       onSave: _handleSave,
       onDelete: _handleDelete,
-      saveLabel: _isEditMode ? 'Update Category' : 'Create Category',
+      saveLabel: _isEditMode ? 'Update' : 'Create',
     );
   }
 

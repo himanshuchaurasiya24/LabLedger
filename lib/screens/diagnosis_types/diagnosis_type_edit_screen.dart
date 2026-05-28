@@ -149,7 +149,7 @@ class _DiagnosisTypeEditScreenState
       isDeleting: _isDeleting,
       onSave: () => _handleSave(diagnosis),
       onDelete: () => _handleDelete(diagnosis!),
-      saveLabel: _isEditMode ? 'Update Type' : 'Create Type',
+      saveLabel: _isEditMode ? 'Update' : 'Create',
     );
   }
 

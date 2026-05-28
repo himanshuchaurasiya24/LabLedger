@@ -79,7 +79,11 @@ class CustomElevatedButton extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: fontSize, fontWeight: fontWeight),
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+            color: effectiveForeground,
+          ),
         ),
       ),
     );

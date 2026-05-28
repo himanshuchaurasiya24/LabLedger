@@ -124,7 +124,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen>
       isDeleting: _isDeleting,
       onSave: () => _handleSave(franchise),
       onDelete: () => _handleDelete(franchise!),
-      saveLabel: _isEditMode ? 'Update Lab' : 'Create Lab',
+      saveLabel: _isEditMode ? 'Update' : 'Create',
     );
   }
 

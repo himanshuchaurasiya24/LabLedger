@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
@@ -496,16 +497,12 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton.icon(
+              CustomElevatedButton(
                 onPressed: _isSubmitting ? null : () => _saveBill(bill),
-                style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(160, 50),
-                  backgroundColor: color,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(defaultRadius),
-                  ),
-                ),
+                label: _isSubmitting
+                    ? 'Saving...'
+                    : (_isEditMode ? 'Update Bill' : 'Create Bill'),
+                backgroundColor: color,
                 icon: _isSubmitting
                     ? const SizedBox(
                         height: 16,
@@ -518,29 +515,19 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                         ),
                       )
                     : Icon(_isEditMode ? Icons.save : Icons.add, size: 16),
-                label: Text(
-                  _isSubmitting
-                      ? 'Saving...'
-                      : (_isEditMode ? 'Update Bill' : 'Create Bill'),
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
-                ),
               ),
               if (_isEditMode) ...[
                 SizedBox(height: defaultHeight / 2),
-                OutlinedButton.icon(
+                CustomElevatedButton(
                   onPressed: () => _deleteBill(bill!),
-                  style: OutlinedButton.styleFrom(
-                    fixedSize: const Size(160, 50),
-                    foregroundColor: Theme.of(context).colorScheme.error,
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(defaultRadius),
-                    ),
+                  label: 'Delete Bill',
+                  foregroundColor: colorScheme.error,
+                  icon: Icon(
+                    Icons.delete,
+                    color: Theme.of(context).colorScheme.error,
                   ),
-                  icon: const Icon(Icons.delete_outline),
-                  label: const Text('Delete'),
+                  outlined: true,
+                  borderColor: Theme.of(context).colorScheme.error,
                 ),
               ],
             ],
