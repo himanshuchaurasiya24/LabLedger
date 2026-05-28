@@ -5,6 +5,7 @@ import 'package:labledger/models/audit_log_model.dart';
 import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/providers/audit_log_provider.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
+import 'package:labledger/screens/ui_components/blurred_dialog.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class AuditLogDialog extends ConsumerWidget {
@@ -16,159 +17,86 @@ class AuditLogDialog extends ConsumerWidget {
     final logsAsync = ref.watch(auditLogsProvider);
     final currentPage = ref.watch(auditLogsCurrentPageProvider);
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      clipBehavior: Clip.antiAlias,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: 980,
-          height: 700,
-          constraints: const BoxConstraints(maxHeight: 760),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                  border: Border(
-                    bottom: BorderSide(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(
-                          alpha: 0.16,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        LucideIcons.history,
-                        color: theme.colorScheme.primary,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Center Audit Logs',
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Review create, update, delete and auth events',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.7,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    AppInkWell(
-                      borderRadius: BorderRadius.circular(defaultRadius),
-                      onTap: () {
-                        ref.read(auditLogsCurrentPageProvider.notifier).state =
-                            1;
-                        ref.invalidate(auditLogsProvider);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.refresh,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    IconButton(
-                      icon: const Icon(Icons.close_rounded),
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: IconButton.styleFrom(
-                        backgroundColor: theme.colorScheme.surface,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: logsAsync.when(
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (error, _) => _AuditErrorView(
-                    message: error.toString(),
-                    onRetry: () {
-                      ref.read(auditLogsCurrentPageProvider.notifier).state = 1;
-                      ref.invalidate(auditLogsProvider);
-                    },
-                  ),
-                  data: (response) {
-                    if (response.logs.isEmpty) {
-                      return const _AuditEmptyView();
-                    }
-
-                    return Column(
-                      children: [
-                        Expanded(
-                          child: ListView.separated(
-                            padding: EdgeInsets.all(defaultPadding),
-                            itemCount: response.logs.length,
-                            separatorBuilder: (_, _) =>
-                                SizedBox(height: defaultHeight / 2),
-                            itemBuilder: (context, index) {
-                              final log = response.logs[index];
-                              return _AuditLogCard(log: log);
-                            },
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest
-                                .withValues(alpha: 0.35),
-                            border: Border(
-                              top: BorderSide(
-                                color: theme.colorScheme.outline.withValues(
-                                  alpha: 0.2,
-                                ),
-                              ),
-                            ),
-                          ),
-                          child: PaginationControls(
-                            totalItems: response.count,
-                            itemsPerPage: 40,
-                            currentPage: currentPage,
-                            onPageChanged: (newPage) {
-                              ref
-                                      .read(
-                                        auditLogsCurrentPageProvider.notifier,
-                                      )
-                                      .state =
-                                  newPage;
-                            },
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
+    return PremiumDialog(
+      width: 980,
+      height: 700,
+      accentColor: theme.colorScheme.primary,
+      headerIcon: LucideIcons.history,
+      title: 'Center Audit Logs',
+      subtitle: 'Review create, update, delete and auth events',
+      extraHeaderActions: [
+        AppInkWell(
+          borderRadius: BorderRadius.circular(defaultRadius),
+          onTap: () {
+            ref.read(auditLogsCurrentPageProvider.notifier).state = 1;
+            ref.invalidate(auditLogsProvider);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Icon(
+              Icons.refresh,
+              color: theme.colorScheme.primary,
+            ),
           ),
         ),
-      ),
+      ],
+      content: logsAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, _) => _AuditErrorView(
+                  message: error.toString(),
+                  onRetry: () {
+                    ref.read(auditLogsCurrentPageProvider.notifier).state = 1;
+                    ref.invalidate(auditLogsProvider);
+                  },
+                ),
+                data: (response) {
+                  if (response.logs.isEmpty) {
+                    return const _AuditEmptyView();
+                  }
+
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: ListView.separated(
+                          padding: EdgeInsets.all(defaultPadding),
+                          itemCount: response.logs.length,
+                          separatorBuilder: (_, _) =>
+                              SizedBox(height: defaultHeight / 2),
+                          itemBuilder: (context, index) {
+                            final log = response.logs[index];
+                            return _AuditLogCard(log: log);
+                          },
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.35),
+                          border: Border(
+                            top: BorderSide(
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
+                          ),
+                        ),
+                        child: PaginationControls(
+                          totalItems: response.count,
+                          itemsPerPage: 40,
+                          currentPage: currentPage,
+                          onPageChanged: (newPage) {
+                            ref
+                                    .read(auditLogsCurrentPageProvider.notifier)
+                                    .state =
+                                newPage;
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),      
     );
   }
 }
@@ -184,11 +112,19 @@ class _AuditLogCard extends StatelessWidget {
     final actionColor = _actionColor(theme, log.action);
 
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
+      margin: EdgeInsets.symmetric(horizontal: defaultPadding / 2, vertical: 4),
+      padding: EdgeInsets.all(defaultPadding * 1.2),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(alpha: 0.75),
-        borderRadius: BorderRadius.circular(defaultRadius),
-        border: Border.all(color: actionColor.withValues(alpha: 0.35)),
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: actionColor.withValues(alpha: 0.25)),
+        boxShadow: [
+          BoxShadow(
+            color: actionColor.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

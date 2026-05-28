@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -11,8 +10,8 @@ import 'package:labledger/models/subscription_model.dart';
 import 'package:labledger/providers/center_detail_provider.dart'; // Your provider file
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
-import 'package:labledger/screens/ui_components/custom_text_field.dart'; // Import CustomTextField
-import 'package:labledger/screens/ui_components/tinted_container.dart'; // Import TintedContainer
+import 'package:labledger/screens/ui_components/custom_text_field.dart';
+import 'package:labledger/screens/ui_components/blurred_dialog.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/utils/controller_disposer.dart';
@@ -165,106 +164,89 @@ LabLedger Center Admin''';
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final centerDetail = widget.centerDetail;
-    return Dialog(
-      backgroundColor:
-          Colors.transparent, // Let TintedContainer handle the background
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      clipBehavior: Clip.antiAlias,
-      child: TintedContainer(
-        baseColor: theme.colorScheme.primary,
-        width: 500,
-        height: 550, // Let the content define the height
-        radius: 20,
-        disablePadding: true,
-        child: ListView(
-          // mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(defaultPadding),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Center Details', style: theme.textTheme.headlineSmall),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
+    return PremiumDialog(
+      width: 500,
+      height: 600,
+      accentColor: theme.colorScheme.primary,
+      headerIcon: LucideIcons.building,
+      title: 'Center Details',
+      subtitle: 'Manage center information',
+      content: ListView(
+        padding: const EdgeInsets.only(top: 16),
+        children: [
+                    // --- Form Fields ---
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            CustomTextField(
+                              controller: _centerNameController,
+                              tintColor: Theme.of(context).colorScheme.primary,
+                              label: 'Center Name',
+                              prefixIcon: const Icon(
+                                Icons.local_hospital_outlined,
+                              ),
+                              readOnly: !_isEditing,
+                              isRequired: true,
+                            ),
+                            SizedBox(height: defaultHeight),
+                            CustomTextField(
+                              tintColor: Theme.of(context).colorScheme.primary,
 
-            // --- Form Fields ---
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    CustomTextField(
-                      controller: _centerNameController,
-                      tintColor: Theme.of(context).colorScheme.primary,
-                      label: 'Center Name',
-                      prefixIcon: const Icon(Icons.local_hospital_outlined),
-                      readOnly: !_isEditing,
-                      isRequired: true,
+                              controller: _addressController,
+                              label: 'Address',
+                              prefixIcon: const Icon(LucideIcons.mapPin),
+                              readOnly: !_isEditing,
+                              isRequired: true,
+                            ),
+                            SizedBox(height: defaultHeight),
+                            CustomTextField(
+                              tintColor: Theme.of(context).colorScheme.primary,
+
+                              controller: _ownerNameController,
+                              label: 'Owner Name',
+                              prefixIcon: const Icon(LucideIcons.user),
+                              readOnly: !_isEditing,
+                              isRequired: true,
+                            ),
+                            SizedBox(height: defaultHeight),
+                            CustomTextField(
+                              controller: _ownerPhoneController,
+                              tintColor: Theme.of(context).colorScheme.primary,
+
+                              label: 'Owner Phone',
+                              prefixIcon: const Icon(LucideIcons.phone),
+                              readOnly: !_isEditing,
+                              isRequired: true,
+                              isNumeric: true,
+                              keyboardType: TextInputType.phone,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     SizedBox(height: defaultHeight),
-                    CustomTextField(
-                      tintColor: Theme.of(context).colorScheme.primary,
 
-                      controller: _addressController,
-                      label: 'Address',
-                      prefixIcon: const Icon(LucideIcons.mapPin),
-                      readOnly: !_isEditing,
-                      isRequired: true,
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+                      child: _SubscriptionInfoCard(
+                        subscription: widget.centerDetail.subscription,
+                        isActive: centerDetail.isActive,
+                        canUpgradeFuture: _canUpgradeFuture,
+                        onUpgradeTap: _contactSupportForUpgrade,
+                      ),
                     ),
                     SizedBox(height: defaultHeight),
-                    CustomTextField(
-                      tintColor: Theme.of(context).colorScheme.primary,
-
-                      controller: _ownerNameController,
-                      label: 'Owner Name',
-                      prefixIcon: const Icon(LucideIcons.user),
-                      readOnly: !_isEditing,
-                      isRequired: true,
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: defaultPadding,
+                        vertical: defaultPadding,
+                      ),
+                      child: _buildActionButtons(),
                     ),
-                    SizedBox(height: defaultHeight),
-                    CustomTextField(
-                      controller: _ownerPhoneController,
-                      tintColor: Theme.of(context).colorScheme.primary,
-
-                      label: 'Owner Phone',
-                      prefixIcon: const Icon(LucideIcons.phone),
-                      readOnly: !_isEditing,
-                      isRequired: true,
-                      isNumeric: true,
-                      keyboardType: TextInputType.phone,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: defaultHeight),
-
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-              child: _SubscriptionInfoCard(
-                subscription: widget.centerDetail.subscription,
-                isActive: centerDetail.isActive,
-                canUpgradeFuture: _canUpgradeFuture,
-                onUpgradeTap: _contactSupportForUpgrade,
-              ),
-            ),
-            SizedBox(height: defaultHeight),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: defaultPadding,
-                vertical: defaultPadding,
-              ),
-              child: _buildActionButtons(),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }

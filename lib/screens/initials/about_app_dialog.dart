@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:labledger/constants/constants.dart';
@@ -16,139 +17,107 @@ class AboutAppDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final currentYear = DateTime.now().year;
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      clipBehavior: Clip.antiAlias,
-      child: TintedContainer(
-        baseColor: theme.colorScheme.primary,
-        width: 600,
-        height: 750,
-        radius: 24,
-        disablePadding: true,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header Section with Gradient
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 32,
-                  horizontal: 24,
-                ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      theme.colorScheme.primary.withValues(alpha: 0.1),
-                      theme.colorScheme.secondary.withValues(alpha: 0.05),
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        clipBehavior: Clip.antiAlias,
+        child: TintedContainer(
+          baseColor: theme.colorScheme.primary,
+          width: 600,
+          height: 750,
+          radius: 24,
+          disablePadding: true,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header Section with Gradient
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 32,
+                    horizontal: 24,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        theme.colorScheme.primary.withValues(alpha: 0.1),
+                        theme.colorScheme.secondary.withValues(alpha: 0.05),
+                      ],
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      // App Logo/Name
+                      appIconName(
+                        context: context,
+                        firstName: 'Lab',
+                        secondName: 'Ledger',
+                        alignment: MainAxisAlignment.center,
+                        fontSize: 80,
+                      ),
+
+                      Text(
+                        appDescription,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.8,
+                          ),
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: defaultHeight / 2),
+
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.15,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.3,
+                            ),
+                            width: 1,
+                          ),
+                        ),
+                        child: FutureBuilder<String>(
+                          future: getAppVersion(),
+                          builder: (context, snapshot) {
+                            return Text(
+                              'v${snapshot.data ?? '...'}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                child: Column(
-                  children: [
-                    // App Logo/Name
-                    appIconName(
-                      context: context,
-                      firstName: 'Lab',
-                      secondName: 'Ledger',
-                      alignment: MainAxisAlignment.center,
-                      fontSize: 80,
-                    ),
 
-                    Text(
-                      appDescription,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.8,
-                        ),
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: defaultHeight / 2),
-
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(
-                          alpha: 0.15,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.3,
-                          ),
-                          width: 1,
-                        ),
-                      ),
-                      child: FutureBuilder<String>(
-                        future: getAppVersion(),
-                        builder: (context, snapshot) {
-                          return Text(
-                            'v${snapshot.data ?? '...'}',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(defaultPadding * 1.5),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withValues(
-                          alpha: 0.3,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.2,
-                          ),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(flex: 1, child: const SizedBox()),
-                          Text(
-                            'Free & Open Source Software',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurface,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Expanded(flex: 1, child: const SizedBox()),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: defaultHeight * 1.2),
-
-                    // Developer Info Card
-                    AppInkWell(
-                      onTap: () => _launchURL(AppUrls.developerGithub),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(defaultPadding * 1.5),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surface.withValues(
-                            alpha: 0.5,
+                          color: theme.colorScheme.primaryContainer.withValues(
+                            alpha: 0.3,
                           ),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
@@ -159,135 +128,172 @@ class AboutAppDialog extends StatelessWidget {
                           ),
                         ),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              LucideIcons.github,
-                              size: 24,
-                              color: theme.colorScheme.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Developed by',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.onSurface,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  developer,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    color: theme.colorScheme.primary,
-                                    fontWeight: FontWeight.w800,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: theme.colorScheme.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              LucideIcons.externalLink,
-                              size: 16,
-                              color: theme.colorScheme.primary.withValues(
-                                alpha: 0.7,
+                            Expanded(flex: 1, child: const SizedBox()),
+                            Text(
+                              'Free & Open Source Software',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
+                            Expanded(flex: 1, child: const SizedBox()),
                           ],
                         ),
                       ),
-                    ),
 
-                    SizedBox(height: defaultHeight * 1.2),
+                      SizedBox(height: defaultHeight * 1.2),
 
-                    // Divider with Text
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Divider(
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.2,
+                      // Developer Info Card
+                      AppInkWell(
+                        onTap: () => _launchURL(AppUrls.developerGithub),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surface.withValues(
+                              alpha: 0.5,
                             ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            'POWERED BY',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.5,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.2,
                               ),
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 1.2,
+                              width: 1,
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: Divider(
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.2,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                LucideIcons.github,
+                                size: 24,
+                                color: theme.colorScheme.primary,
+                              ),
+                              const SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Developed by',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurface,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    developer,
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          color: theme.colorScheme.primary,
+                                          fontWeight: FontWeight.w800,
+                                          decoration: TextDecoration.underline,
+                                          decorationColor:
+                                              theme.colorScheme.primary,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(
+                                LucideIcons.externalLink,
+                                size: 16,
+                                color: theme.colorScheme.primary.withValues(
+                                  alpha: 0.7,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-
-                    SizedBox(height: defaultHeight),
-
-                    // Framework Cards
-                    _buildFrameworkCard(
-                      context: context,
-                      assetLocation: 'assets/images/flutter.svg',
-                      name: 'Flutter',
-                      description:
-                          'UI toolkit for beautiful, natively compiled applications',
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-
-                    SizedBox(height: defaultHeight / 1.5),
-
-                    _buildFrameworkCard(
-                      context: context,
-                      assetLocation: 'assets/images/django.svg',
-                      name: 'Django REST Framework',
-                      description:
-                          'Powerful toolkit for building robust Web APIs',
-                      color: const Color(0xFF092E20),
-                    ),
-
-                    SizedBox(height: defaultHeight * 1.5),
-
-                    // Copyright Footer
-                    Text(
-                      '© $currentYear $appName',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.5,
-                        ),
-                        fontWeight: FontWeight.w600,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Licensed under APACHE License',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.4,
-                        ),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 11,
+
+                      SizedBox(height: defaultHeight * 1.2),
+
+                      // Divider with Text
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              'POWERED BY',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.5,
+                                ),
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+
+                      SizedBox(height: defaultHeight),
+
+                      // Framework Cards
+                      _buildFrameworkCard(
+                        context: context,
+                        assetLocation: 'assets/images/flutter.svg',
+                        name: 'Flutter',
+                        description:
+                            'UI toolkit for beautiful, natively compiled applications',
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+
+                      SizedBox(height: defaultHeight / 1.5),
+
+                      _buildFrameworkCard(
+                        context: context,
+                        assetLocation: 'assets/images/django.svg',
+                        name: 'Django REST Framework',
+                        description:
+                            'Powerful toolkit for building robust Web APIs',
+                        color: const Color(0xFF092E20),
+                      ),
+
+                      SizedBox(height: defaultHeight * 1.5),
+
+                      // Copyright Footer
+                      Text(
+                        '© $currentYear $appName',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.5,
+                          ),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Licensed under APACHE License',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.4,
+                          ),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 11,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

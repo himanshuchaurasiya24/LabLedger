@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/constants/urls.dart';
-import 'package:labledger/screens/ui_components/tinted_container.dart';
+
+import 'package:labledger/screens/ui_components/blurred_dialog.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -100,65 +101,46 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
 
     return PopScope(
       canPop: false,
-      child: Dialog(
-        backgroundColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        clipBehavior: Clip.antiAlias,
-        child: TintedContainer(
-          baseColor: theme.colorScheme.primary,
-          width: 950,
-          height: 620,
-          radius: 20,
-          disablePadding: true,
-          child: Column(
+        child: PremiumDialog(
+          width: 980,
+          height: 700,
+          accentColor: theme.colorScheme.primary,
+          headerIcon: LucideIcons.shieldAlert,
+          title: 'Subscription Renewal Required',
+          subtitle: 'Review available plans and submit an upgrade request',
+          content: Column(
             children: [
-              Padding(
-                padding: EdgeInsets.all(defaultPadding),
-                child: Row(
-                  children: [
-                    Icon(
-                      LucideIcons.shieldAlert,
-                      color: theme.colorScheme.error,
-                      size: 24,
-                    ),
-                    SizedBox(width: defaultWidth / 2),
-                    Expanded(
-                      child: Text(
-                        'Subscription Renewal Required',
-                        style: theme.textTheme.headlineSmall,
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
-                      label: const Text('Close'),
-                    ),
-                  ],
-                ),
-              ),
               Container(
                 width: double.infinity,
-                margin: EdgeInsets.symmetric(horizontal: defaultPadding),
-                padding: EdgeInsets.all(defaultPadding * 0.8),
+                margin: EdgeInsets.fromLTRB(defaultPadding, defaultPadding, defaultPadding, 0),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.errorContainer.withValues(
-                    alpha: 0.6,
-                  ),
-                  borderRadius: BorderRadius.circular(defaultRadius),
+                  color: theme.colorScheme.errorContainer.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: theme.colorScheme.error.withValues(alpha: 0.35),
+                    color: theme.colorScheme.error.withValues(alpha: 0.3),
                   ),
                 ),
-                child: Text(
-                  'Your center subscription is currently inactive or expired. Please review available plans and submit an upgrade request if required.',
-                  style: theme.textTheme.bodyMedium,
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: theme.colorScheme.error, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Your center subscription is currently inactive or expired.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(child: _buildPlansContent(theme)),
             ],
           ),
         ),
-      ),
     );
   }
 
@@ -236,13 +218,24 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
                 plan.planIndex > currentPlanIndex;
 
             return Container(
-              padding: EdgeInsets.all(defaultPadding),
+              margin: EdgeInsets.only(bottom: defaultHeight / 4),
+              padding: EdgeInsets.all(defaultPadding * 1.5),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surface.withValues(alpha: 0.75),
-                borderRadius: BorderRadius.circular(defaultRadius),
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.25),
+                  color: isCurrentExpiredPlan 
+                      ? theme.colorScheme.error.withValues(alpha: 0.4)
+                      : theme.colorScheme.outline.withValues(alpha: 0.1),
+                  width: isCurrentExpiredPlan ? 1.5 : 1.0,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,13 +391,21 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
 
   Widget _buildCustomCard(ThemeData theme) {
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
+      margin: EdgeInsets.only(bottom: defaultHeight / 4),
+      padding: EdgeInsets.all(defaultPadding * 1.5),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(alpha: 0.75),
-        borderRadius: BorderRadius.circular(defaultRadius),
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+          color: theme.colorScheme.secondary.withValues(alpha: 0.2),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -467,12 +468,20 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
 
   Widget _buildContactCard(ThemeData theme) {
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
+      margin: EdgeInsets.only(bottom: defaultHeight / 4),
+      padding: EdgeInsets.all(defaultPadding * 1.5),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(defaultRadius),
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.primary.withValues(alpha: 0.08),
+            theme.colorScheme.primary.withValues(alpha: 0.02),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.25),
+          color: theme.colorScheme.primary.withValues(alpha: 0.2),
         ),
       ),
       child: Column(

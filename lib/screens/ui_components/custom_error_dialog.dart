@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/blurred_dialog.dart';
 import 'package:labledger/constants/constants.dart';
 
 /// A reusable, stylized error dialog with a scrollable message.
@@ -23,76 +24,17 @@ class ErrorDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final accentColor = theme.colorScheme.error;
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: width ?? 620,
-          height: height,
-          constraints: const BoxConstraints(maxHeight: 620),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.1),
-                  border: Border(
-                    bottom: BorderSide(
-                      color: accentColor.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: accentColor.withValues(alpha: 0.16),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        Icons.error_outline,
-                        color: accentColor,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Please review the details below.',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.7,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close_rounded),
-                      style: IconButton.styleFrom(
-                        backgroundColor: theme.colorScheme.surface,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    return PremiumDialog(
+      width: width ?? 620,
+      height: height,
+      accentColor: accentColor,
+      headerIcon: Icons.error_outline,
+      title: title,
+      subtitle: 'Please review the details below.',
+      expandContent: false,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
               Flexible(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.all(defaultPadding * 1.5),
@@ -185,9 +127,7 @@ class ErrorDialog extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
