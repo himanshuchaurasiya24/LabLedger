@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/models/report_quota_model.dart';
+import 'package:labledger/providers/message_provider.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/providers/report_quota_provider.dart';
 import 'package:labledger/screens/profile/audit_log_dialog.dart';
@@ -37,6 +38,7 @@ class UserProfileWidget extends ConsumerStatefulWidget {
 
 class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
   bool _isThemeExpanded = false;
+  bool _isMessageExpanded = false;
   OverlayEntry? _overlayEntry;
 
   void _showCustomMenu(BuildContext context) {
@@ -54,14 +56,33 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
         onLogout: widget.onLogout,
         onSettings: widget.onSettings,
         isThemeExpanded: _isThemeExpanded,
+        isMessageExpanded: _isMessageExpanded,
         onThemeToggle: () {
           setState(() {
             _isThemeExpanded = !_isThemeExpanded;
+            if (_isThemeExpanded) {
+              _isMessageExpanded = false;
+            }
+          });
+          _updateOverlay();
+        },
+        onMessageToggle: () {
+          setState(() {
+            _isMessageExpanded = !_isMessageExpanded;
+            if (_isMessageExpanded) {
+              _isThemeExpanded = false;
+            }
           });
           _updateOverlay();
         },
         onThemeSelect: (themeMode) {
           ref.read(themeNotifierProvider.notifier).toggleTheme(themeMode);
+          _removeOverlay();
+        },
+        onMessageSelect: (messagePlatform) {
+          ref
+              .read(messageNotifierProvider.notifier)
+              .selectMessagePlatform(messagePlatform);
           _removeOverlay();
         },
         onViewAuditLogsTap: () {
@@ -232,8 +253,11 @@ class _CustomDropdownMenu extends ConsumerWidget {
   final VoidCallback onLogout;
   final VoidCallback? onSettings;
   final bool isThemeExpanded;
+  final bool isMessageExpanded;
   final VoidCallback onThemeToggle;
+  final VoidCallback onMessageToggle;
   final Function(ThemeMode) onThemeSelect;
+  final Function(MessagePlatform) onMessageSelect;
   final VoidCallback onAboutAppTap;
   final VoidCallback onViewAuditLogsTap;
   final VoidCallback onProfileTap;
@@ -249,8 +273,11 @@ class _CustomDropdownMenu extends ConsumerWidget {
     this.onSettings,
     required this.onProfileTap,
     required this.isThemeExpanded,
+    required this.isMessageExpanded,
     required this.onThemeToggle,
+    required this.onMessageToggle,
     required this.onThemeSelect,
+    required this.onMessageSelect,
     required this.onViewAuditLogsTap,
     required this.onAboutAppTap,
     required this.onLogoutTap,
@@ -261,6 +288,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final currentThemeMode = ref.watch(themeNotifierProvider);
+    final currentMessagePlatform = ref.watch(messageNotifierProvider);
     final quotaAsync = ref.watch(reportQuotaSummaryProvider);
 
     final String userName =
@@ -431,12 +459,46 @@ class _CustomDropdownMenu extends ConsumerWidget {
                           ProfileMenuItem(
                             icon: LucideIcons.messageSquare,
                             label: 'SMS Gateway',
-                            onTap: () {
-                              //TODO Implement SMS Gateway screen
-                              // TODO multiple subscription entry for same center
-                            },
+                            onTap: onMessageToggle,
                             isDark: isDark,
+                            trailing: AnimatedRotation(
+                              turns: isMessageExpanded ? 0.5 : 0,
+                              duration: const Duration(milliseconds: 200),
+                              child: Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 20,
+                                color: isDark
+                                    ? Colors.grey.shade400
+                                    : Colors.grey.shade600,
+                              ),
+                            ),
                           ),
+
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          height: isMessageExpanded
+                              ? (availableMessagePlatforms().length * 48.0)
+                              : 0,
+                          child: ClipRect(
+                            child: isMessageExpanded
+                                ? Column(
+                                    children: [
+                                      for (final platform
+                                          in availableMessagePlatforms())
+                                        ProfileMessageOption(
+                                          messagePlatform: platform,
+                                          currentPlatform:
+                                              currentMessagePlatform,
+                                          isDark: isDark,
+                                          onSelect: onMessageSelect,
+                                          baseColor: baseColor,
+                                        ),
+                                    ],
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ),
 
                         ProfileMenuItem(
                           icon: Icons.palette_outlined,

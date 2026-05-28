@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/providers/message_provider.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 
 class ProfileMenuItem extends StatelessWidget {
@@ -14,7 +15,7 @@ class ProfileMenuItem extends StatelessWidget {
     required this.label,
     required this.onTap,
     required this.isDark,
-    this.trailing, 
+    this.trailing,
   });
 
   @override
@@ -96,6 +97,60 @@ class ProfileThemeOption extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected
+                    ? baseColor
+                    : (isDark ? Colors.grey.shade400 : Colors.grey.shade700),
+              ),
+            ),
+            const Spacer(),
+            if (isSelected)
+              Icon(Icons.check_circle, size: 16, color: baseColor),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProfileMessageOption extends StatelessWidget {
+  final MessagePlatform messagePlatform;
+  final MessagePlatform currentPlatform;
+  final bool isDark;
+  final Function(MessagePlatform) onSelect;
+  final Color baseColor;
+
+  const ProfileMessageOption({
+    super.key,
+    required this.messagePlatform,
+    required this.currentPlatform,
+    required this.isDark,
+    required this.onSelect,
+    required this.baseColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = currentPlatform == messagePlatform;
+
+    return AppInkWell(
+      onTap: () => onSelect(messagePlatform),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+        child: Row(
+          children: [
+            Icon(
+              messagePlatform.icon,
+              size: 16,
+              color: isSelected
+                  ? baseColor
+                  : (isDark ? Colors.grey.shade500 : Colors.grey.shade600),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              messagePlatform.label,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,

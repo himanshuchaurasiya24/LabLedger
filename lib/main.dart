@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/authentication/global_error_observer.dart';
+import 'package:labledger/providers/message_provider.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 
@@ -16,9 +18,16 @@ void main() async {
   await windowManager.ensureInitialized();
 
   await initializeBaseUrl();
+  final sharedPreferences = await SharedPreferences.getInstance();
 
   runApp(
-    ProviderScope(observers: [GlobalErrorObserver()], child: const MyApp()),
+    ProviderScope(
+      observers: [GlobalErrorObserver()],
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const MyApp(),
+    ),
   );
 }
 
