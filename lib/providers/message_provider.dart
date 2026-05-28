@@ -5,8 +5,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final messageNotifierProvider =
     StateNotifierProvider<MessageNotifier, MessagePlatform>((ref) {
-      return MessageNotifier();
+      throw UnimplementedError('messageNotifierProvider must be overridden');
     });
+
+const messagePlatformPreferenceKey = 'message_platform';
 
 enum MessagePlatform { localSmsGateway, whatsappWebUi, whatsapp }
 
@@ -58,41 +60,42 @@ List<MessagePlatform> availableMessagePlatforms() {
   return platforms;
 }
 
+MessagePlatform messagePlatformFromPreferences(SharedPreferences preferences) {
+  final storedValue = preferences.getString(messagePlatformPreferenceKey);
+  return _resolveSelection(messagePlatformFromStorage(storedValue));
+}
+
 class MessageNotifier extends StateNotifier<MessagePlatform> {
-  static const _key = 'message_platform';
+  final SharedPreferences preferences;
 
-  MessageNotifier() : super(_defaultMessagePlatform()) {
-    _loadMessagePlatform();
-  }
+  MessageNotifier({
+    required MessagePlatform initialPlatform,
+    required this.preferences,
+  }) : super(_resolveSelection(initialPlatform));
 
-  Future<void> _loadMessagePlatform() async {
-    final preferences = await SharedPreferences.getInstance();
-    final storedValue = preferences.getString(_key);
-    final resolvedValue = _resolveSelection(
-      messagePlatformFromStorage(storedValue),
-    );
-
-    state = resolvedValue;
-
-    if (storedValue != resolvedValue.storageValue) {
-      await preferences.setString(_key, resolvedValue.storageValue);
+  void ensureStoredSelection() {
+    if (preferences.getString(messagePlatformPreferenceKey) !=
+        state.storageValue) {
+      preferences.setString(messagePlatformPreferenceKey, state.storageValue);
     }
   }
 
   Future<void> selectMessagePlatform(MessagePlatform platform) async {
-    final preferences = await SharedPreferences.getInstance();
     final resolvedValue = _resolveSelection(platform);
     state = resolvedValue;
-    await preferences.setString(_key, resolvedValue.storageValue);
+    await preferences.setString(
+      messagePlatformPreferenceKey,
+      resolvedValue.storageValue,
+    );
+  }
+}
+
+MessagePlatform _resolveSelection(MessagePlatform platform) {
+  if (platform == MessagePlatform.whatsapp && !_supportsWhatsApp()) {
+    return _defaultMessagePlatform();
   }
 
-  MessagePlatform _resolveSelection(MessagePlatform platform) {
-    if (platform == MessagePlatform.whatsapp && !_supportsWhatsApp()) {
-      return _defaultMessagePlatform();
-    }
-
-    return platform;
-  }
+  return platform;
 }
 
 MessagePlatform _defaultMessagePlatform() {

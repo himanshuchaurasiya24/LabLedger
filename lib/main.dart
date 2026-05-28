@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/authentication/global_error_observer.dart';
+import 'package:labledger/providers/message_provider.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/initials/window_loading_screen.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 import 'dart:async';
 
@@ -17,8 +19,24 @@ void main() async {
 
   await initializeBaseUrl();
 
+  final sharedPreferences = await SharedPreferences.getInstance();
+  final initialMessagePlatform = messagePlatformFromPreferences(
+    sharedPreferences,
+  );
+
   runApp(
-    ProviderScope(observers: [GlobalErrorObserver()], child: const MyApp()),
+    ProviderScope(
+      overrides: [
+        messageNotifierProvider.overrideWith(
+          (ref) => MessageNotifier(
+            initialPlatform: initialMessagePlatform,
+            preferences: sharedPreferences,
+          ),
+        ),
+      ],
+      observers: [GlobalErrorObserver()],
+      child: const MyApp(),
+    ),
   );
 }
 

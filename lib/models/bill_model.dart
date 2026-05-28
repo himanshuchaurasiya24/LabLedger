@@ -13,7 +13,7 @@ class Bill {
   final int discByCenter;
   final int discByDoctor;
   final int incentiveAmount;
-  final String? reportUrl; // ✅ Field added
+  final bool isMessageSent;
 
   // Storing IDs for write operations (POST/PUT)
   final List<int> diagnosisTypes;
@@ -43,6 +43,7 @@ class Bill {
     required this.discByCenter,
     required this.discByDoctor,
     required this.incentiveAmount,
+    this.isMessageSent = false,
     required this.diagnosisTypes,
     required this.referredByDoctor,
     this.franchiseName,
@@ -52,7 +53,6 @@ class Bill {
     this.testDoneBy,
     this.centerDetail,
     this.matchReason,
-    this.reportUrl, // ✅ Added to constructor
   });
 
   /// Factory Constructor to Parse JSON
@@ -72,7 +72,7 @@ class Bill {
       discByCenter: json['disc_by_center'],
       discByDoctor: json['disc_by_doctor'],
       incentiveAmount: json['incentive_amount'],
-      reportUrl: json['report_url'], // ✅ Added parsing for the new field
+      isMessageSent: json['is_message_sent'] == true,
       diagnosisTypes: json['diagnosis_types_output'] != null
           ? (json['diagnosis_types_output'] as List)
                 .map((dt) => dt['diagnosis_type'] as int)
@@ -112,6 +112,7 @@ class Bill {
       'disc_by_center': discByCenter,
       'disc_by_doctor': discByDoctor,
       'bill_status': billStatus,
+      'is_message_sent': isMessageSent,
       'date_of_test': dateOfTest.toIso8601String(),
       'date_of_bill': dateOfBill.toIso8601String(),
       'diagnosis_types': diagnosisTypes,

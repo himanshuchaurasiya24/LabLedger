@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/bill_model.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class BillCard extends StatelessWidget {
   static final RegExp _currencyPattern = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
@@ -245,22 +244,6 @@ class BillCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (bill.reportUrl != null)
-                    AppInkWell(
-                      onTap: () async {
-                        final uri = Uri.parse(bill.reportUrl!);
-
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri);
-                        } else {}
-                      },
-
-                      child: Icon(
-                        Icons.document_scanner_outlined,
-                        color: textColor,
-                        size: 20,
-                      ),
-                    ),
                 ],
               ),
 

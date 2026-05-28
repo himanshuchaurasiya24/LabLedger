@@ -192,6 +192,21 @@ class AuthHttpClient {
     timeout: timeout,
   );
 
+  static Future<http.Response> patch(
+    dynamic ref,
+    String url, {
+    Map<String, String>? headers,
+    String? body,
+    Duration timeout = const Duration(seconds: 10),
+  }) => request(
+    ref,
+    method: 'PATCH',
+    url: url,
+    headers: headers,
+    body: body,
+    timeout: timeout,
+  );
+
   static Future<http.Response> delete(
     dynamic ref,
     String url, {

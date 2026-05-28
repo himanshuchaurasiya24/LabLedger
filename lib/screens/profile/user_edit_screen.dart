@@ -9,7 +9,7 @@ import 'package:labledger/providers/password_reset_provider.dart';
 import 'package:labledger/providers/user_provider.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
-import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
+import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 

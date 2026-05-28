@@ -44,6 +44,9 @@ class AppUrls {
   static String diagnosisPatientReportDetail(int reportId) =>
       'diagnosis/patient-report/$reportId/';
 
+  static String diagnosisPatientReportDownload(int reportId) =>
+      'diagnosis/patient-report/$reportId/download/';
+
   static String diagnosisDoctorGrowthStats(int doctorId) =>
       'diagnosis/doctors/$doctorId/growth-stats/';
 }

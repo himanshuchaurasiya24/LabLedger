@@ -8,7 +8,7 @@ import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/models/diagnosis_category_model.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
+import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';

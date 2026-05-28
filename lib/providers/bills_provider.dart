@@ -124,6 +124,28 @@ final singleBillProvider = FutureProvider.autoDispose.family<Bill, int>((
   return Bill.fromJson(jsonDecode(response.body));
 });
 
+final sendBillMessageProvider = FutureProvider.autoDispose
+    .family<Map<String, dynamic>, int>((ref, billId) async {
+      final response = await AuthHttpClient.post(
+        ref,
+        "$billsEndpoint$billId/send-message/",
+      );
+      return Map<String, dynamic>.from(jsonDecode(response.body));
+    });
+
+final markBillMessageSentProvider = FutureProvider.autoDispose
+    .family<Bill, int>((ref, billId) async {
+      final response = await AuthHttpClient.patch(
+        ref,
+        "$billsEndpoint$billId/",
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"is_message_sent": true}),
+      );
+      _invalidateBillCache(ref);
+      ref.invalidate(singleBillProvider(billId));
+      return Bill.fromJson(jsonDecode(response.body));
+    });
+
 final createBillProvider = FutureProvider.autoDispose.family<Bill, Bill>((
   ref,
   newBill,

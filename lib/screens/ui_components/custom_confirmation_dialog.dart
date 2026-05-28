@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 
-Future<bool> showDeleteConfirmationDialog({
+Future<bool> showCustomConfirmationDialog({
   required BuildContext context,
   required String title,
   required String message,
+  bool isDeleteOption = true,
   bool showWarningIcon = true,
   double borderRadius = 16,
   String cancelLabel = 'Cancel',
@@ -15,7 +16,12 @@ Future<bool> showDeleteConfirmationDialog({
     context: context,
     builder: (dialogContext) {
       final theme = Theme.of(dialogContext);
-      final Color accentColor = theme.colorScheme.error;
+      final Color accentColor = isDeleteOption
+          ? theme.colorScheme.error
+          : theme.colorScheme.primary;
+      final IconData confirmIcon = isDeleteOption
+          ? Icons.delete_outline
+          : Icons.check_circle_outline;
 
       return Dialog(
         shape: RoundedRectangleBorder(
@@ -102,9 +108,13 @@ Future<bool> showDeleteConfirmationDialog({
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.35,
-                    ),
+                    color: isDeleteOption
+                        ? theme.colorScheme.surfaceContainerHighest.withValues(
+                            alpha: 0.35,
+                          )
+                        : theme.colorScheme.surfaceContainerHighest.withValues(
+                            alpha: 0.25,
+                          ),
                     border: Border(
                       top: BorderSide(
                         color: theme.colorScheme.outline.withValues(alpha: 0.2),
@@ -131,7 +141,7 @@ Future<bool> showDeleteConfirmationDialog({
                       CustomElevatedButton(
                         onPressed: () => Navigator.of(dialogContext).pop(true),
                         label: confirmLabel,
-                        icon: const Icon(Icons.delete_outline),
+                        icon: Icon(confirmIcon),
                         backgroundColor: accentColor,
                         width: 160,
                         height: 44,
@@ -150,4 +160,25 @@ Future<bool> showDeleteConfirmationDialog({
   );
 
   return confirmed ?? false;
+}
+
+Future<bool> showDeleteConfirmationDialog({
+  required BuildContext context,
+  required String title,
+  required String message,
+  bool showWarningIcon = true,
+  double borderRadius = 16,
+  String cancelLabel = 'Cancel',
+  String confirmLabel = 'Delete',
+}) {
+  return showCustomConfirmationDialog(
+    context: context,
+    title: title,
+    message: message,
+    isDeleteOption: true,
+    showWarningIcon: showWarningIcon,
+    borderRadius: borderRadius,
+    cancelLabel: cancelLabel,
+    confirmLabel: confirmLabel,
+  );
 }

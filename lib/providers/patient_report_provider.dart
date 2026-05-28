@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
@@ -14,6 +15,8 @@ final String patientReportsEndpoint =
     '$globalBaseUrl${AppUrls.diagnosisPatientReport}';
 String patientReportDetailEndpoint(int reportId) =>
     '$globalBaseUrl${AppUrls.diagnosisPatientReportDetail(reportId)}';
+String patientReportDownloadEndpoint(int reportId) =>
+    '$globalBaseUrl${AppUrls.diagnosisPatientReportDownload(reportId)}';
 
 final getReportForBillProvider = FutureProvider.autoDispose
     .family<PatientReport?, int>((ref, billId) async {
@@ -58,6 +61,27 @@ final deletePatientReportProvider = FutureProvider.autoDispose
         patientReportDetailEndpoint(ids.reportId),
       );
       _invalidateReportCache(ref, ids.billId);
+    });
+
+final downloadPatientReportProvider = FutureProvider.autoDispose
+    .family<({Uint8List bytes, String fileName}), int>((ref, reportId) async {
+      final response = await AuthHttpClient.get(
+        ref,
+        patientReportDownloadEndpoint(reportId),
+        throwOnError: false,
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to download report: ${response.body}');
+      }
+
+      final disposition = response.headers['content-disposition'] ?? '';
+      final fileNameMatch = RegExp(
+        r'filename="?([^";]+)"?',
+      ).firstMatch(disposition);
+      final fileName = fileNameMatch?.group(1) ?? 'patient_report_$reportId';
+
+      return (bytes: response.bodyBytes, fileName: fileName);
     });
 
 final updatePatientReportProvider = FutureProvider.autoDispose

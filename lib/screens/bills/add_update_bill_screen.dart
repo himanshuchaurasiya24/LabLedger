@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
@@ -14,13 +16,14 @@ import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_lab_provider.dart';
+import 'package:labledger/providers/message_provider.dart';
 import 'package:labledger/providers/patient_report_provider.dart';
 import 'package:labledger/screens/ui_components/update_report_dialog.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
-import 'package:labledger/screens/ui_components/delete_confirmation_dialog.dart';
+import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:labledger/screens/bills/components/patient_details_card.dart';
@@ -44,6 +47,8 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   late TabController _tabController;
   late final VoidCallback _billStatusListener;
   final _formKey = GlobalKey<FormState>();
+  bool _isSendingMessage = false;
+  bool _isDownloadingReport = false;
 
   late final TextEditingController patientNameController;
   late final TextEditingController patientAgeController;
@@ -392,71 +397,97 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                     ),
                     if (_isEditMode) ...[
                       SizedBox(width: defaultWidth / 2),
-                      _buildStatusBadge(
-                        bill?.billStatus ?? 'Unknown',
-                        _getStatusColor(bill?.billStatus),
-                      ),
-                      SizedBox(width: defaultWidth / 2),
-                      AppInkWell(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return UpdateReportDialog(
-                                color: color,
-                                billId: widget.billId!,
-                              );
-                            },
-                          );
-                        },
-                        child: _buildStatusBadge(
-                          bill != null && bill.reportUrl != null
-                              ? 'Update Report'
-                              : 'Upload Report',
-                          color,
-                        ),
-                      ),
-                      SizedBox(width: defaultWidth / 2),
-                      if (bill != null && bill.reportUrl != null)
-                        AppInkWell(
-                          onTap: () async {
-                            final uri = Uri.parse(bill.reportUrl!);
-                            final isSafeScheme =
-                                uri.scheme == 'https' || uri.scheme == 'http';
-                            if (isSafeScheme && await canLaunchUrl(uri)) {
-                              await launchUrl(uri);
-                            } else {}
-                          },
-                          child: _buildStatusBadge("Download Report", color),
-                        ),
-                      SizedBox(width: defaultWidth / 2),
-                      if (bill != null && bill.reportUrl != null)
-                        Consumer(
-                          builder: (context, ref, child) {
-                            final reportAsyncValue = ref.watch(
-                              getReportForBillProvider(bill.id!),
-                            );
-                            if (reportAsyncValue.hasValue &&
-                                reportAsyncValue.value != null) {
-                              final report = reportAsyncValue.value!;
-                              return AppInkWell(
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final reportAsyncValue = bill == null
+                              ? null
+                              : ref.watch(getReportForBillProvider(bill.id!));
+                          final hasReport =
+                              reportAsyncValue?.hasValue == true &&
+                              reportAsyncValue?.value != null;
+
+                          return Row(
+                            children: [
+                              AppInkWell(
                                 onTap: () {
-                                  ref.read(
-                                    deletePatientReportProvider((
-                                      reportId: report.id,
-                                      billId: bill.id!,
-                                    )).future,
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return UpdateReportDialog(
+                                        color: color,
+                                        billId: widget.billId!,
+                                      );
+                                    },
                                   );
                                 },
                                 child: _buildStatusBadge(
-                                  "Delete Report",
-                                  _getStatusColor("Unpaid"),
+                                  hasReport ? 'Update Report' : 'Upload Report',
+                                  color,
                                 ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
+                              ),
+                              if (hasReport) ...[
+                                SizedBox(width: defaultWidth / 2),
+                                AppInkWell(
+                                  onTap: _isDownloadingReport
+                                      ? null
+                                      : () => _downloadReport(
+                                          reportAsyncValue!.value!.id,
+                                        ),
+                                  child: _buildStatusBadge(
+                                    _isDownloadingReport
+                                        ? 'Downloading...'
+                                        : 'Download Report',
+                                    Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                                SizedBox(width: defaultWidth / 2),
+                                AppInkWell(
+                                  onTap: () {
+                                    final report = reportAsyncValue!.value!;
+                                    ref.read(
+                                      deletePatientReportProvider((
+                                        reportId: report.id,
+                                        billId: bill!.id!,
+                                      )).future,
+                                    );
+                                  },
+                                  child: _buildStatusBadge(
+                                    'Delete Report',
+                                    _getStatusColor('Unpaid'),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          );
+                        },
+                      ),
+                      SizedBox(width: defaultWidth / 2),
+                      if (bill?.isMessageSent == true) ...[
+                        _buildStatusBadge(
+                          'Message Sent',
+                          Theme.of(context).colorScheme.secondary,
                         ),
+                        SizedBox(width: defaultWidth / 2),
+                        AppInkWell(
+                          onTap: _isSendingMessage || bill == null
+                              ? null
+                              : () => _sendBillMessage(bill),
+                          child: _buildStatusBadge(
+                            _isSendingMessage ? 'Sending...' : 'Resend Message',
+                            _isSendingMessage ? Colors.orange : color,
+                          ),
+                        ),
+                      ] else ...[
+                        AppInkWell(
+                          onTap: _isSendingMessage || bill == null
+                              ? null
+                              : () => _sendBillMessage(bill),
+                          child: _buildStatusBadge(
+                            _isSendingMessage ? 'Sending...' : 'Send Message',
+                            _isSendingMessage ? Colors.orange : color,
+                          ),
+                        ),
+                      ],
                     ],
                   ],
                 ),
@@ -1132,6 +1163,187 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       default:
         return Colors.grey;
     }
+  }
+
+  Future<void> _sendBillMessage(Bill bill) async {
+    if (bill.id == null) return;
+
+    setState(() => _isSendingMessage = true);
+
+    try {
+      final gateway = ref.read(messageNotifierProvider);
+      final payload = await ref.read(sendBillMessageProvider(bill.id!).future);
+      final messageText =
+          payload['message_text']?.toString() ??
+          _buildBillMessageText(bill, payload['secure_report_url']?.toString());
+      final phoneNumber = bill.patientPhoneNumber ?? '';
+
+      if (gateway == MessagePlatform.localSmsGateway) {
+        await _showLocalSmsDialog(phoneNumber, messageText, bill.id!);
+      } else {
+        final encodedText = Uri.encodeComponent(messageText);
+        final digitsOnlyPhone = phoneNumber.replaceAll(RegExp(r'\D'), '');
+        final targetUri = gateway == MessagePlatform.whatsapp
+            ? Uri.parse(
+                'whatsapp://send?phone=$digitsOnlyPhone&text=$encodedText',
+              )
+            : Uri.parse(
+                'https://web.whatsapp.com/send?phone=$digitsOnlyPhone&text=$encodedText',
+              );
+
+        final canOpen = await canLaunchUrl(targetUri);
+        if (canOpen) {
+          await launchUrl(targetUri, mode: LaunchMode.externalApplication);
+          final shouldMarkSent = await _confirmMessageSentAfterWhatsappLaunch(
+            gateway,
+          );
+          if (shouldMarkSent == true) {
+            await _markBillMessageSent(bill.id!);
+          }
+        } else {
+          _showErrorDialog(
+            'Cannot Open WhatsApp',
+            'WhatsApp could not be opened on this device.',
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorDialog('Message Failed', 'Could not send the message: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSendingMessage = false);
+      }
+    }
+  }
+
+  Future<void> _markBillMessageSent(int billId) async {
+    await ref.read(markBillMessageSentProvider(billId).future);
+    if (mounted) {
+      ref.invalidate(singleBillProvider(billId));
+    }
+  }
+
+  Future<void> _downloadReport(int reportId) async {
+    if (reportId <= 0) return;
+
+    setState(() => _isDownloadingReport = true);
+
+    try {
+      final downloadPayload = await ref.read(
+        downloadPatientReportProvider(reportId).future,
+      );
+      final savePath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save report file',
+        fileName: downloadPayload.fileName,
+      );
+
+      if (savePath == null || savePath.isEmpty) {
+        return;
+      }
+
+      final file = File(savePath);
+      await file.writeAsBytes(downloadPayload.bytes);
+
+      if (mounted) {
+        showSuccessSnackBar(context, 'Report saved to $savePath');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorDialog(
+          'Download Failed',
+          'Could not download the report: $e',
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isDownloadingReport = false);
+      }
+    }
+  }
+
+  String _buildBillMessageText(Bill bill, String? secureReportUrl) {
+    final lines = <String>[
+      'LabLedger bill ${bill.billNumber ?? bill.id ?? ''}',
+      'Patient: ${bill.patientName}',
+      'Amount: ₹${bill.totalAmount}',
+      'Status: ${bill.billStatus}',
+    ];
+
+    if (secureReportUrl != null && secureReportUrl.isNotEmpty) {
+      lines.add('Report: $secureReportUrl');
+    }
+
+    return lines.join('\n');
+  }
+
+  Future<void> _showLocalSmsDialog(
+    String phoneNumber,
+    String messageText,
+    int billId,
+  ) async {
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Local SMS Gateway'),
+          content: SizedBox(
+            width: 520,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Recipient: $phoneNumber'),
+                const SizedBox(height: 12),
+                SelectableText(messageText),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: messageText));
+              },
+              child: const Text('Copy Message'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                await _markBillMessageSent(billId);
+              },
+              child: const Text('Mark Sent'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool?> _confirmMessageSentAfterWhatsappLaunch(
+    MessagePlatform gateway,
+  ) async {
+    if (!mounted ||
+        (gateway != MessagePlatform.whatsapp &&
+            gateway != MessagePlatform.whatsappWebUi)) {
+      return false;
+    }
+
+    return showCustomConfirmationDialog(
+      context: context,
+      title: 'Message sent?',
+      message: gateway == MessagePlatform.whatsapp
+          ? 'Was the patient messaged on WhatsApp?'
+          : 'Was the patient messaged on WhatsApp Web UI?',
+      isDeleteOption: false,
+      showWarningIcon: false,
+      cancelLabel: 'Not Yet',
+      confirmLabel: 'Mark Sent',
+    );
   }
 
   Widget _buildStatusBadge(String text, Color color) {
