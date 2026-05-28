@@ -18,6 +18,12 @@ It streamlines diagnostic center operations — managing patients, doctors, diag
 * **Comprehensive Bill & Report Management**
   Easily create, view, and manage test reports and billing data.
 
+* **Advanced PDF Generation Engine**
+  Generate customized, professional Doctor Incentive reports with 3 dynamic layout options. Includes visual status indicators (e.g., automated red-coding for negative balances) and native OS file-save prompts.
+
+* **SMS Gateway Integration**
+  Integrated local SMS gateway for messaging, including an in-app securely authenticated prompt to download the required Gateway APK directly from your private server.
+
 * **Integrated Doctor & Patient Database**
   Maintain accurate and searchable records of doctors and patients.
 
@@ -28,7 +34,7 @@ It streamlines diagnostic center operations — managing patients, doctors, diag
   Uses **SimpleJWT** for token-based authentication and API security.
 
 * **Modern UI Design**
-  Clean, responsive Material 3 interface with a professional color palette.
+  Clean, responsive Material 3 interface featuring a beautiful, fluid glassmorphism design language, adaptive layouts, and a professional color palette.
 
 ---
 
@@ -89,127 +95,10 @@ flutter run
 
 ---
 
-## 🖥️ 3. Backend Setup (Django REST Framework)
+## 🖥️ 3. Backend Setup
 
-Clone the backend repository:
-
-```bash
-git clone https://github.com/himanshuchaurasiya24/LabLedger-Backend.git
-cd LabLedger-Backend
-```
-
----
-
-### 🪟 Windows Setup Script
-
-Save the following as **`setup_backend.bat`** in the backend directory, then double-click it or run it from CMD:
-
-```bat
-@echo off
-echo ==============================================
-echo   🚀 LabLedger Backend Setup (Windows)
-echo ==============================================
-echo.
-
-REM Check Python installation
-python --version >nul 2>&1
-if errorlevel 1 (
-    echo ❌ Python not found on your system.
-    set /p install="Would you like to install Python automatically? (y/n): "
-    if /I "%install%"=="y" (
-        echo 🌐 Opening Python download page...
-        start https://www.python.org/downloads/
-        echo Please install Python manually, then re-run this script.
-        pause
-        exit /b
-    ) else (
-        echo ⚠️ Python installation skipped. Exiting setup.
-        pause
-        exit /b
-    )
-) else (
-    echo ✅ Python is installed.
-)
-
-REM Create virtual environment
-if not exist venv (
-    echo 📦 Creating virtual environment...
-    python -m venv venv
-)
-
-REM Activate virtual environment
-echo ⚙️ Activating virtual environment...
-call venv\Scripts\activate
-
-REM Install dependencies
-echo 📚 Installing dependencies from requirements.txt...
-pip install --upgrade pip
-pip install -r requirements.txt
-
-REM Run the Django development server
-echo 🚀 Starting Django development server...
-python manage.py runserver
-
-pause
-```
-
----
-
-### 🐧 Linux Setup Script
-
-Save the following as **`setup_backend.sh`**, then run:
-
-```bash
-bash setup_backend.sh
-```
-
-**Script:**
-
-```bash
-#!/bin/bash
-echo "=============================================="
-echo " 🚀 LabLedger Backend Setup (Linux)"
-echo "=============================================="
-echo
-
-# Check Python installation
-if ! command -v python3 &> /dev/null
-then
-    echo "❌ Python is not installed."
-    read -p "Would you like to install Python now? (y/n): " answer
-    if [[ "$answer" == "y" ]]; then
-        echo "🌐 Installing Python..."
-        sudo apt update && sudo apt install -y python3 python3-venv python3-pip
-    else
-        echo "⚠️ Skipping Python installation. Exiting setup."
-        exit 1
-    fi
-else
-    echo "✅ Python is installed."
-fi
-
-# Create venv
-if [ ! -d "venv" ]; then
-    echo "📦 Creating virtual environment..."
-    python3 -m venv venv
-fi
-
-# Activate venv
-echo "⚙️ Activating virtual environment..."
-source venv/bin/activate
-
-# Install dependencies
-echo "📚 Installing dependencies from requirements.txt..."
-pip install --upgrade pip
-pip install -r requirements.txt
-
-# Runserver
-echo "🚀 Starting Django development server..."
-python manage.py runserver
-```
-
-Your backend will now be available at:
-👉 **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)**
+For backend setup instructions and details, please read the README in the dedicated backend repository:
+👉 **[LabLedger-Backend README](https://github.com/himanshuchaurasiya24/LabLedger-Backend)**
 
 ---
 
