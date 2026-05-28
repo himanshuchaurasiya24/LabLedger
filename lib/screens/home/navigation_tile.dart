@@ -35,12 +35,20 @@ class NavigationTile extends StatelessWidget {
               color: color,
               size: 50,
             ),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ),
             Icon(

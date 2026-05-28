@@ -7,7 +7,12 @@ import 'package:labledger/constants/urls.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/screens/home/home_screen.dart';
+import 'package:labledger/screens/setup/pages/feature_page.dart';
+import 'package:labledger/screens/setup/pages/intro_page.dart';
+import 'package:labledger/screens/setup/pages/license_page.dart';
+import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/snackbar_utils.dart';
+import 'package:window_manager/window_manager.dart';
 
 class SetupScreen extends ConsumerStatefulWidget {
   final AuthResponse authResponse;
@@ -27,7 +32,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   @override
   void initState() {
-    setWindowBehavior(isForSetup:true);
+    setWindowBehavior(isForSetup: true);
     _fetchLicense();
     super.initState();
   }
@@ -105,94 +110,83 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            Expanded(
-              child: PageView(
+            Column(
+              children: [
+                Expanded(
+                  child: PageView(
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
                 onPageChanged: (index) {
                   setState(() => _currentPage = index);
                 },
-                children: [_buildIntroPage(), _buildLicensePage()],
+                children: [
+                  const IntroPage(),
+                  const FeaturePage(
+                    icon: Icons.receipt_long_rounded,
+                    title: "Billing & Diagnostic Reports",
+                    description:
+                        "Seamlessly create patient bills, process samples, and generate professional diagnostic reports in one place.",
+                  ),
+                  const FeaturePage(
+                    icon: Icons.people_alt_rounded,
+                    title: "Referrals & Incentives",
+                    description:
+                        "Effortlessly track doctor and franchise referrals, and generate accurate automated incentives.",
+                  ),
+                  const FeaturePage(
+                    icon: Icons.bar_chart_rounded,
+                    title: "Analytics & Tracking",
+                    description:
+                        "Monitor your lab's performance with interactive charts, growth statistics, and real-time pending report tracking.",
+                  ),
+                  const FeaturePage(
+                    icon: Icons.admin_panel_settings_rounded,
+                    title: "Role-Based Management",
+                    description:
+                        "Secure your data with dedicated controls for Administrators, providing secure server configuration and audit logs.",
+                  ),
+                  const FeaturePage(
+                    icon: Icons.chat_rounded,
+                    title: "Messaging Integrations",
+                    description:
+                        "Instantly notify patients and doctors using our robust Local SMS Gateway and WhatsApp WebUI integrations.",
+                  ),
+                  const FeaturePage(
+                    icon: Icons.domain_rounded,
+                    title: "Multi-Center Management",
+                    description:
+                        "Manage multiple diagnostic centers, subscriptions, and quotas directly from a unified dashboard.",
+                  ),
+                  SetupLicensePage(
+                    isLoading: _isLicenseLoading,
+                    licenseText: _licenseText,
+                  ),
+                ],
               ),
             ),
             _buildBottomNav(),
           ],
         ),
-      ),
-    );
+        Positioned(
+          top: 16,
+          right: 16,
+          child: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () async {
+              await windowManager.close();
+            },
+            tooltip: "Close",
+          ),
+        ),
+      ],
+    ),
+  ),
+);
   }
 
-  Widget _buildIntroPage() {
-    return Padding(
-      padding: const EdgeInsets.all(40.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.dashboard_customize_rounded,
-            size: 120,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          const SizedBox(height: 40),
-          Text(
-            "Welcome to LabLedger!",
-            style: Theme.of(context).textTheme.headlineMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            "Let's get you set up to manage your lab operations efficiently.",
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildLicensePage() {
-    return Padding(
-      padding: const EdgeInsets.all(40.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            "End User License Agreement",
-            style: Theme.of(context).textTheme.headlineSmall,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: _isLicenseLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : SingleChildScrollView(
-                        child: Text(
-                          _licenseText ?? "",
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyMedium?.copyWith(height: 1.6),
-                        ),
-                      ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildBottomNav() {
     return Padding(
@@ -200,40 +194,32 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (_currentPage == 0)
-            ElevatedButton.icon(
+          if (_currentPage < 7)
+            CustomElevatedButton(
               onPressed: _nextPage,
               icon: const Icon(Icons.arrow_forward),
-              label: const Text("Next"),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-              ),
+              label: "Next",
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              width: 140,
             )
           else
-            ElevatedButton.icon(
-              onPressed: _isLoading || _isLicenseLoading
-                  ? null
-                  : _acceptLicense,
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.check),
-              label: Text(_isLoading ? "Accepting..." : "Accept & Continue"),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-              ),
+            CustomElevatedButton(
+              onPressed:
+                  _isLoading || _isLicenseLoading ? null : _acceptLicense,
+              icon:
+                  _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.check),
+              label: _isLoading ? "Accepting..." : "Accept & Continue",
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              width: 240,
             ),
         ],
       ),

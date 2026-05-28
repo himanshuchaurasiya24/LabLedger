@@ -92,7 +92,6 @@ Future<void> setWindowBehavior({
     if (isSetup) {
       await windowManager.setSkipTaskbar(false);
       await windowManager.setMinimumSize(const Size(1280, 720));
-      await windowManager.setMaximumSize(const Size(1280, 720));
 
       await windowManager.setSize(const Size(1280, 720));
       await windowManager.center();
@@ -101,7 +100,6 @@ Future<void> setWindowBehavior({
     if (isForLoadingScreen) {
       await windowManager.setSkipTaskbar(false);
       await windowManager.setMinimumSize(const Size(700, 350));
-      await windowManager.setMaximumSize(const Size(700, 350));
 
       await windowManager.setSize(const Size(700, 350));
       await windowManager.center();
@@ -113,7 +111,6 @@ Future<void> setWindowBehavior({
     if (isLogin) {
       await windowManager.setSkipTaskbar(false);
       await windowManager.setMinimumSize(const Size(700, 428));
-      await windowManager.setMaximumSize(const Size(700, 428));
 
       await windowManager.setSize(const Size(700, 428));
       await windowManager.center();

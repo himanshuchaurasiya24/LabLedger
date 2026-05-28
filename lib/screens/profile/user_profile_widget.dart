@@ -80,11 +80,26 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
           ref.read(themeNotifierProvider.notifier).toggleTheme(themeMode);
           _removeOverlay();
         },
-        onMessageSelect: (messagePlatform) {
+        onMessageSelect: (messagePlatform) async {
+          _removeOverlay();
+          if (messagePlatform == MessagePlatform.localSmsGateway) {
+            final confirmed = await showCustomConfirmationDialog(
+              context: context,
+              title: 'SMS Gateway Warning',
+              message:
+                  'Using SMS from a personal SIM card for commercial purposes is often prohibited under local telecom laws and your SIM card can be permanently blocked. Please verify your current government telecom regulations before proceeding.\n\nTo further reduce automated blocking, the app will randomly select from 20 different message formats when using this gateway.',
+              isDeleteOption: false,
+              showWarningIcon: true,
+              cancelLabel: 'Cancel',
+              confirmLabel: 'Okay',
+            );
+            if (confirmed != true) {
+              return;
+            }
+          }
           ref
               .read(messageNotifierProvider.notifier)
               .selectMessagePlatform(messagePlatform);
-          _removeOverlay();
         },
         onViewAuditLogsTap: () {
           _removeOverlay();
