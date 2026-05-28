@@ -5,7 +5,7 @@ set -euo pipefail
 # -------- Package configuration (edit these values when needed) --------
 APP_NAME="labledger"
 DISPLAY_NAME="LabLedger"
-VERSION="2.0.0"
+VERSION="3.0.0"
 MAINTAINER="LabLedger Team <himanshuchaurasiya24@gmail.com>"
 DESCRIPTION="Medical Records Made Simple"
 # ----------------------------------------------------------------------
