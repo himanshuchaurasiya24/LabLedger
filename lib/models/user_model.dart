@@ -11,6 +11,7 @@ class User {
   final String address;
   final bool isAdmin;
   final bool isLocked; // <-- ADDED
+  final bool hasAcceptedLicense;
   final CenterDetail centerDetail;
 
   User({
@@ -23,6 +24,7 @@ class User {
     required this.address,
     required this.isAdmin,
     required this.isLocked, // <-- ADDED
+    required this.hasAcceptedLicense,
     required this.centerDetail,
   });
 
@@ -37,6 +39,7 @@ class User {
       address: json['address'],
       isAdmin: json['is_admin'],
       isLocked: json['is_locked'], // <-- ADDED
+      hasAcceptedLicense: json['has_accepted_license'] ?? false,
       centerDetail: CenterDetail.fromJson(json['center_detail']),
     );
   }
@@ -52,6 +55,7 @@ class User {
       'address': address,
       'is_admin': isAdmin,
       'is_locked': isLocked, // <-- ADDED
+      'has_accepted_license': hasAcceptedLicense,
       'center_detail': centerDetail.toJson(),
     };
   }
@@ -66,6 +70,7 @@ class User {
     String? address,
     bool? isAdmin,
     bool? isLocked, // <-- ADDED
+    bool? hasAcceptedLicense,
     CenterDetail? centerDetail,
   }) {
     return User(
@@ -78,6 +83,7 @@ class User {
       address: address ?? this.address,
       isAdmin: isAdmin ?? this.isAdmin,
       isLocked: isLocked ?? this.isLocked, // <-- ADDED
+      hasAcceptedLicense: hasAcceptedLicense ?? this.hasAcceptedLicense,
       centerDetail: centerDetail ?? this.centerDetail,
     );
   }
