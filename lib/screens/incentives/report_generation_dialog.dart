@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/ui_components/blurred_dialog.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
@@ -109,76 +110,24 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Dialog(
-      backgroundColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        width: 600,
-        height: 850,
-        padding: EdgeInsets.all(defaultPadding * 2),
+    return PremiumDialog(
+      width: 600,
+      height: 850,
+      accentColor: theme.colorScheme.primary,
+      headerIcon: Icons.picture_as_pdf_rounded,
+      title: 'Generate PDF Report',
+      subtitle: 'Select fields and layout to include in your report',
+      onClose: () => Navigator.of(context).pop({'generate': false}),
+      content: Padding(
+        padding: const EdgeInsets.only(
+          top: 8.0,
+          left: 24.0,
+          right: 24.0,
+          bottom: 24.0,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(defaultPadding),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        theme.colorScheme.primary.withAlpha(51), // 0.2 alpha
-                        theme.colorScheme.primary.withAlpha(26), // 0.1 alpha
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: theme.colorScheme.primary.withAlpha(
-                        77,
-                      ), // 0.3 alpha
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.picture_as_pdf_rounded,
-                    color: theme.colorScheme.primary,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Generate PDF Report',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onSurface,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Select fields and layout to include in your report',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withAlpha(
-                            230,
-                          ), // 0.9 alpha
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () =>
-                      Navigator.of(context).pop({'generate': false}),
-                  style: IconButton.styleFrom(
-                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
             SizedBox(height: defaultHeight / 2),
             Text(
               'Select PDF Layout',

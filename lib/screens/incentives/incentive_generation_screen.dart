@@ -48,126 +48,134 @@ class _IncentiveGenerationScreenState
     final theme = Theme.of(context);
 
     return WindowScaffold(
-      child: Center(
-        child: Container(
-          constraints: BoxConstraints(maxWidth: 900),
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(defaultPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header Section
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              theme.colorScheme.secondary,
-                              theme.colorScheme.secondary.withValues(
+      child: Padding(
+        padding: EdgeInsets.all(defaultPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header Section
+            Expanded(
+              flex: 2,
+              child: TintedContainer(
+                baseColor: theme.colorScheme.secondary,
+                radius: 24,
+                intensity: 0.08,
+                useGradient: true,
+                elevationLevel: 2,
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            theme.colorScheme.secondary,
+                            theme.colorScheme.secondary.withValues(alpha: 0.7),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.colorScheme.secondary.withValues(
+                              alpha: 0.3,
+                            ),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        LucideIcons.fileText,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Generate Incentive Report",
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            "Configure filters and generate detailed incentive reports",
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurface.withValues(
                                 alpha: 0.7,
                               ),
-                            ],
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: theme.colorScheme.secondary.withValues(
-                                alpha: 0.3,
-                              ),
-                              blurRadius: 12,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          LucideIcons.fileText,
-                          color: Colors.white,
-                          size: 28,
-                        ),
+                        ],
                       ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Generate Incentive Report",
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              "Configure filters and generate detailed incentive reports",
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.7,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: defaultHeight),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: defaultHeight),
 
-                  // Date Range Section
-                  TintedContainer(
-                    baseColor: theme.colorScheme.secondary,
-                    height: 200,
-                    intensity: 0.08,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            // Date Range Section
+            Expanded(
+              flex: 3,
+              child: TintedContainer(
+                baseColor: theme.colorScheme.secondary,
+                intensity: 0.08,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              LucideIcons.calendar,
-                              size: 20,
-                              color: theme.colorScheme.secondary,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              "Date Range",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: theme.colorScheme.secondary,
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          LucideIcons.calendar,
+                          size: 20,
+                          color: theme.colorScheme.secondary,
                         ),
-                        SizedBox(height: defaultHeight),
-                        _DateRangePicker(),
+                        SizedBox(width: 8),
+                        Text(
+                          "Date Range",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: theme.colorScheme.secondary,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  SizedBox(height: defaultHeight),
+                    SizedBox(height: defaultHeight),
+                    Expanded(child: _DateRangePicker()),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: defaultHeight),
 
-                  // Filters Grid
-                  _FilterPanel(),
+            // Filters Grid
+            Expanded(flex: 5, child: const _FilterPanel()),
 
-                  SizedBox(height: defaultHeight * 1.5),
+            SizedBox(height: defaultHeight * 1.5),
 
-                  // Stats and Actions Row
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(flex: 3, child: QuickStatsPanel()),
-                      SizedBox(width: defaultWidth),
-                      Expanded(flex: 2, child: ActionPanel()),
-                    ],
-                  ),
-                  SizedBox(height: defaultHeight * 2),
+            // Stats and Actions Row
+            Expanded(
+              flex: 3,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(flex: 3, child: QuickStatsPanel()),
+                  SizedBox(width: defaultWidth),
+                  Expanded(flex: 2, child: ActionPanel()),
                 ],
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -187,133 +195,175 @@ class _FilterPanel extends ConsumerWidget {
 
     return Column(
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: doctorsAsync.when(
-                data: (doctors) => TintedContainer(
-                  height: 140,
-                  baseColor: cardColor,
-                  intensity: 0.08,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            LucideIcons.userCheck,
-                            size: 18,
-                            color: cardColor,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            "Doctors",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15,
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: doctorsAsync.when(
+                  data: (doctors) => TintedContainer(
+                    baseColor: cardColor,
+                    intensity: 0.08,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              LucideIcons.userCheck,
+                              size: 18,
                               color: cardColor,
                             ),
-                          ),
-                        ],
-                      ),
-                      Spacer(),
-                      _CompactMultiSelectDropdown<int>(
-                        items: {
-                          for (var doc in doctors)
-                            doc.id!: "${doc.firstName} ${doc.lastName}",
-                        },
-                        selectedProvider: selectedDoctorIdsProvider,
-                        hint: "Select doctors...",
-                        baseColor: cardColor,
-                      ),
-                    ],
-                  ),
-                ),
-                loading: () => TintedContainer(
-                  height: 140,
-                  baseColor: cardColor,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (e, s) => TintedContainer(
-                  height: 140,
-                  baseColor: theme.colorScheme.error,
-                  child: Center(child: Text("Error loading doctors")),
-                ),
-              ),
-            ),
-            SizedBox(width: defaultWidth),
-            Expanded(
-              child: franchisesAsync.when(
-                data: (franchises) => TintedContainer(
-                  baseColor: cardColor,
-                  height: 140,
-                  intensity: 0.08,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            LucideIcons.building,
-                            size: 18,
-                            color: cardColor,
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              "Franchise Labs",
+                            SizedBox(width: 8),
+                            Text(
+                              "Doctors",
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
                                 color: cardColor,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        "Optional: Filter by a specific franchise",
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: cardColor.withValues(alpha: 0.8),
+                          ],
                         ),
-                      ),
-                      Spacer(),
-                      _CompactMultiSelectDropdown<int>(
-                        items: {
-                          for (var f in franchises) f.id!: f.franchiseName!,
-                        },
-                        selectedProvider: selectedFranchiseIdsProvider,
-                        hint: "Select labs...",
-                        baseColor: cardColor,
-                      ),
-                    ],
+                        Spacer(),
+                        _CompactMultiSelectDropdown<int>(
+                          items: {
+                            for (var doc in doctors)
+                              doc.id!: "${doc.firstName} ${doc.lastName}",
+                          },
+                          selectedProvider: selectedDoctorIdsProvider,
+                          hint: "Select doctors...",
+                          baseColor: cardColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                  loading: () => TintedContainer(
+                    baseColor: cardColor,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (e, s) => TintedContainer(
+                    baseColor: theme.colorScheme.error,
+                    child: Center(child: Text("Error loading doctors")),
                   ),
                 ),
-                loading: () => TintedContainer(
-                  height: 140,
-                  baseColor: cardColor,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (e, s) => TintedContainer(
-                  height: 140,
-                  baseColor: theme.colorScheme.error,
-                  child: Center(child: Text("Error loading labs")),
+              ),
+              SizedBox(width: defaultWidth),
+              Expanded(
+                child: franchisesAsync.when(
+                  data: (franchises) => TintedContainer(
+                    baseColor: cardColor,
+                    intensity: 0.08,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              LucideIcons.building,
+                              size: 18,
+                              color: cardColor,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "Franchise Labs",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                  color: cardColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          "Optional: Filter by a specific franchise",
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: cardColor.withValues(alpha: 0.8),
+                          ),
+                        ),
+                        Spacer(),
+                        _CompactMultiSelectDropdown<int>(
+                          items: {
+                            for (var f in franchises) f.id!: f.franchiseName!,
+                          },
+                          selectedProvider: selectedFranchiseIdsProvider,
+                          hint: "Select labs...",
+                          baseColor: cardColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                  loading: () => TintedContainer(
+                    baseColor: cardColor,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (e, s) => TintedContainer(
+                    baseColor: theme.colorScheme.error,
+                    child: Center(child: Text("Error loading labs")),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         SizedBox(height: defaultHeight),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: diagnosisTypesAsync.when(
-                data: (types) => TintedContainer(
-                  height: 140,
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: diagnosisTypesAsync.when(
+                  data: (types) => TintedContainer(
+                    baseColor: cardColor,
+                    intensity: 0.08,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              LucideIcons.clipboardList,
+                              size: 18,
+                              color: cardColor,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              "Diagnosis Types",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: cardColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Spacer(),
+                        _CompactMultiSelectDropdown<int>(
+                          items: {for (var t in types) t.id!: t.name},
+                          selectedProvider: selectedDiagnosisTypeIdsProvider,
+                          hint: "Select types...",
+                          baseColor: cardColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                  loading: () => TintedContainer(
+                    baseColor: cardColor,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (e, s) => TintedContainer(
+                    baseColor: theme.colorScheme.error,
+                    child: Center(child: Text("Error loading types")),
+                  ),
+                ),
+              ),
+              SizedBox(width: defaultWidth),
+              Expanded(
+                child: TintedContainer(
                   baseColor: cardColor,
                   intensity: 0.08,
                   child: Column(
@@ -322,13 +372,13 @@ class _FilterPanel extends ConsumerWidget {
                       Row(
                         children: [
                           Icon(
-                            LucideIcons.clipboardList,
+                            LucideIcons.creditCard,
                             size: 18,
                             color: cardColor,
                           ),
                           SizedBox(width: 8),
                           Text(
-                            "Diagnosis Types",
+                            "Bill Status",
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 15,
@@ -338,76 +388,27 @@ class _FilterPanel extends ConsumerWidget {
                         ],
                       ),
                       Spacer(),
-                      _CompactMultiSelectDropdown<int>(
-                        items: {for (var t in types) t.id!: t.name},
-                        selectedProvider: selectedDiagnosisTypeIdsProvider,
-                        hint: "Select types...",
+                      _CompactMultiSelectDropdown<String>(
+                        items: {
+                          'Fully Paid': 'Fully Paid',
+                          'Partially Paid': 'Partially Paid',
+                          'Unpaid': 'Unpaid',
+                        },
+                        selectedProvider: selectedBillStatusesProvider,
+                        hint: "Select status...",
                         baseColor: cardColor,
                       ),
                     ],
                   ),
                 ),
-                loading: () => TintedContainer(
-                  height: 140,
-                  baseColor: cardColor,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (e, s) => TintedContainer(
-                  height: 140,
-                  baseColor: theme.colorScheme.error,
-                  child: Center(child: Text("Error loading types")),
-                ),
               ),
-            ),
-            SizedBox(width: defaultWidth),
-            Expanded(
-              child: TintedContainer(
-                baseColor: cardColor,
-                height: 140,
-                intensity: 0.08,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          LucideIcons.creditCard,
-                          size: 18,
-                          color: cardColor,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          "Bill Status",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: cardColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Spacer(),
-                    _CompactMultiSelectDropdown<String>(
-                      items: {
-                        'Fully Paid': 'Fully Paid',
-                        'Partially Paid': 'Partially Paid',
-                        'Unpaid': 'Unpaid',
-                      },
-                      selectedProvider: selectedBillStatusesProvider,
-                      hint: "Select status...",
-                      baseColor: cardColor,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
   }
 }
-
 
 class _DateRangePicker extends ConsumerWidget {
   const _DateRangePicker();

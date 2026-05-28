@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +21,7 @@ import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:open_file_plus/open_file_plus.dart';
-import 'package:labledger/utils/file_utils.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
-// ignore: depend_on_referenced_packages
-import "package:path/path.dart" as p;
 import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
@@ -99,11 +95,21 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
   ) async {
     const minDuration = Duration(seconds: 1);
     final stopwatch = Stopwatch()..start();
+    bool isDialogPopped = false;
 
     _showProgressDialog();
     final pdfFieldSelection = Map<String, bool>.from(selectedFields)
       ..remove('negativeIncentives')
       ..remove('zeroIncentives');
+
+    void closeDialog() {
+      if (!isDialogPopped) {
+        if (Navigator.of(context, rootNavigator: true).canPop()) {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
+        isDialogPopped = true;
+      }
+    }
 
     try {
       final reportState = ref.read(incentiveReportProvider);
@@ -144,28 +150,32 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
             pdfIndex: pdfIndex,
           );
 
+          stopwatch.stop();
+          final elapsed = stopwatch.elapsed;
+          if (elapsed < minDuration) {
+            await Future.delayed(minDuration - elapsed);
+          }
+          closeDialog();
+
           if (kIsWeb) {
             _downloadPdfWeb(pdfBytes);
           } else {
-            final directory = await getApplicationDocumentsDirectory();
             final fileName =
                 "LabLedger Incentive Report ${DateFormat("dd MMM yyyy hh-mm-ss").format(DateTime.now())}.pdf";
-            final filePath = p.join(directory.path, fileName);
-            final file = File(filePath);
-            await file.writeAsBytes(pdfBytes);
-            final result = await FileUtils.openFile(filePath);
 
-            if (result.type == ResultType.error) {
-              _showSnackBar(
-                'Failed to open PDF: ${result.message}',
-                isError: true,
-              );
-            } else {
-              _showSnackBar(
-                'Report generated and opening now...',
-                isError: false,
-              );
+            final savePath = await FilePicker.platform.saveFile(
+              dialogTitle: 'Save report file',
+              fileName: fileName,
+            );
+
+            if (savePath == null || savePath.isEmpty) {
+              _showSnackBar('Save cancelled', isError: false);
+              return;
             }
+
+            final file = File(savePath);
+            await file.writeAsBytes(pdfBytes);
+            _showSnackBar('Report saved to $savePath', isError: false);
           }
         case AsyncLoading():
           _showSnackBar('Please wait for data to load', isError: false);
@@ -180,20 +190,14 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
     } catch (e) {
       _showSnackBar('Failed to generate report: $e', isError: true);
     } finally {
-      stopwatch.stop();
-      final elapsed = stopwatch.elapsed;
-
-      if (elapsed < minDuration) {
-        final remainingDelay = minDuration - elapsed;
-        await Future.delayed(remainingDelay);
+      if (stopwatch.isRunning) {
+        stopwatch.stop();
+        final elapsed = stopwatch.elapsed;
+        if (elapsed < minDuration) {
+          await Future.delayed(minDuration - elapsed);
+        }
       }
-
-      if (Navigator.of(
-        navigatorKey.currentContext!,
-        rootNavigator: true,
-      ).canPop()) {
-        Navigator.of(navigatorKey.currentContext!, rootNavigator: true).pop();
-      }
+      closeDialog();
     }
   }
 

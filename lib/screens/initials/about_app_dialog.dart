@@ -58,12 +58,12 @@ class AboutAppDialog extends StatelessWidget {
                         firstName: 'Lab',
                         secondName: 'Ledger',
                         alignment: MainAxisAlignment.center,
-                        fontSize: 80,
+                        fontSize: 70,
                       ),
-
+                      const SizedBox(height: 8),
                       Text(
                         appDescription,
-                        style: theme.textTheme.titleLarge?.copyWith(
+                        style: theme.textTheme.titleMedium?.copyWith(
                           color: theme.colorScheme.onSurface.withValues(
                             alpha: 0.8,
                           ),
@@ -72,7 +72,7 @@ class AboutAppDialog extends StatelessWidget {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: defaultHeight / 2),
+                      SizedBox(height: defaultHeight / 1.5),
 
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -81,12 +81,12 @@ class AboutAppDialog extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.primary.withValues(
-                            alpha: 0.15,
+                            alpha: 0.1,
                           ),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: theme.colorScheme.primary.withValues(
-                              alpha: 0.3,
+                              alpha: 0.2,
                             ),
                             width: 1,
                           ),

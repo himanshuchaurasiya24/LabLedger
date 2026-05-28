@@ -17,6 +17,7 @@ class QuickStatsPanel extends ConsumerWidget {
     final Color cardColor = Theme.of(context).colorScheme.secondary;
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: StatCard(
@@ -78,7 +79,6 @@ class StatCard extends StatelessWidget {
 
     return TintedContainer(
       baseColor: color,
-      height: 130,
       intensity: 0.08,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

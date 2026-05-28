@@ -16,8 +16,9 @@ List<pw.Widget> buildBillsTableType2(
   CenterDetail centerDetail,
 ) {
   double containerBorderRadius = 8;
-  const lightBlueColor = PdfColor.fromInt(0xFFE3F2FD);
-  final deepBlueColor = PdfColor.fromInt(0xFF0072B5);
+  final bool isNegativeIncentive = doctorReport.totalIncentive < 0;
+  final lightBlueColor = isNegativeIncentive ? PdfColors.red50 : PdfColor.fromInt(0xFFE3F2FD);
+  final deepBlueColor = isNegativeIncentive ? PdfColors.red800 : PdfColor.fromInt(0xFF0072B5);
   final headers = <String>[];
   final Map<int, pw.TableColumnWidth> columnWidths = {};
   final bills = doctorReport.bills;
@@ -129,7 +130,7 @@ List<pw.Widget> buildBillsTableType2(
                           font: boldFont,
                           fontSize: 14,
                           fontWeight: pw.FontWeight.bold,
-                          color: PdfColors.grey900,
+                          color: isNegativeIncentive ? PdfColors.red800 : PdfColors.grey900,
                         ),
                       ),
                       pw.SizedBox(height: 2),
@@ -138,7 +139,7 @@ List<pw.Widget> buildBillsTableType2(
                         style: pw.TextStyle(
                           font: font,
                           fontSize: 8,
-                          color: PdfColors.grey600,
+                          color: isNegativeIncentive ? PdfColors.red600 : PdfColors.grey600,
                         ),
                       ),
                     ],
@@ -380,19 +381,25 @@ pw.Widget _buildPaymentStatusCell(String status, pw.Font font) {
   );
 }
 
-pw.Widget _buildIncentiveCell(int amount, pw.Font font) => pw.Container(
-  padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-  child: pw.Text(
-    "₹${NumberFormat('#,##,###').format(amount)}",
-    style: pw.TextStyle(
-      font: font,
-      fontSize: 7,
-      fontWeight: pw.FontWeight.bold,
-      color: PdfColors.green700,
+pw.Widget _buildIncentiveCell(int amount, pw.Font font) {
+  return pw.Container(
+    padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+    child: pw.Text(
+      "₹${NumberFormat('#,##,###').format(amount)}",
+      style: pw.TextStyle(
+        font: font,
+        fontSize: 7,
+        fontWeight: pw.FontWeight.bold,
+        color: amount < 0 
+            ? PdfColors.red700 
+            : amount == 0 
+                ? PdfColors.grey800 
+                : PdfColors.green700,
+      ),
+      textAlign: pw.TextAlign.center,
     ),
-    textAlign: pw.TextAlign.center,
-  ),
-);
+  );
+}
 
 String _formatDiagnosis(IncentiveBill bill) {
   if (bill.diagnosisTypesOutput.isNotEmpty) {

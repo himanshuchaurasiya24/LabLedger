@@ -18,6 +18,17 @@ List<pw.Widget> buildBillsTableType1(
   final deepBlueColor = PdfColor.fromInt(0xFF0072B5);
   const lightBlueColor = PdfColor.fromInt(0xFFDCEEF7);
 
+  final bool isNegativeIncentive = doctorReport.totalIncentive < 0;
+  final gradientStartColor = isNegativeIncentive
+      ? const PdfColor.fromInt(0xFFC62828)
+      : deepBlueColor;
+  final gradientEndColor = isNegativeIncentive
+      ? const PdfColor.fromInt(0xFFEF5350)
+      : tealColor;
+  final chipBgColor = isNegativeIncentive
+      ? const PdfColor.fromInt(0xFFD32F2F)
+      : PdfColors.teal;
+
   final headers = <String>[];
   final Map<int, pw.TableColumnWidth> columnWidths = {};
   final bills = doctorReport.bills;
@@ -85,7 +96,7 @@ List<pw.Widget> buildBillsTableType1(
       padding: const pw.EdgeInsets.all(16),
       decoration: pw.BoxDecoration(
         gradient: pw.LinearGradient(
-          colors: [deepBlueColor, tealColor],
+          colors: [gradientStartColor, gradientEndColor],
           begin: pw.Alignment.centerLeft,
           end: pw.Alignment.centerRight,
         ),
@@ -120,7 +131,7 @@ List<pw.Widget> buildBillsTableType1(
                         font: boldFont,
                         fontSize: 18,
                         fontWeight: pw.FontWeight.bold,
-                        color: deepBlueColor,
+                        color: gradientStartColor,
                       ),
                     ),
                   ),
@@ -148,12 +159,14 @@ List<pw.Widget> buildBillsTableType1(
                             "${doctorReport.bills.length} Referrals",
                             font,
                             PdfColors.white,
+                            chipBgColor,
                           ),
                           pw.SizedBox(width: 8),
                           _buildInfoChip(
                             "₹${NumberFormat('#,##,###').format(doctorReport.totalIncentive)}",
                             boldFont,
                             PdfColors.white,
+                            chipBgColor,
                           ),
                         ],
                       ),
@@ -396,11 +409,16 @@ List<pw.Widget> buildBillsTableType1(
   ];
 }
 
-pw.Widget _buildInfoChip(String text, pw.Font font, PdfColor color) {
+pw.Widget _buildInfoChip(
+  String text,
+  pw.Font font,
+  PdfColor color, [
+  PdfColor? bgColor,
+]) {
   return pw.Container(
     padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
     decoration: pw.BoxDecoration(
-      color: PdfColors.teal,
+      color: bgColor ?? PdfColors.teal,
       borderRadius: pw.BorderRadius.circular(4),
     ),
     child: pw.Text(
@@ -522,16 +540,27 @@ pw.Widget _buildIncentiveAmountCell(
   pw.Font boldFont,
   bool isEven,
 ) {
+  final isNegative = amount < 0;
   return pw.Container(
     padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-    decoration: pw.BoxDecoration(color: const PdfColor.fromInt(0xFFCCFBF1)),
+    decoration: pw.BoxDecoration(
+      color: isNegative
+          ? const PdfColor.fromInt(0xFFFFEBEE)
+          : amount == 0
+              ? const PdfColor.fromInt(0xFFF3F4F6)
+              : const PdfColor.fromInt(0xFFCCFBF1),
+    ),
     child: pw.Text(
       "₹${NumberFormat('#,##,###').format(amount)}",
       style: pw.TextStyle(
         font: boldFont,
         fontSize: 7.5,
         fontWeight: pw.FontWeight.bold,
-        color: const PdfColor.fromInt(0xFF0F766E),
+        color: isNegative
+            ? const PdfColor.fromInt(0xFFC62828)
+            : amount == 0
+                ? const PdfColor.fromInt(0xFF1F2937)
+                : const PdfColor.fromInt(0xFF0F766E),
       ),
       textAlign: pw.TextAlign.center,
     ),

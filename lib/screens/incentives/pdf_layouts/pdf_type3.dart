@@ -15,7 +15,9 @@ List<pw.Widget> buildBillsTableType3(
   pw.Font boldFont,
   CenterDetail centerDetail,
 ) {
-  const lightBlueColor = PdfColor.fromInt(0xFFE3F2FD);
+  final bool isNegativeIncentive = doctorReport.totalIncentive < 0;
+  final lightBlueColor = isNegativeIncentive ? PdfColors.red50 : PdfColor.fromInt(0xFFE3F2FD);
+  final themeColor = isNegativeIncentive ? PdfColors.red800 : PdfColor.fromHex("#0072B5");
 
   final headers = <String>[];
   final Map<int, pw.TableColumnWidth> columnWidths = {};
@@ -113,7 +115,7 @@ List<pw.Widget> buildBillsTableType3(
                           font: boldFont,
                           fontSize: 14,
                           fontWeight: pw.FontWeight.bold,
-                          color: PdfColor.fromHex("#0072B5"),
+                          color: themeColor,
                         ),
                       ),
                     ),
@@ -128,7 +130,7 @@ List<pw.Widget> buildBillsTableType3(
                           font: boldFont,
                           fontSize: 14,
                           fontWeight: pw.FontWeight.bold,
-                          color: PdfColors.grey900,
+                          color: isNegativeIncentive ? PdfColors.red800 : PdfColors.grey900,
                         ),
                       ),
                       pw.SizedBox(height: 2),
@@ -137,7 +139,7 @@ List<pw.Widget> buildBillsTableType3(
                         style: pw.TextStyle(
                           font: font,
                           fontSize: 8,
-                          color: PdfColors.grey600,
+                          color: isNegativeIncentive ? PdfColors.red600 : PdfColors.grey600,
                         ),
                       ),
                     ],
@@ -163,7 +165,7 @@ List<pw.Widget> buildBillsTableType3(
                         font: boldFont,
                         fontSize: 10,
                         fontWeight: pw.FontWeight.bold,
-                        color: PdfColor.fromHex("#0072B5"),
+                        color: themeColor,
                       ),
                     ),
                     pw.SizedBox(height: 4),
@@ -206,7 +208,7 @@ List<pw.Widget> buildBillsTableType3(
                           font: boldFont,
                           fontSize: 7.5,
                           // fontWeight: pw.FontWeight.bold,
-                          color: PdfColor.fromHex("#0072B5"),
+                          color: themeColor,
                         ),
                         textAlign: pw.TextAlign.center,
                       ),
@@ -379,19 +381,25 @@ pw.Widget _buildPaymentStatusCell(String status, pw.Font font) {
   );
 }
 
-pw.Widget _buildIncentiveCell(int amount, pw.Font font) => pw.Container(
-  padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-  child: pw.Text(
-    "₹${NumberFormat('#,##,###').format(amount)}",
-    style: pw.TextStyle(
-      font: font,
-      fontSize: 7,
-      fontWeight: pw.FontWeight.bold,
-      color: PdfColors.green700,
+pw.Widget _buildIncentiveCell(int amount, pw.Font font) {
+  return pw.Container(
+    padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+    child: pw.Text(
+      "₹${NumberFormat('#,##,###').format(amount)}",
+      style: pw.TextStyle(
+        font: font,
+        fontSize: 7,
+        fontWeight: pw.FontWeight.bold,
+        color: amount < 0 
+            ? PdfColors.red700 
+            : amount == 0 
+                ? PdfColors.grey800 
+                : PdfColors.green700,
+      ),
+      textAlign: pw.TextAlign.center,
     ),
-    textAlign: pw.TextAlign.center,
-  ),
-);
+  );
+}
 
 String _formatDiagnosis(IncentiveBill bill) {
   if (bill.diagnosisTypesOutput.isNotEmpty) {
