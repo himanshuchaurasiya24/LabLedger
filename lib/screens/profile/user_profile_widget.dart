@@ -11,6 +11,7 @@ import 'package:labledger/providers/report_quota_provider.dart';
 import 'package:labledger/screens/profile/audit_log_dialog.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
 import 'package:labledger/methods/string_utils.dart';
+import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/screens/profile/components/profile_menu_widgets.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -160,71 +161,19 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
   }
 
   // Show logout confirmation dialog
-  void _showLogoutConfirmation(BuildContext context) {
-    showDialog(
+  void _showLogoutConfirmation(BuildContext context) async {
+    final logoutResult = await showCustomConfirmationDialog(
       context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          backgroundColor: isDark ? Colors.grey.shade900 : Colors.white,
-          title: Row(
-            children: [
-              Icon(Icons.logout_rounded, color: Colors.red.shade600, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                'Logout',
-                style: TextStyle(
-                  color: isDark ? Colors.white : Colors.grey.shade800,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            'Are you sure you want to logout?',
-            style: TextStyle(
-              color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
-              fontSize: 16,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                widget.onLogout();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade600,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Logout',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        );
-      },
+      title: 'Logout',
+      message: 'Are you sure you want to logout?',
+      isDeleteOption: false,
+      cancelLabel: 'Cancel',
+      confirmLabel: 'Logout',
+      showWarningIcon: false,
     );
+    if (logoutResult == true) {
+      widget.onLogout();
+    }
   }
 
   // Show coming soon message

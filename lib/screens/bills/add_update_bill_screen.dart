@@ -522,7 +522,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
                   _isSubmitting
                       ? 'Saving...'
                       : (_isEditMode ? 'Update Bill' : 'Create Bill'),
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
               if (_isEditMode) ...[

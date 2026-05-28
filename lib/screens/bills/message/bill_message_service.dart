@@ -95,6 +95,7 @@ class BillMessageService {
     );
   }
 }
+
 String buildBillMessageText(Bill bill, String? secureReportUrl, WidgetRef ref) {
   String statusSuffix({
     required String fullyPaid,
@@ -191,7 +192,7 @@ String buildBillMessageText(Bill bill, String? secureReportUrl, WidgetRef ref) {
   }
 
   if (secureReportUrl != null &&
-      secureReportUrl.isNotEmpty &&
+      !secureReportUrl.contains('127.0.0.1') &&
       bill.billStatus == 'Fully Paid') {
     line.add(
       'You can download your report by visiting here:\n$secureReportUrl.\nPlease keep this link safe as it is one time use only and auto-expires after 6 hrs.',
