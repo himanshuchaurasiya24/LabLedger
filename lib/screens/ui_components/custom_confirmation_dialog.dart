@@ -7,6 +7,7 @@ Future<bool> showCustomConfirmationDialog({
   required BuildContext context,
   required String title,
   required String message,
+  Widget? contentBottomWidget,
   bool isDeleteOption = true,
   bool showWarningIcon = true,
   double borderRadius = 16,
@@ -40,27 +41,37 @@ Future<bool> showCustomConfirmationDialog({
             Flexible(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 22, 24, 18),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: accentColor.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: accentColor.withValues(alpha: 0.25),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: accentColor.withValues(alpha: 0.25),
+                        ),
+                      ),
+                      child: Text(
+                        message,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                          height: 1.45,
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    message,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                      height: 1.45,
-                    ),
-                  ),
+                    if (contentBottomWidget != null) ...[
+                      const SizedBox(height: 16),
+                      contentBottomWidget,
+                    ],
+                  ],
                 ),
               ),
             ),
-            Container(
+          Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: isDeleteOption

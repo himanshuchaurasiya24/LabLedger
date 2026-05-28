@@ -5,6 +5,7 @@ class AppUrls {
       'https://raw.githubusercontent.com/himanshuchaurasiya24/SampleLabReports/main/usg.json';
   static const String localBaseUrl = 'http://127.0.0.1:8000/';
   static const String localSmsGatewaySendSmsUrl = 'http://192.168.31.61:8080/send-sms';
+  static const String localSmsGatewayApk = 'auth/local-sms-gateway-apk/';
   static const String developerGithub =
       'https://github.com/himanshuchaurasiya24';
   static const String releasesPage =

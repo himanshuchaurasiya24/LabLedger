@@ -1,4 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:labledger/authentication/auth_http_client.dart';
+import 'package:labledger/constants/urls.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -83,6 +87,7 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
         onMessageSelect: (messagePlatform) async {
           _removeOverlay();
           if (messagePlatform == MessagePlatform.localSmsGateway) {
+            bool isDownloading = false;
             final confirmed = await showCustomConfirmationDialog(
               context: context,
               title: 'SMS Gateway Warning',
@@ -92,6 +97,87 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
               showWarningIcon: true,
               cancelLabel: 'Cancel',
               confirmLabel: 'Okay',
+              contentBottomWidget: StatefulBuilder(
+                builder: (context, setStateDialog) {
+                  return InkWell(
+                    mouseCursor: SystemMouseCursors.click,
+                    onTap: isDownloading
+                        ? null
+                        : () async {
+                            setStateDialog(() => isDownloading = true);
+                            try {
+                              final url =
+                                  '${AppUrls.localBaseUrl}${AppUrls.localSmsGatewayApk}';
+                              final response = await AuthHttpClient.request(
+                                ref,
+                                method: 'GET',
+                                url: url,
+                              );
+
+                              if (response.statusCode == 200) {
+                                final savePath = await FilePicker.platform
+                                    .saveFile(
+                                      dialogTitle: 'Save SMS Gateway APK',
+                                      fileName: 'local_sms_gateway.apk',
+                                    );
+
+                                if (savePath != null && savePath.isNotEmpty) {
+                                  final file = File(savePath);
+                                  await file.writeAsBytes(response.bodyBytes);
+                                  if (context.mounted) {
+                                    showSuccessSnackBar(
+                                      context,
+                                      'APK downloaded successfully to $savePath',
+                                    );
+                                  }
+                                }
+                              } else {
+                                if (context.mounted) {
+                                  showErrorSnackBar(
+                                    context,
+                                    'File is not available on server.',
+                                  );
+                                }
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                showErrorSnackBar(
+                                  context,
+                                  'Failed to download APK: $e',
+                                );
+                              }
+                            } finally {
+                              setStateDialog(() => isDownloading = false);
+                            }
+                          },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.download_rounded,
+                            size: 20,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              isDownloading
+                                  ? 'Downloading...'
+                                  : 'Download SMS Gateway App',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                // decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             );
             if (confirmed != true) {
               return;
