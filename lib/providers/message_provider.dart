@@ -1,18 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:labledger/utils/app_platform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
-  throw UnimplementedError(
-    'sharedPreferencesProvider must be overridden in main.dart',
-  );
-});
 
 final messageNotifierProvider =
     StateNotifierProvider<MessageNotifier, MessagePlatform>((ref) {
-      final preferences = ref.watch(sharedPreferencesProvider);
-      return MessageNotifier(preferences);
+      return MessageNotifier();
     });
 
 enum MessagePlatform { localSmsGateway, whatsappWebUi, whatsapp }
@@ -68,14 +61,13 @@ List<MessagePlatform> availableMessagePlatforms() {
 class MessageNotifier extends StateNotifier<MessagePlatform> {
   static const _key = 'message_platform';
 
-  final SharedPreferences _preferences;
-
-  MessageNotifier(this._preferences) : super(_defaultMessagePlatform()) {
+  MessageNotifier() : super(_defaultMessagePlatform()) {
     _loadMessagePlatform();
   }
 
-  void _loadMessagePlatform() {
-    final storedValue = _preferences.getString(_key);
+  Future<void> _loadMessagePlatform() async {
+    final preferences = await SharedPreferences.getInstance();
+    final storedValue = preferences.getString(_key);
     final resolvedValue = _resolveSelection(
       messagePlatformFromStorage(storedValue),
     );
@@ -83,14 +75,15 @@ class MessageNotifier extends StateNotifier<MessagePlatform> {
     state = resolvedValue;
 
     if (storedValue != resolvedValue.storageValue) {
-      _preferences.setString(_key, resolvedValue.storageValue);
+      await preferences.setString(_key, resolvedValue.storageValue);
     }
   }
 
   Future<void> selectMessagePlatform(MessagePlatform platform) async {
+    final preferences = await SharedPreferences.getInstance();
     final resolvedValue = _resolveSelection(platform);
     state = resolvedValue;
-    await _preferences.setString(_key, resolvedValue.storageValue);
+    await preferences.setString(_key, resolvedValue.storageValue);
   }
 
   MessagePlatform _resolveSelection(MessagePlatform platform) {
@@ -103,19 +96,26 @@ class MessageNotifier extends StateNotifier<MessagePlatform> {
 }
 
 MessagePlatform _defaultMessagePlatform() {
-  return switch (currentAppPlatform()) {
-    AppPlatform.linux => MessagePlatform.whatsappWebUi,
-    AppPlatform.macos => MessagePlatform.whatsapp,
-    AppPlatform.windows => MessagePlatform.whatsapp,
-    AppPlatform.web => MessagePlatform.whatsappWebUi,
-    AppPlatform.other => MessagePlatform.localSmsGateway,
+  if (kIsWeb) {
+    return MessagePlatform.whatsappWebUi;
+  }
+
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.macOS => MessagePlatform.whatsapp,
+    TargetPlatform.windows => MessagePlatform.whatsapp,
+    TargetPlatform.linux => MessagePlatform.whatsappWebUi,
+    _ => MessagePlatform.localSmsGateway,
   };
 }
 
 bool _supportsWhatsApp() {
-  return switch (currentAppPlatform()) {
-    AppPlatform.macos => true,
-    AppPlatform.windows => true,
+  if (kIsWeb) {
+    return false;
+  }
+
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.macOS => true,
+    TargetPlatform.windows => true,
     _ => false,
   };
 }

@@ -458,7 +458,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                         if (authResponse.isAdmin)
                           ProfileMenuItem(
                             icon: LucideIcons.messageSquare,
-                            label: 'SMS Gateway',
+                            label: 'Message Gateway',
                             onTap: onMessageToggle,
                             isDark: isDark,
                             trailing: AnimatedRotation(
