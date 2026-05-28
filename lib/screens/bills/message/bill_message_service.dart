@@ -20,11 +20,11 @@ class BillMessageService {
     required void Function(String message) showSuccessMessage,
   }) async {
     if (bill.id == null) return;
-
     final gateway = ref.read(messageNotifierProvider);
+
     final payload = await ref.read(sendBillMessageProvider(bill.id!).future);
     final secureReportUrl = payload['secure_report_url']?.toString();
-    final messageText = buildBillMessageText(bill, secureReportUrl);
+    final messageText = buildBillMessageText(bill, secureReportUrl, ref);
     final phoneNumber = bill.patientPhoneNumber ?? '';
 
     if (gateway == MessagePlatform.localSmsGateway) {
@@ -95,8 +95,7 @@ class BillMessageService {
     );
   }
 }
-
-String buildBillMessageText(Bill bill, String? secureReportUrl) {
+String buildBillMessageText(Bill bill, String? secureReportUrl, WidgetRef ref) {
   String statusSuffix({
     required String fullyPaid,
     required String partiallyPaid,
@@ -148,7 +147,7 @@ String buildBillMessageText(Bill bill, String? secureReportUrl) {
     // 9. Action-oriented
     'Hello $name,\nYour bill of $amount from $center is now $status. ${statusSuffix(fullyPaid: 'No further action is needed. Thank you for your prompt payment!', partiallyPaid: 'Please take a moment to clear the remaining balance. Contact $by for assistance.', unpaid: 'Please take a moment to complete the payment. For assistance, contact $by.')}',
 
-    // 10. Formal Notification
+    // 10. Formal Notification (index 9)
     'BILLING NOTIFICATION\nDear $name,\nThis is an official billing notice from $center.\nTotal Amount : $amount\nStatus       : $status\nIssued by    : $by. ${statusSuffix(fullyPaid: '\nYour account is fully settled. No further action required.', partiallyPaid: '\nA partial payment has been recorded. Kindly clear the outstanding balance at your earliest.', unpaid: '\nPlease arrange for payment at your earliest convenience to avoid any delays.')}',
 
     // 11. Reassuring Tone
@@ -182,8 +181,14 @@ String buildBillMessageText(Bill bill, String? secureReportUrl) {
     'Hi $name,\nI\'m $by from $center. Your bill of $amount is now $status. ${statusSuffix(fullyPaid: 'You\'re all set! Thank you for your payment. We hope to see you again.', partiallyPaid: 'Should you require a payment plan for the remaining balance, our team is happy to assist you at any time.', unpaid: 'Should you require a payment plan or detailed breakdown, our team is happy to assist you at any time.')}',
   ];
 
-  final random = Random();
-  final line = <String>[lines[random.nextInt(lines.length)]];
+  final gateway = ref.read(messageNotifierProvider);
+  final List<String> line;
+  if (gateway == MessagePlatform.localSmsGateway) {
+    final random = Random();
+    line = [lines[random.nextInt(lines.length)]];
+  } else {
+    line = [lines[9]];
+  }
 
   if (secureReportUrl != null &&
       secureReportUrl.isNotEmpty &&
@@ -192,6 +197,5 @@ String buildBillMessageText(Bill bill, String? secureReportUrl) {
       'You can download your report by visiting here:\n$secureReportUrl.\nPlease keep this link safe as it is one time use only and auto-expires after 6 hrs.',
     );
   }
-
   return line.join('\n');
 }
