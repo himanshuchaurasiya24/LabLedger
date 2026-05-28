@@ -7,6 +7,7 @@ class AuthResponse {
   final bool? success; // For verify-auth response
   final bool isAdmin;
   final bool isLocked; // <-- ADDED
+  final bool hasAcceptedLicense;
   final String username;
   final String firstName;
   final String lastName;
@@ -19,6 +20,7 @@ class AuthResponse {
     this.success,
     required this.isAdmin,
     required this.isLocked, // <-- ADDED
+    required this.hasAcceptedLicense,
     required this.username,
     required this.firstName,
     required this.lastName,
@@ -35,6 +37,7 @@ class AuthResponse {
       success: json['success'] as bool?,
       isAdmin: (json['is_admin'] as bool?) ?? false,
       isLocked: (json['is_locked'] as bool?) ?? false, // <-- ADDED
+      hasAcceptedLicense: (json['has_accepted_license'] as bool?) ?? false,
       username: (json['username'] as String?) ?? '',
       firstName: (json['first_name'] as String?) ?? '',
       lastName: (json['last_name'] as String?) ?? '',
@@ -52,6 +55,7 @@ class AuthResponse {
       if (success != null) 'success': success,
       'is_admin': isAdmin,
       'is_locked': isLocked, // <-- ADDED
+      'has_accepted_license': hasAcceptedLicense,
       'username': username,
       'first_name': firstName,
       'last_name': lastName,

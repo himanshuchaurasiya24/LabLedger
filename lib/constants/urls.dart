@@ -17,6 +17,7 @@ class AppUrls {
   static const String appInfo = 'api/app-info/';
 
   static const String staffBase = 'auth/staffs/staff';
+  static const String authLicense = 'auth/license/';
 
   static const String centerDetail = 'center-details/center-detail/';
   static const String subscriptionPlan = 'center-details/subscription-plan/';

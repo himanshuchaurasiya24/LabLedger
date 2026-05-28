@@ -81,13 +81,23 @@ class CenterSearchBar extends StatelessWidget {
 Future<void> setWindowBehavior({
   bool? isForLogin,
   bool? isLoadingScreen,
+  bool? isForSetup,
 }) async {
   final isLogin = isForLogin ?? false;
   final isForLoadingScreen = isLoadingScreen ?? false;
+  final isSetup = isForSetup ?? false;
 
   await windowManager.waitUntilReadyToShow(null, () async {
     await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    if (isSetup) {
+      await windowManager.setSkipTaskbar(false);
+      await windowManager.setMinimumSize(const Size(1280, 720));
+      await windowManager.setMaximumSize(const Size(1280, 720));
 
+      await windowManager.setSize(const Size(1280, 720));
+      await windowManager.center();
+      return;
+    }
     if (isForLoadingScreen) {
       await windowManager.setSkipTaskbar(false);
       await windowManager.setMinimumSize(const Size(700, 350));

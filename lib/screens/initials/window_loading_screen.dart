@@ -10,6 +10,7 @@ import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/initials/update_required_screen.dart';
 import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
+import 'package:labledger/screens/setup/setup_screen.dart'; // <-- ADDED
 import 'package:version/version.dart';
 
 class WindowLoadingScreen extends ConsumerStatefulWidget {
@@ -95,7 +96,11 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       await Future.delayed(const Duration(milliseconds: 1000));
       if (!mounted) return;
 
-      _navigateTo(HomeScreen(authResponse: authResponse));
+      if (!authResponse.hasAcceptedLicense) {
+        _navigateTo(SetupScreen(authResponse: authResponse));
+      } else {
+        _navigateTo(HomeScreen(authResponse: authResponse));
+      }
     } on AuthException catch (e) {
       if (mounted) {
         _navigateTo(LoginScreen(initialErrorMessage: e.message));

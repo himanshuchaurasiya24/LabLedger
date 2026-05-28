@@ -5,10 +5,10 @@ import 'package:labledger/authentication/auth_exceptions.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/constants/urls.dart';
-import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
+import 'package:labledger/screens/setup/setup_screen.dart';
 import 'package:labledger/screens/initials/subscription_renewal_dialog.dart';
 import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
@@ -102,8 +102,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         password: passwordController.text,
       );
       final authResponse = await ref.read(loginProvider(credentials).future);
-      if (mounted) {
-        navigatorKey.currentState?.pushReplacement(
+      if (!mounted) return;
+
+      if (!authResponse.hasAcceptedLicense) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => SetupScreen(authResponse: authResponse),
+          ),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => HomeScreen(authResponse: authResponse),
           ),
