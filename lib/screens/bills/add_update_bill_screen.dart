@@ -16,8 +16,8 @@ import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/franchise_lab_provider.dart';
-import 'package:labledger/providers/message_provider.dart';
 import 'package:labledger/providers/patient_report_provider.dart';
+import 'package:labledger/screens/bills/message/bill_message_service.dart';
 import 'package:labledger/screens/ui_components/update_report_dialog.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
@@ -25,7 +25,6 @@ import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:labledger/screens/bills/components/patient_details_card.dart';
 import 'package:labledger/screens/bills/components/billing_details_card.dart';
 import 'package:labledger/screens/bills/components/amount_details_card.dart';
@@ -1171,42 +1170,13 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     setState(() => _isSendingMessage = true);
 
     try {
-      final gateway = ref.read(messageNotifierProvider);
-      final payload = await ref.read(sendBillMessageProvider(bill.id!).future);
-      final messageText =
-          payload['message_text']?.toString() ??
-          _buildBillMessageText(bill, payload['secure_report_url']?.toString());
-      final phoneNumber = bill.patientPhoneNumber ?? '';
-
-      if (gateway == MessagePlatform.localSmsGateway) {
-        await _showLocalSmsDialog(phoneNumber, messageText, bill.id!);
-      } else {
-        final encodedText = Uri.encodeComponent(messageText);
-        final digitsOnlyPhone = phoneNumber.replaceAll(RegExp(r'\D'), '');
-        final targetUri = gateway == MessagePlatform.whatsapp
-            ? Uri.parse(
-                'whatsapp://send?phone=$digitsOnlyPhone&text=$encodedText',
-              )
-            : Uri.parse(
-                'https://web.whatsapp.com/send?phone=$digitsOnlyPhone&text=$encodedText',
-              );
-
-        final canOpen = await canLaunchUrl(targetUri);
-        if (canOpen) {
-          await launchUrl(targetUri, mode: LaunchMode.externalApplication);
-          final shouldMarkSent = await _confirmMessageSentAfterWhatsappLaunch(
-            gateway,
-          );
-          if (shouldMarkSent == true) {
-            await _markBillMessageSent(bill.id!);
-          }
-        } else {
-          _showErrorDialog(
-            'Cannot Open WhatsApp',
-            'WhatsApp could not be opened on this device.',
-          );
-        }
-      }
+      await BillMessageService().send(
+        context: context,
+        ref: ref,
+        bill: bill,
+        showErrorDialog: _showErrorDialog,
+        showSuccessMessage: (message) => showSuccessSnackBar(context, message),
+      );
     } catch (e) {
       if (mounted) {
         _showErrorDialog('Message Failed', 'Could not send the message: $e');
@@ -1215,13 +1185,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       if (mounted) {
         setState(() => _isSendingMessage = false);
       }
-    }
-  }
-
-  Future<void> _markBillMessageSent(int billId) async {
-    await ref.read(markBillMessageSentProvider(billId).future);
-    if (mounted) {
-      ref.invalidate(singleBillProvider(billId));
     }
   }
 
@@ -1261,89 +1224,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         setState(() => _isDownloadingReport = false);
       }
     }
-  }
-
-  String _buildBillMessageText(Bill bill, String? secureReportUrl) {
-    final lines = <String>[
-      'LabLedger bill ${bill.billNumber ?? bill.id ?? ''}',
-      'Patient: ${bill.patientName}',
-      'Amount: ₹${bill.totalAmount}',
-      'Status: ${bill.billStatus}',
-    ];
-
-    if (secureReportUrl != null && secureReportUrl.isNotEmpty) {
-      lines.add('Report: $secureReportUrl');
-    }
-
-    return lines.join('\n');
-  }
-
-  Future<void> _showLocalSmsDialog(
-    String phoneNumber,
-    String messageText,
-    int billId,
-  ) async {
-    await showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Local SMS Gateway'),
-          content: SizedBox(
-            width: 520,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Recipient: $phoneNumber'),
-                const SizedBox(height: 12),
-                SelectableText(messageText),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: messageText));
-              },
-              child: const Text('Copy Message'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-                await _markBillMessageSent(billId);
-              },
-              child: const Text('Mark Sent'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<bool?> _confirmMessageSentAfterWhatsappLaunch(
-    MessagePlatform gateway,
-  ) async {
-    if (!mounted ||
-        (gateway != MessagePlatform.whatsapp &&
-            gateway != MessagePlatform.whatsappWebUi)) {
-      return false;
-    }
-
-    return showCustomConfirmationDialog(
-      context: context,
-      title: 'Message sent?',
-      message: gateway == MessagePlatform.whatsapp
-          ? 'Was the patient messaged on WhatsApp?'
-          : 'Was the patient messaged on WhatsApp Web UI?',
-      isDeleteOption: false,
-      showWarningIcon: false,
-      cancelLabel: 'Not Yet',
-      confirmLabel: 'Mark Sent',
-    );
   }
 
   Widget _buildStatusBadge(String text, Color color) {
