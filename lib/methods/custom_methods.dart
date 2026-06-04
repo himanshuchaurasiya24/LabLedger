@@ -110,9 +110,9 @@ Future<void> setWindowBehavior({
 
     if (isLogin) {
       await windowManager.setSkipTaskbar(false);
-      await windowManager.setMinimumSize(const Size(700, 428));
+      await windowManager.setMinimumSize(const Size(700, 370));
 
-      await windowManager.setSize(const Size(700, 428));
+      await windowManager.setSize(const Size(700, 370));
       await windowManager.center();
 
       isLoginScreen.value = true;

@@ -103,7 +103,11 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
       }
     } on AuthException catch (e) {
       if (mounted) {
-        _navigateTo(LoginScreen(initialErrorMessage: e.message));
+        String? message;
+        if (e is SubscriptionExpiredException || e is SubscriptionInactiveException) {
+          message = e.message;
+        }
+        _navigateTo(LoginScreen(initialErrorMessage: message));
       }
     } catch (e, stackTrace) {
       debugPrint("ERROR in _determineInitialRoute: $e\n$stackTrace");
@@ -112,7 +116,7 @@ class _WindowLoadingScreenState extends ConsumerState<WindowLoadingScreen> {
           const LoginScreen(
             initialErrorMessage: "An error occurred. Please try again.",
           ),
-        );
+        );  
       }
     }
   }
