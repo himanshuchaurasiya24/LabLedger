@@ -6,7 +6,7 @@ import 'package:labledger/main.dart';
 import 'package:labledger/models/pending_report_bill_model.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class PendingReportsCard extends StatelessWidget {
   const PendingReportsCard({
@@ -39,7 +39,7 @@ class PendingReportsCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
-                    LucideIcons.fileClock,
+                    LucideIcons.file_clock,
                     color: baseColor,
                     size: 20,
                   ),
@@ -171,7 +171,7 @@ class PendingReportsCard extends StatelessWidget {
 
               // --- Chevron Icon (Right Side) ---
               Icon(
-                LucideIcons.chevronRight,
+                LucideIcons.chevron_right,
                 color: statusInfo.color.withValues(alpha: 0.5),
                 size: 20,
               ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/constants/constants.dart'; // Or your own constants
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class ViewSwitcherMenu extends StatefulWidget {
   // Positional arguments
@@ -53,7 +53,7 @@ class _ViewSwitcherMenuState extends State<ViewSwitcherMenu> {
           padding: const EdgeInsets.all(8.0),
           child: Icon(
             // Use the internal state variable to display the correct icon
-            _currentView == "grid" ? LucideIcons.layoutGrid : LucideIcons.list,
+            _currentView == "grid" ? LucideIcons.layout_grid : LucideIcons.list,
             color: theme.colorScheme.onSurface,
             size: 24,
           ),

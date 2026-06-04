@@ -12,7 +12,7 @@ import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/bill_growth_stats_view.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 

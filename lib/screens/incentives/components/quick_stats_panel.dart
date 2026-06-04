@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/providers/incenitve_generator_provider.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class QuickStatsPanel extends ConsumerWidget {
   const QuickStatsPanel({super.key});
@@ -23,7 +23,7 @@ class QuickStatsPanel extends ConsumerWidget {
           child: StatCard(
             count: selectedDoctors.length,
             label: "Doctors",
-            icon: LucideIcons.userCheck,
+            icon: LucideIcons.user_check,
             color: cardColor,
           ),
         ),
@@ -41,7 +41,7 @@ class QuickStatsPanel extends ConsumerWidget {
           child: StatCard(
             count: selectedDiagnosisTypes.length,
             label: "Types",
-            icon: LucideIcons.clipboardList,
+            icon: LucideIcons.clipboard_list,
             color: cardColor,
           ),
         ),
@@ -50,7 +50,7 @@ class QuickStatsPanel extends ConsumerWidget {
           child: StatCard(
             count: selectedBillStatuses.length,
             label: "Statuses",
-            icon: LucideIcons.creditCard,
+            icon: LucideIcons.credit_card,
             color: cardColor,
           ),
         ),

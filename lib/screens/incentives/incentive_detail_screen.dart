@@ -20,7 +20,7 @@ import 'package:labledger/screens/ui_components/animated_progress_indicator.dart
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/utils/controller_disposer.dart';
@@ -262,7 +262,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
                 errorHeading: "Failed to Load Report",
                 errorTitle: err.toString(),
                 buttonLabel: "Retry",
-                icon: Icon(LucideIcons.refreshCcw),
+                icon: Icon(LucideIcons.refresh_ccw),
               ),
             ),
           ),
@@ -281,7 +281,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
-            LucideIcons.trendingUp,
+            LucideIcons.trending_up,
             color: theme.colorScheme.primary,
             size: 28,
           ),
@@ -307,7 +307,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
           ),
         ),
         IconButton(
-          icon: Icon(LucideIcons.refreshCw, color: theme.colorScheme.primary),
+          icon: Icon(LucideIcons.refresh_cw, color: theme.colorScheme.primary),
           tooltip: "Refresh Report",
           onPressed: () async {
             if (_isRefreshingReport) {
@@ -449,7 +449,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
         SizedBox(width: defaultWidth * 2),
         Expanded(
           child: _buildSummaryCard(
-            icon: LucideIcons.indianRupee,
+            icon: LucideIcons.indian_rupee,
             title: "Total Incentives",
             value:
                 "₹${NumberFormat.decimalPattern('en_IN').format(totalIncentives)}",
@@ -460,7 +460,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
         SizedBox(width: defaultWidth * 2),
         Expanded(
           child: _buildSummaryCard(
-            icon: LucideIcons.fileText,
+            icon: LucideIcons.file_text,
             title: "Bills",
             value: totalBills.toString(),
             color: Colors.orange,
@@ -572,7 +572,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(LucideIcons.indianRupee, color: incentiveColor, size: 16),
+            Icon(LucideIcons.indian_rupee, color: incentiveColor, size: 16),
             Text(
               NumberFormat.decimalPattern(
                 'en_IN',
@@ -830,7 +830,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            LucideIcons.fileX,
+            LucideIcons.file_x,
             size: 64,
             color: theme.colorScheme.onSurface.withAlpha(102),
           ),
@@ -860,7 +860,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            LucideIcons.searchX,
+            LucideIcons.search_x,
             size: 64,
             color: theme.colorScheme.onSurface.withAlpha(102),
           ),

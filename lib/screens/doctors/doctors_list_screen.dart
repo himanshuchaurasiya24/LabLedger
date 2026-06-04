@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/doctors_model.dart';
@@ -13,7 +12,7 @@ import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/entity_summary_card.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
 extension ColorValues on Color {
@@ -371,7 +370,7 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
       },
       title: 'No doctors found',
       subtitle: 'Add a doctor to get started',
-      icon: FontAwesomeIcons.userDoctor,
+      icon: LucideIcons.stethoscope,
       label: 'Add a doctor',
     );
   }

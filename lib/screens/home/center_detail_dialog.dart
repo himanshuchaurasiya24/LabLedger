@@ -12,7 +12,7 @@ import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/blurred_dialog.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -197,7 +197,7 @@ LabLedger Center Admin''';
 
                               controller: _addressController,
                               label: 'Address',
-                              prefixIcon: const Icon(LucideIcons.mapPin),
+                              prefixIcon: const Icon(LucideIcons.map_pin),
                               readOnly: !_isEditing,
                               isRequired: true,
                             ),
@@ -291,7 +291,7 @@ LabLedger Center Admin''';
         child: CustomElevatedButton(
           onPressed: () => setState(() => _isEditing = true),
           backgroundColor: Theme.of(context).colorScheme.primary,
-          icon: const Icon(LucideIcons.edit, size: 16),
+          icon: const Icon(LucideIcons.pen, size: 16),
           label: 'Edit Details',
           width: 160,
           height: 50,
@@ -373,7 +373,7 @@ class _SubscriptionInfoCard extends StatelessWidget {
           _buildInfoRow(
             'Expires On',
             subscription.expiryDate,
-            LucideIcons.calendarClock,
+            LucideIcons.calendar_clock,
             context,
           ),
           const Divider(height: 16),

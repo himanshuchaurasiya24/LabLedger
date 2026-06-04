@@ -18,11 +18,10 @@ dependencies:
   http: ^1.4.0
   flutter_secure_storage: ^9.2.4
   shared_preferences: ^2.3.2
-  lucide_icons: ^0.257.0
   intl: ^0.20.2
   dio: ^5.9.0
   version: ^3.0.2
-  font_awesome_flutter: ^10.10.0
+  font_awesome_flutter: ^11.0.0
   pdf: ^3.10.4
   printing: ^5.11.0
   universal_html: ^2.2.4
@@ -32,6 +31,7 @@ dependencies:
   file_picker: ^10.3.3
   flutter_svg: ^2.2.1
   package_info_plus: ^8.1.2
+  flutter_lucide: ^1.11.0
 
 dev_dependencies:
   flutter_test:

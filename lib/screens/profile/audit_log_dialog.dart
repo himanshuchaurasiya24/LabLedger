@@ -6,7 +6,7 @@ import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/providers/audit_log_provider.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/screens/ui_components/blurred_dialog.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class AuditLogDialog extends ConsumerWidget {
   const AuditLogDialog({super.key});

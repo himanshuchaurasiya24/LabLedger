@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 Widget buildErrorState({required BuildContext context, required Object error, required ThemeData theme, required VoidCallback onTap, required String errorHeading, required String errorTitle, required String buttonLabel, required Widget icon}) {
     return Center(
@@ -15,7 +15,7 @@ Widget buildErrorState({required BuildContext context, required Object error, re
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              LucideIcons.alertCircle,
+              LucideIcons.circle_alert,
               color: Theme.of(context).colorScheme.error,
               size: 94,
             ),

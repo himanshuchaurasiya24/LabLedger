@@ -14,7 +14,7 @@ import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/status_badge.dart';
 import 'package:labledger/methods/responsive_helpers.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
 class CategoryListScreen extends ConsumerStatefulWidget {
@@ -193,7 +193,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen>
                     backgroundColor: effectiveColor.withValues(alpha: 0.2),
                     child: Icon(
                       category.isFranchiseLab
-                          ? LucideIcons.building2
+                          ? LucideIcons.building_2
                           : LucideIcons.activity,
                       color: textColor,
                       size: 26,
@@ -237,7 +237,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen>
                 StatusBadge(
                   text: 'Franchise Lab',
                   color: textColor,
-                  icon: LucideIcons.building2,
+                  icon: LucideIcons.building_2,
                 ),
             ],
           ),

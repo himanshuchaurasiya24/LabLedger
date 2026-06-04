@@ -6,7 +6,7 @@ import 'package:labledger/constants/urls.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutAppDialog extends StatelessWidget {
@@ -165,7 +165,7 @@ class AboutAppDialog extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                LucideIcons.github,
+                                LucideIcons.code,
                                 size: 24,
                                 color: theme.colorScheme.primary,
                               ),
@@ -195,7 +195,7 @@ class AboutAppDialog extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Icon(
-                                LucideIcons.externalLink,
+                                LucideIcons.external_link,
                                 size: 16,
                                 color: theme.colorScheme.primary.withValues(
                                   alpha: 0.7,
@@ -340,7 +340,7 @@ class AboutAppDialog extends StatelessWidget {
               fit: BoxFit.contain,
 
               errorBuilder: (context, error, stackTrace) => Icon(
-                LucideIcons.imageOff,
+                LucideIcons.image_off,
                 size: 24,
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
               ),

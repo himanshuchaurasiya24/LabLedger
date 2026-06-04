@@ -5,7 +5,6 @@ import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/constants/urls.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/auth_response_model.dart';
 import 'package:labledger/models/report_quota_model.dart';
@@ -18,7 +17,7 @@ import 'package:labledger/methods/string_utils.dart';
 import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/screens/profile/components/profile_menu_widgets.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class UserProfileWidget extends ConsumerStatefulWidget {
   final AuthResponse authResponse;
@@ -492,7 +491,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                         ),
                         if (authResponse.isAdmin)
                           ProfileMenuItem(
-                            icon: LucideIcons.user2,
+                            icon: LucideIcons.circle_user,
                             label: 'Profile',
                             onTap: onProfileTap,
                             isDark: isDark,
@@ -507,7 +506,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                           ),
                         if (authResponse.isAdmin)
                           ProfileMenuItem(
-                            icon: LucideIcons.messageSquare,
+                            icon: LucideIcons.message_square,
                             label: 'Message Gateway',
                             onTap: onMessageToggle,
                             isDark: isDark,
@@ -617,7 +616,7 @@ class _CustomDropdownMenu extends ConsumerWidget {
                         ),
 
                         ProfileMenuItem(
-                          icon: FontAwesomeIcons.circleInfo,
+                          icon: LucideIcons.info,
                           label: 'About this app',
                           onTap: onAboutAppTap,
                           isDark: isDark,

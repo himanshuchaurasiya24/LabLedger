@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
@@ -15,7 +14,7 @@ import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/methods/responsive_helpers.dart';
 import 'package:labledger/methods/string_utils.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
 class DiagnosisTypesListScreen extends ConsumerStatefulWidget {
@@ -333,7 +332,7 @@ class _DiagnosisTypesListScreenState
       },
       title: 'No diagnosis type found',
       subtitle: 'Add a diagnosis type to get started',
-      icon: FontAwesomeIcons.microscope,
+      icon: LucideIcons.microscope,
       label: 'Add a diagnosis type',
     );
   }

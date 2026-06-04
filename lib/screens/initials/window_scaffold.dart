@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/initials/about_app_dialog.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:window_manager/window_manager.dart';
 
 final ValueNotifier<bool> isLoginScreen = ValueNotifier<bool>(false);

@@ -10,7 +10,7 @@ import 'package:labledger/providers/incenitve_generator_provider.dart';
 
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:intl/intl.dart';
 import 'package:labledger/screens/incentives/components/quick_stats_panel.dart';
 import 'package:labledger/screens/incentives/components/action_panel.dart';
@@ -87,7 +87,7 @@ class _IncentiveGenerationScreenState
                         ],
                       ),
                       child: Icon(
-                        LucideIcons.fileText,
+                        LucideIcons.file_text,
                         color: Colors.white,
                         size: 28,
                       ),
@@ -210,7 +210,7 @@ class _FilterPanel extends ConsumerWidget {
                         Row(
                           children: [
                             Icon(
-                              LucideIcons.userCheck,
+                              LucideIcons.user_check,
                               size: 18,
                               color: cardColor,
                             ),
@@ -326,7 +326,7 @@ class _FilterPanel extends ConsumerWidget {
                         Row(
                           children: [
                             Icon(
-                              LucideIcons.clipboardList,
+                              LucideIcons.clipboard_list,
                               size: 18,
                               color: cardColor,
                             ),
@@ -372,7 +372,7 @@ class _FilterPanel extends ConsumerWidget {
                       Row(
                         children: [
                           Icon(
-                            LucideIcons.creditCard,
+                            LucideIcons.credit_card,
                             size: 18,
                             color: cardColor,
                           ),
@@ -711,7 +711,7 @@ class __CompactMultiSelectDropdownState<T>
                 ),
               ),
               Icon(
-                isExpanded ? LucideIcons.chevronUp : LucideIcons.chevronDown,
+                isExpanded ? LucideIcons.chevron_up : LucideIcons.chevron_down,
                 size: 18,
                 color: widget.baseColor,
               ),

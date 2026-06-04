@@ -18,7 +18,7 @@ import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart'
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
@@ -209,7 +209,7 @@ class _FranchiseBillsListScreenState
                   ),
                   child: const Center(
                     child: Icon(
-                      LucideIcons.building2,
+                      LucideIcons.building_2,
                       color: Colors.white,
                       size: 30,
                     ),
@@ -263,7 +263,7 @@ class _FranchiseBillsListScreenState
                     );
                   },
                   icon: Icon(
-                    LucideIcons.edit,
+                    LucideIcons.pen,
                     color: theme.colorScheme.primary,
                   ),
                   tooltip: 'Edit Franchise',
@@ -272,7 +272,7 @@ class _FranchiseBillsListScreenState
                 IconButton(
                   onPressed: () => _confirmDeleteFranchise(franchise),
                   icon: Icon(
-                    LucideIcons.trash2,
+                    LucideIcons.trash_2,
                     color: theme.colorScheme.error,
                   ),
                   tooltip: 'Delete Franchise',

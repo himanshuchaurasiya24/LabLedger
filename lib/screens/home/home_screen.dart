@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
@@ -30,7 +29,7 @@ import 'package:labledger/screens/ui_components/cards/referral_card.dart';
 import 'package:labledger/screens/initials/window_scaffold.dart';
 import 'package:labledger/screens/profile/user_profile_widget.dart';
 import 'package:labledger/screens/ui_components/custom_filter_chips.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key, required this.authResponse, this.baseColor});
@@ -351,7 +350,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   final height = MediaQuery.of(context).size.height / 8.1;
                   final primaryTiles = [
                     NavigationTile(
-                      icon: FontAwesomeIcons.userDoctor,
+                      icon: LucideIcons.stethoscope,
                       label: "Doctor's List",
                       color: baseColor,
                       height: height,
@@ -366,7 +365,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       },
                     ),
                     NavigationTile(
-                      icon: FontAwesomeIcons.buildingColumns,
+                      icon: LucideIcons.landmark,
                       label: "Franchise Labs",
                       color: baseColor,
                       height: height,
@@ -381,7 +380,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       },
                     ),
                     NavigationTile(
-                      icon: FontAwesomeIcons.microscope,
+                      icon: LucideIcons.microscope,
                       label: "Diagnosis Type",
                       color: baseColor,
                       height: height,
@@ -426,7 +425,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     final height = MediaQuery.of(context).size.height / 8.1;
                     final adminTiles = [
                       NavigationTile(
-                        icon: FontAwesomeIcons.server,
+                        icon: LucideIcons.server,
                         label: "Server Reports",
                         color: baseColor,
                         height: height - 30,

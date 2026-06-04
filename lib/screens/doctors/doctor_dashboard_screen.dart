@@ -21,7 +21,7 @@ import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart'
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
@@ -276,13 +276,13 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
                     ),
                   );
                 },
-                icon: Icon(LucideIcons.edit, color: theme.colorScheme.primary),
+                icon: Icon(LucideIcons.pen, color: theme.colorScheme.primary),
                 tooltip: 'Edit Doctor',
               ),
               const SizedBox(width: 8),
               IconButton(
                 onPressed: () => _confirmDeleteDoctor(doctor),
-                icon: Icon(LucideIcons.trash2, color: theme.colorScheme.error),
+                icon: Icon(LucideIcons.trash_2, color: theme.colorScheme.error),
                 tooltip: 'Delete Doctor',
               ),
             ],

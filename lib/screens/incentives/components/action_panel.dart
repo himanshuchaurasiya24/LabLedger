@@ -7,7 +7,7 @@ import 'package:labledger/screens/incentives/incentive_detail_screen.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:labledger/screens/ui_components/custom_outlined_button.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class ActionPanel extends ConsumerWidget {
   const ActionPanel({super.key});
@@ -44,7 +44,7 @@ class ActionPanel extends ConsumerWidget {
                   );
                 },
                 backgroundColor: theme.colorScheme.secondary,
-                icon: Icon(LucideIcons.fileText),
+                icon: Icon(LucideIcons.file_text),
                 label: "Generate Report",
               ),
             ),
@@ -55,7 +55,7 @@ class ActionPanel extends ConsumerWidget {
               width: double.infinity,
               child: CustomOutlinedButton(
                 onPressed: () => _clearFilters(ref),
-                icon: Icon(LucideIcons.rotateCcw),
+                icon: Icon(LucideIcons.rotate_ccw),
                 label: "Clear Filters",
               ),
             ),

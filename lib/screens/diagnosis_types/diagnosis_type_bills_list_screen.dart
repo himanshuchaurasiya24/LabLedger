@@ -19,7 +19,7 @@ import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart'
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
@@ -282,7 +282,7 @@ class _DiagnosisTypeBillsListScreenState
                     );
                   },
                   icon: Icon(
-                    LucideIcons.edit,
+                    LucideIcons.pen,
                     color: theme.colorScheme.primary,
                   ),
                   tooltip: 'Edit Diagnosis Type',
@@ -291,7 +291,7 @@ class _DiagnosisTypeBillsListScreenState
                 IconButton(
                   onPressed: () => _confirmDeleteDiagnosisType(diagnosisType),
                   icon: Icon(
-                    LucideIcons.trash2,
+                    LucideIcons.trash_2,
                     color: theme.colorScheme.error,
                   ),
                   tooltip: 'Delete Diagnosis Type',

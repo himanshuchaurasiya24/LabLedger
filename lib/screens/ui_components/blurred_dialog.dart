@@ -136,7 +136,7 @@ class PremiumDialog extends StatelessWidget {
               ],
             ),
           ),
-          if (extraHeaderActions != null) ...extraHeaderActions!,
+          ...?extraHeaderActions,
           const SizedBox(width: 8),
           IconButton(
             onPressed: () {

@@ -7,7 +7,7 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/constants/urls.dart';
 
 import 'package:labledger/screens/ui_components/blurred_dialog.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SubscriptionRenewalDialog extends StatefulWidget {
@@ -105,7 +105,7 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
           width: 980,
           height: 700,
           accentColor: theme.colorScheme.primary,
-          headerIcon: LucideIcons.shieldAlert,
+          headerIcon: LucideIcons.shield_alert,
           title: 'Subscription Renewal Required',
           subtitle: 'Review available plans and submit an upgrade request',
           content: Column(
