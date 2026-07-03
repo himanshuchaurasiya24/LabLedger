@@ -4,9 +4,9 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/models/franchise_model.dart';
+import 'package:labledger/screens/bills/widgets/card_header.dart';
 import 'package:labledger/screens/bills/widgets/error_field.dart';
 import 'package:labledger/screens/bills/widgets/loading_field.dart';
-import 'package:labledger/screens/ui_components/card_header.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
