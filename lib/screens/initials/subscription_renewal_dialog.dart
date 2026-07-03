@@ -7,6 +7,8 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/constants/urls.dart';
 
 import 'package:labledger/screens/ui_components/blurred_dialog.dart';
+import 'package:labledger/models/subscription_model.dart';
+import 'package:labledger/screens/initials/widgets/subscription_ui_cards.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -200,334 +202,41 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
           separatorBuilder: (_, _) => SizedBox(height: defaultHeight / 2),
           itemBuilder: (context, index) {
             if (index == plans.length) {
-              return _buildCustomCard(theme);
+              return SubscriptionCustomCard(
+                onRequestCustom: () => _openSupportEmail(
+                  subject: 'Custom plan request',
+                  body: _buildFormalSupportRequestBody(
+                    targetPlanName: 'Custom Plan',
+                  ),
+                ),
+              );
             }
 
             if (index == plans.length + 1) {
-              return _buildContactCard(theme);
+              return SubscriptionContactCard(
+                supportEmail: _supportEmail,
+                onContactSupport: () => _openSupportEmail(),
+              );
             }
 
             final plan = plans[index];
-            final isFreePlan = plan.name.toUpperCase() == 'FREE';
-            final isCurrentExpiredPlan =
-                planContext.isExpired &&
-                planContext.currentPlanId != null &&
-                plan.id == planContext.currentPlanId;
-            final canUpgrade =
-                planContext.canShowUpgradeDialog &&
-                plan.planIndex > currentPlanIndex;
 
-            return Container(
-              margin: EdgeInsets.only(bottom: defaultHeight / 4),
-              padding: EdgeInsets.all(defaultPadding * 1.5),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isCurrentExpiredPlan 
-                      ? theme.colorScheme.error.withValues(alpha: 0.4)
-                      : theme.colorScheme.outline.withValues(alpha: 0.1),
-                  width: isCurrentExpiredPlan ? 1.5 : 1.0,
+            return SubscriptionPlanCard(
+              plan: plan,
+              planContext: planContext,
+              index: index,
+              currentPlanIndex: currentPlanIndex,
+              hasCurrentPlanInList: hasCurrentPlanInList,
+              onUpgrade: () => _openSupportEmail(
+                subject: 'Upgrade request: ${plan.name}',
+                body: _buildFormalSupportRequestBody(
+                  targetPlanName: plan.name,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          plan.name,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      if (isCurrentExpiredPlan)
-                        Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.error.withValues(
-                              alpha: 0.1,
-                            ),
-                            borderRadius: BorderRadius.circular(99),
-                            border: Border.all(
-                              color: theme.colorScheme.error.withValues(
-                                alpha: 0.4,
-                              ),
-                            ),
-                          ),
-                          child: Text(
-                            'Current expired plan',
-                            style: TextStyle(
-                              color: theme.colorScheme.error,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.1,
-                          ),
-                          borderRadius: BorderRadius.circular(99),
-                        ),
-                        child: Text(
-                          'Price: ${plan.formattedPrice}',
-                          style: TextStyle(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (isFreePlan) ...[
-                    SizedBox(height: defaultHeight / 2),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(defaultRadius),
-                        border: Border.all(
-                          color: theme.colorScheme.error.withValues(alpha: 0.3),
-                        ),
-                      ),
-                      child: Text(
-                        'This plan cannot be renewed.',
-                        style: TextStyle(
-                          color: theme.colorScheme.error,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                  SizedBox(height: defaultHeight / 2),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 8,
-                    children: [
-                      _quotaChip(
-                        'Duration',
-                        '${plan.durationDays} days',
-                        theme,
-                      ),
-                      _quotaChip('SMS Quota', '${plan.smsQuota}', theme),
-                      _quotaChip(
-                        'Server Reports',
-                        '${plan.serverReportStorageQuotaMb} MB',
-                        theme,
-                      ),
-                      _quotaChip(
-                        'Patient Reports',
-                        '${plan.patientReportStorageQuotaMb} MB',
-                        theme,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: defaultHeight / 2),
-                  Row(
-                    children: [
-                      if (canUpgrade)
-                        ElevatedButton.icon(
-                          onPressed: () => _openSupportEmail(
-                            subject: 'Upgrade request: ${plan.name}',
-                            body: _buildFormalSupportRequestBody(
-                              targetPlanName: plan.name,
-                            ),
-                          ),
-                          icon: const Icon(Icons.trending_up),
-                          label: const Text('Upgrade'),
-                        )
-                      else
-                        Text(
-                          planContext.isExpired
-                              ? 'Upgrade not available for this tier.'
-                              : 'You already have this tier or a higher one.',
-                          style: theme.textTheme.bodySmall,
-                        ),
-                    ],
-                  ),
-                  if (planContext.isExpired &&
-                      planContext.currentPlanId != null &&
-                      !hasCurrentPlanInList &&
-                      index == 0) ...[
-                    SizedBox(height: defaultHeight / 2),
-                    Text(
-                      'Your current expired plan is ${planContext.currentPlanName ?? 'unavailable'} and is no longer listed.',
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
-                ],
               ),
             );
           },
         );
       },
-    );
-  }
-
-  Widget _buildCustomCard(ThemeData theme) {
-    return Container(
-      margin: EdgeInsets.only(bottom: defaultHeight / 4),
-      padding: EdgeInsets.all(defaultPadding * 1.5),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.secondary.withValues(alpha: 0.2),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Custom Plan',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.secondary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: Text(
-                  'Custom',
-                  style: TextStyle(
-                    color: theme.colorScheme.secondary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: defaultHeight / 2),
-          Text(
-            'If your center requires different duration or quota limits, we can prepare a tailored subscription plan.',
-            style: theme.textTheme.bodyMedium,
-          ),
-          SizedBox(height: defaultHeight / 2),
-          Text(
-            'Custom plans are processed manually by support after receiving your formal request.',
-            style: theme.textTheme.bodySmall,
-          ),
-          SizedBox(height: defaultHeight / 2),
-          ElevatedButton.icon(
-            onPressed: () => _openSupportEmail(
-              subject: 'Custom plan request',
-              body: _buildFormalSupportRequestBody(
-                targetPlanName: 'Custom Plan',
-              ),
-            ),
-            icon: const Icon(Icons.outbox_outlined),
-            label: const Text('Request Custom Plan'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContactCard(ThemeData theme) {
-    return Container(
-      margin: EdgeInsets.only(bottom: defaultHeight / 4),
-      padding: EdgeInsets.all(defaultPadding * 1.5),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            theme.colorScheme.primary.withValues(alpha: 0.08),
-            theme.colorScheme.primary.withValues(alpha: 0.02),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'For subscription renewal and upgrade approval, please contact support via Gmail.',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: defaultHeight / 3),
-          InkWell(
-            onTap: () => _openSupportEmail(),
-            borderRadius: BorderRadius.circular(defaultRadius),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(defaultRadius),
-                border: Border.all(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.25),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.mail_outline,
-                    size: 18,
-                    color: theme.colorScheme.primary,
-                  ),
-                  SizedBox(width: defaultWidth / 4),
-                  Text(
-                    _supportEmail,
-                    style: TextStyle(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -553,24 +262,6 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
       final fallback = Uri(scheme: 'mailto', path: _supportEmail);
       await launchUrl(fallback, mode: LaunchMode.externalApplication);
     }
-  }
-
-  Widget _quotaChip(String label, String value, ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.secondary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(99),
-      ),
-      child: Text(
-        '$label: $value',
-        style: TextStyle(
-          color: theme.colorScheme.secondary,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
-      ),
-    );
   }
 
   String _buildFormalSupportRequestBody({String? targetPlanName}) {
@@ -603,86 +294,6 @@ LabLedger Admin''';
     }
 
     return const SubscriptionPlanContextViewData();
-  }
-}
-
-class SubscriptionPlanViewData {
-  final int id;
-  final String name;
-  final int planIndex;
-  final double price;
-  final int durationDays;
-  final int smsQuota;
-  final int serverReportStorageQuotaMb;
-  final int patientReportStorageQuotaMb;
-  final bool isCustom;
-
-  const SubscriptionPlanViewData({
-    required this.id,
-    required this.name,
-    required this.planIndex,
-    required this.price,
-    required this.durationDays,
-    required this.smsQuota,
-    required this.serverReportStorageQuotaMb,
-    required this.patientReportStorageQuotaMb,
-    required this.isCustom,
-  });
-
-  String get formattedPrice {
-    if (price == price.roundToDouble()) {
-      return price.toStringAsFixed(0);
-    }
-    return price.toStringAsFixed(2);
-  }
-
-  factory SubscriptionPlanViewData.fromJson(Map<String, dynamic> json) {
-    final dynamic rawPrice = json['price'];
-
-    return SubscriptionPlanViewData(
-      id: (json['id'] as int?) ?? 0,
-      name: (json['name'] as String?) ?? 'Unnamed Plan',
-      planIndex: (json['plan_index'] as int?) ?? 0,
-      price: rawPrice is num
-          ? rawPrice.toDouble()
-          : double.tryParse(rawPrice?.toString() ?? '0') ?? 0,
-      durationDays: (json['duration_days'] as int?) ?? 0,
-      smsQuota: (json['sms_quota'] as int?) ?? 0,
-      serverReportStorageQuotaMb:
-          (json['server_report_storage_quota_mb'] as int?) ?? 0,
-      patientReportStorageQuotaMb:
-          (json['patient_report_storage_quota_mb'] as int?) ?? 0,
-      isCustom: (json['is_custom'] as bool?) ?? false,
-    );
-  }
-}
-
-class SubscriptionPlanContextViewData {
-  final bool canShowUpgradeDialog;
-  final int? centerId;
-  final String? centerName;
-  final int? currentPlanId;
-  final String? currentPlanName;
-  final bool isExpired;
-
-  const SubscriptionPlanContextViewData({
-    this.canShowUpgradeDialog = false,
-    this.centerId,
-    this.centerName,
-    this.currentPlanId,
-    this.currentPlanName,
-    this.isExpired = false,
-  });
-
-  factory SubscriptionPlanContextViewData.fromJson(Map<String, dynamic> json) {
-    return SubscriptionPlanContextViewData(
-      canShowUpgradeDialog: (json['can_show_upgrade_dialog'] as bool?) ?? false,
-      centerId: json['center_id'] as int?,
-      centerName: json['center_name'] as String?,
-      currentPlanId: json['current_plan_id'] as int?,
-      currentPlanName: json['current_plan_name'] as String?,
-      isExpired: (json['is_expired'] as bool?) ?? false,
-    );
   }
 }
 

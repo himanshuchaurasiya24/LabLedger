@@ -6,12 +6,13 @@ import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/screens/doctors/doctor_dashboard_screen.dart';
 import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/entity_summary_card.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/screens/doctors/methods/doctor_methods.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
@@ -47,59 +48,25 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
     with ControllerDisposer {
   late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
-  String _searchQuery = '';
+  late final DoctorMethods _methods;
 
   @override
   void initState() {
     super.initState();
+    _methods = DoctorMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     searchController = createController();
     searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
+    _methods.dispose();
     disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query;
-    });
-  }
-
-  List<Doctor> _filterDoctors(List<Doctor> doctors) {
-    if (_searchQuery.isEmpty) return doctors;
-
-    return doctors.where((doctor) {
-      final firstName = (doctor.firstName ?? '')
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-      final lastName = (doctor.lastName ?? '').trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-      final fullName = '${doctor.firstName ?? ''} ${doctor.lastName ?? ''}'
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-      final hospitalName = (doctor.hospitalName ?? '')
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-      final phoneNumber = (doctor.phoneNumber ?? '')
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-
-      return firstName.contains(_searchQuery) ||
-          lastName.contains(_searchQuery) ||
-          fullName.contains(_searchQuery) ||
-          hospitalName.contains(_searchQuery) ||
-          phoneNumber.contains(_searchQuery);
-    }).toList();
   }
 
   int getCrossAxisCount(BuildContext context) {
@@ -138,7 +105,7 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
         searchFocusNode: searchFocusNode,
         hintText: "Search Doctors...",
         width: 400,
-        onSearch: _onSearchChanged,
+        onSearch: _methods.onSearchChanged,
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor:
@@ -165,7 +132,7 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
       ),
       child: doctorsAsync.when(
         data: (doctors) {
-          final filteredDoctors = _filterDoctors(doctors);
+          final filteredDoctors = _methods.filterDoctors(doctors);
           return _buildDoctorsList(
             context,
             ref,

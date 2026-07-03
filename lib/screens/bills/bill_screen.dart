@@ -1,17 +1,16 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/bill_growth_stats_view.dart';
+import 'package:labledger/screens/bills/methods/bill_methods.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
+import 'package:labledger/screens/bills/widgets/bill_growth_stats_view.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
-import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
+import 'package:labledger/screens/bills/widgets/section_header.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:labledger/utils/controller_disposer.dart';
@@ -28,88 +27,34 @@ class _BillsScreenState extends ConsumerState<BillsScreen>
   late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
   final FlutterSecureStorage storage = const FlutterSecureStorage();
-  String _selectedView = 'grid'; // default view
-  Timer? _debounce;
+  late BillMethods _methods;
 
   @override
   void initState() {
     super.initState();
+    _methods = BillMethods(ref, context);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     windowManager.addListener(this);
     searchController = createController();
     searchFocusNode.requestFocus();
-    _loadSavedView();
+    _methods.loadSavedView();
   }
 
   @override
   void dispose() {
     windowManager.removeListener(this);
-    _debounce?.cancel();
+    _methods.disposeDebounce();
+    _methods.dispose();
     disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
   }
 
-  Future<void> _loadSavedView() async {
-    final savedView = await storage.read(key: 'bill_view');
-    if (savedView != null && mounted) {
-      setState(() {
-        _selectedView = savedView;
-      });
-    }
-  }
 
-  Future<void> _saveView(String view) async {
-    await storage.write(key: 'bill_view', value: view);
-  }
 
-  void _onSearchChanged(String query) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      ref.read(currentSearchQueryProvider.notifier).state = query;
-      ref.read(currentPageProvider.notifier).state = 1;
-    });
-  }
 
-  void _navigateToBill(Bill bill) {
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(
-        builder: (_) => AddUpdateBillScreen(
-          billId: bill.id,
-          themeColor: bill.billStatus != "Fully Paid"
-              ? Theme.of(context).colorScheme.error
-              : Theme.of(context).colorScheme.secondary,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          ViewSwitcherMenu(
-            initialView: _selectedView,
-            onViewChanged: (value) {
-              setState(() => _selectedView = value);
-              _saveView(value);
-            },
-            position: RelativeRect.fromLTRB(200, 434, defaultPadding, 100),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +68,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen>
         searchFocusNode: searchFocusNode,
         hintText: "Search Bills...",
         width: 400,
-        onSearch: _onSearchChanged,
+        onSearch: _methods.onSearchChanged,
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -159,17 +104,18 @@ class _BillsScreenState extends ConsumerState<BillsScreen>
                 ],
               ),
             ),
-            _buildSectionHeader(
-              context,
-              currentQuery.isNotEmpty
+            SectionHeader(
+              title: currentQuery.isNotEmpty
                   ? 'Search Results for: "$currentQuery"'
                   : 'All Bills',
+              initialView: _methods.selectedView,
+              onViewChanged: (value) => _methods.saveView(value),
             ),
             SizedBox(height: defaultHeight / 2),
 
             PaginatedBillsView(
               billsProvider: asyncBills,
-              selectedView: _selectedView,
+              selectedView: _methods.selectedView,
               headerTitle: currentQuery.isNotEmpty
                   ? 'Search Results for: "$currentQuery"'
                   : 'All Bills',
@@ -179,7 +125,12 @@ class _BillsScreenState extends ConsumerState<BillsScreen>
               onPageChanged: (newPage) {
                 ref.read(currentPageProvider.notifier).state = newPage;
               },
-              onBillTap: _navigateToBill,
+              onBillTap: (bill) => _methods.navigateToBill(
+                bill,
+                bill.billStatus != "Fully Paid"
+                    ? Theme.of(context).colorScheme.error
+                    : Theme.of(context).colorScheme.secondary,
+              ),
               onRetry: () => ref.invalidate(paginatedBillsProvider),
             ),
             const SizedBox(height: 80),

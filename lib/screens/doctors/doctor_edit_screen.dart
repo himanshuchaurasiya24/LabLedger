@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/models/diagnosis_category_model.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
-import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
-import 'package:labledger/screens/ui_components/custom_text_field.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
 import 'package:labledger/methods/string_utils.dart';
+import 'package:labledger/screens/doctors/methods/doctor_methods.dart';
 import 'package:labledger/utils/controller_disposer.dart';
+import 'package:labledger/screens/doctors/widgets/doctor_details_form_card.dart';
+import 'package:labledger/screens/doctors/widgets/doctor_incentives_form_card.dart';
 
 class DoctorEditScreen extends ConsumerStatefulWidget {
   const DoctorEditScreen({super.key, this.doctorId, this.themeColor});
@@ -44,17 +42,18 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   // Dynamic incentives controllers map: category_id -> controller
   final Map<int, TextEditingController> _categoryControllers = {};
   List<DiagnosisCategory> _categories = [];
-
-  bool _isSaving = false;
-  // ignore: unused_field
-  bool _isDeleting = false;
-  bool _isDataInitialized = false;
+  
+  late final DoctorMethods _methods;
 
   bool get _isEditMode => widget.doctorId != null;
 
   @override
   void initState() {
     super.initState();
+    _methods = DoctorMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     _tabController = TabController(length: 2, vsync: this);
     _firstNameController = createController();
     _lastNameController = createController();
@@ -90,6 +89,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
 
   @override
   void dispose() {
+    _methods.dispose();
     _tabController.dispose();
     disposeControllers();
     // Note: disposeControllers will also dispose controllers created via createController
@@ -97,7 +97,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
   }
 
   void _initializeData(Doctor doctor) {
-    if (!_isDataInitialized) {
+    if (!_methods.isDataInitialized) {
       _loadedDoctor =
           doctor; // Store for re-initialization after categories load
       _firstNameController.text = doctor.firstName ?? '';
@@ -107,7 +107,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
       _phoneController.text = doctor.phoneNumber ?? '';
       _addressController.text = doctor.address ?? '';
 
-      _isDataInitialized = true;
+      _methods.setInitialized();
     }
 
     // Always try to initialize category percentages (can be called multiple times)
@@ -198,10 +198,44 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
       color: color,
       isEditMode: _isEditMode,
       isAdmin: isAdmin,
-      isSaving: _isSaving,
-      isDeleting: _isDeleting,
-      onSave: () => _handleSave(doctor),
-      onDelete: () => _handleDelete(doctor!),
+      isSaving: _methods.isSaving,
+      isDeleting: _methods.isDeleting,
+      onSave: () {
+        if (!_detailsFormKey.currentState!.validate()) return;
+        if (!_incentivesFormKey.currentState!.validate()) return;
+        
+        List<DoctorCategoryPercentage> categoryPercentages = [];
+        _categoryControllers.forEach((categoryId, controller) {
+          final percentageText = controller.text.trim();
+          if (percentageText.isNotEmpty) {
+            final percentage = int.tryParse(percentageText);
+            if (percentage != null) {
+              categoryPercentages.add(
+                DoctorCategoryPercentage(
+                  id: 0,
+                  category: categoryId,
+                  percentage: percentage,
+                ),
+              );
+            }
+          }
+        });
+
+        _methods.handleSave(
+          isEditMode: _isEditMode,
+          originalDoctor: doctor,
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          hospitalName: _hospitalController.text.trim(),
+          email: _emailController.text.trim().isEmpty
+              ? null
+              : _emailController.text.trim(),
+          phoneNumber: _phoneController.text.trim(),
+          address: _addressController.text.trim(),
+          categoryPercentages: categoryPercentages,
+        );
+      },
+      onDelete: () => _methods.handleDelete(doctor: doctor!),
       saveLabel: _isEditMode ? 'Update' : 'Create',
     );
   }
@@ -266,8 +300,22 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     return TabBarView(
       controller: _tabController,
       children: [
-        _buildDoctorDetailsCard(color, doctor: doctor),
-        _buildIncentivesCard(color, doctor: doctor),
+        DoctorDetailsFormCard(
+          color: color,
+          formKey: _detailsFormKey,
+          firstNameController: _firstNameController,
+          lastNameController: _lastNameController,
+          hospitalController: _hospitalController,
+          emailController: _emailController,
+          phoneController: _phoneController,
+          addressController: _addressController,
+        ),
+        DoctorIncentivesFormCard(
+          color: color,
+          formKey: _incentivesFormKey,
+          categories: _categories,
+          categoryControllers: _categoryControllers,
+        ),
       ],
     );
   }
@@ -276,508 +324,31 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: _buildDoctorDetailsCard(color, doctor: doctor)),
+        Expanded(
+          child: DoctorDetailsFormCard(
+            color: color,
+            formKey: _detailsFormKey,
+            firstNameController: _firstNameController,
+            lastNameController: _lastNameController,
+            hospitalController: _hospitalController,
+            emailController: _emailController,
+            phoneController: _phoneController,
+            addressController: _addressController,
+          ),
+        ),
         SizedBox(width: defaultWidth),
-        Expanded(child: _buildIncentivesCard(color, doctor: doctor)),
-      ],
-    );
-  }
-
-  Widget _buildDoctorDetailsCard(Color color, {Doctor? doctor}) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return TintedContainer(
-      baseColor: color,
-      height: 510,
-      radius: defaultRadius,
-      elevationLevel: 1,
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(defaultPadding * 1.5),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: isDark ? 0.2 : 0.1),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(defaultRadius),
-                topRight: Radius.circular(defaultRadius),
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(defaultPadding),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.medical_services_outlined,
-                    color: color,
-                    size: 20,
-                  ),
-                ),
-                SizedBox(width: defaultWidth / 2),
-                Text(
-                  'Doctor Information',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
+        Expanded(
+          child: DoctorIncentivesFormCard(
+            color: color,
+            formKey: _incentivesFormKey,
+            categories: _categories,
+            categoryControllers: _categoryControllers,
           ),
-          SizedBox(height: defaultHeight),
-          Expanded(
-            child: Form(
-              key: _detailsFormKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            label: 'First Name',
-                            controller: _firstNameController,
-                            isRequired: true,
-                            tintColor: color,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'First name is required';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        SizedBox(width: defaultWidth / 2),
-                        Expanded(
-                          child: CustomTextField(
-                            label: 'Last Name',
-                            controller: _lastNameController,
-                            isRequired: true,
-                            tintColor: color,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Last name is required';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: defaultHeight),
-                    CustomTextField(
-                      label: 'Hospital / Clinic Name',
-                      controller: _hospitalController,
-                      isRequired: true,
-                      tintColor: color,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Hospital/Clinic name is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: defaultHeight),
-                    CustomTextField(
-                      label: 'Email Address',
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      tintColor: color,
-                      validator: (value) {
-                        if (value != null && value.trim().isNotEmpty) {
-                          if (!RegExp(
-                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                          ).hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: defaultHeight),
-                    CustomTextField(
-                      label: 'Phone Number',
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      isRequired: true,
-                      tintColor: color,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Phone number is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: defaultHeight),
-                    CustomTextField(
-                      label: 'Address',
-                      controller: _addressController,
-                      tintColor: color,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Address is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildIncentivesCard(Color color, {Doctor? doctor}) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return TintedContainer(
-      baseColor: color,
-      radius: defaultRadius,
-      height: 510,
-      elevationLevel: 1,
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(defaultPadding * 1.5),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: isDark ? 0.2 : 0.1),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(defaultRadius),
-                topRight: Radius.circular(defaultRadius),
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(defaultPadding),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(Icons.percent, color: color, size: 20),
-                ),
-                SizedBox(width: defaultWidth / 2),
-                Text(
-                  'Incentives Rates (%)',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : theme.colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: defaultHeight),
-          Expanded(
-            child: Form(
-              key: _incentivesFormKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(defaultPadding),
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: isDark ? 0.1 : 0.05),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: color.withValues(alpha: 0.2)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.info_outline, color: color, size: 20),
-                          SizedBox(width: defaultWidth / 2),
-                          Expanded(
-                            child: Text(
-                              'Leave fields empty or enter 0 if no Incentives applies for that service.',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: isDark
-                                    ? Colors.white70
-                                    : theme.colorScheme.onSurface.withValues(
-                                        alpha: 0.7,
-                                      ),
-                                height: 1.4,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: defaultHeight),
-                    // Dynamic category incentive fields
-                    ..._buildDynamicIncentiveFields(color),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper to build dynamic incentive fields
-  List<Widget> _buildDynamicIncentiveFields(Color color) {
-    if (_categories.isEmpty) {
-      return [
-        Center(
-          child: Padding(
-            padding: EdgeInsets.all(defaultPadding * 2),
-            child: Text('Loading categories...'),
-          ),
-        ),
-      ];
-    }
-
-    List<Widget> widgets = [];
-    // Build in pairs for 2-column layout
-    for (int i = 0; i < _categories.length; i += 2) {
-      final category1 = _categories[i];
-      final controller1 = _categoryControllers[category1.id];
-
-      if (i + 1 < _categories.length) {
-        // Two categories in this row
-        final category2 = _categories[i + 1];
-        final controller2 = _categoryControllers[category2.id];
-
-        widgets.add(
-          Row(
-            children: [
-              Expanded(
-                child: _buildIncentiveField(
-                  '${category1.name} Incentives',
-                  controller1!,
-                  color,
-                  _getIconForCategory(category1.name),
-                ),
-              ),
-              SizedBox(width: defaultWidth),
-              Expanded(
-                child: _buildIncentiveField(
-                  '${category2.name} Incentives',
-                  controller2!,
-                  color,
-                  _getIconForCategory(category2.name),
-                ),
-              ),
-            ],
-          ),
-        );
-      } else {
-        // Single category in this row
-        widgets.add(
-          _buildIncentiveField(
-            '${category1.name} Incentives',
-            controller1!,
-            color,
-            _getIconForCategory(category1.name),
-          ),
-        );
-      }
-
-      if (i + 2 < _categories.length) {
-        widgets.add(SizedBox(height: defaultHeight));
-      }
-    }
-
-    return widgets;
-  }
-
-  // Helper to get appropriate icon for category
-  IconData _getIconForCategory(String categoryName) {
-    final name = categoryName.toLowerCase();
-    if (name.contains('ultrasound')) return Icons.monitor_heart_outlined;
-    if (name.contains('pathology')) return Icons.biotech_outlined;
-    if (name.contains('ecg')) return Icons.favorite_outline;
-    if (name.contains('x-ray') || name.contains('xray')) {
-      return Icons.camera_outlined;
-    }
-    if (name.contains('franchise')) return Icons.business_outlined;
-    return Icons.medical_services_outlined;
-  }
-
-  Widget _buildIncentiveField(
-    String label,
-    TextEditingController controller,
-    Color color,
-    IconData icon,
-  ) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            SizedBox(width: defaultWidth / 2),
-
-            Icon(icon, color: color, size: 16),
-            SizedBox(width: defaultWidth / 4),
-            Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        CustomTextField(
-          label: '${label.split(' ')[0]} %',
-          controller: controller,
-          keyboardType: TextInputType.number,
-          isNumeric: true,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          tintColor: color,
-          validator: (value) {
-            if (value != null && value.trim().isNotEmpty) {
-              final parsed = int.tryParse(value.trim());
-              if (parsed == null) {
-                return 'Please enter a valid number';
-              }
-              if (parsed < 0 || parsed > 100) {
-                return 'Percentage must be between 0 and 100';
-              }
-            }
-            return null;
-          },
         ),
       ],
     );
   }
 
-  Future<void> _handleSave(Doctor? originalDoctor) async {
-    // Validate both forms
-    final detailsValid = _detailsFormKey.currentState!.validate();
-    final incentivesValid = _incentivesFormKey.currentState!.validate();
-
-    if (!detailsValid || !incentivesValid) {
-      if (!detailsValid) {
-        _tabController.animateTo(0); // Switch to details tab
-      } else if (!incentivesValid) {
-        _tabController.animateTo(1); // Switch to incentives tab
-      }
-      return;
-    }
-
-    setState(() => _isSaving = true);
-
-    try {
-      // Build category percentages list from dynamic controllers
-      final categoryPercentages = _categoryControllers.entries.map((entry) {
-        final categoryId = entry.key;
-        final controller = entry.value;
-        final percentage = int.tryParse(controller.text) ?? 0;
-
-        return DoctorCategoryPercentage(
-          id: 0, // Will be assigned by backend
-          category: categoryId,
-          percentage: percentage,
-        );
-      }).toList();
-
-      if (_isEditMode) {
-        await ref.read(
-          updateDoctorProvider(
-            Doctor(
-              id: widget.doctorId,
-              address: _addressController.text,
-              email: _emailController.text,
-              firstName: _firstNameController.text,
-              hospitalName: _hospitalController.text,
-              lastName: _lastNameController.text,
-              phoneNumber: _phoneController.text,
-              categoryPercentages: categoryPercentages,
-            ),
-          ).future,
-        );
-
-        if (mounted) {
-          if (mounted) {
-            showSuccessSnackBar(context, 'Doctor updated successfully!');
-          }
-        }
-      } else {
-        final newDoctor = Doctor(
-          firstName: _firstNameController.text.trim(),
-          lastName: _lastNameController.text.trim(),
-          hospitalName: _hospitalController.text.trim(),
-          email: _emailController.text.trim().isEmpty
-              ? null
-              : _emailController.text.trim(),
-          phoneNumber: _phoneController.text.trim(),
-          address: _addressController.text.trim(),
-          categoryPercentages: categoryPercentages,
-        );
-
-        await ref.read(createDoctorProvider(newDoctor).future);
-
-        if (mounted) {
-          if (mounted) {
-            showSuccessSnackBar(context, 'Doctor created successfully!');
-          }
-        }
-      }
-
-      if (mounted) Navigator.of(context).pop(true);
-    } catch (e) {
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => ErrorDialog(
-            title: 'Operation Failed',
-            errorMessage: e.toString().replaceAll("Exception: ", ""),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
-    }
-  }
-
-  Future<void> _handleDelete(Doctor doctor) async {
-    final confirmed = await showDeleteConfirmationDialog(
-      context: context,
-      borderRadius: defaultRadius,
-      title: 'Confirm Deletion',
-      message:
-          'Are you sure you want to delete Dr. ${doctor.firstName} ${doctor.lastName}?\n\nAll bills and records related to this doctor will be permanently deleted. This action cannot be undone.',
-    );
-
-    if (!confirmed) return;
-
-    setState(() => _isDeleting = true);
-    try {
-      await ref.read(deleteDoctorProvider(doctor.id!).future);
-      if (mounted) {
-        showSuccessSnackBar(context, 'Doctor deleted successfully!');
-        Navigator.of(context).pop(true);
-      }
-    } catch (e) {
-      if (mounted) {
-        _showErrorDialog(
-          'Delete Failed',
-          e.toString().replaceAll("Exception: ", ""),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isDeleting = false);
-    }
-  }
-
-  void _showErrorDialog(String title, String errorMessage) {
-    showDialog(
-      context: context,
-      builder: (context) =>
-          ErrorDialog(title: title, errorMessage: errorMessage),
-    );
-  }
 
   Widget _buildErrorWidget(String message) {
     final theme = Theme.of(context);

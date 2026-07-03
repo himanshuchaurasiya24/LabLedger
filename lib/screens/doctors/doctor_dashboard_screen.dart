@@ -1,6 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/constants/constants.dart';
@@ -11,19 +11,17 @@ import 'package:labledger/models/doctors_model.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/doctor_provider.dart';
 import 'package:labledger/providers/referral_and_bill_chart_provider.dart';
-import 'package:labledger/screens/ui_components/snackbar_utils.dart';
-import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/bill_growth_stats_view.dart';
+import 'package:labledger/screens/bills/add_update_bill_screen.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
+import 'package:labledger/screens/bills/widgets/bill_growth_stats_view.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
-import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
-import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:labledger/utils/controller_disposer.dart';
+import 'package:labledger/screens/doctors/methods/doctor_methods.dart';
 
 class DoctorDashboardScreen extends ConsumerStatefulWidget {
   final int doctorId;
@@ -42,10 +40,15 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   String _selectedView = 'grid';
   Timer? _debounce;
+  late final DoctorMethods _methods;
 
   @override
   void initState() {
     super.initState();
+    _methods = DoctorMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     windowManager.addListener(this);
     searchController = createController();
     searchFocusNode.requestFocus();
@@ -54,6 +57,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
 
   @override
   void dispose() {
+    _methods.dispose();
     windowManager.removeListener(this);
     _debounce?.cancel();
     disposeControllers();
@@ -93,28 +97,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
     );
   }
 
-  Future<void> _confirmDeleteDoctor(Doctor doctor) async {
-    final shouldDelete = await showDeleteConfirmationDialog(
-      context: context,
-      title: 'Delete Doctor',
-      message:
-          'All the records for Dr. ${doctor.firstName} ${doctor.lastName} will be deleted including bills.\nThis action cannot be undone.\nAre you sure?',
-    );
 
-    if (shouldDelete) {
-      try {
-        await ref.read(deleteDoctorProvider(widget.doctorId).future);
-        if (mounted) {
-          showSuccessSnackBar(context, "Doctor deleted successfully");
-          Navigator.of(context).pop();
-        }
-      } catch (e) {
-        if (mounted) {
-          showErrorSnackBar(context, "Failed to delete doctor: $e");
-        }
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -281,7 +264,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
               ),
               const SizedBox(width: 8),
               IconButton(
-                onPressed: () => _confirmDeleteDoctor(doctor),
+                onPressed: () => _methods.confirmDeleteDoctor(doctor),
                 icon: Icon(LucideIcons.trash_2, color: theme.colorScheme.error),
                 tooltip: 'Delete Doctor',
               ),

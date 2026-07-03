@@ -5,15 +5,13 @@ import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/franchise_lab_provider.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
-import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
-import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
 import 'package:labledger/utils/controller_disposer.dart';
-import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/methods/string_utils.dart';
+import 'package:labledger/screens/franchise_labs/methods/franchise_lab_methods.dart';
 
 class FranchiseEditScreen extends ConsumerStatefulWidget {
   const FranchiseEditScreen({super.key, this.franchiseId, this.themeColor});
@@ -34,14 +32,13 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen>
   late final TextEditingController _phoneController;
   late final TextEditingController _addressController;
 
-  bool _isSaving = false;
-  bool _isDeleting = false;
-  bool _isDataInitialized = false;
+  late final FranchiseLabMethods _methods;
 
   bool get _isEditMode => widget.franchiseId != null;
 
   @override
   void dispose() {
+    _methods.dispose();
     disposeControllers();
     super.dispose();
   }
@@ -49,17 +46,21 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen>
   @override
   void initState() {
     super.initState();
+    _methods = FranchiseLabMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     _franchiseNameController = createController();
     _phoneController = createController();
     _addressController = createController();
   }
 
   void _initializeData(FranchiseName franchise) {
-    if (!_isDataInitialized) {
+    if (!_methods.isDataInitialized) {
       _franchiseNameController.text = franchise.franchiseName ?? '';
       _phoneController.text = franchise.phoneNumber ?? '';
       _addressController.text = franchise.address ?? '';
-      _isDataInitialized = true;
+      _methods.setInitialized();
     }
   }
 
@@ -120,10 +121,19 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen>
       color: color,
       isEditMode: _isEditMode,
       isAdmin: isAdmin,
-      isSaving: _isSaving,
-      isDeleting: _isDeleting,
-      onSave: () => _handleSave(franchise),
-      onDelete: () => _handleDelete(franchise!),
+      isSaving: _methods.isSaving,
+      isDeleting: _methods.isDeleting,
+      onSave: () {
+        if (!_detailsFormKey.currentState!.validate()) return;
+        _methods.handleSave(
+          isEditMode: _isEditMode,
+          originalFranchise: franchise,
+          franchiseName: _franchiseNameController.text.trim(),
+          address: _addressController.text.trim(),
+          phoneNumber: _phoneController.text.trim(),
+        );
+      },
+      onDelete: () => _methods.handleDelete(franchise: franchise!),
       saveLabel: _isEditMode ? 'Update' : 'Create',
     );
   }
@@ -231,92 +241,6 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen>
     );
   }
 
-  Future<void> _handleSave(FranchiseName? originalFranchise) async {
-    if (!_detailsFormKey.currentState!.validate()) {
-      return;
-    }
-
-    setState(() => _isSaving = true);
-
-    try {
-      if (_isEditMode) {
-        await ref.read(
-          updateFranchiseProvider(
-            FranchiseName(
-              id: widget.franchiseId,
-              address: _addressController.text.trim(),
-              franchiseName: _franchiseNameController.text.trim(),
-              phoneNumber: _phoneController.text.trim(),
-            ),
-          ).future,
-        );
-        if (mounted) {
-          showSuccessSnackBar(context, 'Franchise Lab updated successfully!');
-        }
-      } else {
-        final newFranchise = FranchiseName(
-          franchiseName: _franchiseNameController.text.trim(),
-          address: _addressController.text.trim(),
-          phoneNumber: _phoneController.text.trim(),
-        );
-
-        await ref.read(createFranchiseProvider(newFranchise).future);
-        if (mounted) {
-          showSuccessSnackBar(context, 'Franchise Lab created successfully!');
-        }
-      }
-
-      if (mounted) Navigator.of(context).pop(true);
-    } catch (e) {
-      if (mounted) {
-        _showErrorDialog(
-          'Operation Failed',
-          e.toString().replaceAll("Exception: ", ""),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
-    }
-  }
-
-  Future<void> _handleDelete(FranchiseName franchise) async {
-    final confirmed = await showDeleteConfirmationDialog(
-      context: context,
-      title: 'Confirm Deletion',
-      message:
-          'Are you sure you want to delete ${franchise.franchiseName}?\n\nThis action cannot be undone.',
-    );
-
-    if (!confirmed) return;
-
-    setState(() => _isDeleting = true);
-    try {
-      await ref.read(deleteFranchiseProvider(franchise.id!).future);
-      if (mounted) {
-        showSuccessSnackBar(context, 'Franchise Lab deleted successfully!');
-        Navigator.of(context).pop(true);
-      }
-    } catch (e) {
-      if (mounted) {
-        _showErrorDialog(
-          'Delete Failed',
-          e.toString().replaceAll("Exception: ", ""),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isDeleting = false);
-    }
-  }
-
-  // --- Helper Widgets & Methods ---
-
-  void _showErrorDialog(String title, String errorMessage) {
-    showDialog(
-      context: context,
-      builder: (context) =>
-          ErrorDialog(title: title, errorMessage: errorMessage),
-    );
-  }
 
   Widget _buildErrorWidget(String message) {
     final theme = Theme.of(context);

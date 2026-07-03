@@ -7,11 +7,12 @@ import 'package:labledger/models/franchise_model.dart';
 import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/screens/franchise_labs/franchise_edit_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_lab_bills_list_screen.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/screens/franchise_labs/methods/franchise_lab_methods.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
@@ -48,49 +49,25 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
     with ControllerDisposer {
   late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
-  String _searchQuery = '';
+  late final FranchiseLabMethods _methods;
 
   @override
   void initState() {
     super.initState();
+    _methods = FranchiseLabMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     searchController = createController();
     searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
+    _methods.dispose();
     disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query;
-    });
-  }
-
-  List<FranchiseName> _filterFranchises(List<FranchiseName> franchises) {
-    if (_searchQuery.isEmpty) return franchises;
-
-    return franchises.where((franchise) {
-      final franchiseName = (franchise.franchiseName ?? '')
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-      final address = (franchise.address ?? '').trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-      final phoneNumber = (franchise.phoneNumber ?? '')
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-
-      return franchiseName.contains(_searchQuery) ||
-          address.contains(_searchQuery) ||
-          phoneNumber.contains(_searchQuery);
-    }).toList();
   }
 
   int getCrossAxisCount(BuildContext context) {
@@ -130,7 +107,7 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
         searchFocusNode: searchFocusNode,
         hintText: "Search Franchise Labs...",
         width: 400,
-        onSearch: _onSearchChanged,
+        onSearch: _methods.onSearchChanged,
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor:
@@ -153,7 +130,7 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
       ),
       child: franchisesAsync.when(
         data: (franchises) {
-          final filteredFranchises = _filterFranchises(franchises);
+          final filteredFranchises = _methods.filterFranchises(franchises);
           return _buildFranchiseList(
             context,
             ref,
@@ -381,63 +358,6 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
       icon: const Icon(Icons.refresh),
     );
   }
-
-  // Widget _buildEmptyState(BuildContext context, Color effectiveColor) {
-  //   final theme = Theme.of(context);
-  //   final colorScheme = theme.colorScheme;
-
-  //   return Center(
-  //     child: TintedContainer(
-  //       height: 400,
-  //       width: 400,
-  //       baseColor: effectiveColor,
-  //       intensity: 0.08,
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: [
-  //           Icon(
-  //             LucideIcons.building,
-  //             size: 94,
-  //             color: effectiveColor,
-  //           ), // Updated Icon
-  //           SizedBox(height: defaultPadding),
-  //           Text(
-  //             'No franchise labs found', // Updated Text
-  //             style: theme.textTheme.titleMedium?.copyWith(
-  //               color: colorScheme.onSurface,
-  //               fontWeight: FontWeight.bold,
-  //               fontSize: 20,
-  //             ),
-  //           ),
-  //           const SizedBox(height: 8),
-  //           Text(
-  //             'Add your first franchise lab to get started', // Updated Text
-  //             style: theme.textTheme.bodyMedium?.copyWith(
-  //               color: colorScheme.onSurface,
-  //             ),
-  //             textAlign: TextAlign.center,
-  //           ),
-  //           Spacer(),
-  //           CustomElevatedButton(
-  //             width: double.infinity,
-  //             onPressed: () {
-  //               navigatorKey.currentState?.push(
-  //                 MaterialPageRoute(
-  //                   builder: (context) {
-  //                     return FranchiseEditScreen();
-  //                   },
-  //                 ),
-  //               );
-  //             },
-  //             label: "Add Franchise Lab",
-  //             backgroundColor: effectiveColor,
-  //             icon: Icon(Icons.add),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   // Helper method to get initials from the franchise name
   String _getInitials(String? name) {

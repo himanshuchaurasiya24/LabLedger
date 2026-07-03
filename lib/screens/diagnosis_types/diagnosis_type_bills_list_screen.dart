@@ -10,18 +10,17 @@ import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/diagnosis_type_model.dart'; // You will need to import your DiagnosisType model
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart'; // You will need a provider to fetch and delete diagnosis types
-import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
-import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/view_switcher_menu.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:labledger/utils/controller_disposer.dart';
+import 'package:labledger/screens/diagnosis_types/methods/diagnosis_type_methods.dart';
 
 class DiagnosisTypeBillsListScreen extends ConsumerStatefulWidget {
   const DiagnosisTypeBillsListScreen({super.key, required this.id});
@@ -40,10 +39,15 @@ class _DiagnosisTypeBillsListScreenState
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   String _selectedView = 'grid';
   Timer? _debounce;
+  late final DiagnosisTypeMethods _methods;
 
   @override
   void initState() {
     super.initState();
+    _methods = DiagnosisTypeMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     windowManager.addListener(this);
     searchController = createController();
     searchFocusNode.requestFocus();
@@ -52,6 +56,7 @@ class _DiagnosisTypeBillsListScreenState
 
   @override
   void dispose() {
+    _methods.dispose();
     windowManager.removeListener(this);
     _debounce?.cancel();
     disposeControllers();
@@ -91,28 +96,7 @@ class _DiagnosisTypeBillsListScreenState
     );
   }
 
-  Future<void> _confirmDeleteDiagnosisType(DiagnosisType diagnosisType) async {
-    final shouldDelete = await showDeleteConfirmationDialog(
-      context: context,
-      title: 'Delete Diagnosis Type',
-      message:
-          'All bills associated with "${diagnosisType.name}" will also be deleted.\nThis action cannot be undone.\nAre you sure?',
-    );
 
-    if (shouldDelete) {
-      try {
-        await ref.read(deleteDiagnosisTypeProvider(widget.id).future);
-        if (mounted) {
-          showSuccessSnackBar(context, "Diagnosis Type deleted successfully");
-          Navigator.of(context).pop(); // Go back to the previous screen
-        }
-      } catch (e) {
-        if (mounted) {
-          showErrorSnackBar(context, "Failed to delete Diagnosis Type: $e");
-        }
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -289,7 +273,7 @@ class _DiagnosisTypeBillsListScreenState
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  onPressed: () => _confirmDeleteDiagnosisType(diagnosisType),
+                          onPressed: () => _methods.confirmDeleteDiagnosisType(diagnosisType),
                   icon: Icon(
                     LucideIcons.trash_2,
                     color: theme.colorScheme.error,

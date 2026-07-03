@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/models/bill_stats_model.dart';
-import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
+import 'package:labledger/screens/incentives/widgets/animated_progress_indicator.dart';
 import 'package:labledger/screens/ui_components/cards/bill_stats_card.dart';
 import 'package:labledger/constants/constants.dart';
 

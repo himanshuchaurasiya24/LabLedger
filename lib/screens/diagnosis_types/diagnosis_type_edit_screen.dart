@@ -7,15 +7,13 @@ import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/models/diagnosis_category_model.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
-import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
-import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/methods/string_utils.dart';
+import 'package:labledger/screens/diagnosis_types/methods/diagnosis_type_methods.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
 class DiagnosisTypeEditScreen extends ConsumerStatefulWidget {
@@ -41,17 +39,19 @@ class _DiagnosisTypeEditScreenState
   late final TextEditingController _priceController;
   late final TextEditingController _categoryController;
   int? _selectedCategoryId; // Store selected category ID
-
-  bool _isSaving = false;
-  bool _isDeleting = false;
-  bool _isDataInitialized = false;
   List<DiagnosisCategory> _categories = [];
+
+  late final DiagnosisTypeMethods _methods;
 
   bool get _isEditMode => widget.diagnosisTypeId != null;
 
   @override
   void initState() {
     super.initState();
+    _methods = DiagnosisTypeMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     _nameController = createController();
     _priceController = createController();
     _categoryController = createController();
@@ -71,17 +71,18 @@ class _DiagnosisTypeEditScreenState
 
   @override
   void dispose() {
+    _methods.dispose();
     disposeControllers();
     super.dispose();
   }
 
   void _initializeData(DiagnosisType diagnosis) {
-    if (!_isDataInitialized) {
+    if (!_methods.isDataInitialized) {
       _nameController.text = diagnosis.name;
       _selectedCategoryId = diagnosis.category; // Store category ID
       _categoryController.text = diagnosis.categoryName ?? '';
       _priceController.text = diagnosis.price.toString();
-      _isDataInitialized = true;
+      _methods.setInitialized();
     }
   }
 
@@ -145,10 +146,19 @@ class _DiagnosisTypeEditScreenState
       color: color,
       isEditMode: _isEditMode,
       isAdmin: isAdmin,
-      isSaving: _isSaving,
-      isDeleting: _isDeleting,
-      onSave: () => _handleSave(diagnosis),
-      onDelete: () => _handleDelete(diagnosis!),
+      isSaving: _methods.isSaving,
+      isDeleting: _methods.isDeleting,
+      onSave: () {
+        if (!_detailsFormKey.currentState!.validate()) return;
+        _methods.handleSave(
+          isEditMode: _isEditMode,
+          originalDiagnosis: diagnosis,
+          name: _nameController.text.trim(),
+          selectedCategoryId: _selectedCategoryId!,
+          price: int.parse(_priceController.text.trim()),
+        );
+      },
+      onDelete: () => _methods.handleDelete(diagnosis: diagnosis!),
       saveLabel: _isEditMode ? 'Update' : 'Create',
     );
   }
@@ -241,76 +251,7 @@ class _DiagnosisTypeEditScreenState
     );
   }
 
-  // --- Handlers ---
-  Future<void> _handleSave(DiagnosisType? originalDiagnosis) async {
-    if (!_detailsFormKey.currentState!.validate()) return;
 
-    setState(() => _isSaving = true);
-
-    try {
-      if (_isEditMode) {
-        final updatedDiagnosis = DiagnosisType(
-          id: originalDiagnosis!.id,
-          name: _nameController.text.trim(),
-          category: _selectedCategoryId!, // Send category ID
-          price: int.parse(_priceController.text.trim()),
-        );
-        await ref.read(updateDiagnosisTypeProvider(updatedDiagnosis).future);
-        if (mounted) {
-          showSuccessSnackBar(context, 'Diagnosis Type updated successfully!');
-        }
-      } else {
-        final newDiagnosis = DiagnosisType(
-          name: _nameController.text.trim(),
-          category: _selectedCategoryId!, // Send category ID
-          price: int.parse(_priceController.text.trim()),
-        );
-        await ref.read(addDiagnosisTypeProvider(newDiagnosis).future);
-        if (mounted) {
-          showSuccessSnackBar(context, 'Diagnosis Type created successfully!');
-        }
-      }
-
-      if (mounted) Navigator.of(context).pop(true);
-    } catch (e) {
-      if (mounted) _showErrorDialog('Operation Failed', e.toString());
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
-    }
-  }
-
-  Future<void> _handleDelete(DiagnosisType diagnosis) async {
-    final confirmed = await showDeleteConfirmationDialog(
-      context: context,
-      title: 'Confirm Deletion',
-      message: 'Are you sure you want to delete "${diagnosis.name}"?',
-      showWarningIcon: false,
-    );
-
-    if (!confirmed) return;
-
-    setState(() => _isDeleting = true);
-    try {
-      await ref.read(deleteDiagnosisTypeProvider(diagnosis.id!).future);
-      if (mounted) {
-        showSuccessSnackBar(context, 'Diagnosis Type deleted successfully!');
-        Navigator.of(context).pop(true);
-      }
-    } catch (e) {
-      if (mounted) _showErrorDialog('Delete Failed', e.toString());
-    } finally {
-      if (mounted) setState(() => _isDeleting = false);
-    }
-  }
-
-  void _showErrorDialog(String title, String errorMessage) {
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      builder: (context) =>
-          ErrorDialog(title: title, errorMessage: errorMessage),
-    );
-  }
 
   Widget _buildErrorWidget(String message) {
     return Center(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/screens/categories/category_list_screen.dart';
+import 'package:labledger/screens/home/navigation_tile.dart';
+import 'package:labledger/screens/incentives/incentive_generation_screen.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
 import 'package:labledger/methods/custom_methods.dart';
@@ -13,22 +15,17 @@ import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_types_list_screen.dart';
 import 'package:labledger/screens/doctors/doctors_list_screen.dart';
 import 'package:labledger/screens/franchise_labs/franchise_labs_list_screen.dart';
-import 'package:labledger/screens/home/center_detail_dialog.dart';
-import 'package:labledger/screens/home/navigation_tile.dart';
-import 'package:labledger/screens/incentives/incentive_generation_screen.dart';
-import 'package:labledger/screens/categories/category_list_screen.dart';
-import 'package:labledger/screens/initials/about_app_dialog.dart';
-import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/profile/user_list_screen.dart';
 import 'package:labledger/screens/sample_report/sample_report_screen.dart';
+import 'package:labledger/screens/home/methods/home_methods.dart';
 import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
 import 'package:labledger/screens/ui_components/cards/pending_report_bill_card.dart';
 import 'package:labledger/screens/ui_components/cards/recent_bills_card.dart';
 import 'package:labledger/screens/ui_components/cards/pending_bill_cards.dart';
 import 'package:labledger/screens/ui_components/cards/referral_card.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/profile/user_profile_widget.dart';
-import 'package:labledger/screens/ui_components/custom_filter_chips.dart';
+import 'package:labledger/screens/home/widgets/custom_filter_chips.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -40,7 +37,22 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  String selectedPeriod = "This Month";
+  late final HomeMethods _methods;
+
+  @override
+  void initState() {
+    super.initState();
+    _methods = HomeMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _methods.dispose();
+    super.dispose();
+  }
 
   Widget _buildNavigationSection(
     BuildContext context, {
@@ -82,12 +94,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ...["This Week", "This Month", "This Year", "All Time"].map(
                 (period) => CustomFilterChips(
                   label: period,
-                  selectedPeriod: selectedPeriod,
-                  onTap: () {
-                    setState(() {
-                      selectedPeriod = period;
-                    });
-                  },
+                  selectedPeriod: _methods.selectedPeriod,
+                  onTap: () => _methods.setSelectedPeriod(period),
                 ),
               ),
             ],
@@ -97,39 +105,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         UserProfileWidget(
           authResponse: widget.authResponse,
           baseColor: baseColor,
-          onLogout: () async {
-            await const FlutterSecureStorage().delete(key: "access_token");
-            await const FlutterSecureStorage().delete(key: "refresh_token");
-
-            navigatorKey.currentState?.pushReplacement(
-              MaterialPageRoute(
-                builder: (context) {
-                  return LoginScreen(initialErrorMessage: "");
-                },
-              ),
-            );
-          },
-          onProfile: () {
-            navigatorKey.currentState?.push(
-              MaterialPageRoute(
-                builder: (context) {
-                  return UserListScreen(
-                    adminId: widget.authResponse.isAdmin
-                        ? widget.authResponse.id
-                        : 0,
-                  );
-                },
-              ),
-            );
-          },
-          onSettings: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AboutAppDialog();
-              },
-            );
-          },
+          onLogout: _methods.handleLogout,
+          onProfile: () => _methods.handleProfile(widget.authResponse),
+          onSettings: _methods.handleSettings,
         ),
       ],
     );
@@ -152,11 +130,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       isInitialScreen: true,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(
-              builder: (context) =>
-                  AddUpdateBillScreen(themeColor: colorScheme.secondary),
-            ),
+          _methods.navigateTo(
+            AddUpdateBillScreen(themeColor: colorScheme.secondary),
           );
         },
         backgroundColor: colorScheme.primary,
@@ -191,11 +166,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             borderRadius: BorderRadius.circular(defaultRadius),
             onTap: () {
               if (widget.authResponse.isAdmin) {
-                showDialog(
-                  context: context,
-                  builder: (_) =>
-                      CenterDetailDialog(centerDetail: resolvedCenterDetail),
-                );
+                _methods.showCenterDetailDialog(resolvedCenterDetail);
               }
             },
             child: Container(
@@ -257,7 +228,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             referralStatsAsync,
                             baseColor,
                             context,
-                            selectedPeriod,
+                            _methods.selectedPeriod,
                           ),
                         ),
                         SizedBox(width: defaultWidth),
@@ -266,7 +237,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             chartStatsAsync,
                             baseColor,
                             context,
-                            selectedPeriod,
+                            _methods.selectedPeriod,
                           ),
                         ),
                         SizedBox(width: defaultWidth),
@@ -285,14 +256,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           referralStatsAsync,
                           baseColor,
                           context,
-                          selectedPeriod,
+                          _methods.selectedPeriod,
                         ),
                         SizedBox(height: defaultHeight),
                         buildChartStatsCard(
                           chartStatsAsync,
                           baseColor,
                           context,
-                          selectedPeriod,
+                          _methods.selectedPeriod,
                         ),
                         SizedBox(height: defaultHeight),
                         buildPendingBillsCard(unpaidBillsAsync, context),
@@ -354,45 +325,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       label: "Doctor's List",
                       color: baseColor,
                       height: height,
-                      onTap: () {
-                        navigatorKey.currentState?.push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return DoctorsListScreen();
-                            },
-                          ),
-                        );
-                      },
+                      onTap: () =>
+                          _methods.navigateTo(const DoctorsListScreen()),
                     ),
                     NavigationTile(
                       icon: LucideIcons.landmark,
                       label: "Franchise Labs",
                       color: baseColor,
                       height: height,
-                      onTap: () {
-                        navigatorKey.currentState?.push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return FranchiseListScreen();
-                            },
-                          ),
-                        );
-                      },
+                      onTap: () =>
+                          _methods.navigateTo(const FranchiseListScreen()),
                     ),
                     NavigationTile(
                       icon: LucideIcons.microscope,
                       label: "Diagnosis Type",
                       color: baseColor,
                       height: height,
-                      onTap: () {
-                        navigatorKey.currentState?.push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return DiagnosisTypesListScreen();
-                            },
-                          ),
-                        );
-                      },
+                      onTap: () =>
+                          _methods.navigateTo(const DiagnosisTypesListScreen()),
                     ),
                     NavigationTile(
                       icon: LucideIcons.tags,
@@ -472,17 +422,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             label: "Users Profile",
                             color: baseColor,
                             height: height,
-                            onTap: () {
-                              navigatorKey.currentState?.push(
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return UserListScreen(
-                                      adminId: widget.authResponse.id,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
+                            onTap: () => _methods.navigateTo(
+                              UserListScreen(adminId: widget.authResponse.id),
+                            ),
                           ),
                         ],
                       );

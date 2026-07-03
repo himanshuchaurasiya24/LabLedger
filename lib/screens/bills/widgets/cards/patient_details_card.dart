@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/screens/bills/components/bill_section_card.dart';
+import 'package:labledger/screens/bills/widgets/cards/bill_section_card.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 

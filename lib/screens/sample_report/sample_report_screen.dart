@@ -1,30 +1,17 @@
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/main.dart';
 import 'package:labledger/models/sample_report_model.dart';
 import 'package:labledger/providers/sample_reports_provider.dart';
-import 'package:labledger/providers/category_provider.dart';
-import 'package:labledger/methods/custom_methods.dart';
-import 'package:labledger/authentication/auth_http_client.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
-
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
-import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
-import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
-import 'package:labledger/screens/ui_components/custom_text_field.dart';
-import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
-import 'package:labledger/screens/ui_components/searchable_dropdown_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:labledger/screens/sample_report/components/file_upload_widget.dart';
-import 'package:labledger/screens/ui_components/snackbar_utils.dart';
-import 'package:labledger/utils/controller_disposer.dart';
+import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/screens/sample_report/methods/sample_report_methods.dart';
+import 'package:labledger/screens/sample_report/components/sample_report_components.dart';
 
 class SampleReportManagementScreen extends ConsumerStatefulWidget {
   const SampleReportManagementScreen({super.key, this.baseColor});
@@ -37,75 +24,19 @@ class SampleReportManagementScreen extends ConsumerStatefulWidget {
 }
 
 class _SampleReportManagementScreenState
-    extends ConsumerState<SampleReportManagementScreen>
-    with ControllerDisposer {
-  late final TextEditingController searchController;
-  final FocusNode searchFocusNode = FocusNode();
-  String _searchQuery = '';
+    extends ConsumerState<SampleReportManagementScreen> {
+  late SampleReportMethods _methods;
 
   @override
   void initState() {
     super.initState();
-    searchController = createController();
-    searchFocusNode.requestFocus();
+    _methods = SampleReportMethods(context, ref);
   }
 
   @override
   void dispose() {
-    disposeControllers();
-    searchFocusNode.dispose();
+    _methods.dispose();
     super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query;
-    });
-  }
-
-  List<SampleReportModel> _filterReports(List<SampleReportModel> reports) {
-    if (_searchQuery.isEmpty) return reports;
-
-    return reports.where((report) {
-      final diagnosisName = report.diagnosisName
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-      final category = report.category.trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-      final fileName = report.sampleReportFile.trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-
-      return diagnosisName.contains(_searchQuery) ||
-          category.contains(_searchQuery) ||
-          fileName.contains(_searchQuery);
-    }).toList();
-  }
-
-  int getCrossAxisCount(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    if (size.width < 1600 && size.width > 1200) {
-      return 3;
-    }
-    if (size.width < 1200) {
-      return 2;
-    }
-    return 4;
-  }
-
-  double getChildAspectRatio(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    if (size.width < 1600 && size.width > 1200) {
-      return 2.3;
-    }
-    if (size.width < 1200 || size.width > 1600) {
-      return 2.7;
-    }
-    return 2.3;
   }
 
   @override
@@ -115,40 +46,43 @@ class _SampleReportManagementScreenState
     final effectiveColor = widget.baseColor ?? colorScheme.secondary;
     final sampleReportsAsync = ref.watch(allSampleReportsProvider);
 
-    return WindowScaffold(
-      centerWidget: CenterSearchBar(
-        controller: searchController,
-        searchFocusNode: searchFocusNode,
-        hintText: 'Search Reports...',
-        width: 400,
-        onSearch: _onSearchChanged,
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
+    return AnimatedBuilder(
+      animation: _methods,
+      builder: (context, _) => WindowScaffold(
+        centerWidget: CenterSearchBar(
+          controller: _methods.searchController,
+          searchFocusNode: _methods.searchFocusNode,
+          hintText: 'Search Reports...',
+          width: 400,
+          onSearch: _methods.onSearchChanged,
         ),
-        onPressed: () => _showCreateDialog(context, effectiveColor),
-        label: const Text(
-          'Add Report',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(defaultRadius),
+          ),
+          onPressed: () => _showCreateDialog(context, effectiveColor),
+          label: const Text(
+            'Add Report',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          icon: const Icon(LucideIcons.plus),
         ),
-        icon: const Icon(LucideIcons.plus),
-      ),
-      child: sampleReportsAsync.when(
-        data: (reports) {
-          final filteredReports = _filterReports(reports);
-          return _buildReportsList(
-            context,
-            ref,
-            filteredReports,
-            effectiveColor,
-          );
-        },
-        loading: () => _buildLoadingState(context, effectiveColor),
-        error: (error, stack) =>
-            _buildErrorState(context, ref, error, effectiveColor),
+        child: sampleReportsAsync.when(
+          data: (reports) {
+            final filteredReports = _methods.filterReports(reports);
+            return _buildReportsList(
+              context,
+              ref,
+              filteredReports,
+              effectiveColor,
+            );
+          },
+          loading: () => _buildLoadingState(context, effectiveColor),
+          error: (error, stack) =>
+              _buildErrorState(context, ref, error, effectiveColor),
+        ),
       ),
     );
   }
@@ -166,10 +100,10 @@ class _SampleReportManagementScreenState
     return GridView.builder(
       padding: EdgeInsets.all(defaultPadding),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: _methods.getCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: _methods.getChildAspectRatio(context),
       ),
       itemCount: reports.length,
       itemBuilder: (context, index) {
@@ -273,9 +207,9 @@ class _SampleReportManagementScreenState
                     _showEditDialog(context, report, effectiveColor);
                   } else if (value == 'download' &&
                       report.sampleReportFile.isNotEmpty) {
-                    _downloadReport(context, report);
+                    _methods.downloadReport(report);
                   } else if (value == 'delete') {
-                    _confirmDelete(context, ref, report);
+                    _methods.confirmDelete(report);
                   }
                 },
                 itemBuilder: (context) => [
@@ -333,10 +267,10 @@ class _SampleReportManagementScreenState
     return GridView.builder(
       padding: EdgeInsets.all(defaultPadding),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: _methods.getCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: _methods.getChildAspectRatio(context),
       ),
       itemCount: 8,
       itemBuilder: (context, index) {
@@ -419,7 +353,7 @@ class _SampleReportManagementScreenState
     showDialog(
       context: context,
       builder: (context) =>
-          _ReportFormDialog(mode: FormMode.create, themeColor: effectiveColor),
+          ReportFormDialog(mode: FormMode.create, themeColor: effectiveColor),
     );
   }
 
@@ -430,483 +364,11 @@ class _SampleReportManagementScreenState
   ) {
     showDialog(
       context: context,
-      builder: (context) => _ReportFormDialog(
+      builder: (context) => ReportFormDialog(
         mode: FormMode.edit,
         existingReport: report,
         themeColor: effectiveColor,
       ),
     );
-  }
-
-  Future<void> _downloadReport(
-    BuildContext context,
-    SampleReportModel report,
-  ) async {
-    if (report.sampleReportFile.isEmpty) return;
-
-    try {
-      final uri = Uri.parse(report.sampleReportFile);
-      final response = await AuthHttpClient.get(
-        ref,
-        uri.toString(),
-        throwOnError: false,
-      );
-
-      if (response.statusCode != 200) {
-        if (context.mounted) {
-          showDialog(
-            context: context,
-            builder: (context) => ErrorDialog(
-              title: 'Download Error',
-              errorMessage:
-                  'HTTP ${response.statusCode}: The report file is missing on the server. Please upload it again or contact support.',
-            ),
-          );
-        }
-        return;
-      }
-
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        throw Exception('Could not open file URL');
-      }
-    } catch (e) {
-      if (context.mounted) {
-        showDialog(
-          context: context,
-          builder: (context) =>
-              ErrorDialog(title: 'Download Failed', errorMessage: e.toString()),
-        );
-      }
-    }
-  }
-
-  void _confirmDelete(
-    BuildContext context,
-    WidgetRef ref,
-    SampleReportModel report,
-  ) {
-    showDeleteConfirmationDialog(
-      context: context,
-      title: 'Delete Report',
-      message: 'Are you sure you want to delete "${report.diagnosisName}"?',
-      showWarningIcon: false,
-    ).then((confirmed) async {
-      if (!confirmed) return;
-      try {
-        await ref.read(deleteSampleReportProvider(report.id!).future);
-        if (context.mounted) {
-          showSuccessSnackBar(context, 'Report deleted successfully');
-        }
-      } catch (e) {
-        if (context.mounted) {
-          showDialog(
-            context: context,
-            builder: (context) =>
-                ErrorDialog(title: 'Delete Failed', errorMessage: e.toString()),
-          );
-        }
-      }
-    });
-  }
-}
-
-enum FormMode { create, edit }
-
-class _ReportFormDialog extends ConsumerStatefulWidget {
-  const _ReportFormDialog({
-    required this.mode,
-    this.existingReport,
-    required this.themeColor,
-  });
-
-  final FormMode mode;
-  final SampleReportModel? existingReport;
-  final Color themeColor;
-
-  @override
-  ConsumerState<_ReportFormDialog> createState() => _ReportFormDialogState();
-}
-
-class _ReportFormDialogState extends ConsumerState<_ReportFormDialog>
-    with ControllerDisposer {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _diagnosisNameController;
-  late final TextEditingController _categoryController;
-
-  String? _selectedCategory;
-  File? _selectedFile;
-  String? _currentFileName;
-  bool _isSubmitting = false;
-  final bool _isFromServer = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _diagnosisNameController = createController(
-      widget.existingReport?.diagnosisName ?? '',
-    );
-    _categoryController = createController(
-      widget.existingReport?.category ?? '',
-    );
-    _selectedCategory = widget.existingReport?.category;
-
-    if (widget.existingReport?.sampleReportFile.isNotEmpty ?? false) {
-      _currentFileName = widget.existingReport!.sampleReportFile
-          .split('/')
-          .last;
-    }
-  }
-
-  @override
-  void dispose() {
-    disposeControllers();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 700, maxHeight: 800),
-          color: theme.colorScheme.surface,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: widget.themeColor.withValues(alpha: 0.1),
-                    border: Border(
-                      bottom: BorderSide(
-                        color: widget.themeColor.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: widget.themeColor.withValues(alpha: 0.16),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.description,
-                          color: widget.themeColor,
-                          size: 26,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.mode == FormMode.create
-                                  ? 'Add Sample Report'
-                                  : 'Edit Report',
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.87,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Upload or select a report template',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.75,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close_rounded),
-                        style: IconButton.styleFrom(
-                          backgroundColor: theme.colorScheme.surface,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.all(defaultPadding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Diagnosis Name
-                        CustomTextField(
-                          controller: _diagnosisNameController,
-                          label: 'Diagnosis Name',
-                          isRequired: true,
-                          tintColor: widget.themeColor,
-                          prefixIcon: const Icon(Icons.medical_services),
-                        ),
-                        SizedBox(height: defaultHeight),
-
-                        // Category Dropdown (dynamic from backend)
-                        Consumer(
-                          builder: (context, ref, child) {
-                            final categoriesAsync = ref.watch(
-                              categoriesProvider,
-                            );
-
-                            return categoriesAsync.when(
-                              data: (categories) {
-                                final categoryNames = categories
-                                    .map((c) => c.name)
-                                    .toList();
-                                return SearchableDropdownField<String>(
-                                  label: 'Category',
-                                  controller: _categoryController,
-                                  color: widget.themeColor,
-                                  items: categoryNames,
-                                  valueMapper: (category) => category,
-                                  validator: (value) {
-                                    if (_selectedCategory == null ||
-                                        _selectedCategory!.isEmpty) {
-                                      return 'Please select a category';
-                                    }
-                                    return null;
-                                  },
-                                  onSelected: (category) {
-                                    setState(() {
-                                      _selectedCategory = category;
-                                      _categoryController.text = category;
-                                    });
-                                  },
-                                );
-                              },
-                              loading: () => CustomTextField(
-                                label: 'Category',
-                                controller: _categoryController,
-                                readOnly: true,
-                                tintColor: widget.themeColor,
-                                suffixIcon: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation(
-                                      widget.themeColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              error: (err, stack) => CustomTextField(
-                                label: 'Category (Error loading)',
-                                controller: _categoryController,
-                                readOnly: true,
-                                tintColor: Colors.red,
-                                suffixIcon: Icon(
-                                  Icons.error,
-                                  color: Colors.red,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        SizedBox(height: defaultHeight),
-
-                        FileUploadWidget(
-                          themeColor: widget.themeColor,
-                          selectedFile: _selectedFile,
-                          currentFileName: _currentFileName,
-                          isSubmitting: _isSubmitting,
-                          onClearFile: () {
-                            setState(() {
-                              _selectedFile = null;
-                            });
-                          },
-                          onPickFile: _pickFile,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.35,
-                    ),
-                    border: Border(
-                      top: BorderSide(
-                        color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CustomElevatedButton(
-                        onPressed: _isSubmitting
-                            ? null
-                            : () => Navigator.pop(context),
-                        label: 'Cancel',
-                        icon: const Icon(Icons.close_outlined),
-                        width: 130,
-                        height: 46,
-                        outlined: true,
-                        foregroundColor: widget.themeColor,
-                        borderColor: widget.themeColor,
-                      ),
-                      const SizedBox(width: 10),
-                      CustomElevatedButton(
-                        onPressed: _isSubmitting ? null : _submitForm,
-                        width: 160,
-                        height: 46,
-                        backgroundColor: widget.themeColor,
-                        icon: _isSubmitting
-                            ? const SizedBox(
-                                height: 16,
-                                width: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
-                                ),
-                              )
-                            : Icon(
-                                widget.mode == FormMode.create
-                                    ? Icons.add
-                                    : LucideIcons.upload,
-                                size: 16,
-                              ),
-                        label: _isSubmitting
-                            ? 'Saving...'
-                            : (widget.mode == FormMode.create
-                                  ? 'Create'
-                                  : 'Update'),
-                        fontSize: 16,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _pickFile() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['doc', 'docx', 'rtf', 'odt'],
-      );
-
-      if (result != null && result.files.single.path != null) {
-        setState(() {
-          _selectedFile = File(result.files.single.path!);
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => ErrorDialog(
-            title: 'File Selection Error',
-            errorMessage: e.toString(),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _submitForm() async {
-    if (_isFromServer && !_formKey.currentState!.validate()) return;
-
-    if (!_isFromServer &&
-        _selectedFile == null &&
-        widget.mode == FormMode.create) {
-      showDialog(
-        context: context,
-        builder: (context) => const ErrorDialog(
-          title: 'File Required',
-          errorMessage: 'Please select a report file to upload.',
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-
-    try {
-      final report = SampleReportModel(
-        id: widget.existingReport?.id,
-        diagnosisName: _diagnosisNameController.text.trim(),
-        category: _selectedCategory!,
-        sampleReportFile: widget.existingReport?.sampleReportFile ?? '',
-        sampleReportFileLocal: _selectedFile,
-      );
-      if (_selectedFile == null) return;
-      final int fileSizeBytes = await _selectedFile!.length();
-      if (fileSizeBytes > maxFileSize) {
-        showDialog(
-          context: navigatorKey.currentContext!,
-          builder: (context) {
-            return ErrorDialog(
-              title: "Size Limit",
-              errorMessage: "File size limit is $maxFileSizeMb MB only.",
-            );
-          },
-        );
-
-        return;
-      }
-      if (widget.mode == FormMode.create) {
-        await ref.read(createSampleReportProvider(report).future);
-      } else {
-        await ref.read(updateSampleReportProvider(report).future);
-      }
-
-      if (mounted) {
-        Navigator.pop(context);
-        showSuccessSnackBar(context, 'Report ${widget.mode == FormMode.create ? 'created' : 'updated'} successfully');
-      }
-    } catch (e) {
-      if (mounted) {
-        final errorText = e.toString();
-        final String? infoMessage = errorText.contains('Status: 500')
-            ? 'The server encountered an internal error while processing this update. If this happens again, please retry after a few seconds or contact support with the operation details.'
-            : null;
-
-        showDialog(
-          context: context,
-          builder: (context) => ErrorDialog(
-            title: widget.mode == FormMode.create
-                ? 'Creation Failed'
-                : 'Update Failed',
-            errorMessage: errorText,
-            infoMessage: infoMessage,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
-    }
   }
 }

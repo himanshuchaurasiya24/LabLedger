@@ -7,8 +7,9 @@ import 'package:labledger/models/diagnosis_category_model.dart';
 import 'package:labledger/providers/category_provider.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/categories/category_edit_screen.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
+import 'package:labledger/screens/categories/methods/category_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
@@ -30,45 +31,25 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen>
     with ControllerDisposer {
   late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
-  String _searchQuery = '';
+  late CategoryMethods _methods;
 
   @override
   void initState() {
     super.initState();
+    _methods = CategoryMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     searchController = createController();
     searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
+    _methods.dispose();
     disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query;
-    });
-  }
-
-  List<DiagnosisCategory> _filterCategories(
-    List<DiagnosisCategory> categories,
-  ) {
-    if (_searchQuery.isEmpty) return categories;
-
-    return categories.where((category) {
-      final name = category.name.trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-      final description = (category.description ?? '')
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-
-      return name.contains(_searchQuery) || description.contains(_searchQuery);
-    }).toList();
   }
 
   @override
@@ -84,7 +65,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen>
         searchFocusNode: searchFocusNode,
         hintText: "Search Categories...",
         width: 400,
-        onSearch: _onSearchChanged,
+        onSearch: _methods.onSearchChanged,
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: widget.baseColor ?? colorScheme.primary,
@@ -106,7 +87,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen>
       ),
       child: categoriesAsync.when(
         data: (categories) {
-          final filteredCategories = _filterCategories(categories);
+          final filteredCategories = _methods.filterCategories(categories);
           return _buildCategoryList(
             context,
             ref,

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
-import 'package:labledger/models/user_model.dart'; // Assuming your user model is here
+import 'package:labledger/models/user_model.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/user_provider.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
@@ -15,7 +15,7 @@ import 'package:labledger/methods/responsive_helpers.dart';
 import 'package:labledger/methods/string_utils.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
-import 'package:labledger/utils/controller_disposer.dart';
+import 'package:labledger/screens/profile/methods/user_list_methods.dart';
 
 // Assuming ColorValues extension is defined elsewhere in your project
 extension ColorValues on Color {
@@ -46,111 +46,60 @@ class UserListScreen extends ConsumerStatefulWidget {
   ConsumerState<UserListScreen> createState() => _UserListScreenState();
 }
 
-class _UserListScreenState extends ConsumerState<UserListScreen>
-    with ControllerDisposer {
-  late final TextEditingController searchController;
-  final FocusNode searchFocusNode = FocusNode();
-  String _searchQuery = '';
+class _UserListScreenState extends ConsumerState<UserListScreen> {
+  late final UserListMethods _methods;
 
   @override
   void initState() {
     super.initState();
-    searchController = createController();
-    searchFocusNode.requestFocus();
+    _methods = UserListMethods();
   }
 
   @override
   void dispose() {
-    disposeControllers();
-    searchFocusNode.dispose();
+    _methods.dispose();
     super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query;
-    });
-  }
-
-  List<User> _filterUsers(List<User> users) {
-    if (_searchQuery.isEmpty) return users;
-
-    return users.where((user) {
-      final username = user.username.trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-      final fullName = '${user.firstName} ${user.lastName}'
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-      final firstName = user.firstName.trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-      final lastName = user.lastName.trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-      final email = user.email.trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-      final phoneNumber = user.phoneNumber.trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-      final address = user.address.trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-
-      return username.contains(_searchQuery) ||
-          fullName.contains(_searchQuery) ||
-          firstName.contains(_searchQuery) ||
-          lastName.contains(_searchQuery) ||
-          email.contains(_searchQuery) ||
-          phoneNumber.contains(_searchQuery) ||
-          address.contains(_searchQuery);
-    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final usersAsync = ref.watch(usersDetailsProvider);
-    return WindowScaffold(
-      centerWidget: CenterSearchBar(
-        controller: searchController,
-        searchFocusNode: searchFocusNode,
-        hintText: 'Search Users...',
-        width: 400,
-        onSearch: _onSearchChanged,
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 4.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(defaultRadius),
+    return AnimatedBuilder(
+      animation: _methods,
+      builder: (context, _) => WindowScaffold(
+        centerWidget: CenterSearchBar(
+          controller: _methods.searchController,
+          searchFocusNode: _methods.searchFocusNode,
+          hintText: 'Search Users...',
+          width: 400,
+          onSearch: _methods.onSearchChanged,
         ),
-        onPressed: () async {
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(builder: (context) => UserAddEditScreen()),
-          );
-        },
-        label: const Text(
-          "Add User",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        floatingActionButton: FloatingActionButton.extended(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.white,
+          elevation: 4.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(defaultRadius),
+          ),
+          onPressed: () async {
+            navigatorKey.currentState?.push(
+              MaterialPageRoute(builder: (context) => UserAddEditScreen()),
+            );
+          },
+          label: const Text(
+            "Add User",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          icon: const Icon(LucideIcons.plus),
         ),
-        icon: const Icon(LucideIcons.plus),
-      ),
-      child: usersAsync.when(
-        data: (users) {
-          final filteredUsers = _filterUsers(users);
-          return _buildUsersList(context, ref, filteredUsers);
-        },
-        loading: () => _buildLoadingState(context),
-        error: (error, stack) => _buildErrorState(context, ref, error),
+        child: usersAsync.when(
+          data: (users) {
+            final filteredUsers = _methods.filterUsers(users);
+            return _buildUsersList(context, ref, filteredUsers);
+          },
+          loading: () => _buildLoadingState(context),
+          error: (error, stack) => _buildErrorState(context, ref, error),
+        ),
       ),
     );
   }

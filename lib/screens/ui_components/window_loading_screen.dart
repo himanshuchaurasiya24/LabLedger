@@ -8,7 +8,7 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/authentication_provider.dart';
 import 'package:labledger/screens/home/home_screen.dart';
 import 'package:labledger/screens/initials/update_required_screen.dart';
-import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
+import 'package:labledger/screens/incentives/widgets/animated_progress_indicator.dart';
 import 'package:labledger/screens/initials/login_screen.dart';
 import 'package:labledger/screens/setup/setup_screen.dart'; // <-- ADDED
 import 'package:version/version.dart';

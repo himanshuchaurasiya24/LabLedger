@@ -7,11 +7,12 @@ import 'package:labledger/models/diagnosis_type_model.dart';
 import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_bills_list_screen.dart';
 import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/screens/diagnosis_types/methods/diagnosis_type_methods.dart';
 import 'package:labledger/methods/responsive_helpers.dart';
 import 'package:labledger/methods/string_utils.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
@@ -32,46 +33,25 @@ class _DiagnosisTypesListScreenState
     with ControllerDisposer {
   late final TextEditingController searchController;
   final FocusNode searchFocusNode = FocusNode();
-  String _searchQuery = '';
+  late final DiagnosisTypeMethods _methods;
 
   @override
   void initState() {
     super.initState();
+    _methods = DiagnosisTypeMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     searchController = createController();
     searchFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
+    _methods.dispose();
     disposeControllers();
     searchFocusNode.dispose();
     super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    setState(() {
-      _searchQuery = query;
-    });
-  }
-
-  List<DiagnosisType> _filterDiagnosisTypes(List<DiagnosisType> types) {
-    if (_searchQuery.isEmpty) return types;
-
-    return types.where((type) {
-      final name = type.name.trim().toLowerCase().replaceAll(
-        RegExp(r'\s+'),
-        ' ',
-      );
-      final categoryName = (type.categoryName ?? '')
-          .trim()
-          .toLowerCase()
-          .replaceAll(RegExp(r'\s+'), ' ');
-      final price = type.price.toString();
-
-      return name.contains(_searchQuery) ||
-          categoryName.contains(_searchQuery) ||
-          price.contains(_searchQuery);
-    }).toList();
   }
 
   @override
@@ -87,7 +67,7 @@ class _DiagnosisTypesListScreenState
         searchFocusNode: searchFocusNode,
         hintText: "Search Diagnosis Types...",
         width: 400,
-        onSearch: _onSearchChanged,
+        onSearch: _methods.onSearchChanged,
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: widget.baseColor ?? colorScheme.primary,
@@ -109,7 +89,7 @@ class _DiagnosisTypesListScreenState
       ),
       child: diagnosisTypesAsync.when(
         data: (types) {
-          final filteredTypes = _filterDiagnosisTypes(types);
+          final filteredTypes = _methods.filterDiagnosisTypes(types);
           return _buildDiagnosisTypeList(
             context,
             ref,

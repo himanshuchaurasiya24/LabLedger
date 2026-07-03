@@ -1,29 +1,16 @@
-import 'dart:async';
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:labledger/screens/ui_components/app_inkwell.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/main.dart';
 import 'package:labledger/models/incentive_model.dart';
 import 'package:labledger/providers/incenitve_generator_provider.dart';
-import 'package:labledger/screens/bills/add_update_bill_screen.dart';
-import 'package:labledger/screens/incentives/pdf_api.dart';
-import 'package:labledger/screens/incentives/report_generation_dialog.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/animated_progress_indicator.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
+import 'package:labledger/screens/incentives/widgets/animated_progress_indicator.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
-import 'package:labledger/screens/ui_components/tinted_container.dart';
+import 'package:labledger/screens/incentives/widgets/incentive_ui_components.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
-import 'package:universal_html/html.dart' as html;
-import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/utils/controller_disposer.dart';
+import 'package:labledger/screens/incentives/methods/incentive_methods.dart';
 
 class IncentiveDetailScreen extends ConsumerStatefulWidget {
   const IncentiveDetailScreen({super.key});
@@ -35,196 +22,27 @@ class IncentiveDetailScreen extends ConsumerStatefulWidget {
 
 class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
     with ControllerDisposer {
-  String searchQuery = '';
   late final TextEditingController _searchController;
-  bool _isRefreshingReport = false;
+  late final IncentiveMethods _methods;
 
   @override
   void initState() {
     super.initState();
     _searchController = createController();
+    _methods = IncentiveMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     disposeControllers();
+    _methods.dispose();
     super.dispose();
   }
 
-  Future<void> _showReportGenerationDialog(BuildContext context) async {
-    final result = await showDialog<Map<String, dynamic>>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const ReportGenerationDialog();
-      },
-    );
 
-    if (result != null && result['generate'] == true) {
-      final selectedFields = result['selectedFields'] as Map<String, bool>;
-      final pdfIndex = result['pdf_layout_index'] as int;
-      _generatePDFReport(selectedFields, pdfIndex);
-    }
-  }
-
-  void _showProgressDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Dialog(
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 20),
-                Text("Generating Report..."),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _generatePDFReport(
-    Map<String, bool> selectedFields,
-    int pdfIndex,
-  ) async {
-    const minDuration = Duration(seconds: 1);
-    final stopwatch = Stopwatch()..start();
-    bool isDialogPopped = false;
-
-    _showProgressDialog();
-    final pdfFieldSelection = Map<String, bool>.from(selectedFields)
-      ..remove('negativeIncentives')
-      ..remove('zeroIncentives');
-
-    void closeDialog() {
-      if (!isDialogPopped) {
-        if (Navigator.of(context, rootNavigator: true).canPop()) {
-          Navigator.of(context, rootNavigator: true).pop();
-        }
-        isDialogPopped = true;
-      }
-    }
-
-    try {
-      final reportState = ref.read(incentiveReportProvider);
-
-      switch (reportState) {
-        case AsyncData(value: final report):
-          if (report.isEmpty) {
-            _showSnackBar(
-              'No data available for report generation',
-              isError: true,
-            );
-            return;
-          }
-
-          final filteredReports = report.where((doctorReport) {
-            final firstName = doctorReport.doctor.firstName ?? '';
-            final lastName = doctorReport.doctor.lastName ?? '';
-            final fullName = '$firstName $lastName'.toLowerCase();
-            return fullName.contains(searchQuery);
-          }).toList();
-
-          final pdfReports = _applyIncentiveFiltersForPdf(
-            filteredReports,
-            includeNegativeIncentives:
-                selectedFields['negativeIncentives'] ?? false,
-            includeZeroIncentives: selectedFields['zeroIncentives'] ?? false,
-          );
-
-          if (pdfReports.isEmpty) {
-            _showSnackBar('No filtered data to generate report', isError: true);
-            return;
-          }
-
-          final pdfBytes = await createPDF(
-            reports: pdfReports,
-            selectedFields: pdfFieldSelection,
-            ref: ref,
-            pdfIndex: pdfIndex,
-          );
-
-          stopwatch.stop();
-          final elapsed = stopwatch.elapsed;
-          if (elapsed < minDuration) {
-            await Future.delayed(minDuration - elapsed);
-          }
-          closeDialog();
-
-          if (kIsWeb) {
-            _downloadPdfWeb(pdfBytes);
-          } else {
-            final fileName =
-                "LabLedger Incentive Report ${DateFormat("dd MMM yyyy hh-mm-ss").format(DateTime.now())}.pdf";
-
-            final savePath = await FilePicker.platform.saveFile(
-              dialogTitle: 'Save report file',
-              fileName: fileName,
-            );
-
-            if (savePath == null || savePath.isEmpty) {
-              _showSnackBar('Save cancelled', isError: false);
-              return;
-            }
-
-            final file = File(savePath);
-            await file.writeAsBytes(pdfBytes);
-            _showSnackBar('Report saved to $savePath', isError: false);
-          }
-        case AsyncLoading():
-          _showSnackBar('Please wait for data to load', isError: false);
-        case AsyncError(:final error):
-          _showSnackBar('Error fetching report data: $error', isError: true);
-        default:
-          _showSnackBar(
-            'An unknown error occurred while fetching data.',
-            isError: true,
-          );
-      }
-    } catch (e) {
-      _showSnackBar('Failed to generate report: $e', isError: true);
-    } finally {
-      if (stopwatch.isRunning) {
-        stopwatch.stop();
-        final elapsed = stopwatch.elapsed;
-        if (elapsed < minDuration) {
-          await Future.delayed(minDuration - elapsed);
-        }
-      }
-      closeDialog();
-    }
-  }
-
-  void _downloadPdfWeb(Uint8List pdfBytes) {
-    final blob = html.Blob([pdfBytes], 'application/pdf');
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.document.createElement('a') as html.AnchorElement
-      ..href = url
-      ..style.display = 'none'
-      ..download =
-          '${"LabLedger Incentive Report ${DateFormat("dd_MM_YYYY_hh:mm:ss").format(DateTime.now())}".replaceAll(' ', '_')}.pdf';
-    html.document.body!.children.add(anchor);
-    anchor.click();
-    html.document.body!.children.remove(anchor);
-    html.Url.revokeObjectUrl(url);
-  }
-
-  void _showSnackBar(String message, {required bool isError}) {
-    final context = navigatorKey.currentContext;
-    if (context != null) {
-      if (isError) {
-        showErrorSnackBar(context, message);
-      } else {
-        showSuccessSnackBar(context, message);
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +51,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
 
     return WindowScaffold(
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showReportGenerationDialog(context),
+        onPressed: _methods.showReportGenerationDialog,
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         label: const Text("Generate Report"),
@@ -243,7 +61,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(theme),
-          if (_isRefreshingReport) ...[
+          if (_methods.isRefreshingReport) ...[
             AnimatedLabProgressIndicator(),
             // SizedBox(height: defaultHeight),
           ],
@@ -309,52 +127,12 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
         IconButton(
           icon: Icon(LucideIcons.refresh_cw, color: theme.colorScheme.primary),
           tooltip: "Refresh Report",
-          onPressed: () async {
-            if (_isRefreshingReport) {
-              return;
-            }
-            setState(() {
-              _isRefreshingReport = true;
-            });
-            try {
-              final refreshedReport = await ref.refresh(
-                incentiveReportProvider.future,
-              );
-              if (refreshedReport.isEmpty && mounted) {
-                _showSnackBar('Report refreshed', isError: false);
-              }
-            } catch (e) {
-              _showSnackBar('Refresh failed: $e', isError: true);
-            } finally {
-              if (mounted) {
-                setState(() {
-                  _isRefreshingReport = false;
-                });
-              }
-            }
-          },
+          onPressed: _methods.refreshReport,
         ),
       ],
     );
   }
 
-  List<DoctorReport> _applyIncentiveFiltersForPdf(
-    List<DoctorReport> reports, {
-    required bool includeNegativeIncentives,
-    required bool includeZeroIncentives,
-  }) {
-    bool includeDoctor(DoctorReport report) {
-      if (!includeNegativeIncentives && report.totalIncentive < 0) {
-        return false;
-      }
-      if (!includeZeroIncentives && report.totalIncentive == 0) {
-        return false;
-      }
-      return true;
-    }
-
-    return reports.where(includeDoctor).toList();
-  }
 
   Widget _buildSearchBar(ThemeData theme) {
     return Container(
@@ -367,29 +145,25 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
         tintColor: theme.colorScheme.secondary,
         controller: _searchController,
         label: "Search doctors...",
-        onChanged: (value) {
-          setState(() {
-            searchQuery = value.toLowerCase();
-          });
-        },
+        onChanged: (value) => _methods.setSearchQuery(value.toLowerCase()),
       ),
     );
   }
 
   Widget _buildReportContent(List<DoctorReport> report, ThemeData theme) {
     if (report.isEmpty) {
-      return _buildEmptyState(theme);
+      return IncentiveEmptyState(theme: theme);
     }
 
     final filteredReports = report.where((doctorReport) {
       final firstName = doctorReport.doctor.firstName ?? '';
       final lastName = doctorReport.doctor.lastName ?? '';
       final fullName = '$firstName $lastName'.toLowerCase();
-      return fullName.contains(searchQuery);
+      return fullName.contains(_methods.searchQuery);
     }).toList();
 
     if (filteredReports.isEmpty) {
-      return _buildNoSearchResults(theme);
+      return IncentiveNoSearchResults(theme: theme);
     }
 
     final totalIncentives = filteredReports.fold<int>(
@@ -400,14 +174,17 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
       0,
       (sum, doctor) => sum + doctor.bills.length,
     );
+    
+    final startDate = ref.read(reportStartDateProvider);
+    final endDate = ref.read(reportEndDateProvider);
 
     return Column(
       children: [
-        _buildSummaryCards(
-          filteredReports.length,
-          totalIncentives,
-          totalBills,
-          theme,
+        IncentiveSummaryCards(
+          doctorCount: filteredReports.length,
+          totalIncentives: totalIncentives,
+          totalBills: totalBills,
+          theme: theme,
         ),
         SizedBox(height: defaultHeight),
         Expanded(
@@ -416,471 +193,18 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
             itemBuilder: (context, index) {
               return Padding(
                 padding: EdgeInsets.only(bottom: defaultPadding),
-                child: _buildDoctorExpansionTile(
-                  filteredReports[index],
-                  index,
-                  theme,
+                child: DoctorIncentiveExpansionTile(
+                  doctorReport: filteredReports[index],
+                  index: index,
+                  theme: theme,
+                  startDate: startDate,
+                  endDate: endDate,
                 ),
               );
             },
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildSummaryCards(
-    int doctorCount,
-    int totalIncentives,
-    int totalBills,
-    ThemeData theme,
-  ) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildSummaryCard(
-            icon: LucideIcons.users,
-            title: "Doctors",
-            value: doctorCount.toString(),
-            color: theme.colorScheme.secondary,
-            theme: theme,
-          ),
-        ),
-        SizedBox(width: defaultWidth * 2),
-        Expanded(
-          child: _buildSummaryCard(
-            icon: LucideIcons.indian_rupee,
-            title: "Total Incentives",
-            value:
-                "₹${NumberFormat.decimalPattern('en_IN').format(totalIncentives)}",
-            color: _getIncentiveColor(totalIncentives, theme),
-            theme: theme,
-          ),
-        ),
-        SizedBox(width: defaultWidth * 2),
-        Expanded(
-          child: _buildSummaryCard(
-            icon: LucideIcons.file_text,
-            title: "Bills",
-            value: totalBills.toString(),
-            color: Colors.orange,
-            theme: theme,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSummaryCard({
-    required IconData icon,
-    required String title,
-    required String value,
-    required Color color,
-    required ThemeData theme,
-  }) {
-    return TintedContainer(
-      baseColor: color,
-      height: 70,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          Text(
-            value,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDoctorExpansionTile(
-    DoctorReport doctorReport,
-    int index,
-    ThemeData theme,
-  ) {
-    final cardColor = _getDoctorCardColor(index, context);
-    final incentiveColor = _getIncentiveColor(
-      doctorReport.totalIncentive,
-      theme,
-    );
-    final startDate = ref.read(reportStartDateProvider);
-    final endDate = ref.read(reportEndDateProvider);
-    final subtitleText =
-        "${doctorReport.bills.length} bills • From ${DateFormat("dd MMM yyyy").format(startDate)} to ${DateFormat("dd MMM yyyy").format(endDate)}";
-
-    final firstName = doctorReport.doctor.firstName ?? '';
-    final lastName = doctorReport.doctor.lastName ?? '';
-    final initials = _getInitials(firstName, lastName);
-
-    return ExpansionTile(
-      tilePadding: EdgeInsets.all(defaultPadding),
-      collapsedShape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: cardColor, width: 1),
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: cardColor, width: 1),
-      ),
-      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      leading: CircleAvatar(
-        radius: 24,
-        backgroundColor: cardColor.withAlpha(51),
-        child: Text(
-          initials,
-          style: TextStyle(
-            color: cardColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-      ),
-      title: Text(
-        "$firstName $lastName",
-        style: theme.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      subtitle: Text(
-        subtitleText,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurface,
-        ),
-      ),
-      trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: incentiveColor.withAlpha(51),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(LucideIcons.indian_rupee, color: incentiveColor, size: 16),
-            Text(
-              NumberFormat.decimalPattern(
-                'en_IN',
-              ).format(doctorReport.totalIncentive),
-              style: TextStyle(
-                color: incentiveColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-      children: [_buildBillsSection(doctorReport, theme)],
-    );
-  }
-
-  String _getInitials(String firstName, String lastName) {
-    final firstInitial = firstName.isNotEmpty ? firstName[0].toUpperCase() : '';
-    final lastInitial = lastName.isNotEmpty ? lastName[0].toUpperCase() : '';
-    return '$firstInitial$lastInitial';
-  }
-
-  Widget _buildBillsSection(DoctorReport doctorReport, ThemeData theme) {
-    final bills = doctorReport.bills;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Text(
-            "Bill Details (${bills.length} bills)",
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            headingRowHeight: 40,
-            dataRowMinHeight: 35,
-            dataRowMaxHeight: 45,
-            headingTextStyle: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.primary,
-            ),
-            border: TableBorder.all(
-              color: theme.colorScheme.outline.withAlpha(51),
-              borderRadius: BorderRadius.circular(6),
-              width: 1,
-            ),
-            columns: const [
-              DataColumn(label: Text('Date Of Bill')),
-              DataColumn(label: Text('Patient')),
-              DataColumn(label: Text('Age Sex')),
-              DataColumn(label: Text('Payment Status')),
-              DataColumn(label: Text('Diagnosis')),
-              DataColumn(label: Text('Franchise Lab')),
-              DataColumn(label: Text('Total'), numeric: true),
-              DataColumn(label: Text('Paid'), numeric: true),
-              DataColumn(label: Text('Doctor\'s Discount'), numeric: true),
-              DataColumn(label: Text('Center\'s Discount'), numeric: true),
-              DataColumn(label: Text('Incentive %'), numeric: true),
-              DataColumn(label: Text('Incentive'), numeric: true),
-              DataColumn(label: Text('Bill #')),
-            ],
-            rows: bills.map((bill) {
-              final statusColor = _getBillStatusColor(bill.billStatus);
-              return DataRow(
-                cells: [
-                  DataCell(
-                    Text(DateFormat("dd MMM yyyy").format(bill.dateOfBill)),
-                  ),
-                  DataCell(
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          bill.patientName,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        if (bill.patientPhoneNumber != null)
-                          Text(
-                            bill.patientPhoneNumber.toString(),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withAlpha(153),
-                              fontSize: 10,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  DataCell(Text("${bill.patientAge}y ${bill.patientSex}")),
-                  DataCell(
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusColor.withAlpha(51),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        bill.billStatus,
-                        style: TextStyle(
-                          color: statusColor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    Text(
-                      bill.diagnosisTypesOutput.isNotEmpty
-                          ? bill.diagnosisTypesOutput
-                                .map(
-                                  (dt) =>
-                                      "${dt.name} (${dt.categoryName ?? 'Unknown'})",
-                                )
-                                .join(', ')
-                          : 'Unknown',
-                    ),
-                  ),
-                  DataCell(
-                    bill.franchiseName != null
-                        ? Text(bill.franchiseName!['franchise_name'] ?? 'N/A')
-                        : const Text("N/A"),
-                  ),
-                  DataCell(
-                    Text(
-                      "₹${NumberFormat.decimalPattern('en_IN').format(bill.totalAmount)}",
-                    ),
-                  ),
-                  DataCell(
-                    Text(
-                      "₹${NumberFormat.decimalPattern('en_IN').format(bill.paidAmount)}",
-                    ),
-                  ),
-                  DataCell(
-                    Text(
-                      "₹${NumberFormat.decimalPattern('en_IN').format(bill.discByDoctor)}",
-                    ),
-                  ),
-                  DataCell(
-                    Text(
-                      "₹${NumberFormat.decimalPattern('en_IN').format(bill.discByCenter)}",
-                    ),
-                  ),
-                  DataCell(getIncentivePercentage(doctorReport.doctor, bill)),
-                  DataCell(
-                    Text(
-                      "₹${NumberFormat.decimalPattern('en_IN').format(bill.incentiveAmount)}",
-                      style: TextStyle(
-                        color: _getIncentiveColor(
-                          bill.incentiveAmount,
-                          Theme.of(context),
-                        ),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  DataCell(_buildBillNumberCell(bill, theme)),
-                ],
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget getIncentivePercentage(Doctor doctor, IncentiveBill bill) {
-    // Get first diagnosis type's category ID for percentage calculation
-    if (bill.diagnosisTypesOutput.isEmpty) {
-      return Text('0');
-    }
-
-    final categoryId = bill.diagnosisTypesOutput[0].category;
-
-    // Find matching category percentage from doctor's dynamic percentages
-    int percentage = 0;
-    if (doctor.categoryPercentages != null &&
-        doctor.categoryPercentages!.isNotEmpty) {
-      try {
-        final matchingPercentage = doctor.categoryPercentages!.firstWhere(
-          (cp) => cp.category == categoryId,
-          orElse: () => DoctorCategoryPercentage(
-            id: 0,
-            category: 0,
-            categoryName: '',
-            percentage: 0,
-          ),
-        );
-        percentage = matchingPercentage.percentage;
-      } catch (e) {
-        // Error finding percentage, keep default 0
-      }
-    }
-
-    return Text(percentage.toString());
-  }
-
-  Widget _buildBillNumberCell(IncentiveBill bill, ThemeData theme) {
-    return AppInkWell(
-      onDoubleTap: () {
-        Clipboard.setData(ClipboardData(text: bill.billNumber));
-        _showSnackBar(
-          'Bill number "${bill.billNumber}" copied!',
-          isError: false,
-        );
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          AppInkWell(
-            onTap: () {
-              navigatorKey.currentState?.push(
-                MaterialPageRoute(
-                  builder: (context) => AddUpdateBillScreen(
-                    themeColor: _getBillStatusColor(bill.billStatus),
-                    billId: bill.id,
-                  ),
-                ),
-              );
-            },
-            child: Text(
-              bill.billNumber,
-              style: const TextStyle(decoration: TextDecoration.underline),
-            ),
-          ),
-          IconButton(
-            tooltip: "Copy bill number",
-            icon: Icon(Icons.copy, color: theme.colorScheme.outline, size: 14),
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: bill.billNumber));
-              _showSnackBar(
-                'Bill number "${bill.billNumber}" copied!',
-                isError: false,
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            LucideIcons.file_x,
-            size: 64,
-            color: theme.colorScheme.onSurface.withAlpha(102),
-          ),
-          SizedBox(height: defaultPadding),
-          Text(
-            "No Incentive Data Found",
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onSurface.withAlpha(178),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "No incentive data found for the selected filters.",
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withAlpha(128),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNoSearchResults(ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            LucideIcons.search_x,
-            size: 64,
-            color: theme.colorScheme.onSurface.withAlpha(102),
-          ),
-          SizedBox(height: defaultPadding),
-          Text(
-            "No Results Found",
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: theme.colorScheme.onSurface.withAlpha(178),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "No doctors match your search criteria.",
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withAlpha(128),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -895,36 +219,5 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
         ],
       ),
     );
-  }
-
-  Color _getDoctorCardColor(int index, BuildContext context) {
-    final colors = [
-      Theme.of(context).colorScheme.primary,
-      Theme.of(context).colorScheme.secondary,
-    ];
-    return colors[index % colors.length];
-  }
-
-  Color _getBillStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'fully paid':
-        return Theme.of(context).colorScheme.secondary;
-      case 'partially paid':
-        return Colors.amber;
-      case 'unpaid':
-        return Theme.of(context).colorScheme.error;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  Color _getIncentiveColor(int amount, ThemeData theme) {
-    if (amount < 0) {
-      return theme.colorScheme.error;
-    }
-    if (amount == 0) {
-      return Colors.amber;
-    }
-    return theme.colorScheme.secondary;
   }
 }

@@ -3,15 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/diagnosis_category_model.dart';
 import 'package:labledger/providers/authentication_provider.dart';
-import 'package:labledger/providers/category_provider.dart';
-import 'package:labledger/screens/initials/window_scaffold.dart';
-import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
-import 'package:labledger/screens/ui_components/custom_error_dialog.dart';
+import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/ui_components/edit_screen_header_card.dart';
 import 'package:labledger/methods/string_utils.dart';
-import 'package:labledger/screens/ui_components/snackbar_utils.dart';
+import 'package:labledger/screens/categories/methods/category_methods.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/utils/controller_disposer.dart';
 
@@ -30,26 +27,29 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen>
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _descriptionController;
-  bool _isFranchiseLab = false;
-  bool _isSaving = false;
-  bool _isDeleting = false;
+  late CategoryMethods _methods;
 
   bool get _isEditMode => widget.category != null;
 
   @override
   void initState() {
     super.initState();
+    _methods = CategoryMethods(context, ref);
+    _methods.addListener(() {
+      if (mounted) setState(() {});
+    });
     _nameController = createController(widget.category?.name ?? '');
     _descriptionController = createController(
       widget.category?.description ?? '',
     );
     if (_isEditMode) {
-      _isFranchiseLab = widget.category!.isFranchiseLab;
+      _methods.isFranchiseLab = widget.category!.isFranchiseLab;
     }
   }
 
   @override
   void dispose() {
+    _methods.dispose();
     disposeControllers();
     super.dispose();
   }
@@ -85,8 +85,8 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen>
       color: color,
       isEditMode: _isEditMode,
       isAdmin: isAdmin,
-      isSaving: _isSaving,
-      isDeleting: _isDeleting,
+      isSaving: _methods.isSaving,
+      isDeleting: _methods.isDeleting,
       onSave: _handleSave,
       onDelete: _handleDelete,
       saveLabel: _isEditMode ? 'Update' : 'Create',
@@ -179,12 +179,10 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen>
                           'Enable this if bills with this category require franchise name',
                           style: theme.textTheme.bodySmall,
                         ),
-                        value: _isFranchiseLab,
+                        value: _methods.isFranchiseLab,
                         activeColor: color,
                         onChanged: (value) {
-                          setState(() {
-                            _isFranchiseLab = value ?? false;
-                          });
+                          _methods.setIsFranchiseLab(value ?? false);
                         },
                       ),
                     ),
@@ -202,79 +200,15 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen>
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
-    setState(() => _isSaving = true);
-
-    try {
-      final category = DiagnosisCategory(
-        id: _isEditMode ? widget.category!.id : 0,
-        name: _nameController.text.trim(),
-        description: _descriptionController.text.trim().isEmpty
-            ? null
-            : _descriptionController.text.trim(),
-        isFranchiseLab: _isFranchiseLab,
-        isActive: true,
-      );
-
-      if (_isEditMode) {
-        await ref.read(updateCategoryProvider(category).future);
-        if (mounted) {
-          showSuccessSnackBar(context, 'Category updated successfully!');
-        }
-      } else {
-        await ref.read(addCategoryProvider(category).future);
-        if (mounted) {
-          showSuccessSnackBar(context, 'Category created successfully!');
-        }
-      }
-
-      if (mounted) Navigator.of(context).pop(true);
-    } catch (e) {
-      if (mounted) {
-        _showErrorDialog(
-          'Operation Failed',
-          e.toString().replaceAll("Exception: ", ""),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSaving = false);
-    }
+    await _methods.handleSave(
+      isEditMode: _isEditMode,
+      categoryId: _isEditMode ? widget.category!.id : 0,
+      name: _nameController.text.trim(),
+      description: _descriptionController.text.trim(),
+    );
   }
 
   Future<void> _handleDelete() async {
-    final confirmed = await showDeleteConfirmationDialog(
-      context: context,
-      title: 'Confirm Deletion',
-      message:
-          'Are you sure you want to delete ${widget.category!.name}?\nThis action cannot be undone.',
-    );
-
-    if (!confirmed) return;
-
-    setState(() => _isDeleting = true);
-    try {
-      await ref.read(deleteCategoryProvider(widget.category!.id).future);
-      if (mounted) {
-        showSuccessSnackBar(context, 'Category deleted successfully!');
-        Navigator.of(context).pop(true);
-      }
-    } catch (e) {
-      if (mounted) {
-        _showErrorDialog(
-          'Delete Failed',
-          e.toString().replaceAll("Exception: ", ""),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isDeleting = false);
-    }
-  }
-
-  void _showErrorDialog(String title, String errorMessage) {
-    showDialog(
-      context: context,
-      builder: (context) =>
-          ErrorDialog(title: title, errorMessage: errorMessage),
-    );
+    await _methods.handleDelete(category: widget.category!);
   }
 }
