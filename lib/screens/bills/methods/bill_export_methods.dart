@@ -24,14 +24,19 @@ class BillExportMethods extends ChangeNotifier {
   // ── Export Dialog Flow ──
 
   Future<void> showExportDialog() async {
-    // First fetch all filtered bills (unpaginated)
-    final allBillsState = ref.read(allFilteredBillsProvider);
+    _showSnackBar('Fetching bills for export...', isError: false);
+    List<Bill> bills;
+    try {
+      bills = await ref.read(allFilteredBillsProvider.future);
+    } catch (e) {
+      if (!context.mounted) return;
+      _showSnackBar('Failed to fetch bills: $e', isError: true);
+      return;
+    }
 
-    final bills = allBillsState.whenOrNull<List<Bill>>(
-      data: (data) => data,
-    );
+    if (!context.mounted) return;
 
-    if (bills == null || bills.isEmpty) {
+    if (bills.isEmpty) {
       _showSnackBar('No bills available to export', isError: true);
       return;
     }

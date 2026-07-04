@@ -208,6 +208,7 @@ class BillMethods extends ChangeNotifier {
       billNumber: null,
       totalAmount: 0,
       incentiveAmount: 0,
+      isMessageSent: originalBill?.isMessageSent ?? false,
     );
 
     try {

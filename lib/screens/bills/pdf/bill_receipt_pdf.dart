@@ -391,24 +391,19 @@ List<pw.Widget> _buildReceiptContent(
           pw.Container(
             padding: const pw.EdgeInsets.symmetric(
               horizontal: mediumPadding,
-              vertical: defaultPadding,
-            ),
-            decoration: pw.BoxDecoration(
-              gradient: pw.LinearGradient(
-                colors: [deepBlueColor, tealColor],
-                begin: pw.Alignment.topLeft,
-                end: pw.Alignment.bottomRight,
-              ),
-              borderRadius: pw.BorderRadius.circular(smallRadius),
+              vertical: smallPadding,
             ),
             child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.end,
+              mainAxisAlignment: pw.MainAxisAlignment.center,
               children: [
                 pw.Text(
-                  "TOTAL",
+                  "GRAND TOTAL",
                   style: pw.TextStyle(
-                    font: font,
-                    fontSize: 8,
-                    color: PdfColors.white,
+                    font: boldFont,
+                    fontSize: 9,
+                    fontWeight: pw.FontWeight.bold,
+                    color: deepBlueColor,
                   ),
                 ),
                 pw.SizedBox(height: 4),
@@ -416,12 +411,12 @@ List<pw.Widget> _buildReceiptContent(
                   "₹${NumberFormat('#,##,###').format(bill.totalAmount)}",
                   style: pw.TextStyle(
                     font: boldFont,
-                    fontSize: 18,
+                    fontSize: 22,
                     fontWeight: pw.FontWeight.bold,
-                    color: PdfColors.white,
+                    color: tealColor,
                   ),
                 ),
-                pw.SizedBox(height: 4),
+                pw.SizedBox(height: 6),
                 _buildInfoChip(
                   bill.billStatus,
                   font,

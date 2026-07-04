@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:flutter_lucide/flutter_lucide.dart';
+
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/patient_report_provider.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
@@ -137,158 +137,170 @@ class BillHeaderCard extends ConsumerWidget {
                   ],
                 ),
                 SizedBox(height: defaultHeight / 2),
-                Row(
-                  children: [
-                    StatusBadge(
-                      text: isEditMode ? 'Edit Mode' : 'New Bill',
-                      color: color,
-                    ),
-                    if (isEditMode) ...[
-                      SizedBox(width: defaultWidth / 2),
-                      Consumer(
-                        builder: (context, ref, child) {
-                          final reportAsyncValue = bill == null
-                              ? null
-                              : ref.watch(getReportForBillProvider(bill!.id!));
-                          final hasReport =
-                              reportAsyncValue?.hasValue == true &&
-                              reportAsyncValue?.value != null;
-
-                          return Row(
-                            children: [
-                              AppInkWell(
-                                borderRadius: BorderRadius.circular(defaultRadius),
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return UpdateReportDialog(
-                                        color: color,
-                                        billId: billId!,
-                                      );
-                                    },
-                                  );
-                                },
-                                child: StatusBadge(
-                                  text: hasReport
-                                      ? 'Update Report'
-                                      : 'Upload Report',
-                                  color: color,
-                                ),
-                              ),
-                              if (hasReport) ...[
-                                SizedBox(width: defaultWidth / 2),
-                                AppInkWell(
-                                  borderRadius: BorderRadius.circular(defaultRadius),
-                                  onTap: isDownloadingReport
-                                      ? null
-                                      : onDownloadReport,
-                                  child: StatusBadge(
-                                    text: isDownloadingReport
-                                        ? 'Downloading...'
-                                        : 'Download Report',
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .primary,
-                                  ),
-                                ),
-                                SizedBox(width: defaultWidth / 2),
-                                AppInkWell(
-                                  borderRadius: BorderRadius.circular(defaultRadius),
-                                  onTap: onDeleteReport,
-                                  child: StatusBadge(
-                                    text: 'Delete Report',
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          );
-                        },
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      StatusBadge(
+                        text: isEditMode ? 'Edit Mode' : 'New Bill',
+                        color: color,
                       ),
-                      SizedBox(width: defaultWidth / 2),
-                      if (bill?.isMessageSent == true) ...[
-                        StatusBadge(
-                          text: 'Message Sent',
-                          color: Theme.of(context).colorScheme.secondary,
+                      if (isEditMode) ...[
+                        SizedBox(width: defaultWidth / 2),
+                        Consumer(
+                          builder: (context, ref, child) {
+                            final reportAsyncValue = bill == null
+                                ? null
+                                : ref.watch(
+                                    getReportForBillProvider(bill!.id!),
+                                  );
+                            final hasReport =
+                                reportAsyncValue?.hasValue == true &&
+                                reportAsyncValue?.value != null;
+
+                            return Row(
+                              children: [
+                                AppInkWell(
+                                  borderRadius: BorderRadius.circular(
+                                    defaultRadius,
+                                  ),
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return UpdateReportDialog(
+                                          color: color,
+                                          billId: billId!,
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: StatusBadge(
+                                    text: hasReport
+                                        ? 'Update Report'
+                                        : 'Upload Report',
+                                    color: color,
+                                  ),
+                                ),
+                                if (hasReport) ...[
+                                  SizedBox(width: defaultWidth / 2),
+                                  AppInkWell(
+                                    borderRadius: BorderRadius.circular(
+                                      defaultRadius,
+                                    ),
+                                    onTap: isDownloadingReport
+                                        ? null
+                                        : onDownloadReport,
+                                    child: StatusBadge(
+                                      text: isDownloadingReport
+                                          ? 'Downloading...'
+                                          : 'Download Report',
+                                      color: color,
+                                    ),
+                                  ),
+                                  SizedBox(width: defaultWidth / 2),
+                                  AppInkWell(
+                                    borderRadius: BorderRadius.circular(
+                                      defaultRadius,
+                                    ),
+                                    onTap: onDeleteReport,
+                                    child: StatusBadge(
+                                      text: 'Delete Report',
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.error,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            );
+                          },
                         ),
+                        SizedBox(width: defaultWidth / 2),
+                        if (bill?.isMessageSent == true) ...[
+                          StatusBadge(text: 'Message Sent', color: color),
+                          SizedBox(width: defaultWidth / 2),
+                          AppInkWell(
+                            borderRadius: BorderRadius.circular(defaultRadius),
+                            onTap: isSendingMessage || bill == null
+                                ? null
+                                : onSendMessage,
+                            child: StatusBadge(
+                              text: isSendingMessage
+                                  ? 'Sending...'
+                                  : 'Resend Message',
+                              color: isSendingMessage ? Colors.orange : color,
+                            ),
+                          ),
+                        ] else ...[
+                          AppInkWell(
+                            borderRadius: BorderRadius.circular(defaultRadius),
+                            onTap: isSendingMessage || bill == null
+                                ? null
+                                : onSendMessage,
+                            child: StatusBadge(
+                              text: isSendingMessage
+                                  ? 'Sending...'
+                                  : 'Send Message',
+                              color: isSendingMessage ? Colors.orange : color,
+                            ),
+                          ),
+                        ],
                         SizedBox(width: defaultWidth / 2),
                         AppInkWell(
                           borderRadius: BorderRadius.circular(defaultRadius),
-                          onTap: isSendingMessage || bill == null
-                              ? null
-                              : onSendMessage,
+                          onTap: onDownloadReceipt,
                           child: StatusBadge(
-                            text: isSendingMessage
-                                ? 'Sending...'
-                                : 'Resend Message',
-                            color: isSendingMessage ? Colors.orange : color,
-                          ),
-                        ),
-                      ] else ...[
-                        AppInkWell(
-                          borderRadius: BorderRadius.circular(defaultRadius),
-                          onTap: isSendingMessage || bill == null
-                              ? null
-                              : onSendMessage,
-                          child: StatusBadge(
-                            text: isSendingMessage
-                                ? 'Sending...'
-                                : 'Send Message',
-                            color: isSendingMessage ? Colors.orange : color,
+                            text: 'Download Receipt',
+                            color: color,
                           ),
                         ),
                       ],
                     ],
-                  ],
+                  ),
                 ),
               ],
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CustomElevatedButton(
-                onPressed: isSubmitting ? null : onSaveBill,
-                label: isSubmitting
-                    ? 'Saving...'
-                    : (isEditMode ? 'Update Bill' : 'Create Bill'),
-                backgroundColor: color,
-                icon: isSubmitting
-                    ? const SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+          SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CustomElevatedButton(
+                  onPressed: isSubmitting ? null : onSaveBill,
+                  label: isSubmitting
+                      ? 'Saving...'
+                      : (isEditMode ? 'Update Bill' : 'Create Bill'),
+                  backgroundColor: color,
+                  icon: isSubmitting
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
-                        ),
-                      )
-                    : Icon(isEditMode ? Icons.save : Icons.add, size: 16),
-              ),
-              if (isEditMode) ...[
-                SizedBox(height: defaultHeight / 2),
-                CustomElevatedButton(
-                  onPressed: onDownloadReceipt,
-                  label: 'Download Receipt',
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  icon: Icon(LucideIcons.receipt, size: 16),
+                        )
+                      : Icon(isEditMode ? Icons.save : Icons.add, size: 16),
                 ),
-                SizedBox(height: defaultHeight / 2),
-                CustomElevatedButton(
-                  onPressed: onDeleteBill,
-                  label: 'Delete Bill',
-                  foregroundColor: colorScheme.error,
-                  icon: Icon(
-                    Icons.delete,
-                    color: Theme.of(context).colorScheme.error,
+                if (isEditMode) ...[
+                  SizedBox(height: defaultHeight / 2),
+                  CustomElevatedButton(
+                    onPressed: onDeleteBill,
+                    label: 'Delete Bill',
+                    foregroundColor: colorScheme.error,
+                    icon: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    outlined: true,
+                    borderColor: Theme.of(context).colorScheme.error,
                   ),
-                  outlined: true,
-                  borderColor: Theme.of(context).colorScheme.error,
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),
