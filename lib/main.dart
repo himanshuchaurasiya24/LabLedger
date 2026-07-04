@@ -15,6 +15,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:labledger/screens/ui_components/ambient_background.dart';
 import 'dart:async';
 
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
