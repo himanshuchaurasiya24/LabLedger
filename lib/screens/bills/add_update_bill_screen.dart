@@ -254,123 +254,24 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   Widget _buildContent({Bill? bill}) {
     final isLargeScreen = MediaQuery.of(context).size.width > 1200;
 
-    if (isLargeScreen) {
-      return Form(
-        key: _formKey,
-        child: Column(
-          children: [
-          BillHeaderCard(
-            color: widget.themeColor,
-            bill: bill,
-            billId: widget.billId,
-            isEditMode: _isEditMode,
-            isDownloadingReport: _methods.isDownloadingReport,
-            isSendingMessage: _methods.isSendingMessage,
-            isSubmitting: _methods.isSubmitting,
-            onDownloadReport: () {
-              final reportAsyncValue = ref.read(getReportForBillProvider(bill!.id!));
-              if (reportAsyncValue.hasValue && reportAsyncValue.value != null) {
-                _methods.downloadReport(reportAsyncValue.value!.id);
-              }
-            },
-            onDeleteReport: () {
-              final reportAsyncValue = ref.read(getReportForBillProvider(bill!.id!));
-              if (reportAsyncValue.hasValue && reportAsyncValue.value != null) {
-                 ref.read(
-                   deletePatientReportProvider((
-                     reportId: reportAsyncValue.value!.id,
-                     billId: bill.id!,
-                   )).future,
-                 );
-              }
-            },
-            onSendMessage: () => _methods.sendBillMessage(bill!),
-            onSaveBill: () => _methods.saveBill(
-              formKey: _formKey,
-              isEditMode: _isEditMode,
-              originalBill: bill,
-              billId: widget.billId,
-              patientNameController: patientNameController,
-              patientAgeController: patientAgeController,
-              patientSexController: patientSexController,
-              billStatusController: billStatusController,
-              paidAmountController: paidAmountController,
-              discByCenterController: discByCenterController,
-              discByDoctorController: discByDoctorController,
-              patientPhoneNumberController: patientPhoneNumberController,
-              refByDoctorController: refByDoctorController,
-              franchiseNameController: franchiseNameController,
-            ),
-            onDeleteBill: () => _methods.deleteBill(bill!),
-          ),
-            SizedBox(height: defaultHeight),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.only(bottom: defaultPadding),
-                child: _buildLargeScreenLayout(color: widget.themeColor),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     return Form(
       key: _formKey,
       child: Column(
         children: [
-          BillHeaderCard(
-            color: widget.themeColor,
-            bill: bill,
-            billId: widget.billId,
-            isEditMode: _isEditMode,
-            isDownloadingReport: _methods.isDownloadingReport,
-            isSendingMessage: _methods.isSendingMessage,
-            isSubmitting: _methods.isSubmitting,
-            onDownloadReport: () {
-              final reportAsyncValue = ref.read(getReportForBillProvider(bill!.id!));
-              if (reportAsyncValue.hasValue && reportAsyncValue.value != null) {
-                _methods.downloadReport(reportAsyncValue.value!.id);
-              }
-            },
-            onDeleteReport: () {
-              final reportAsyncValue = ref.read(getReportForBillProvider(bill!.id!));
-              if (reportAsyncValue.hasValue && reportAsyncValue.value != null) {
-                 ref.read(
-                   deletePatientReportProvider((
-                     reportId: reportAsyncValue.value!.id,
-                     billId: bill.id!,
-                   )).future,
-                 );
-              }
-            },
-            onSendMessage: () => _methods.sendBillMessage(bill!),
-            onSaveBill: () => _methods.saveBill(
-              formKey: _formKey,
-              isEditMode: _isEditMode,
-              originalBill: bill,
-              billId: widget.billId,
-              patientNameController: patientNameController,
-              patientAgeController: patientAgeController,
-              patientSexController: patientSexController,
-              billStatusController: billStatusController,
-              paidAmountController: paidAmountController,
-              discByCenterController: discByCenterController,
-              discByDoctorController: discByDoctorController,
-              patientPhoneNumberController: patientPhoneNumberController,
-              refByDoctorController: refByDoctorController,
-              franchiseNameController: franchiseNameController,
-            ),
-            onDeleteBill: () => _methods.deleteBill(bill!),
-          ),
+          _buildBillHeaderCard(bill),
           SizedBox(height: defaultHeight),
           Expanded(
-            child: Column(
-              children: [
-                _buildTabBar(color: widget.themeColor),
-                Expanded(child: _buildTabContent(color: widget.themeColor)),
-              ],
-            ),
+            child: isLargeScreen
+                ? SingleChildScrollView(
+                    padding: EdgeInsets.only(bottom: defaultPadding),
+                    child: _buildLargeScreenLayout(color: widget.themeColor),
+                  )
+                : Column(
+                    children: [
+                      _buildTabBar(color: widget.themeColor),
+                      Expanded(child: _buildTabContent(color: widget.themeColor)),
+                    ],
+                  ),
           ),
         ],
       ),
@@ -453,94 +354,8 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         Expanded(
           child: Column(
             children: [
-              PatientDetailsCard(
-                defaultColor: color,
-                nameController: patientNameController,
-                sexController: patientSexController,
-                ageController: patientAgeController,
-                phoneController: patientPhoneNumberController,
-                sexDropDownList: sexDropDownList,
-                onSexSelected: (value) =>
-                    setState(() => patientSexController.text = value),
-              ),
-              SizedBox(height: defaultHeight),
-              DiagnosisDetailsCard(
-                defaultColor: color,
-                diagnosisTypesAsync: ref.watch(diagnosisTypeProvider),
-                franchiseNamesAsync: ref.watch(franchiseProvider),
-                doctorsAsync: ref.watch(doctorsProvider),
-                selectedDiagnosisTypes: _methods.selectedDiagnosisTypes,
-                isEditMode: _isEditMode,
-                isDataInitialized: _methods.isDataInitialized,
-                diagnosisTypeDisplayController: diagnosisTypeDisplayController,
-                diagnosisTypeSearchController: _diagnosisTypeSearchController,
-                franchiseNameDisplayController: franchiseNameDisplayController,
-                refByDoctorDisplayController: refByDoctorDisplayController,
-                onDiagnosisTypeRemoved: (dt) {
-                  setState(() {
-                    _methods.selectedDiagnosisTypes.remove(dt);
-                    diagnosisTypeController.text =
-                        _methods.selectedDiagnosisTypes
-                            .map((d) => d.id.toString())
-                            .join(',');
-                    diagnosisTypeDisplayController.text =
-                        _methods.selectedDiagnosisTypes
-                            .map((d) => '${d.category} ${d.name}')
-                            .join(', ');
-                    _updateTotalAmount();
-                  });
-                },
-                onDiagnosisTypeSelected: (selected) {
-                  setState(() {
-                    if (!_methods.selectedDiagnosisTypes.any(
-                      (dt) => dt.id == selected.id,
-                    )) {
-                      _methods.selectedDiagnosisTypes.add(selected);
-                      diagnosisTypeController.text =
-                          _methods.selectedDiagnosisTypes
-                              .map((d) => d.id.toString())
-                              .join(',');
-                      diagnosisTypeDisplayController
-                          .text = _methods.selectedDiagnosisTypes
-                          .map(
-                            (d) =>
-                                '${d.categoryName ?? "Unknown"} ${d.name}',
-                          )
-                          .join(', ');
-
-                      bool hasFranchiseLab = _methods.selectedDiagnosisTypes.any(
-                        (dt) =>
-                            dt.categoryName?.toLowerCase() ==
-                            'franchise lab',
-                      );
-                      if (!hasFranchiseLab) {
-                        _methods.selectedFranchise = null;
-                        franchiseNameController.clear();
-                        franchiseNameDisplayController.clear();
-                      }
-                      _updateTotalAmount();
-                    }
-                  });
-                },
-                onFranchiseSelected: (selected) {
-                  setState(() {
-                    _methods.selectedFranchise = selected;
-                    franchiseNameController.text = selected.id
-                        .toString();
-                    franchiseNameDisplayController.text =
-                        selected.franchiseName ?? '';
-                  });
-                },
-                onDoctorSelected: (selected) {
-                  setState(() {
-                    _methods.selectedDoctor = selected;
-                    refByDoctorController.text = selected.id.toString();
-                    refByDoctorDisplayController.text =
-                        '${selected.firstName} ${selected.lastName ?? ''}';
-                  });
-                },
-                onUpdateDisplayControllers: _updateDisplayControllers,
-              ),
+              _buildPatientDetailsCard(color: color),
+              _buildDiagnosisDetailsCard(color: color),
             ],
           ),
         ),
@@ -548,32 +363,13 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         Expanded(
           child: Column(
             children: [
-              BillingDetailsCard(
-                defaultColor: color,
-                dateOfTestController: dateOfTestController,
-                dateOfBillController: dateOfBillController,
-                billStatusController: billStatusController,
-                billStatusList: billStatusList,
-                onTestDateSelected: (iso) => _methods.selectedTestDateISO = iso,
-                onBillDateSelected: (iso) => _methods.selectedBillDateISO = iso,
-                onStatusSelected: (value) =>
-                    setState(() => billStatusController.text = value),
-              ),
+              _buildBillingDetailsCard(color: color),
               SizedBox(height: defaultHeight),
               AnimatedSize(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeInOutCubic,
                 child: billStatusController.text != "Unpaid"
-                    ? AmountDetailsCard(
-                        defaultColor: color,
-                        totalAmount: _methods.selectedDiagnosisTypes.fold(
-                          0,
-                          (sum, dt) => sum + dt.price,
-                        ),
-                        paidAmountController: paidAmountController,
-                        discByDoctorController: discByDoctorController,
-                        discByCenterController: discByCenterController,
-                      )
+                    ? _buildAmountDetailsCard(color: color)
                     : const SizedBox.shrink(),
               ),
             ],
@@ -597,101 +393,14 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   Widget _buildPatientTab(Color color) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(defaultPadding),
-      child: PatientDetailsCard(
-        defaultColor: color,
-        height: 254,
-        nameController: patientNameController,
-        sexController: patientSexController,
-        ageController: patientAgeController,
-        phoneController: patientPhoneNumberController,
-        sexDropDownList: sexDropDownList,
-        onSexSelected: (value) =>
-            setState(() => patientSexController.text = value),
-      ),
+      child: _buildPatientDetailsCard(color: color, height: 254),
     );
   }
 
   Widget _buildDiagnosisTab(Color color) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(defaultPadding),
-      child: DiagnosisDetailsCard(
-        defaultColor: color,
-        height: 318,
-        diagnosisTypesAsync: ref.watch(diagnosisTypeProvider),
-        franchiseNamesAsync: ref.watch(franchiseProvider),
-        doctorsAsync: ref.watch(doctorsProvider),
-        selectedDiagnosisTypes: _methods.selectedDiagnosisTypes,
-        isEditMode: _isEditMode,
-        isDataInitialized: _methods.isDataInitialized,
-        diagnosisTypeDisplayController: diagnosisTypeDisplayController,
-        diagnosisTypeSearchController: _diagnosisTypeSearchController,
-        franchiseNameDisplayController: franchiseNameDisplayController,
-        refByDoctorDisplayController: refByDoctorDisplayController,
-        onDiagnosisTypeRemoved: (dt) {
-          setState(() {
-            _methods.selectedDiagnosisTypes.remove(dt);
-            diagnosisTypeController.text =
-                _methods.selectedDiagnosisTypes
-                    .map((d) => d.id.toString())
-                    .join(',');
-            diagnosisTypeDisplayController.text =
-                _methods.selectedDiagnosisTypes
-                    .map((d) => '${d.category} ${d.name}')
-                    .join(', ');
-            _updateTotalAmount();
-          });
-        },
-        onDiagnosisTypeSelected: (selected) {
-          setState(() {
-            if (!_methods.selectedDiagnosisTypes.any(
-              (dt) => dt.id == selected.id,
-            )) {
-              _methods.selectedDiagnosisTypes.add(selected);
-              diagnosisTypeController.text =
-                  _methods.selectedDiagnosisTypes
-                      .map((d) => d.id.toString())
-                      .join(',');
-              diagnosisTypeDisplayController
-                  .text = _methods.selectedDiagnosisTypes
-                  .map(
-                    (d) =>
-                        '${d.categoryName ?? "Unknown"} ${d.name}',
-                  )
-                  .join(', ');
-
-              bool hasFranchiseLab = _methods.selectedDiagnosisTypes.any(
-                (dt) =>
-                    dt.categoryName?.toLowerCase() ==
-                    'franchise lab',
-              );
-              if (!hasFranchiseLab) {
-                _methods.selectedFranchise = null;
-                franchiseNameController.clear();
-                franchiseNameDisplayController.clear();
-              }
-              _updateTotalAmount();
-            }
-          });
-        },
-        onFranchiseSelected: (selected) {
-          setState(() {
-            _methods.selectedFranchise = selected;
-            franchiseNameController.text = selected.id
-                .toString();
-            franchiseNameDisplayController.text =
-                selected.franchiseName ?? '';
-          });
-        },
-        onDoctorSelected: (selected) {
-          setState(() {
-            _methods.selectedDoctor = selected;
-            refByDoctorController.text = selected.id.toString();
-            refByDoctorDisplayController.text =
-                '${selected.firstName} ${selected.lastName ?? ''}';
-          });
-        },
-        onUpdateDisplayControllers: _updateDisplayControllers,
-      ),
+      child: _buildDiagnosisDetailsCard(color: color, height: 318),
     );
   }
 
@@ -700,38 +409,167 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       padding: EdgeInsets.all(defaultPadding),
       child: Column(
         children: [
-          BillingDetailsCard(
-            defaultColor: color,
-            height: 254,
-            dateOfTestController: dateOfTestController,
-            dateOfBillController: dateOfBillController,
-            billStatusController: billStatusController,
-            billStatusList: billStatusList,
-            onTestDateSelected: (iso) => _methods.selectedTestDateISO = iso,
-            onBillDateSelected: (iso) => _methods.selectedBillDateISO = iso,
-            onStatusSelected: (value) =>
-                setState(() => billStatusController.text = value),
-          ),
+          _buildBillingDetailsCard(color: color, height: 254),
           SizedBox(height: defaultHeight),
           AnimatedSize(
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeInOutCubic,
             child: billStatusController.text != "Unpaid"
-                ? AmountDetailsCard(
-                    defaultColor: color,
-                    height: 254,
-                    totalAmount: _methods.selectedDiagnosisTypes.fold(
-                      0,
-                      (sum, dt) => sum + dt.price,
-                    ),
-                    paidAmountController: paidAmountController,
-                    discByDoctorController: discByDoctorController,
-                    discByCenterController: discByCenterController,
-                  )
+                ? _buildAmountDetailsCard(color: color, height: 254)
                 : const SizedBox.shrink(),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPatientDetailsCard({required Color color, double? height}) {
+    return PatientDetailsCard(
+      defaultColor: color,
+      height: height,
+      nameController: patientNameController,
+      sexController: patientSexController,
+      ageController: patientAgeController,
+      phoneController: patientPhoneNumberController,
+      sexDropDownList: sexDropDownList,
+      onSexSelected: (value) => setState(() => patientSexController.text = value),
+    );
+  }
+
+  Widget _buildDiagnosisDetailsCard({required Color color, double? height}) {
+    return Column(
+      children: [
+        if (height == null) SizedBox(height: defaultHeight),
+        DiagnosisDetailsCard(
+          defaultColor: color,
+          height: height,
+          diagnosisTypesAsync: ref.watch(diagnosisTypeProvider),
+          franchiseNamesAsync: ref.watch(franchiseProvider),
+          doctorsAsync: ref.watch(doctorsProvider),
+          selectedDiagnosisTypes: _methods.selectedDiagnosisTypes,
+          isEditMode: _isEditMode,
+          isDataInitialized: _methods.isDataInitialized,
+          diagnosisTypeDisplayController: diagnosisTypeDisplayController,
+          diagnosisTypeSearchController: _diagnosisTypeSearchController,
+          franchiseNameDisplayController: franchiseNameDisplayController,
+          refByDoctorDisplayController: refByDoctorDisplayController,
+          onDiagnosisTypeRemoved: (dt) {
+            setState(() {
+              _methods.selectedDiagnosisTypes.remove(dt);
+              diagnosisTypeController.text = _methods.selectedDiagnosisTypes.map((d) => d.id.toString()).join(',');
+              diagnosisTypeDisplayController.text = _methods.selectedDiagnosisTypes.map((d) => '${d.category} ${d.name}').join(', ');
+              _updateTotalAmount();
+            });
+          },
+          onDiagnosisTypeSelected: (selected) {
+            setState(() {
+              if (!_methods.selectedDiagnosisTypes.any((dt) => dt.id == selected.id)) {
+                _methods.selectedDiagnosisTypes.add(selected);
+                diagnosisTypeController.text = _methods.selectedDiagnosisTypes.map((d) => d.id.toString()).join(',');
+                diagnosisTypeDisplayController.text = _methods.selectedDiagnosisTypes.map((d) => '${d.categoryName ?? "Unknown"} ${d.name}').join(', ');
+                bool hasFranchiseLab = _methods.selectedDiagnosisTypes.any((dt) => dt.categoryName?.toLowerCase() == 'franchise lab');
+                if (!hasFranchiseLab) {
+                  _methods.selectedFranchise = null;
+                  franchiseNameController.clear();
+                  franchiseNameDisplayController.clear();
+                }
+                _updateTotalAmount();
+              }
+            });
+          },
+          onFranchiseSelected: (selected) {
+            setState(() {
+              _methods.selectedFranchise = selected;
+              franchiseNameController.text = selected.id.toString();
+              franchiseNameDisplayController.text = selected.franchiseName ?? '';
+            });
+          },
+          onDoctorSelected: (selected) {
+            setState(() {
+              _methods.selectedDoctor = selected;
+              refByDoctorController.text = selected.id.toString();
+              refByDoctorDisplayController.text = '${selected.firstName} ${selected.lastName ?? ''}';
+            });
+          },
+          onUpdateDisplayControllers: _updateDisplayControllers,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBillingDetailsCard({required Color color, double? height}) {
+    return BillingDetailsCard(
+      defaultColor: color,
+      height: height,
+      dateOfTestController: dateOfTestController,
+      dateOfBillController: dateOfBillController,
+      billStatusController: billStatusController,
+      billStatusList: billStatusList,
+      onTestDateSelected: (iso) => _methods.selectedTestDateISO = iso,
+      onBillDateSelected: (iso) => _methods.selectedBillDateISO = iso,
+      onStatusSelected: (value) => setState(() => billStatusController.text = value),
+    );
+  }
+
+  Widget _buildAmountDetailsCard({required Color color, double? height}) {
+    return AmountDetailsCard(
+      defaultColor: color,
+      height: height,
+      totalAmount: _methods.selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price),
+      paidAmountController: paidAmountController,
+      discByDoctorController: discByDoctorController,
+      discByCenterController: discByCenterController,
+    );
+  }
+
+  Widget _buildBillHeaderCard(Bill? bill) {
+    return BillHeaderCard(
+      color: widget.themeColor,
+      bill: bill,
+      billId: widget.billId,
+      isEditMode: _isEditMode,
+      isDownloadingReport: _methods.isDownloadingReport,
+      isSendingMessage: _methods.isSendingMessage,
+      isSubmitting: _methods.isSubmitting,
+      onDownloadReport: () {
+        if (bill?.id != null) {
+          final reportAsyncValue = ref.read(getReportForBillProvider(bill!.id!));
+          if (reportAsyncValue.hasValue && reportAsyncValue.value != null) {
+            _methods.downloadReport(reportAsyncValue.value!.id);
+          }
+        }
+      },
+      onDeleteReport: () {
+        if (bill?.id != null) {
+          final reportAsyncValue = ref.read(getReportForBillProvider(bill!.id!));
+          if (reportAsyncValue.hasValue && reportAsyncValue.value != null) {
+            ref.read(
+              deletePatientReportProvider((
+                reportId: reportAsyncValue.value!.id,
+                billId: bill.id!,
+              )).future,
+            );
+          }
+        }
+      },
+      onSendMessage: () => bill != null ? _methods.sendBillMessage(bill) : null,
+      onSaveBill: () => _methods.saveBill(
+        formKey: _formKey,
+        isEditMode: _isEditMode,
+        originalBill: bill,
+        billId: widget.billId,
+        patientNameController: patientNameController,
+        patientAgeController: patientAgeController,
+        patientSexController: patientSexController,
+        billStatusController: billStatusController,
+        paidAmountController: paidAmountController,
+        discByCenterController: discByCenterController,
+        discByDoctorController: discByDoctorController,
+        patientPhoneNumberController: patientPhoneNumberController,
+        refByDoctorController: refByDoctorController,
+        franchiseNameController: franchiseNameController,
+      ),
+      onDeleteBill: () => bill != null ? _methods.deleteBill(bill) : null,
     );
   }
 }
