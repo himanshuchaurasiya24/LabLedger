@@ -16,7 +16,7 @@ class ErrorField extends StatelessWidget {
       height: 56,
       padding: EdgeInsets.symmetric(horizontal: defaultPadding),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         color: theme.colorScheme.errorContainer.withValues(alpha: 0.2),
         border: Border.all(
           color: theme.colorScheme.error.withValues(alpha: 0.4),

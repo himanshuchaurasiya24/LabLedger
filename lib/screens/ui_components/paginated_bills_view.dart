@@ -97,7 +97,7 @@ class PaginatedBillsView extends ConsumerWidget {
                   ],
                 ],
               ),
-            const SizedBox(height: 20),
+            const SizedBox(height: largePadding),
             PaginationControls(
               totalItems: response.count,
               itemsPerPage: 40,

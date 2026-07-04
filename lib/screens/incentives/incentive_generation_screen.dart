@@ -59,7 +59,7 @@ class _IncentiveGenerationScreenState
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(defaultPadding),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
@@ -86,7 +86,7 @@ class _IncentiveGenerationScreenState
                         size: 28,
                       ),
                     ),
-                    SizedBox(width: 16),
+                    SizedBox(width: mediumPadding),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,7 +99,7 @@ class _IncentiveGenerationScreenState
                               color: theme.colorScheme.onSurface,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: smallPadding),
                           Text(
                             "Configure filters and generate detailed incentive reports",
                             style: theme.textTheme.bodyMedium?.copyWith(
@@ -133,7 +133,7 @@ class _IncentiveGenerationScreenState
                           size: 20,
                           color: theme.colorScheme.secondary,
                         ),
-                        SizedBox(width: 8),
+                        SizedBox(width: smallPadding),
                         Text(
                           "Date Range",
                           style: TextStyle(

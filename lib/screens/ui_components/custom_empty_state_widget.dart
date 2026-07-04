@@ -36,7 +36,7 @@ Widget buildEmptyState({
               fontSize: 20,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: smallPadding),
           Text(
             subtitle,
             style: theme.textTheme.bodyMedium?.copyWith(

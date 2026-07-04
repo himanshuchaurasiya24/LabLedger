@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:labledger/constants/constants.dart';
 import 'package:flutter/material.dart';
 
 class PremiumDialog extends StatelessWidget {
@@ -86,7 +87,7 @@ class PremiumDialog extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(defaultPadding),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -111,7 +112,7 @@ class PremiumDialog extends StatelessWidget {
               size: 26,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: mediumPadding),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +126,7 @@ class PremiumDialog extends StatelessWidget {
                   ),
                 ),
                 if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: minimalPadding),
                   Text(
                     subtitle,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -137,7 +138,7 @@ class PremiumDialog extends StatelessWidget {
             ),
           ),
           ...?extraHeaderActions,
-          const SizedBox(width: 8),
+          const SizedBox(width: smallPadding),
           IconButton(
             onPressed: () {
               if (onClose != null) {

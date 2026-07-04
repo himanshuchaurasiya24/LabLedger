@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/authentication/global_error_observer.dart';
+import 'package:labledger/providers/local_sms_gateway_provider.dart';
 import 'package:labledger/providers/message_provider.dart';
 import 'package:labledger/providers/theme_providers.dart';
 import 'package:labledger/screens/ui_components/window_loading_screen.dart';
@@ -34,6 +36,9 @@ void main() async {
             initialPlatform: initialMessagePlatform,
             preferences: sharedPreferences,
           ),
+        ),
+        localSmsGatewayConfigProvider.overrideWith(
+          (ref) => LocalSmsGatewayConfigNotifier(sharedPreferences),
         ),
       ],
       observers: [GlobalErrorObserver()],
@@ -73,7 +78,7 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
             backgroundColor: backgroundColor,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(smallRadius),
             ),
           ).copyWith(
             mouseCursor: WidgetStateProperty.resolveWith<MouseCursor?>((

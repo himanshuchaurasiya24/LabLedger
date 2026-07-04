@@ -208,7 +208,7 @@ class _DiagnosisTypeBillsListScreenState
                   height: 60,
                   decoration: BoxDecoration(
                     color: headerColor,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(mediumRadius),
                   ),
                   child: const Center(
                     child: Icon(
@@ -218,7 +218,7 @@ class _DiagnosisTypeBillsListScreenState
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: mediumPadding),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -230,7 +230,7 @@ class _DiagnosisTypeBillsListScreenState
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: minimalPadding),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -238,7 +238,7 @@ class _DiagnosisTypeBillsListScreenState
                       ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(smallRadius),
                       ),
                       child: Text(
                         diagnosisType.categoryName ?? 'Unknown Category',
@@ -271,7 +271,7 @@ class _DiagnosisTypeBillsListScreenState
                   ),
                   tooltip: 'Edit Diagnosis Type',
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: smallPadding),
                 IconButton(
                           onPressed: () => _methods.confirmDeleteDiagnosisType(diagnosisType),
                   icon: Icon(

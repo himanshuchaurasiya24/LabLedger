@@ -32,7 +32,7 @@ class AuditLogDialog extends ConsumerWidget {
             ref.invalidate(auditLogsProvider);
           },
           child: Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(smallPadding),
             child: Icon(
               Icons.refresh,
               color: theme.colorScheme.primary,
@@ -116,7 +116,7 @@ class _AuditLogCard extends StatelessWidget {
       padding: EdgeInsets.all(defaultPadding * 1.2),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(mediumRadius),
         border: Border.all(color: actionColor.withValues(alpha: 0.25)),
         boxShadow: [
           BoxShadow(

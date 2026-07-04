@@ -36,7 +36,7 @@ class PendingReportsCard extends StatelessWidget {
                   padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
                     color: baseColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(smallRadius),
                   ),
                   child: Icon(
                     LucideIcons.file_clock,

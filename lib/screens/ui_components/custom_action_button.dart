@@ -27,7 +27,7 @@ class CustomActionButton extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: baseColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(defaultRadius),
         ),
         child: Padding(
           padding:  EdgeInsets.symmetric(horizontal: defaultPadding*2, vertical: defaultPadding),

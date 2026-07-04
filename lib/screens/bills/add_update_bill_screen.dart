@@ -293,7 +293,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
@@ -321,7 +321,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.person_outline, size: 18),
-                SizedBox(width: 8),
+                SizedBox(width: smallPadding),
                 Text('Patient'),
               ],
             ),
@@ -332,7 +332,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.medical_services_outlined, size: 18),
-                SizedBox(width: 8),
+                SizedBox(width: smallPadding),
                 Text('Diagnosis'),
               ],
             ),
@@ -343,7 +343,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.receipt_long, size: 18),
-                SizedBox(width: 8),
+                SizedBox(width: smallPadding),
                 Text('Billing & Amount'),
               ],
             ),

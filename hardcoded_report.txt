@@ -1,0 +1,213 @@
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\methods\custom_methods.dart
+  Line 136: EdgeInsets.symmetric(horizontal: 20, vertical: 16)
+  Line 182: BorderRadius.circular(10)
+  Line 299: EdgeInsets.symmetric(horizontal: 8)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\methods\pagination_controls.dart
+  Line 104: EdgeInsets.symmetric(vertical: 16.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\bills\add_update_bill_screen.dart
+  Line 293: EdgeInsets.symmetric(horizontal: 20, vertical: 10)
+  Line 309: BorderRadius.circular(10)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\bills\widgets\update_report_dialog.dart
+  Line 286: Radius.circular(20)
+  Line 287: Radius.circular(20)
+  Line 420: BorderRadius.circular(10)
+  Line 558: EdgeInsets.symmetric(horizontal: 20)
+  Line 563: EdgeInsets.all(14)
+  Line 798: EdgeInsets.all(40)
+  Line 875: BorderRadius.circular(10)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\bills\widgets\cards\bill_section_card.dart
+  Line 14: EdgeInsets.only(bottom: 16)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\bills\widgets\cards\diagnosis_details_card.dart
+  Line 62: EdgeInsets.only(bottom: 16)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\categories\category_edit_screen.dart
+  Line 142: EdgeInsets.only(bottom: 20)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\diagnosis_types\widgets\diagnosis_details_card.dart
+  Line 62: EdgeInsets.only(bottom: 16)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\doctors\doctor_edit_screen.dart
+  Line 263: BorderRadius.circular(10)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\franchise_labs\franchise_edit_screen.dart
+  Line 191: EdgeInsets.only(bottom: 20)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\home\center_detail_dialog.dart
+  Line 175: EdgeInsets.only(top: 16)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\home\navigation_tile.dart
+  Line 40: EdgeInsets.symmetric(horizontal: 8.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\home\widgets\about_app_dialog.dart
+  Line 24: BorderRadius.circular(24)
+  Line 222: EdgeInsets.symmetric(horizontal: 12)
+  Line 314: EdgeInsets.all(14)
+  Line 329: BorderRadius.circular(10)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\home\widgets\center_subscription_info_card.dart
+  Line 55: BorderRadius.circular(99)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\home\widgets\custom_filter_chips.dart
+  Line 29: EdgeInsets.symmetric(horizontal: 4)
+  Line 31: BorderRadius.circular(25)
+  Line 37: EdgeInsets.symmetric(horizontal: 18, vertical: 12)
+  Line 39: BorderRadius.circular(25)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\incentives\report_generation_dialog.dart
+  Line 174: BorderRadius.circular(10)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\incentives\components\filter_components.dart
+  Line 513: EdgeInsets.symmetric(horizontal: 14, vertical: 14)
+  Line 591: EdgeInsets.symmetric(horizontal: 10, vertical: 10)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\incentives\pdf_layouts\pdf_type1.dart
+  Line 105: Radius.circular(12)
+  Line 106: Radius.circular(12)
+  Line 420: EdgeInsets.symmetric(horizontal: 8, vertical: 3)
+  Line 443: EdgeInsets.symmetric(horizontal: 8, vertical: 8)
+  Line 469: EdgeInsets.symmetric(horizontal: 8, vertical: 8)
+  Line 472: EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+  Line 501: EdgeInsets.symmetric(horizontal: 8, vertical: 8)
+  Line 517: EdgeInsets.symmetric(horizontal: 8, vertical: 8)
+  Line 519: EdgeInsets.symmetric(horizontal: 6, vertical: 3)
+  Line 546: EdgeInsets.symmetric(horizontal: 8, vertical: 8)
+  Line 577: Radius.circular(12)
+  Line 578: Radius.circular(12)
+  Line 591: BorderRadius.circular(2)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\incentives\pdf_layouts\pdf_type2.dart
+  Line 340: EdgeInsets.symmetric(horizontal: 6, vertical: 6)
+  Line 363: EdgeInsets.symmetric(horizontal: 6, vertical: 6)
+  Line 365: EdgeInsets.symmetric(horizontal: 8, vertical: 3)
+  Line 386: EdgeInsets.symmetric(horizontal: 6, vertical: 6)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\incentives\pdf_layouts\pdf_type3.dart
+  Line 340: EdgeInsets.symmetric(horizontal: 6, vertical: 6)
+  Line 363: EdgeInsets.symmetric(horizontal: 6, vertical: 6)
+  Line 365: EdgeInsets.symmetric(horizontal: 8, vertical: 3)
+  Line 386: EdgeInsets.symmetric(horizontal: 6, vertical: 6)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\incentives\widgets\incentive_ui_components.dart
+  Line 258: EdgeInsets.only(bottom: 12)
+  Line 430: EdgeInsets.fromLTRB(16, 0, 16, 16)
+  Line 456: EdgeInsets.symmetric(horizontal: 12, vertical: 6)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\initials\subscription_renewal_dialog.dart
+  Line 118: EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\initials\widgets\subscription_ui_cards.dart
+  Line 34: EdgeInsets.only(bottom: defaultHeight / 4)
+  Line 68: EdgeInsets.only(right: 8)
+  Line 77: BorderRadius.circular(99)
+  Line 102: BorderRadius.circular(99)
+  Line 206: EdgeInsets.only(bottom: defaultHeight / 4)
+  Line 242: BorderRadius.circular(99)
+  Line 291: EdgeInsets.only(bottom: defaultHeight / 4)
+  Line 321: EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+  Line 369: EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+  Line 372: BorderRadius.circular(99)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\profile\audit_log_dialog.dart
+  Line 72: EdgeInsets.fromLTRB(12, 6, 12, 12)
+  Line 141: BorderRadius.circular(50)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\profile\user_edit_screen.dart
+  Line 276: BorderRadius.circular(10)
+  Line 347: EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\profile\user_profile_widget.dart
+  Line 153: EdgeInsets.symmetric(vertical: 8.0)
+  Line 191: EdgeInsets.symmetric(vertical: 8.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\profile\components\local_sms_gateway_config_dialog.dart
+  Line 62: EdgeInsets.all(28.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\profile\components\profile_menu_widgets.dart
+  Line 28: EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+  Line 88: EdgeInsets.symmetric(horizontal: 32, vertical: 8)
+  Line 141: EdgeInsets.symmetric(horizontal: 32, vertical: 8)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\profile\components\user_form_components.dart
+  Line 112: Radius.circular(16)
+  Line 113: Radius.circular(16)
+  Line 296: Radius.circular(16)
+  Line 297: Radius.circular(16)
+  Line 328: EdgeInsets.symmetric(horizontal: 12, vertical: 8)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\profile\components\user_profile_dropdown_menu.dart
+  Line 425: EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+  Line 454: BorderRadius.circular(999)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\sample_report\components\sample_report_components.dart
+  Line 77: EdgeInsets.all(10)
+  Line 80: BorderRadius.circular(10)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\setup\setup_screen.dart
+  Line 120: EdgeInsets.all(40.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\setup\pages\feature_page.dart
+  Line 22: EdgeInsets.all(40.0)
+  Line 26: EdgeInsets.all(40.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\setup\pages\intro_page.dart
+  Line 13: EdgeInsets.all(40.0)
+  Line 17: EdgeInsets.all(40.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\setup\pages\license_page.dart
+  Line 19: EdgeInsets.all(40.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\blurred_dialog.dart
+  Line 42: BorderRadius.circular(24)
+  Line 50: BorderRadius.circular(24)
+  Line 70: EdgeInsets.all(28)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\custom_confirmation_dialog.dart
+  Line 43: EdgeInsets.fromLTRB(24, 22, 24, 18)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\custom_error_dialog.dart
+  Line 50: BorderRadius.circular(10)
+  Line 74: BorderRadius.circular(10)
+  Line 115: BorderRadius.circular(10)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\paginated_bills_view.dart
+  Line 112: EdgeInsets.all(50.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\shared_components.dart
+  Line 99: EdgeInsets.only(bottom: 16)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\skeleton_loaders.dart
+  Line 28: BorderRadius.circular(7)
+  Line 65: BorderRadius.circular(7)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\cards\bill_stats_card.dart
+  Line 251: EdgeInsets.symmetric(horizontal: 16, vertical: 4)
+  Line 254: BorderRadius.circular(30)
+  Line 327: EdgeInsets.symmetric(vertical: 2)
+  Line 427: EdgeInsets.symmetric(horizontal: 4.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\cards\chart_stats_card.dart
+  Line 142: EdgeInsets.symmetric(vertical: 2)
+  Line 247: EdgeInsets.symmetric(horizontal: 16, vertical: 4)
+  Line 250: BorderRadius.circular(30)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\cards\pending_bill_cards.dart
+  Line 72: BorderRadius.circular(30)
+  Line 186: BorderRadius.circular(10)
+  Line 289: EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\cards\pending_report_bill_card.dart
+  Line 131: EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\cards\recent_bills_card.dart
+  Line 158: EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0)
+
+File: c:\Users\himan\Documents\Repositories\LabLedger\lib\screens\ui_components\cards\referral_card.dart
+  Line 162: EdgeInsets.symmetric(horizontal: 4.0)
+  Line 196: BorderRadius.circular(30)
+  Line 266: EdgeInsets.symmetric(vertical: 2)
+

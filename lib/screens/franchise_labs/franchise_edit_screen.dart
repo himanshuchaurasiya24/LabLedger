@@ -164,7 +164,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen>
                   padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(smallRadius),
                   ),
                   child: Icon(
                     Icons.store_mall_directory_outlined,
@@ -250,7 +250,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen>
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(xlargePadding),
         child: TintedContainer(
           baseColor: theme.colorScheme.error,
           intensity: isDark ? 0.2 : 0.1,

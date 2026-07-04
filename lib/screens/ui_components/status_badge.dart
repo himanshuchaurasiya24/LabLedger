@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 
 /// A small colored badge used to display status labels.
 class StatusBadge extends StatelessWidget {
@@ -16,23 +17,23 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: smallPadding, vertical: minimalPadding),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 14, color: color),
-            const SizedBox(width: 6),
+            Icon(icon, size: minimalIconSize, color: color),
+            const SizedBox(width: tinyPadding),
           ],
           Text(
             text,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: smallFontSize,
               color: color,
               fontWeight: FontWeight.w600,
             ),

@@ -120,7 +120,7 @@ List<pw.Widget> buildBillsTableType2(
                       ),
                     ),
                   ),
-                  pw.SizedBox(width: 12),
+                  pw.SizedBox(width: defaultPadding),
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
@@ -153,7 +153,7 @@ List<pw.Widget> buildBillsTableType2(
                 ),
                 decoration: pw.BoxDecoration(
                   color: lightBlueColor,
-                  borderRadius: pw.BorderRadius.circular(6),
+                  borderRadius: pw.BorderRadius.circular(minimalBorderRadius),
                 ),
 
                 child: pw.Column(
@@ -168,7 +168,7 @@ List<pw.Widget> buildBillsTableType2(
                         color: deepBlueColor,
                       ),
                     ),
-                    pw.SizedBox(height: 4),
+                    pw.SizedBox(height: minimalPadding),
                     pw.Text(
                       centerDetail.address,
                       style: pw.TextStyle(
@@ -365,7 +365,7 @@ pw.Widget _buildPaymentStatusCell(String status, pw.Font font) {
       padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: pw.BoxDecoration(
         color: colorPair[0],
-        borderRadius: pw.BorderRadius.circular(12),
+        borderRadius: pw.BorderRadius.circular(defaultRadius),
       ),
       child: pw.Text(
         status,

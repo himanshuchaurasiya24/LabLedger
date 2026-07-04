@@ -32,7 +32,7 @@ class CustomFormCardHeader extends StatelessWidget {
             padding: EdgeInsets.all(defaultPadding),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(smallRadius),
             ),
             child: Icon(icon, color: color, size: 24),
           ),
@@ -99,7 +99,7 @@ class ShimmerListLoading extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
             color: shimmerColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(smallRadius),
           ),
         ),
       ),
@@ -141,7 +141,7 @@ class SummaryTextColumn extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: minimalPadding),
         Text(
           subtitle,
           style: subtitleStyle ?? theme.textTheme.bodyMedium?.copyWith(

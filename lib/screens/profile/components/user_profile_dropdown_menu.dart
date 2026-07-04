@@ -83,12 +83,12 @@ class CustomDropdownMenu extends ConsumerWidget {
                 child: Material(
                   elevation: 100,
                   shadowColor: Colors.black.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(mediumRadius),
                   color: isDark ? Colors.grey.shade900 : Colors.white,
                   child: Container(
                     width: 250,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(mediumRadius),
                       border: Border.all(
                         color: isDark
                             ? Colors.grey.shade700
@@ -157,7 +157,7 @@ class CustomDropdownMenu extends ConsumerWidget {
                                                 alpha: 0.1,
                                               ),
                                               borderRadius:
-                                                  BorderRadius.circular(12),
+                                                  BorderRadius.circular(defaultRadius),
                                               border: Border.all(
                                                 color: baseColor.withValues(
                                                   alpha: 0.3,
@@ -257,8 +257,7 @@ class CustomDropdownMenu extends ConsumerWidget {
                                           in availableMessagePlatforms())
                                         ProfileMessageOption(
                                           messagePlatform: platform,
-                                          currentPlatform:
-                                              currentMessagePlatform,
+                                          currentPlatform: currentMessagePlatform,
                                           isDark: isDark,
                                           onSelect: onMessageSelect,
                                           baseColor: baseColor,
@@ -349,7 +348,7 @@ class CustomDropdownMenu extends ConsumerWidget {
                           isDark: isDark,
                         ),
 
-                        const SizedBox(height: 8),
+                        const SizedBox(height: smallPadding),
                       ],
                     ),
                   ),
@@ -387,7 +386,7 @@ class _QuotaSummaryView extends StatelessWidget {
           accent: scheme.primary,
           isDark: isDark,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: smallPadding),
         _QuotaBar(
           label: 'Patient reports',
           bucket: summary.patientReport,
@@ -426,7 +425,7 @@ class _QuotaBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: isDark ? Colors.grey.shade800 : Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         border: Border.all(color: progressColor.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -450,7 +449,7 @@ class _QuotaBar extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: smallPadding),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
@@ -483,10 +482,10 @@ class _QuotaLoadingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: isDark ? Colors.grey.shade800 : Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
       ),
       child: const SizedBox(
         height: 42,
@@ -506,10 +505,10 @@ class _QuotaErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: isDark ? Colors.grey.shade800 : Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
       ),
       child: Text(
         message,

@@ -55,7 +55,7 @@ class FileUploadWidget extends StatelessWidget {
               color: Colors.grey.shade600,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: minimalPadding),
           Text(
             'Max file size: $maxFileSizeMb MB (1 MB = 1024 KB)',
             style: theme.textTheme.bodySmall?.copyWith(
@@ -69,7 +69,7 @@ class FileUploadWidget extends StatelessWidget {
               margin: EdgeInsets.only(bottom: defaultPadding),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(smallRadius),
                 border: Border.all(color: themeColor.withValues(alpha: 0.3)),
               ),
               child: Row(

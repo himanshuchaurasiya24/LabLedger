@@ -247,7 +247,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
     return Container(
       decoration: BoxDecoration(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
@@ -275,7 +275,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.person_outline, size: 18),
-                SizedBox(width: 8),
+                SizedBox(width: smallPadding),
                 Text('Doctor Details'),
               ],
             ),
@@ -286,7 +286,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.percent, size: 18),
-                SizedBox(width: 8),
+                SizedBox(width: smallPadding),
                 Text('Incentives'),
               ],
             ),
@@ -358,7 +358,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(xlargePadding),
         child: TintedContainer(
           baseColor: theme.colorScheme.error,
           intensity: isDark ? 0.2 : 0.1,
@@ -401,7 +401,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
                   backgroundColor: effectiveThemeColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(defaultRadius),
                   ),
                 ),
               ),

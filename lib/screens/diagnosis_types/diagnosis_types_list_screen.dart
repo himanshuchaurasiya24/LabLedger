@@ -201,7 +201,7 @@ class _DiagnosisTypesListScreenState
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: minimalPadding),
                   Text(
                     '₹${diagnosis.price}',
                     style: theme.textTheme.titleSmall?.copyWith(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class SetupLicensePage extends StatelessWidget {
@@ -31,13 +32,13 @@ class SetupLicensePage extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: largePadding),
               Expanded(
                 child: TintedContainer(
                   baseColor: theme.colorScheme.secondary,
                   height: null,
                   child: Padding(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: const EdgeInsets.all(xlargePadding),
                     child: isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : SingleChildScrollView(

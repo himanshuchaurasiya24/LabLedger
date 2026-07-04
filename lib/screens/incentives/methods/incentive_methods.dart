@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:labledger/constants/constants.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -90,12 +91,12 @@ class IncentiveMethods extends ChangeNotifier {
       builder: (BuildContext context) {
         return const Dialog(
           child: Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(largePadding),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 CircularProgressIndicator(),
-                SizedBox(width: 20),
+                SizedBox(width: largePadding),
                 Text("Generating Report..."),
               ],
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 
 class FeaturePage extends StatelessWidget {
   final IconData icon;
@@ -28,7 +29,7 @@ class FeaturePage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(xlargePadding),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
@@ -48,7 +49,7 @@ class FeaturePage extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: largePadding),
                   Text(
                     description,
                     style: theme.textTheme.bodyLarge?.copyWith(

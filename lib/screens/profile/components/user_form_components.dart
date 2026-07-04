@@ -105,7 +105,7 @@ class UserPersonalDetailsCard extends StatelessWidget {
   Widget _buildCardHeader(String title, IconData icon, Color color, BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(mediumPadding),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: const BorderRadius.only(
@@ -119,7 +119,7 @@ class UserPersonalDetailsCard extends StatelessWidget {
             padding: EdgeInsets.all(defaultPadding),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(smallRadius),
             ),
             child: Icon(icon, color: color, size: 20),
           ),
@@ -289,7 +289,7 @@ class UserSecurityCard extends StatelessWidget {
   Widget _buildCardHeader(String title, IconData icon, Color color, BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(mediumPadding),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: const BorderRadius.only(
@@ -303,7 +303,7 @@ class UserSecurityCard extends StatelessWidget {
             padding: EdgeInsets.all(defaultPadding),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(smallRadius),
             ),
             child: Icon(icon, color: color, size: 20),
           ),

@@ -212,7 +212,7 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
                         ), // 0.3 alpha
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(smallRadius),
                       ),
                     ),
                   ),
@@ -236,7 +236,7 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
                       ),
                       foregroundColor: theme.colorScheme.error,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(smallRadius),
                       ),
                     ),
                   ),
@@ -264,7 +264,7 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
                     final isSelected = _selectedFields[key] ?? false;
 
                     return AppInkWell(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(smallRadius),
                       onTap: () =>
                           setState(() => _selectedFields[key] = !isSelected),
                       child: Container(
@@ -278,7 +278,7 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
                                   26,
                                 ) // 0.1 alpha
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(smallRadius),
                           border: Border.all(
                             color: isSelected
                                 ? theme.colorScheme.primary.withAlpha(
@@ -290,14 +290,14 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
                         child: Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(6),
+                              padding: const EdgeInsets.all(tinyPadding),
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? theme.colorScheme.primary.withAlpha(
                                         38,
                                       ) // 0.15 alpha
                                     : theme.colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(minimalBorderRadius),
                               ),
                               child: Icon(
                                 _fieldIcons[key] ?? Icons.description,
@@ -309,7 +309,7 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
                                       ), // 0.5 alpha
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: defaultPadding),
                             Expanded(
                               child: Text(
                                 _fieldLabels[key] ?? key,
@@ -335,7 +335,7 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: largePadding),
 
             // Action Buttons
             Row(

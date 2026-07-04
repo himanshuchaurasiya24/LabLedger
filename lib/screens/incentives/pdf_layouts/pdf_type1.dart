@@ -1,4 +1,5 @@
 import 'package:labledger/models/center_detail_model_with_subscription.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/providers/incenitve_generator_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,7 +94,7 @@ List<pw.Widget> buildBillsTableType1(
   return [
     // Header Section with gradient-like effect
     pw.Container(
-      padding: const pw.EdgeInsets.all(16),
+      padding: const pw.EdgeInsets.all(mediumPadding),
       decoration: pw.BoxDecoration(
         gradient: pw.LinearGradient(
           colors: [gradientStartColor, gradientEndColor],
@@ -161,7 +162,7 @@ List<pw.Widget> buildBillsTableType1(
                             PdfColors.white,
                             chipBgColor,
                           ),
-                          pw.SizedBox(width: 8),
+                          pw.SizedBox(width: smallPadding),
                           _buildInfoChip(
                             "₹${NumberFormat('#,##,###').format(doctorReport.totalIncentive)}",
                             boldFont,
@@ -419,7 +420,7 @@ pw.Widget _buildInfoChip(
     padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
     decoration: pw.BoxDecoration(
       color: bgColor ?? PdfColors.teal,
-      borderRadius: pw.BorderRadius.circular(4),
+      borderRadius: pw.BorderRadius.circular(tinyRadius),
     ),
     child: pw.Text(
       text,
@@ -471,7 +472,7 @@ pw.Widget _buildStatusCell(String status, pw.Font font, bool isEven) {
         padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: pw.BoxDecoration(
           color: colorPair[0],
-          borderRadius: pw.BorderRadius.circular(4),
+          borderRadius: pw.BorderRadius.circular(tinyRadius),
         ),
         child: pw.Text(
           status,
@@ -518,7 +519,7 @@ pw.Widget _buildPercentageCell(
       padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: pw.BoxDecoration(
         color: const PdfColor.fromInt(0xFFE0F2FE),
-        borderRadius: pw.BorderRadius.circular(4),
+        borderRadius: pw.BorderRadius.circular(tinyRadius),
       ),
       child: pw.Text(
         "$percentage%",
@@ -569,7 +570,7 @@ pw.Widget _buildIncentiveAmountCell(
 
 pw.Widget _buildModernFooter(pw.Font font, PdfColor tealColor) {
   return pw.Container(
-    padding: const pw.EdgeInsets.all(12),
+    padding: const pw.EdgeInsets.all(defaultPadding),
     decoration: const pw.BoxDecoration(
       color: PdfColors.grey50,
       borderRadius: pw.BorderRadius.only(

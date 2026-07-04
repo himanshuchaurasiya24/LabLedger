@@ -118,7 +118,7 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.errorContainer.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(defaultRadius),
                   border: Border.all(
                     color: theme.colorScheme.error.withValues(alpha: 0.3),
                   ),
@@ -126,7 +126,7 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
                 child: Row(
                   children: [
                     Icon(Icons.info_outline, color: theme.colorScheme.error, size: 20),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: defaultPadding),
                     Expanded(
                       child: Text(
                         'Your center subscription is currently inactive or expired.',

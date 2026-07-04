@@ -16,10 +16,10 @@ Widget buildEntitySkeletonLoader(BuildContext context, Color shimmerColor) {
             width: 180,
             decoration: BoxDecoration(
               color: shimmerColor,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(smallRadius),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: smallPadding),
           Container(
             height: 16,
             width: 150,
@@ -53,10 +53,10 @@ Widget buildCategorySkeletonLoader(BuildContext context, Color shimmerColor) {
                   width: 120,
                   decoration: BoxDecoration(
                     color: shimmerColor,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(smallRadius),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: smallPadding),
                 Container(
                   height: 14,
                   width: 180,

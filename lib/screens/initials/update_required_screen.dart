@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/constants/urls.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -25,7 +26,7 @@ class UpdateRequiredScreen extends StatelessWidget {
               size: 50,
               color: theme.colorScheme.primary,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: xlargePadding),
             Text(
               'Update Required',
               style: theme.textTheme.headlineSmall?.copyWith(
@@ -33,7 +34,7 @@ class UpdateRequiredScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: mediumPadding),
             Text(
               'A new version of the app is available. Please update to\nversion v$requiredVersion to continue.',
               style: theme.textTheme.bodyLarge,

@@ -26,7 +26,7 @@ class CenterSubscriptionInfoCard extends StatelessWidget {
         : theme.colorScheme.error;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(mediumPadding),
       decoration: BoxDecoration(
         color: statusColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(defaultRadius),
@@ -87,7 +87,7 @@ class CenterSubscriptionInfoCard extends StatelessWidget {
             context,
           ),
           if (!subscription.isCustom) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: defaultPadding),
             FutureBuilder<bool>(
               future: canUpgradeFuture,
               builder: (context, snapshot) {
@@ -143,7 +143,7 @@ class CenterSubscriptionInfoCard extends StatelessWidget {
               size: 16,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: smallPadding),
             Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
           ],
         ),

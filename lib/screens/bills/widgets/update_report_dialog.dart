@@ -268,7 +268,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
     final theme = Theme.of(context);
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(largeRadius)),
       child: ClipRRect(
         borderRadius: BorderRadiusGeometry.circular(20),
         child: Container(
@@ -279,7 +279,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
             children: [
               // Modern Header
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(xlargePadding),
                 decoration: BoxDecoration(
                   color: widget.color.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.only(
@@ -299,7 +299,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                       padding: EdgeInsets.all(defaultPadding),
                       decoration: BoxDecoration(
                         color: widget.color.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(defaultRadius),
                       ),
                       child: Icon(
                         Icons.upload_file_rounded,
@@ -307,7 +307,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                         size: 28,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: mediumPadding),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,7 +319,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                               color: theme.colorScheme.onSurface,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: minimalPadding),
                           Text(
                             'Upload or select a report template',
                             style: theme.textTheme.bodyMedium?.copyWith(
@@ -344,7 +344,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
 
               // Modern Tab Bar
               Container(
-                margin: const EdgeInsets.all(20),
+                margin: const EdgeInsets.all(largePadding),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest.withValues(
                     alpha: 0.5,
@@ -393,7 +393,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
 
               // Modern Action Bar
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(largePadding),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest.withValues(
                     alpha: 0.3,
@@ -429,7 +429,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                                 color: widget.color,
                                 size: 20,
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: smallPadding),
                               Expanded(
                                 child: Text(
                                   'Ready to upload',
@@ -446,7 +446,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                       )
                     else
                       const SizedBox.shrink(),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: defaultPadding),
                     Row(
                       children: [
                         CustomElevatedButton(
@@ -459,7 +459,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                           foregroundColor: widget.color,
                           borderColor: widget.color,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: smallPadding),
                         if (_isLoading && isReadyToUpload)
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -503,7 +503,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(color: widget.color),
-            const SizedBox(height: 16),
+            const SizedBox(height: mediumPadding),
             Text(
               'Loading templates...',
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -515,11 +515,11 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
       ),
       error: (err, stack) => Center(
         child: Container(
-          padding: const EdgeInsets.all(24),
-          margin: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(xlargePadding),
+          margin: const EdgeInsets.all(largePadding),
           decoration: BoxDecoration(
             color: theme.colorScheme.errorContainer,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(defaultRadius),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -529,7 +529,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                 size: 48,
                 color: theme.colorScheme.error,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: defaultPadding),
               Text(
                 'Error loading templates',
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -537,7 +537,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: smallPadding),
               Text(
                 err.toString(),
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -563,7 +563,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: widget.color.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(defaultRadius),
                   border: Border.all(
                     color: widget.color.withValues(alpha: 0.25),
                   ),
@@ -576,14 +576,14 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: mediumPadding),
 
               // Category Selection Card
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(largePadding),
                 decoration: BoxDecoration(
                   color: widget.color.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(mediumRadius),
                   border: Border.all(
                     color: widget.color.withValues(alpha: 0.2),
                   ),
@@ -598,7 +598,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                           color: widget.color,
                           size: 20,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: smallPadding),
                         Text(
                           'Select Category',
                           style: theme.textTheme.titleSmall?.copyWith(
@@ -608,7 +608,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: defaultPadding),
                     // Dynamic Category Dropdown
                     Consumer(
                       builder: (context, ref, child) {
@@ -638,12 +638,12 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                           },
                           loading: () => const Center(
                             child: Padding(
-                              padding: EdgeInsets.all(16.0),
+                              padding: EdgeInsets.all(mediumPadding),
                               child: CircularProgressIndicator(),
                             ),
                           ),
                           error: (err, stack) => Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(smallPadding),
                             child: Text(
                               'Error loading categories',
                               style: TextStyle(color: Colors.red),
@@ -655,14 +655,14 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: largePadding),
 
               // Report Template Selection Card
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(largePadding),
                 decoration: BoxDecoration(
                   color: widget.color.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(mediumRadius),
                   border: Border.all(
                     color: widget.color.withValues(alpha: 0.2),
                   ),
@@ -677,7 +677,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                           color: widget.color,
                           size: 20,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: smallPadding),
                         Text(
                           'Report Template',
                           style: theme.textTheme.titleSmall?.copyWith(
@@ -687,7 +687,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: defaultPadding),
                     SearchableDropdownField<SampleReportModel>(
                       label: 'Select Report Template',
                       controller: _reportNameController,
@@ -704,12 +704,12 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: xlargePadding),
 
               // Download Action Card
               if (_selectedReportFromServer != null)
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(largePadding),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -717,7 +717,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                         widget.color.withValues(alpha: 0.05),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(mediumRadius),
                     border: Border.all(
                       color: widget.color.withValues(alpha: 0.3),
                     ),
@@ -729,7 +729,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                         size: 48,
                         color: widget.color,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: defaultPadding),
                       Text(
                         'Download & Edit Template',
                         style: theme.textTheme.titleMedium?.copyWith(
@@ -737,7 +737,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                           color: widget.color,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: smallPadding),
                       Text(
                         'Download the template, fill it out, and it will be ready to upload',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -745,13 +745,13 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: mediumPadding),
                       if (_isLoading)
                         Column(
                           children: [
                             CircularProgressIndicator(color: widget.color),
                             if (_isWaitingForEditorClose) ...[
-                              const SizedBox(height: 12),
+                              const SizedBox(height: defaultPadding),
                               Text(
                                 'Waiting for the editor to close...',
                                 style: theme.textTheme.bodySmall?.copyWith(
@@ -774,7 +774,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                     ],
                   ),
                 ),
-              const SizedBox(height: 20),
+              const SizedBox(height: largePadding),
             ],
           ),
         );
@@ -793,12 +793,12 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
           // Upload Area
           AppInkWell(
             onTap: _pickLocalFile,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(mediumRadius),
             child: Container(
               padding: const EdgeInsets.all(40),
               decoration: BoxDecoration(
                 color: widget.color.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(mediumRadius),
                 border: Border.all(
                   color: widget.color.withValues(alpha: 0.3),
                   width: 2,
@@ -820,7 +820,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                       color: widget.color,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: xlargePadding),
                   Text(
                     'Choose File from Device',
                     style: theme.textTheme.titleLarge?.copyWith(
@@ -828,7 +828,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                       color: widget.color,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: smallPadding),
                   Text(
                     'Supported formats: PDF, DOC, DOCX, ODT, JPG, JPEG, PNG',
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -855,21 +855,21 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: xlargePadding),
 
           // Selected File Display
           if (_reportFileToUpload != null)
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(largePadding),
               decoration: BoxDecoration(
                 color: widget.color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(mediumRadius),
                 border: Border.all(color: widget.color.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(defaultPadding),
                     decoration: BoxDecoration(
                       color: widget.color.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(10),
@@ -880,7 +880,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                       size: 32,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: mediumPadding),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -894,7 +894,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: minimalPadding),
                         Text(
                           _reportFileToUpload!.path.split('/').last,
                           style: theme.textTheme.bodyLarge?.copyWith(

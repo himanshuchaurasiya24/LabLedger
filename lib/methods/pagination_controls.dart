@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:flutter/services.dart';
 
 import 'package:labledger/screens/ui_components/custom_text_field.dart';
@@ -112,9 +113,9 @@ class _PaginationControlsState extends State<PaginationControls>
                     widget.onPageChanged(widget.currentPage - 1);
                   },
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: smallPadding),
           Text('Page', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(width: 8),
+          const SizedBox(width: smallPadding),
           SizedBox(
             width: 60, // Constrain the width of the text field
             height: 40, // Give it a specific height
@@ -129,12 +130,12 @@ class _PaginationControlsState extends State<PaginationControls>
               tintColor: const Color(0xFF0072B5), // Use your primary color tint
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: smallPadding),
           Text(
             'of $totalPages',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: smallPadding),
           IconButton(
             icon: const Icon(Icons.chevron_right),
             onPressed: widget.currentPage == totalPages

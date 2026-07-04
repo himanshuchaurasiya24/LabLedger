@@ -198,7 +198,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
                 decoration: BoxDecoration(
                   // ✨ FIXED: Replaced .withValues with standard .withValues
                   color: colors.accent,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(largeRadius),
                 ),
                 child: Center(
                   child: Row(
@@ -211,7 +211,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
                         color: colors.text,
                         size: 16,
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: minimalPadding),
                       Text(
                         "${servicesGrowth >= 0 ? '+' : ''}${servicesGrowth.toStringAsFixed(1)}%",
                         style: TextStyle(
@@ -345,7 +345,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
                       Container(
                         height: 8,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(tinyRadius),
                           color: accentColor,
                         ),
                       ),
@@ -354,7 +354,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
                         child: Container(
                           height: 8,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(tinyRadius),
                             color: textColor,
                           ),
                         ),
@@ -393,7 +393,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
           width: 55,
           decoration: BoxDecoration(
             color: accentColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(smallRadius),
           ),
           child: Icon(icon, color: textColor, size: 32),
         ),
@@ -429,7 +429,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
       width: isActive ? 24.0 : 8.0,
       decoration: BoxDecoration(
         color: isActive ? activeColor : inactiveColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
       ),
     );
   }

@@ -181,7 +181,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
                     color: isDark ? Colors.white : theme.colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: minimalPadding),
                 Text(
                   subtitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -285,7 +285,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.person_outline, size: 18),
-              SizedBox(width: 8),
+              SizedBox(width: smallPadding),
               Text('Personal Details'),
             ],
           ),
@@ -296,7 +296,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.security, size: 18),
-              SizedBox(width: 8),
+              SizedBox(width: smallPadding),
               Text('Security'),
             ],
           ),
@@ -347,7 +347,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
@@ -365,7 +365,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
   Widget _buildErrorWidget(String message) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(xlargePadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

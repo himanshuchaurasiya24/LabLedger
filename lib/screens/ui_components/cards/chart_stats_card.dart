@@ -81,7 +81,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
             Row(
               children: [
                 _buildBadge(context, isDark),
-                const SizedBox(width: 8), // Add a gap
+                const SizedBox(width: smallPadding), // Add a gap
                 Expanded(
                   // NEW: Make the title flexible
                   child: Text(
@@ -151,7 +151,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: smallPadding),
           Expanded(
             flex: 2,
             child: Row(
@@ -162,7 +162,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
                       Container(
                         height: 8,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(tinyRadius),
                           color: accentFillColor,
                         ),
                       ),
@@ -171,7 +171,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
                         child: Container(
                           height: 8,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(tinyRadius),
                             color: importantTextColor,
                           ),
                         ),
@@ -209,11 +209,11 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
           width: 55,
           decoration: BoxDecoration(
             color: accentFillColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(smallRadius),
           ),
           child: Icon(icon, color: importantTextColor, size: 40),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: defaultPadding),
         Expanded(
           // NEW: Allow the column to take the remaining space
           child: Column(

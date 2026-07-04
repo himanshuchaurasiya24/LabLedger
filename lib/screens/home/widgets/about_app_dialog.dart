@@ -60,7 +60,7 @@ class AboutAppDialog extends StatelessWidget {
                         alignment: MainAxisAlignment.center,
                         fontSize: 70,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: smallPadding),
                       Text(
                         appDescription,
                         style: theme.textTheme.titleMedium?.copyWith(
@@ -83,7 +83,7 @@ class AboutAppDialog extends StatelessWidget {
                           color: theme.colorScheme.primary.withValues(
                             alpha: 0.1,
                           ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(largeRadius),
                           border: Border.all(
                             color: theme.colorScheme.primary.withValues(
                               alpha: 0.2,
@@ -110,7 +110,7 @@ class AboutAppDialog extends StatelessWidget {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.all(xlargePadding),
                   child: Column(
                     children: [
                       Container(
@@ -119,7 +119,7 @@ class AboutAppDialog extends StatelessWidget {
                           color: theme.colorScheme.primaryContainer.withValues(
                             alpha: 0.3,
                           ),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(defaultRadius),
                           border: Border.all(
                             color: theme.colorScheme.primary.withValues(
                               alpha: 0.2,
@@ -148,12 +148,12 @@ class AboutAppDialog extends StatelessWidget {
                       AppInkWell(
                         onTap: () => _launchURL(AppUrls.developerGithub),
                         child: Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(mediumPadding),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.surface.withValues(
                               alpha: 0.5,
                             ),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(defaultRadius),
                             border: Border.all(
                               color: theme.colorScheme.primary.withValues(
                                 alpha: 0.2,
@@ -169,7 +169,7 @@ class AboutAppDialog extends StatelessWidget {
                                 size: 24,
                                 color: theme.colorScheme.primary,
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: defaultPadding),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -193,7 +193,7 @@ class AboutAppDialog extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: smallPadding),
                               Icon(
                                 LucideIcons.external_link,
                                 size: 16,
@@ -277,7 +277,7 @@ class AboutAppDialog extends StatelessWidget {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: minimalPadding),
                       Text(
                         'Licensed under APACHE License',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -314,7 +314,7 @@ class AboutAppDialog extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
       ),
       child: Row(
@@ -323,7 +323,7 @@ class AboutAppDialog extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(smallPadding),
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(10),

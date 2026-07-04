@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:labledger/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
@@ -13,6 +14,7 @@ import 'package:labledger/methods/string_utils.dart';
 import 'package:labledger/screens/ui_components/custom_confirmation_dialog.dart';
 import 'package:labledger/screens/ui_components/snackbar_utils.dart';
 import 'package:labledger/screens/profile/components/user_profile_dropdown_menu.dart';
+import 'package:labledger/screens/profile/components/local_sms_gateway_config_dialog.dart';
 
 class UserProfileWidget extends ConsumerStatefulWidget {
   final AuthResponse authResponse;
@@ -93,82 +95,123 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
               confirmLabel: 'Okay',
               contentBottomWidget: StatefulBuilder(
                 builder: (context, setStateDialog) {
-                  return InkWell(
-                    mouseCursor: SystemMouseCursors.click,
-                    onTap: isDownloading
-                        ? null
-                        : () async {
-                            setStateDialog(() => isDownloading = true);
-                            try {
-                              final url =
-                                  '${AppUrls.localBaseUrl}${AppUrls.localSmsGatewayApk}';
-                              final response = await AuthHttpClient.request(
-                                ref,
-                                method: 'GET',
-                                url: url,
-                              );
-
-                              if (response.statusCode == 200) {
-                                final savePath = await FilePicker.platform
-                                    .saveFile(
-                                      dialogTitle: 'Save SMS Gateway APK',
-                                      fileName: 'local_sms_gateway.apk',
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          mouseCursor: SystemMouseCursors.click,
+                          onTap: isDownloading
+                              ? null
+                              : () async {
+                                  setStateDialog(() => isDownloading = true);
+                                  try {
+                                    final url =
+                                        '${AppUrls.localBaseUrl}${AppUrls.localSmsGatewayApk}';
+                                    final response = await AuthHttpClient.request(
+                                      ref,
+                                      method: 'GET',
+                                      url: url,
                                     );
 
-                                if (savePath != null && savePath.isNotEmpty) {
-                                  final file = File(savePath);
-                                  await file.writeAsBytes(response.bodyBytes);
-                                  if (context.mounted) {
-                                    showSuccessSnackBar(
-                                      context,
-                                      'APK downloaded successfully to $savePath',
-                                    );
+                                    if (response.statusCode == 200) {
+                                      final savePath = await FilePicker.platform
+                                          .saveFile(
+                                            dialogTitle: 'Save SMS Gateway APK',
+                                            fileName: 'local_sms_gateway.apk',
+                                          );
+
+                                      if (savePath != null && savePath.isNotEmpty) {
+                                        final file = File(savePath);
+                                        await file.writeAsBytes(response.bodyBytes);
+                                        if (context.mounted) {
+                                          showSuccessSnackBar(
+                                            context,
+                                            'APK downloaded successfully to $savePath',
+                                          );
+                                        }
+                                      }
+                                    } else {
+                                      if (context.mounted) {
+                                        showErrorSnackBar(
+                                          context,
+                                          'File is not available on server.',
+                                        );
+                                      }
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      showErrorSnackBar(
+                                        context,
+                                        'Failed to download APK: $e',
+                                      );
+                                    }
+                                  } finally {
+                                    setStateDialog(() => isDownloading = false);
                                   }
-                                }
-                              } else {
-                                if (context.mounted) {
-                                  showErrorSnackBar(
-                                    context,
-                                    'File is not available on server.',
-                                  );
-                                }
-                              }
-                            } catch (e) {
-                              if (context.mounted) {
-                                showErrorSnackBar(
-                                  context,
-                                  'Failed to download APK: $e',
-                                );
-                              }
-                            } finally {
-                              setStateDialog(() => isDownloading = false);
-                            }
-                          },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.download_rounded,
-                            size: 20,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              isDownloading
-                                  ? 'Downloading...'
-                                  : 'Download SMS Gateway App',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                                // decoration: TextDecoration.underline,
-                              ),
+                                },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.download_rounded,
+                                  size: 20,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: smallPadding),
+                                Expanded(
+                                  child: Text(
+                                    isDownloading
+                                        ? 'Downloading...'
+                                        : 'Download SMS Gateway App',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                      // decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: mediumPadding),
+                      Expanded(
+                        child: InkWell(
+                          mouseCursor: SystemMouseCursors.click,
+                          onTap: () {
+                            Navigator.of(context).pop(true); // Close warning dialog and confirm selection
+                            showDialog(
+                              context: context,
+                              builder: (_) => const LocalSmsGatewayConfigDialog(),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.settings_rounded,
+                                  size: 20,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: smallPadding),
+                                Expanded(
+                                  child: Text(
+                                    'Configure Local SMS Gateway',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -226,7 +269,7 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
     );
 
     return AppInkWell(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(largeRadius),
       onTap: () => _showCustomMenu(context),
       child: Container(
         decoration: BoxDecoration(

@@ -150,7 +150,7 @@ Widget customBar({
         child: Row(
           children: [
             Icon(iconData, size: 30),
-            const SizedBox(width: 12),
+            const SizedBox(width: defaultPadding),
             Text(barText, style: Theme.of(context).textTheme.bodyLarge),
             const Spacer(),
             child,
@@ -297,7 +297,7 @@ class SummaryCard extends StatelessWidget {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(mediumPadding),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(minimalBorderRadius),
@@ -313,7 +313,7 @@ class SummaryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, size: 30, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(height: 12),
+            const SizedBox(height: defaultPadding),
             Text(
               count,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -372,7 +372,7 @@ Widget appIconNameWidget({
 
   return Column(
     children: [
-      const SizedBox(height: 20),
+      const SizedBox(height: largePadding),
       Image.asset(assetLocation, width: 160, height: 160),
       const SizedBox(height: 10),
       isForLogInScreen

@@ -28,7 +28,7 @@ Widget buildErrorState({required BuildContext context, required Object error, re
                 fontSize: 20,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: smallPadding),
             Text(
               errorTitle,
               textAlign: TextAlign.center,

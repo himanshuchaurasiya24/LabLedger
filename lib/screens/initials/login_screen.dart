@@ -108,10 +108,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             Column(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(mediumPadding),
                                   decoration: BoxDecoration(
                                     color: errorContainerColor,
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(mediumRadius),
                                     border: Border.all(color: errorBorderColor),
                                   ),
                                   child: Row(
@@ -121,7 +121,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                         color: theme.colorScheme.error,
                                         size: 20,
                                       ),
-                                      const SizedBox(width: 12),
+                                      const SizedBox(width: defaultPadding),
                                       Expanded(
                                         child: Text(
                                           _methods.errorMessage,

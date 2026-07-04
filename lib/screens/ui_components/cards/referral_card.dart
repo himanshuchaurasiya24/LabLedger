@@ -164,7 +164,7 @@ class _ReferralCardState extends State<ReferralCard> {
       width: isActive ? 24.0 : 8.0,
       decoration: BoxDecoration(
         color: isActive ? activeColor : inactiveColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
       ),
     );
   }
@@ -203,7 +203,7 @@ class _ReferralCardState extends State<ReferralCard> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8), // Add a gap
+              const SizedBox(width: smallPadding), // Add a gap
               Expanded(
                 child: Text(
                   referrer.doctorFullName.isNotEmpty
@@ -275,7 +275,7 @@ class _ReferralCardState extends State<ReferralCard> {
                           style: TextStyle(color: importantTextColor),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: smallPadding),
                       Expanded(
                         flex: 2, // Give more flex to this part
                         child: Row(
@@ -286,7 +286,7 @@ class _ReferralCardState extends State<ReferralCard> {
                                   Container(
                                     height: 8,
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
+                                      borderRadius: BorderRadius.circular(tinyRadius),
                                       color: accentFillColor,
                                     ),
                                   ),
@@ -296,7 +296,7 @@ class _ReferralCardState extends State<ReferralCard> {
                                     child: Container(
                                       height: 8,
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(4),
+                                        borderRadius: BorderRadius.circular(tinyRadius),
                                         color: importantTextColor,
                                       ),
                                     ),
@@ -304,7 +304,7 @@ class _ReferralCardState extends State<ReferralCard> {
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: smallPadding),
                             Text(
                               entry.value.toString(),
                               style: TextStyle(
@@ -339,7 +339,7 @@ class _ReferralCardState extends State<ReferralCard> {
       width: 55,
       decoration: BoxDecoration(
         color: accentFillColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(smallRadius),
       ),
       child: Icon(icon, color: importantTextColor, size: 40),
     );

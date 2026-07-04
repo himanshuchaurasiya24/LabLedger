@@ -84,7 +84,7 @@ class StatCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, color: color, size: 24),
-          SizedBox(height: 8),
+          SizedBox(height: smallPadding),
           Text(
             count.toString(),
             style: TextStyle(

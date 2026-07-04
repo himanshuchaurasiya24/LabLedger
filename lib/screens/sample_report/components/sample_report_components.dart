@@ -49,9 +49,9 @@ class _ReportFormDialogState extends ConsumerState<ReportFormDialog> {
     return AnimatedBuilder(
       animation: _methods,
       builder: (context, _) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(largeRadius)),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(largeRadius),
           child: Container(
             constraints: const BoxConstraints(maxWidth: 700, maxHeight: 800),
             color: theme.colorScheme.surface,
@@ -61,7 +61,7 @@ class _ReportFormDialogState extends ConsumerState<ReportFormDialog> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(xlargePadding),
                     decoration: BoxDecoration(
                       color: widget.themeColor.withValues(alpha: 0.1),
                       border: Border(
@@ -85,7 +85,7 @@ class _ReportFormDialogState extends ConsumerState<ReportFormDialog> {
                             size: 26,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: defaultPadding),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,7 +214,7 @@ class _ReportFormDialogState extends ConsumerState<ReportFormDialog> {
                   ),
 
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(largePadding),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceContainerHighest.withValues(
                         alpha: 0.35,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 
 /// Shows a custom floating snackbar with a prefix icon and background color.
 /// Optional [clearSnackBars] will clear existing snackbars before showing.
@@ -20,12 +21,12 @@ void showCustomSnackBar({
       content: Row(
         children: [
           Icon(icon, color: Colors.white),
-          const SizedBox(width: 8),
+          const SizedBox(width: smallPadding),
           Flexible(child: Text(message, style: const TextStyle(color: Colors.white))),
         ],
       ),
       backgroundColor: backgroundColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(smallRadius)),
       duration: const Duration(seconds: 3),
     ),
   );

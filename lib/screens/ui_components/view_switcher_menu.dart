@@ -50,7 +50,7 @@ class _ViewSwitcherMenuState extends State<ViewSwitcherMenu> {
           showViewMenu(color);
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(smallPadding),
           child: Icon(
             // Use the internal state variable to display the correct icon
             _currentView == "grid" ? LucideIcons.layout_grid : LucideIcons.list,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 
 class IntroPage extends StatelessWidget {
   const IntroPage({super.key});
@@ -32,7 +33,7 @@ class IntroPage extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: largePadding),
                   Text(
                     "Let's get you set up to manage your lab operations efficiently.",
                     style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),

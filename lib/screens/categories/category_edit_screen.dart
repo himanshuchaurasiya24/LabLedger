@@ -119,7 +119,7 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen>
                   padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(smallRadius),
                   ),
                   child: Icon(LucideIcons.tags, color: color, size: 20),
                 ),

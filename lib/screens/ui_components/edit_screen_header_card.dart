@@ -97,7 +97,7 @@ class EditScreenHeaderCard extends StatelessWidget {
                     color: isDark ? Colors.white : theme.colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: minimalPadding),
                 Text(
                   subtitle,
                   style: theme.textTheme.bodyMedium?.copyWith(

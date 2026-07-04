@@ -46,7 +46,7 @@ class DoctorIncentivesFormCard extends StatelessWidget {
                   padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(smallRadius),
                   ),
                   child: Icon(Icons.percent, color: color, size: 20),
                 ),
@@ -72,7 +72,7 @@ class DoctorIncentivesFormCard extends StatelessWidget {
                       padding: EdgeInsets.all(defaultPadding),
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: isDark ? 0.1 : 0.05),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(smallRadius),
                         border: Border.all(color: color.withValues(alpha: 0.2)),
                       ),
                       child: Row(
@@ -206,7 +206,7 @@ class DoctorIncentivesFormCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: smallPadding),
         CustomTextField(
           label: '${label.split(' ')[0]} %',
           controller: controller,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:labledger/constants/constants.dart';
 import 'package:labledger/providers/message_provider.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 
@@ -22,16 +23,16 @@ class ProfileMenuItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppInkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(smallRadius),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(smallPadding),
               decoration: BoxDecoration(
                 color: (isDark ? Colors.grey.shade800 : Colors.grey.shade100),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(smallRadius),
               ),
               child: Icon(
                 icon,
@@ -39,7 +40,7 @@ class ProfileMenuItem extends StatelessWidget {
                 color: (isDark ? Colors.grey.shade300 : Colors.grey.shade700),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: defaultPadding),
             Text(
               label,
               style: TextStyle(
@@ -94,7 +95,7 @@ class ProfileThemeOption extends StatelessWidget {
                   ? baseColor
                   : (isDark ? Colors.grey.shade500 : Colors.grey.shade600),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: defaultPadding),
             Text(
               label,
               style: TextStyle(
@@ -121,7 +122,6 @@ class ProfileMessageOption extends StatelessWidget {
   final bool isDark;
   final Function(MessagePlatform) onSelect;
   final Color baseColor;
-
   const ProfileMessageOption({
     super.key,
     required this.messagePlatform,
@@ -148,18 +148,20 @@ class ProfileMessageOption extends StatelessWidget {
                   ? baseColor
                   : (isDark ? Colors.grey.shade500 : Colors.grey.shade600),
             ),
-            const SizedBox(width: 12),
-            Text(
-              messagePlatform.label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected
-                    ? baseColor
-                    : (isDark ? Colors.grey.shade400 : Colors.grey.shade700),
+            const SizedBox(width: defaultPadding),
+            Expanded(
+              child: Text(
+                messagePlatform.label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected
+                      ? baseColor
+                      : (isDark ? Colors.grey.shade400 : Colors.grey.shade700),
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Spacer(),
             if (isSelected)
               Icon(Icons.check_circle, size: 16, color: baseColor),
           ],

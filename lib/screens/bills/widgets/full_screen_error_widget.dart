@@ -23,7 +23,7 @@ class FullScreenErrorWidget extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(xlargePadding),
         child: TintedContainer(
           baseColor: theme.colorScheme.error,
           intensity: isDark ? 0.2 : 0.1,
@@ -62,7 +62,7 @@ class FullScreenErrorWidget extends StatelessWidget {
                   backgroundColor: themeColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(defaultRadius),
                   ),
                 ),
               ),

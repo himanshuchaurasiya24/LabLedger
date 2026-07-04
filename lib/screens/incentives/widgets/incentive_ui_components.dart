@@ -100,7 +100,7 @@ class IncentiveSummaryCard extends StatelessWidget {
           Row(
             children: [
               Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
+              const SizedBox(width: smallPadding),
               Text(
                 title,
                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -275,7 +275,7 @@ class DoctorIncentiveExpansionTile extends StatelessWidget {
             ),
             border: TableBorder.all(
               color: theme.colorScheme.outline.withAlpha(51),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(minimalBorderRadius),
               width: 1,
             ),
             columns: const [
@@ -331,7 +331,7 @@ class DoctorIncentiveExpansionTile extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: statusColor.withAlpha(51),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(defaultRadius),
                       ),
                       child: Text(
                         bill.billStatus,
@@ -420,11 +420,11 @@ class DoctorIncentiveExpansionTile extends StatelessWidget {
     return ExpansionTile(
       tilePadding: EdgeInsets.all(defaultPadding),
       collapsedShape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         side: BorderSide(color: cardColor, width: 1),
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         side: BorderSide(color: cardColor, width: 1),
       ),
       childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -456,7 +456,7 @@ class DoctorIncentiveExpansionTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: incentiveColor.withAlpha(51),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(largeRadius),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -502,7 +502,7 @@ class IncentiveEmptyState extends StatelessWidget {
               color: theme.colorScheme.onSurface.withAlpha(178),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: smallPadding),
           Text(
             "No incentive data found for the selected filters.",
             textAlign: TextAlign.center,
@@ -539,7 +539,7 @@ class IncentiveNoSearchResults extends StatelessWidget {
               color: theme.colorScheme.onSurface.withAlpha(178),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: smallPadding),
           Text(
             "No doctors match your search criteria.",
             textAlign: TextAlign.center,

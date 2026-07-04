@@ -35,7 +35,7 @@ class AmountDetailsCard extends StatelessWidget {
             padding: EdgeInsets.all(defaultPadding),
             decoration: BoxDecoration(
               color: defaultColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(defaultRadius),
               border: Border.all(color: defaultColor.withValues(alpha: 0.3)),
             ),
             child: Row(

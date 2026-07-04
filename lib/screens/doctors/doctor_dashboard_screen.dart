@@ -200,7 +200,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
                 height: 60,
                 decoration: BoxDecoration(
                   color: positiveColor,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(mediumRadius),
                 ),
                 child: Center(
                   child: Text(
@@ -213,7 +213,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: mediumPadding),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -225,7 +225,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: minimalPadding),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -233,7 +233,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
                     ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(smallRadius),
                     ),
                     child: Text(
                       "${doctor.hospitalName}, ${doctor.address}",
@@ -262,7 +262,7 @@ class _DoctorDashboardScreenState extends ConsumerState<DoctorDashboardScreen>
                 icon: Icon(LucideIcons.pen, color: theme.colorScheme.primary),
                 tooltip: 'Edit Doctor',
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: smallPadding),
               IconButton(
                 onPressed: () => _methods.confirmDeleteDoctor(doctor),
                 icon: Icon(LucideIcons.trash_2, color: theme.colorScheme.error),

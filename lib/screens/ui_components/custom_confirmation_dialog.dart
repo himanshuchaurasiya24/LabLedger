@@ -47,10 +47,10 @@ Future<bool> showCustomConfirmationDialog({
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(mediumPadding),
                       decoration: BoxDecoration(
                         color: accentColor.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(defaultRadius),
                         border: Border.all(
                           color: accentColor.withValues(alpha: 0.25),
                         ),
@@ -64,7 +64,7 @@ Future<bool> showCustomConfirmationDialog({
                       ),
                     ),
                     if (contentBottomWidget != null) ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: mediumPadding),
                       contentBottomWidget,
                     ],
                   ],
@@ -72,7 +72,7 @@ Future<bool> showCustomConfirmationDialog({
               ),
             ),
           Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(largePadding),
               decoration: BoxDecoration(
                 color: isDeleteOption
                     ? theme.colorScheme.surfaceContainerHighest.withValues(

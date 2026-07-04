@@ -44,7 +44,7 @@ class EntitySummaryCard extends StatelessWidget {
                     children: [
                       Expanded(child: title),
                       if (trailing != null) ...[
-                        const SizedBox(width: 12),
+                        const SizedBox(width: defaultPadding),
                         trailing!,
                       ],
                     ],

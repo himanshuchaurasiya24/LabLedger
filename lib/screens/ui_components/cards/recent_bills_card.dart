@@ -67,7 +67,7 @@ class RecentBillsCard extends StatelessWidget {
                   padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
                     color: baseColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(smallRadius),
                   ),
                   child: Icon(Icons.history, color: baseColor, size: 20),
                 ),
@@ -259,7 +259,7 @@ Widget buildRecentBillsCard(
                 height: 36,
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(smallRadius),
                 ),
               ),
               SizedBox(width: defaultWidth / 2),
@@ -268,7 +268,7 @@ Widget buildRecentBillsCard(
                 height: 20,
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(tinyRadius),
                 ),
               ),
             ],

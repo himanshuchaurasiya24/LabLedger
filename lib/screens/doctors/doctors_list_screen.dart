@@ -208,11 +208,11 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
             overflow: TextOverflow.ellipsis,
           ),
         if (doctor.phoneNumber != null) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: minimalPadding),
           Row(
             children: [
               Icon(Icons.phone, size: 16, color: textColor),
-              const SizedBox(width: 4),
+              const SizedBox(width: minimalPadding),
               Text(
                 doctor.phoneNumber!,
                 style: theme.textTheme.bodySmall?.copyWith(

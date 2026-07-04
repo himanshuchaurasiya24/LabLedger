@@ -187,7 +187,7 @@ class _FranchiseBillsListScreenState
                   height: 60,
                   decoration: BoxDecoration(
                     color: headerColor,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(mediumRadius),
                   ),
                   child: const Center(
                     child: Icon(
@@ -197,7 +197,7 @@ class _FranchiseBillsListScreenState
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: mediumPadding),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -209,7 +209,7 @@ class _FranchiseBillsListScreenState
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: minimalPadding),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -217,7 +217,7 @@ class _FranchiseBillsListScreenState
                       ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(smallRadius),
                       ),
                       child: Text(
                         "${franchise.address!}, ${franchise.phoneNumber}",
@@ -247,7 +247,7 @@ class _FranchiseBillsListScreenState
                   icon: Icon(LucideIcons.pen, color: theme.colorScheme.primary),
                   tooltip: 'Edit Franchise',
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: smallPadding),
                 IconButton(
                   onPressed: () => _methods.confirmDeleteFranchise(franchise),
                   icon: Icon(

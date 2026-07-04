@@ -238,11 +238,11 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
                   ],
                   if (franchise.phoneNumber != null &&
                       franchise.phoneNumber!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: minimalPadding),
                     Row(
                       children: [
                         Icon(LucideIcons.phone, size: 16, color: textColor),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: minimalPadding),
                         Text(
                           franchise.phoneNumber!,
                           style: theme.textTheme.bodySmall?.copyWith(

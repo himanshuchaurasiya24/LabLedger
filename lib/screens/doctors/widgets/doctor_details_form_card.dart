@@ -53,7 +53,7 @@ class DoctorDetailsFormCard extends StatelessWidget {
                   padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(smallRadius),
                   ),
                   child: Icon(
                     Icons.medical_services_outlined,

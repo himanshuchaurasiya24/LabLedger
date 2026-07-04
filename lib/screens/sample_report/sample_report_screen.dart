@@ -167,7 +167,7 @@ class _SampleReportManagementScreenState
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: minimalPadding),
                       Row(
                         children: [
                           Icon(
@@ -175,7 +175,7 @@ class _SampleReportManagementScreenState
                             size: 16,
                             color: textColor,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: minimalPadding),
                           Text(
                             report.sampleReportFile.isNotEmpty
                                 ? 'File uploaded'
@@ -220,7 +220,7 @@ class _SampleReportManagementScreenState
                     child: Row(
                       children: [
                         Icon(Icons.edit, color: effectiveColor),
-                        SizedBox(width: 8),
+                        SizedBox(width: smallPadding),
                         Text('Edit', style: TextStyle(color: effectiveColor)),
                       ],
                     ),
@@ -231,7 +231,7 @@ class _SampleReportManagementScreenState
                       child: Row(
                         children: [
                           Icon(Icons.download, color: effectiveColor),
-                          SizedBox(width: 8),
+                          SizedBox(width: smallPadding),
                           Text(
                             'Download',
                             style: TextStyle(color: effectiveColor),
@@ -244,7 +244,7 @@ class _SampleReportManagementScreenState
                     child: Row(
                       children: [
                         Icon(Icons.delete, color: theme.colorScheme.error),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: smallPadding),
                         Text(
                           'Delete',
                           style: TextStyle(color: theme.colorScheme.error),

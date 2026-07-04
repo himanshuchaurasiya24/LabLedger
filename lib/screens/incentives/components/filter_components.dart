@@ -42,7 +42,7 @@ class IncentiveFilterPanel extends ConsumerWidget {
                               size: 18,
                               color: cardColor,
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: smallPadding),
                             Text(
                               "Doctors",
                               style: TextStyle(
@@ -92,7 +92,7 @@ class IncentiveFilterPanel extends ConsumerWidget {
                               size: 18,
                               color: cardColor,
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: smallPadding),
                             Expanded(
                               child: Text(
                                 "Franchise Labs",
@@ -105,7 +105,7 @@ class IncentiveFilterPanel extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        SizedBox(height: 4),
+                        SizedBox(height: minimalPadding),
                         Text(
                           "Optional: Filter by a specific franchise",
                           style: TextStyle(
@@ -158,7 +158,7 @@ class IncentiveFilterPanel extends ConsumerWidget {
                               size: 18,
                               color: cardColor,
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: smallPadding),
                             Text(
                               "Diagnosis Types",
                               style: TextStyle(
@@ -204,7 +204,7 @@ class IncentiveFilterPanel extends ConsumerWidget {
                             size: 18,
                             color: cardColor,
                           ),
-                          SizedBox(width: 8),
+                          SizedBox(width: smallPadding),
                           Text(
                             "Bill Status",
                             style: TextStyle(
@@ -335,7 +335,7 @@ class _DatePickerCard extends StatelessWidget {
                   size: 16,
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
-                SizedBox(width: 8),
+                SizedBox(width: smallPadding),
                 Text(
                   DateFormat.yMMMd().format(date),
                   style: TextStyle(
@@ -596,7 +596,7 @@ class _DropdownItem<T> extends ConsumerWidget {
                 height: 18,
                 decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(tinyRadius),
                   border: Border.all(
                     color: isSelected
                         ? baseColor
@@ -609,7 +609,7 @@ class _DropdownItem<T> extends ConsumerWidget {
                     ? Icon(LucideIcons.check, size: 12, color: Colors.white)
                     : null,
               ),
-              SizedBox(width: 12),
+              SizedBox(width: defaultPadding),
               Expanded(
                 child: Text(
                   text,

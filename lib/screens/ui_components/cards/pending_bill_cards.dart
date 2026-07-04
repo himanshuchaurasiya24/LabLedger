@@ -88,7 +88,7 @@ class PendingBillsCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: accentFillColor(context),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(largeRadius),
                 ),
                 child: Text(
                   "$pendingBillsCount Bills",
@@ -166,7 +166,7 @@ class PendingBillsCard extends StatelessWidget {
     return AppInkWell(
       onTap: onBillTap != null ? () => onBillTap!(bill) : null,
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(smallPadding),
         decoration: BoxDecoration(
           color: backgroundColor(context),
           borderRadius: BorderRadius.circular(defaultRadius),
@@ -206,7 +206,7 @@ class PendingBillsCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: minimalPadding),
                       Text(
                         "${bill.patientAge}y, ${bill.patientSex}",
                         style: TextStyle(
@@ -289,14 +289,14 @@ class PendingBillsCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(largeRadius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
             Icon(icon, size: 12, color: foregroundColor),
-            const SizedBox(width: 4),
+            const SizedBox(width: minimalPadding),
           ],
           Flexible(
             child: Text(

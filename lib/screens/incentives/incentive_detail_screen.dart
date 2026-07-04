@@ -96,7 +96,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
           padding: EdgeInsets.all(defaultPadding),
           decoration: BoxDecoration(
             color: theme.colorScheme.primaryContainer.withAlpha(77),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(defaultRadius),
           ),
           child: Icon(
             LucideIcons.trending_up,
@@ -138,7 +138,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withAlpha(128),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         border: Border.all(color: theme.colorScheme.outline.withAlpha(51)),
       ),
       child: CustomTextField(
@@ -214,7 +214,7 @@ class _IncentiveDetailScreenState extends ConsumerState<IncentiveDetailScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(),
-          SizedBox(height: 16),
+          SizedBox(height: mediumPadding),
           Text("Loading incentive report..."),
         ],
       ),

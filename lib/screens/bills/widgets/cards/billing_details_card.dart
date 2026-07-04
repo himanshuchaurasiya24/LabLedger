@@ -40,7 +40,7 @@ class BillingDetailsCard extends StatelessWidget {
     String? Function(String?)? validator,
   }) {
     return AppInkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(defaultRadius),
       onTap: () async {
         HapticFeedback.selectionClick();
         final pickedDate = await showDatePicker(

@@ -154,6 +154,7 @@ class BillHeaderCard extends ConsumerWidget {
                           return Row(
                             children: [
                               AppInkWell(
+                                borderRadius: BorderRadius.circular(defaultRadius),
                                 onTap: () {
                                   showDialog(
                                     context: context,
@@ -175,6 +176,7 @@ class BillHeaderCard extends ConsumerWidget {
                               if (hasReport) ...[
                                 SizedBox(width: defaultWidth / 2),
                                 AppInkWell(
+                                  borderRadius: BorderRadius.circular(defaultRadius),
                                   onTap: isDownloadingReport
                                       ? null
                                       : onDownloadReport,
@@ -189,6 +191,7 @@ class BillHeaderCard extends ConsumerWidget {
                                 ),
                                 SizedBox(width: defaultWidth / 2),
                                 AppInkWell(
+                                  borderRadius: BorderRadius.circular(defaultRadius),
                                   onTap: onDeleteReport,
                                   child: StatusBadge(
                                     text: 'Delete Report',
@@ -208,6 +211,7 @@ class BillHeaderCard extends ConsumerWidget {
                         ),
                         SizedBox(width: defaultWidth / 2),
                         AppInkWell(
+                          borderRadius: BorderRadius.circular(defaultRadius),
                           onTap: isSendingMessage || bill == null
                               ? null
                               : onSendMessage,
@@ -220,6 +224,7 @@ class BillHeaderCard extends ConsumerWidget {
                         ),
                       ] else ...[
                         AppInkWell(
+                          borderRadius: BorderRadius.circular(defaultRadius),
                           onTap: isSendingMessage || bill == null
                               ? null
                               : onSendMessage,

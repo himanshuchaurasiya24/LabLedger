@@ -41,7 +41,7 @@ class _SearchableDropdownFieldState<T>
   Widget build(BuildContext context) {
     return AppInkWell(
       key: anchorKey,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(defaultRadius),
       onTap: () {
         if (widget.items.isEmpty) {
           return;
@@ -107,7 +107,7 @@ class _SearchableDropdownFieldState<T>
       shadowColor: Colors.black.withValues(alpha: 0.2),
       color: menuBackgroundColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         side: BorderSide(color: menuBorderColor, width: 1),
       ),
       items: [
@@ -195,7 +195,7 @@ class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(smallPadding),
             child: TextField(
               controller: _searchController,
               onChanged: _filterItems,

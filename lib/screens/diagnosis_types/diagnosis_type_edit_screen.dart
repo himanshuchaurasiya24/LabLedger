@@ -186,7 +186,7 @@ class _DiagnosisTypeEditScreenState
                   padding: EdgeInsets.all(defaultPadding),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(smallRadius),
                   ),
                   child: Icon(Icons.biotech_outlined, color: color, size: 20),
                 ),
@@ -256,7 +256,7 @@ class _DiagnosisTypeEditScreenState
   Widget _buildErrorWidget(String message) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(mediumPadding),
         child: Text(
           message,
           style: TextStyle(

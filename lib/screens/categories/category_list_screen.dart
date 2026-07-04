@@ -198,7 +198,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen>
                         ),
                         if (category.description != null &&
                             category.description!.isNotEmpty) ...[
-                          const SizedBox(height: 4),
+                          const SizedBox(height: minimalPadding),
                           Text(
                             category.description!,
                             style: theme.textTheme.bodySmall?.copyWith(
@@ -214,7 +214,7 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: defaultPadding),
               if (category.isFranchiseLab)
                 StatusBadge(
                   text: 'Franchise Lab',

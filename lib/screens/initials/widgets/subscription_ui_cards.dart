@@ -35,7 +35,7 @@ class SubscriptionPlanCard extends StatelessWidget {
       padding: EdgeInsets.all(defaultPadding * 1.5),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(mediumRadius),
         border: Border.all(
           color: isCurrentExpiredPlan
               ? theme.colorScheme.error.withValues(alpha: 0.4)
@@ -207,7 +207,7 @@ class SubscriptionCustomCard extends StatelessWidget {
       padding: EdgeInsets.all(defaultPadding * 1.5),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(mediumRadius),
         border: Border.all(
           color: theme.colorScheme.secondary.withValues(alpha: 0.2),
         ),
@@ -299,7 +299,7 @@ class SubscriptionContactCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(mediumRadius),
         border: Border.all(
           color: theme.colorScheme.primary.withValues(alpha: 0.2),
         ),

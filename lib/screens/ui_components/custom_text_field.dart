@@ -23,6 +23,7 @@ class CustomTextField extends StatelessWidget {
   // --- ADDED VALIDATION PROPERTIES ---
   final bool isRequired;
   final bool isNumeric;
+  final bool disableCapitalization;
 
   const CustomTextField({
     super.key,
@@ -45,6 +46,7 @@ class CustomTextField extends StatelessWidget {
     // --- ADDED TO CONSTRUCTOR (with defaults) ---
     this.isRequired = false,
     this.isNumeric = false,
+    this.disableCapitalization = false,
   });
 
   @override
@@ -71,7 +73,7 @@ class CustomTextField extends StatelessWidget {
             isLightMode ? const Color(0xFFF8F9FA) : const Color(0xFF1E1E1E),
           ],
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(defaultRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isLightMode ? 0.08 : 0.3),
@@ -168,27 +170,27 @@ class CustomTextField extends StatelessWidget {
         filled: true,
         fillColor: isTransparent ? Colors.transparent : finalFillColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(defaultRadius),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(defaultRadius),
           borderSide: isTransparent
               ? BorderSide.none
               : BorderSide(color: finalBorderColor, width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(defaultRadius),
           borderSide: isTransparent
               ? BorderSide.none
               : BorderSide(color: finalBorderColor, width: 2.2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(defaultRadius),
           borderSide: BorderSide(color: theme.colorScheme.error, width: 1.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
+          borderRadius: BorderRadius.circular(defaultRadius),
           borderSide: BorderSide(color: theme.colorScheme.error, width: 1.5),
         ),
         contentPadding: EdgeInsets.all(defaultPadding),
@@ -226,7 +228,7 @@ class CustomTextField extends StatelessWidget {
 
     // 3. Default: Title Case (Capitalize first letter of every word)
     // Only apply if it's NOT a numeric field (just to be safe)
-    if (!isNumeric) {
+    if (!isNumeric && !disableCapitalization) {
       formatters.add(TitleCaseTextInputFormatter());
     }
 
@@ -239,6 +241,10 @@ class CustomTextField extends StatelessWidget {
     if (keyboardType == TextInputType.number ||
         keyboardType == TextInputType.phone ||
         keyboardType == TextInputType.datetime) {
+      return TextCapitalization.none;
+    }
+
+    if (disableCapitalization) {
       return TextCapitalization.none;
     }
 

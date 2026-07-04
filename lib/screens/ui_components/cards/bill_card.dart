@@ -94,7 +94,7 @@ class BillCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final cardBorderRadius = BorderRadius.circular(16);
+    final cardBorderRadius = BorderRadius.circular(mediumRadius);
 
     // --- 🎨 Color Logic ---
     // 1. Determine the base color based on payment status and optional inputs.
@@ -185,7 +185,7 @@ class BillCard extends StatelessWidget {
                         color: textColor,
                         size: 16,
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: minimalPadding),
                       Text(
                         _paymentStatus == PaymentStatus.fullPaid
                             ? 'PAID'
@@ -217,7 +217,7 @@ class BillCard extends StatelessWidget {
                             size: 18,
                             color: textColor.withValues(alpha: 0.7),
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: minimalPadding),
                           Text(
                             '${bill.patientAge}y, ${bill.patientSex.toUpperCase()}',
                             style: bodyStyle?.copyWith(fontSize: 14),
@@ -235,7 +235,7 @@ class BillCard extends StatelessWidget {
                             size: 16,
                             color: textColor.withValues(alpha: 0.7),
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: minimalPadding),
                           Text(
                             _formatDate(bill.dateOfBill),
                             style: bodyStyle?.copyWith(fontSize: 12),
