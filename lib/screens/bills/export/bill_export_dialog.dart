@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:labledger/screens/ui_components/blurred_dialog.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/constants/constants.dart';
@@ -19,6 +20,8 @@ class _BillExportDialogState extends State<BillExportDialog>
     with ControllerDisposer {
   // Export format: 0 = PDF, 1 = CSV
   int _selectedFormat = 0;
+  
+  DateTimeRange? _selectedDateRange;
 
   final Map<String, bool> _selectedFields = {
     'dateOfBill': true,
@@ -80,6 +83,7 @@ class _BillExportDialogState extends State<BillExportDialog>
         'export': true,
         'selectedFields': Map<String, bool>.from(_selectedFields),
         'format': _selectedFormat == 0 ? 'pdf' : 'csv',
+        'dateRange': _selectedDateRange,
       });
     }
   }
@@ -121,24 +125,198 @@ class _BillExportDialogState extends State<BillExportDialog>
             Row(
               children: [
                 Expanded(
-                  child: _buildFormatCard(
-                    theme: theme,
-                    icon: LucideIcons.file_text,
-                    label: 'PDF Document',
-                    description: 'Formatted table layout',
-                    isSelected: _selectedFormat == 0,
-                    onTap: () => setState(() => _selectedFormat = 0),
+                    child: _buildFormatCard(
+                      theme: theme,
+                      icon: LucideIcons.file_text,
+                      label: 'PDF Document',
+                      isSelected: _selectedFormat == 0,
+                      onTap: () => setState(() => _selectedFormat = 0),
+                    ),
+                ),
+                SizedBox(width: defaultWidth),
+                Expanded(
+                    child: _buildFormatCard(
+                      theme: theme,
+                      icon: LucideIcons.sheet,
+                      label: 'CSV Spreadsheet',
+                      isSelected: _selectedFormat == 1,
+                      onTap: () => setState(() => _selectedFormat = 1),
+                    ),
+                ),
+              ],
+            ),
+            SizedBox(height: defaultHeight / 2),
+
+            // ── Date Range Filter ──
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Date Range (Optional)',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                if (_selectedDateRange != null)
+                  TextButton.icon(
+                    onPressed: () => setState(() => _selectedDateRange = null),
+                    icon: const Icon(Icons.clear, size: 16),
+                    label: const Text('Clear'),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(0, 0),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+              ],
+            ),
+            SizedBox(height: defaultHeight / 2),
+            Row(
+              children: [
+                Expanded(
+                  child: AppInkWell(
+                    borderRadius: BorderRadius.circular(defaultRadius),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _selectedDateRange?.start ?? DateTime.now(),
+                        firstDate: DateTime(2020),
+                        lastDate: _selectedDateRange?.end ?? DateTime(2100),
+                        builder: (context, child) => Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: theme.colorScheme,
+                          ),
+                          child: child!,
+                        ),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _selectedDateRange = DateTimeRange(
+                            start: picked,
+                            end: _selectedDateRange?.end ?? DateTime.now(),
+                          );
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(smallPadding),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(defaultRadius),
+                        border: Border.all(
+                          color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Start Date",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: theme.colorScheme.secondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(
+                                LucideIcons.calendar,
+                                size: 16,
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                              SizedBox(width: smallPadding),
+                              Text(
+                                _selectedDateRange != null 
+                                  ? DateFormat.yMMMd().format(_selectedDateRange!.start) 
+                                  : "Select Date",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(width: defaultWidth),
                 Expanded(
-                  child: _buildFormatCard(
-                    theme: theme,
-                    icon: LucideIcons.sheet,
-                    label: 'Spreadsheet (CSV)',
-                    description: 'Opens in Excel / Sheets',
-                    isSelected: _selectedFormat == 1,
-                    onTap: () => setState(() => _selectedFormat = 1),
+                  child: AppInkWell(
+                    borderRadius: BorderRadius.circular(defaultRadius),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _selectedDateRange?.end ?? DateTime.now(),
+                        firstDate: _selectedDateRange?.start ?? DateTime(2020),
+                        lastDate: DateTime(2100),
+                        builder: (context, child) => Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: theme.colorScheme,
+                          ),
+                          child: child!,
+                        ),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _selectedDateRange = DateTimeRange(
+                            start: _selectedDateRange?.start ?? DateTime.now(),
+                            end: picked,
+                          );
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(smallPadding),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(defaultRadius),
+                        border: Border.all(
+                          color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "End Date",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: theme.colorScheme.secondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(
+                                LucideIcons.calendar,
+                                size: 16,
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                              SizedBox(width: smallPadding),
+                              Text(
+                                _selectedDateRange != null 
+                                  ? DateFormat.yMMMd().format(_selectedDateRange!.end) 
+                                  : "Select Date",
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -354,20 +532,19 @@ class _BillExportDialogState extends State<BillExportDialog>
     required ThemeData theme,
     required IconData icon,
     required String label,
-    required String description,
     required bool isSelected,
     required VoidCallback onTap,
   }) {
     return AppInkWell(
-      borderRadius: BorderRadius.circular(defaultRadius),
+      borderRadius: BorderRadius.circular(smallRadius),
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(mediumPadding),
+        padding: EdgeInsets.symmetric(horizontal: defaultPadding, vertical: smallPadding),
         decoration: BoxDecoration(
           color: isSelected
               ? theme.colorScheme.primary.withAlpha(26)
               : theme.colorScheme.surfaceContainerHighest.withAlpha(128),
-          borderRadius: BorderRadius.circular(defaultRadius),
+          borderRadius: BorderRadius.circular(smallRadius),
           border: Border.all(
             color: isSelected
                 ? theme.colorScheme.primary
@@ -375,25 +552,17 @@ class _BillExportDialogState extends State<BillExportDialog>
             width: isSelected ? 2 : 1,
           ),
         ),
-        child: Column(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: EdgeInsets.all(defaultPadding),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? theme.colorScheme.primary.withAlpha(38)
-                    : theme.colorScheme.surfaceContainerHighest,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: isSelected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurface.withAlpha(128),
-                size: 24,
-              ),
+            Icon(
+              icon,
+              color: isSelected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurface.withAlpha(128),
+              size: 20,
             ),
-            SizedBox(height: smallPadding),
+            SizedBox(width: smallPadding),
             Text(
               label,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -401,13 +570,6 @@ class _BillExportDialogState extends State<BillExportDialog>
                 color: isSelected
                     ? theme.colorScheme.primary
                     : theme.colorScheme.onSurface,
-              ),
-            ),
-            SizedBox(height: 2),
-            Text(
-              description,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurface.withAlpha(128),
               ),
             ),
           ],

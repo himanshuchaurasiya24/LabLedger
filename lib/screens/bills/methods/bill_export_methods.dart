@@ -24,23 +24,6 @@ class BillExportMethods extends ChangeNotifier {
   // ── Export Dialog Flow ──
 
   Future<void> showExportDialog() async {
-    _showSnackBar('Fetching bills for export...', isError: false);
-    List<Bill> bills;
-    try {
-      bills = await ref.read(allFilteredBillsProvider.future);
-    } catch (e) {
-      if (!context.mounted) return;
-      _showSnackBar('Failed to fetch bills: $e', isError: true);
-      return;
-    }
-
-    if (!context.mounted) return;
-
-    if (bills.isEmpty) {
-      _showSnackBar('No bills available to export', isError: true);
-      return;
-    }
-
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
       barrierDismissible: false,
@@ -52,6 +35,26 @@ class BillExportMethods extends ChangeNotifier {
     if (result != null && result['export'] == true) {
       final selectedFields = result['selectedFields'] as Map<String, bool>;
       final format = result['format'] as String;
+      final dateRange = result['dateRange'] as DateTimeRange?;
+
+      if (!context.mounted) return;
+      _showSnackBar('Fetching bills for export...', isError: false);
+      
+      List<Bill> bills;
+      try {
+        bills = await ref.read(allFilteredBillsProvider(dateRange).future);
+      } catch (e) {
+        if (!context.mounted) return;
+        _showSnackBar('Failed to fetch bills: $e', isError: true);
+        return;
+      }
+
+      if (!context.mounted) return;
+
+      if (bills.isEmpty) {
+        _showSnackBar('No bills available for this date range', isError: true);
+        return;
+      }
 
       if (format == 'pdf') {
         await _exportPDF(bills, selectedFields);
@@ -171,10 +174,7 @@ class BillExportMethods extends ChangeNotifier {
     }
 
     try {
-      final pdfBytes = await createBillReceiptPDF(
-        bill: bill,
-        ref: ref,
-      );
+      final pdfBytes = await createBillReceiptPDF(bill: bill, ref: ref);
 
       stopwatch.stop();
       final elapsed = stopwatch.elapsed;

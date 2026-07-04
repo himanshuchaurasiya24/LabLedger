@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:labledger/authentication/auth_http_client.dart';
 import 'package:labledger/authentication/config.dart';
 import 'package:labledger/constants/urls.dart';
@@ -75,14 +77,22 @@ final paginatedBillsProvider =
 /// Fetches ALL bills matching the current search query (unpaginated).
 /// Used for PDF/CSV export so the full dataset is included.
 final allFilteredBillsProvider =
-    FutureProvider.autoDispose<List<Bill>>((ref) async {
+    FutureProvider.autoDispose.family<List<Bill>, DateTimeRange?>((ref, dateRange) async {
       final query = ref.watch(currentSearchQueryProvider);
+      
+      final queryParams = <String, dynamic>{
+        'page_size': '10000',
+        if (query.isNotEmpty) 'search': query,
+      };
+
+      if (dateRange != null) {
+        final dateFormat = DateFormat('yyyy-MM-dd');
+        queryParams['bill_start_date'] = dateFormat.format(dateRange.start);
+        queryParams['bill_end_date'] = dateFormat.format(dateRange.end);
+      }
 
       final uri = Uri.parse(billsEndpoint).replace(
-        queryParameters: {
-          'page_size': '10000',
-          if (query.isNotEmpty) 'search': query,
-        },
+        queryParameters: queryParams,
       );
       final response = await AuthHttpClient.get(ref, uri.toString());
       final data = jsonDecode(response.body);
