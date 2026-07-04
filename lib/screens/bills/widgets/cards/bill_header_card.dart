@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/providers/patient_report_provider.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
@@ -24,6 +25,7 @@ class BillHeaderCard extends ConsumerWidget {
   final VoidCallback onSendMessage;
   final VoidCallback onSaveBill;
   final VoidCallback onDeleteBill;
+  final VoidCallback? onDownloadReceipt;
 
   const BillHeaderCard({
     super.key,
@@ -39,6 +41,7 @@ class BillHeaderCard extends ConsumerWidget {
     required this.onSendMessage,
     required this.onSaveBill,
     required this.onDeleteBill,
+    this.onDownloadReceipt,
   });
 
   @override
@@ -265,6 +268,13 @@ class BillHeaderCard extends ConsumerWidget {
                     : Icon(isEditMode ? Icons.save : Icons.add, size: 16),
               ),
               if (isEditMode) ...[
+                SizedBox(height: defaultHeight / 2),
+                CustomElevatedButton(
+                  onPressed: onDownloadReceipt,
+                  label: 'Download Receipt',
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  icon: Icon(LucideIcons.receipt, size: 16),
+                ),
                 SizedBox(height: defaultHeight / 2),
                 CustomElevatedButton(
                   onPressed: onDeleteBill,

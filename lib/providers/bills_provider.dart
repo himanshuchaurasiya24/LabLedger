@@ -72,6 +72,24 @@ final paginatedBillsProvider =
       return PaginatedBillsResponse.fromJson(jsonDecode(response.body));
     });
 
+/// Fetches ALL bills matching the current search query (unpaginated).
+/// Used for PDF/CSV export so the full dataset is included.
+final allFilteredBillsProvider =
+    FutureProvider.autoDispose<List<Bill>>((ref) async {
+      final query = ref.watch(currentSearchQueryProvider);
+
+      final uri = Uri.parse(billsEndpoint).replace(
+        queryParameters: {
+          'page_size': '10000',
+          if (query.isNotEmpty) 'search': query,
+        },
+      );
+      final response = await AuthHttpClient.get(ref, uri.toString());
+      final data = jsonDecode(response.body);
+      final List<dynamic> jsonList = data['results'];
+      return jsonList.map((item) => Bill.fromJson(item)).toList();
+    });
+
 final paginatedDoctorBillProvider = FutureProvider.autoDispose
     .family<PaginatedBillsResponse, int>((ref, id) async {
       final page = ref.watch(currentPageProvider);

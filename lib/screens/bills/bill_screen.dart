@@ -7,6 +7,7 @@ import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/screens/bills/add_update_bill_screen.dart';
 import 'package:labledger/screens/bills/methods/bill_methods.dart';
+import 'package:labledger/screens/bills/methods/bill_export_methods.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/bills/widgets/bill_growth_stats_view.dart';
 import 'package:labledger/screens/ui_components/paginated_bills_view.dart';
@@ -28,11 +29,13 @@ class _BillsScreenState extends ConsumerState<BillsScreen>
   final FocusNode searchFocusNode = FocusNode();
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   late BillMethods _methods;
+  late BillExportMethods _exportMethods;
 
   @override
   void initState() {
     super.initState();
     _methods = BillMethods(ref, context);
+    _exportMethods = BillExportMethods(context, ref);
     _methods.addListener(() {
       if (mounted) setState(() {});
     });
@@ -46,6 +49,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen>
   void dispose() {
     windowManager.removeListener(this);
     _methods.disposeDebounce();
+    _exportMethods.dispose();
     _methods.dispose();
     disposeControllers();
     searchFocusNode.dispose();
@@ -70,23 +74,42 @@ class _BillsScreenState extends ConsumerState<BillsScreen>
         width: 400,
         onSearch: _methods.onSearchChanged,
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(
-              builder: (context) => AddUpdateBillScreen(
-                themeColor: Theme.of(context).colorScheme.secondary,
-              ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'export_bills',
+            onPressed: () => _exportMethods.showExportDialog(),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            foregroundColor: Colors.white,
+            label: const Text(
+              "Export",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-          );
-        },
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
-        label: const Text(
-          "Add Bill",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        icon: const Icon(LucideIcons.plus),
+            icon: const Icon(LucideIcons.download),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'add_bill',
+            onPressed: () {
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(
+                  builder: (context) => AddUpdateBillScreen(
+                    themeColor: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              );
+            },
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Colors.white,
+            label: const Text(
+              "Add Bill",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            icon: const Icon(LucideIcons.plus),
+          ),
+        ],
       ),
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

@@ -12,6 +12,7 @@ import 'package:labledger/providers/diagnosis_type_provider.dart';
 import 'package:labledger/providers/franchise_lab_provider.dart';
 import 'package:labledger/providers/patient_report_provider.dart';
 import 'package:labledger/screens/bills/methods/bill_methods.dart';
+import 'package:labledger/screens/bills/methods/bill_export_methods.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/bills/widgets/cards/patient_details_card.dart';
 import 'package:labledger/screens/bills/widgets/cards/billing_details_card.dart';
@@ -38,6 +39,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   late final VoidCallback _billStatusListener;
   final _formKey = GlobalKey<FormState>();
   late BillMethods _methods;
+  late BillExportMethods _exportMethods;
 
   late final TextEditingController patientNameController;
   late final TextEditingController patientAgeController;
@@ -95,6 +97,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   void initState() {
     super.initState();
     _methods = BillMethods(ref, context);
+    _exportMethods = BillExportMethods(context, ref);
     _methods.addListener(() {
       if (mounted) setState(() {});
     });
@@ -136,6 +139,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   @override
   void dispose() {
     _methods.dispose();
+    _exportMethods.dispose();
     _tabController.dispose();
     billStatusController.removeListener(_billStatusListener);
     disposeControllers();
@@ -569,6 +573,9 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         franchiseNameController: franchiseNameController,
       ),
       onDeleteBill: () => bill != null ? _methods.deleteBill(bill) : null,
+      onDownloadReceipt: bill != null
+          ? () => _exportMethods.generateBillReceipt(bill)
+          : null,
     );
   }
 }
