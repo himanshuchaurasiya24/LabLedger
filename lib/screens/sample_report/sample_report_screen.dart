@@ -6,12 +6,14 @@ import 'package:labledger/models/sample_report_model.dart';
 import 'package:labledger/providers/sample_reports_provider.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
-import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/sample_report/methods/sample_report_methods.dart';
 import 'package:labledger/screens/sample_report/components/sample_report_components.dart';
+import 'package:labledger/screens/ui_components/shared_components.dart';
+import 'package:labledger/methods/responsive_helpers.dart';
+import 'package:labledger/screens/ui_components/skeleton_loaders.dart';
 
 class SampleReportManagementScreen extends ConsumerStatefulWidget {
   const SampleReportManagementScreen({super.key, this.baseColor});
@@ -100,10 +102,10 @@ class _SampleReportManagementScreenState
     return GridView.builder(
       padding: EdgeInsets.all(defaultPadding),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: _methods.getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: _methods.getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context),
       ),
       itemCount: reports.length,
       itemBuilder: (context, index) {
@@ -267,52 +269,19 @@ class _SampleReportManagementScreenState
     return GridView.builder(
       padding: EdgeInsets.all(defaultPadding),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: _methods.getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: _methods.getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context),
       ),
       itemCount: 8,
       itemBuilder: (context, index) {
         return TintedContainer(
           baseColor: effectiveColor,
           intensity: 0.05,
-          child: _buildSkeletonLoader(context, shimmerColor),
+          child: buildEntitySkeletonLoader(context, shimmerColor),
         );
       },
-    );
-  }
-
-  Widget _buildSkeletonLoader(BuildContext context, Color shimmerColor) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        CircleAvatar(radius: 40, backgroundColor: shimmerColor),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              height: 22,
-              width: 180,
-              decoration: BoxDecoration(
-                color: shimmerColor,
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              height: 16,
-              width: 150,
-              decoration: BoxDecoration(
-                color: shimmerColor,
-                borderRadius: BorderRadius.circular(7),
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -322,17 +291,7 @@ class _SampleReportManagementScreenState
     Object error,
     Color effectiveColor,
   ) {
-    final theme = Theme.of(context);
-    return buildErrorState(
-      context: context,
-      error: error,
-      theme: theme,
-      onTap: () => ref.invalidate(allSampleReportsProvider),
-      errorHeading: 'Failed to load sample reports',
-      errorTitle: error.toString(),
-      buttonLabel: 'Retry',
-      icon: const Icon(Icons.refresh),
-    );
+    return CustomErrorState(error: error, onTap: () => ref.invalidate(allSampleReportsProvider), errorHeading: 'Failed to load sample reports', errorTitle: error.toString(), buttonLabel: 'Retry', icon: const Icon(Icons.refresh));
   }
 
   Widget _buildEmptyState(BuildContext context, Color effectiveColor) {

@@ -6,8 +6,8 @@ import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/providers/bills_provider.dart';
 import 'package:labledger/screens/ui_components/cards/bill_card.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
-import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/screens/ui_components/shared_components.dart';
 
 class PaginatedBillsView extends ConsumerWidget {
   final AsyncValue<PaginatedBillsResponse> billsProvider;
@@ -114,17 +114,7 @@ class PaginatedBillsView extends ConsumerWidget {
         ),
       ),
       error: (err, stack) {
-        final theme = Theme.of(context);
-        return buildErrorState(
-          context: context,
-          error: err,
-          theme: theme,
-          onTap: onRetry,
-          errorHeading: 'Failed to load bills',
-          errorTitle: err.toString(),
-          buttonLabel: 'Retry',
-          icon: const Icon(Icons.refresh),
-        );
+        return CustomErrorState(error: err, onTap: onRetry, errorHeading: 'Failed to load bills', errorTitle: err.toString(), buttonLabel: 'Retry', icon: const Icon(Icons.refresh));
       },
     );
   }

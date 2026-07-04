@@ -112,10 +112,15 @@ String buildBillMessageText(Bill bill, String? secureReportUrl, WidgetRef ref) {
     }
   }
 
-  final String by =
-      '${bill.testDoneBy!['first_name']} ${bill.testDoneBy!['last_name']}';
-  final String center =
-      '${bill.centerDetail!['center_name']}, ${bill.centerDetail!['address']}';
+  final testDoneBy = bill.testDoneBy;
+  final String by = testDoneBy != null 
+      ? '${testDoneBy['first_name'] ?? ''} ${testDoneBy['last_name'] ?? ''}'.trim()
+      : 'our technician';
+      
+  final centerDetail = bill.centerDetail;
+  final String center = centerDetail != null
+      ? '${centerDetail['center_name'] ?? 'our center'}, ${centerDetail['address'] ?? ''}'
+      : 'our center';
   final String amount = '₹${bill.totalAmount}';
   final String status = bill.billStatus;
   final String name = bill.patientName;

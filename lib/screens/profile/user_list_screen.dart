@@ -8,7 +8,6 @@ import 'package:labledger/providers/user_provider.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/profile/user_edit_screen.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
-import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/entity_summary_card.dart';
 import 'package:labledger/screens/ui_components/status_badge.dart';
 import 'package:labledger/methods/responsive_helpers.dart';
@@ -16,6 +15,8 @@ import 'package:labledger/methods/string_utils.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/screens/profile/methods/user_list_methods.dart';
+import 'package:labledger/screens/ui_components/shared_components.dart';
+import 'package:labledger/screens/ui_components/skeleton_loaders.dart';
 
 // Assuming ColorValues extension is defined elsewhere in your project
 extension ColorValues on Color {
@@ -223,64 +224,14 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
         return TintedContainer(
           baseColor: theme.colorScheme.secondary,
           intensity: 0.05,
-          child: _buildSkeletonLoader(context),
+          child: buildEntitySkeletonLoader(context, theme.brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade300),
         );
       },
     );
   }
 
-  Widget _buildSkeletonLoader(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final shimmerColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        CircleAvatar(radius: 40, backgroundColor: shimmerColor),
-        SizedBox(width: defaultPadding),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 22,
-                width: 120,
-                decoration: BoxDecoration(
-                  color: shimmerColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                height: 16,
-                width: 180,
-                decoration: BoxDecoration(
-                  color: shimmerColor,
-                  borderRadius: BorderRadius.circular(7),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
-    final theme = Theme.of(context);
-
-    return buildErrorState(
-      context: context,
-      error: error,
-      theme: theme,
-      onTap: () => ref.invalidate(usersDetailsProvider),
-      errorHeading: 'Failed to load users',
-      errorTitle: error.toString(),
-      buttonLabel: 'Retry',
-      icon: const Icon(Icons.refresh),
-    );
+    return CustomErrorState(error: error, onTap: () => ref.invalidate(usersDetailsProvider), errorHeading: 'Failed to load users', errorTitle: error.toString(), buttonLabel: 'Retry', icon: const Icon(Icons.refresh));
   }
 
   Widget _buildEmptyState(BuildContext context) {

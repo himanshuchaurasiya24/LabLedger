@@ -59,6 +59,31 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
 
   bool get _isEditMode => widget.billId != null;
 
+  final _defaultDateFormat = DateFormat('dd-MM-yyyy');
+
+  int get _totalAmount => _methods.selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price);
+
+  bool get _hasFranchiseLab => _methods.selectedDiagnosisTypes.any(
+        (dt) => dt.categoryName?.toLowerCase() == 'franchise lab',
+      );
+
+  void _updateDiagnosisDisplay() {
+    diagnosisTypeController.text = _methods.selectedDiagnosisTypes.map((d) => d.id.toString()).join(',');
+    diagnosisTypeDisplayController.text = _methods.selectedDiagnosisTypes
+        .map((dt) => '${dt.categoryName ?? "Unknown"} ${dt.name}')
+        .join(', ');
+  }
+
+  void _updateDoctorDisplay(Doctor doc) {
+    refByDoctorController.text = doc.id.toString();
+    refByDoctorDisplayController.text = '${doc.firstName} ${doc.lastName ?? ''}'.trim();
+  }
+
+  void _updateFranchiseDisplay(FranchiseName franchise) {
+    franchiseNameController.text = franchise.id.toString();
+    franchiseNameDisplayController.text = franchise.franchiseName ?? '';
+  }
+
   final List<String> sexDropDownList = ["Male", "Female", "Others"];
   final List<String> billStatusList = [
     "Fully Paid",
@@ -101,7 +126,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     billStatusController.addListener(_billStatusListener);
 
     if (!_isEditMode) {
-      final defaultDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+      final defaultDate = _defaultDateFormat.format(DateTime.now());
       dateOfTestController.text = defaultDate;
       dateOfBillController.text = defaultDate;
       billStatusController.text = billStatusList.first;
@@ -120,13 +145,12 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
   void _initializeData(Bill bill) {
     if (_methods.isDataInitialized) return;
 
-    final dateFormat = DateFormat('dd-MM-yyyy');
     patientNameController.text = bill.patientName;
     patientAgeController.text = bill.patientAge.toString();
     patientSexController.text = bill.patientSex;
     patientPhoneNumberController.text = bill.patientPhoneNumber.toString();
-    dateOfTestController.text = dateFormat.format(bill.dateOfTest);
-    dateOfBillController.text = dateFormat.format(bill.dateOfBill);
+    dateOfTestController.text = _defaultDateFormat.format(bill.dateOfTest);
+    dateOfBillController.text = _defaultDateFormat.format(bill.dateOfBill);
     _methods.selectedTestDateISO = bill.dateOfTest.toIso8601String();
     _methods.selectedBillDateISO = bill.dateOfBill.toIso8601String();
     billStatusController.text = bill.billStatus;
@@ -147,14 +171,11 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     if (bill.franchiseNameOutput != null) {
       _methods.selectedFranchise = FranchiseName.fromJson(bill.franchiseNameOutput!);
     }
-    diagnosisTypeController.text = bill.diagnosisTypes.join(',');
     refByDoctorController.text = bill.referredByDoctor.toString();
     franchiseNameController.text = bill.franchiseName?.toString() ?? '';
 
     // Display diagnosis types as comma-separated list or chips
-    diagnosisTypeDisplayController.text = _methods.selectedDiagnosisTypes
-        .map((dt) => '${dt.categoryName ?? "Unknown"} ${dt.name}')
-        .join(', ');
+    _updateDiagnosisDisplay();
     refByDoctorDisplayController.text =
         '${bill.referredByDoctorOutput?['first_name']} ${bill.referredByDoctorOutput?['last_name']}';
     franchiseNameDisplayController.text =
@@ -182,9 +203,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
           _methods.selectedDiagnosisTypes = diagnosisTypes
               .where((type) => diagnosisIds.contains(type.id))
               .toList();
-          diagnosisTypeDisplayController.text = _methods.selectedDiagnosisTypes
-              .map((dt) => '${dt.categoryName ?? "Unknown"} ${dt.name}')
-              .join(', ');
+          _updateDiagnosisDisplay();
         }
       }
 
@@ -192,16 +211,12 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         final doctorId = int.tryParse(refByDoctorController.text);
         if (doctorId != null) {
           _methods.selectedDoctor = doctors.firstWhere((doc) => doc.id == doctorId);
-          refByDoctorDisplayController.text =
-              '${_methods.selectedDoctor!.firstName} ${_methods.selectedDoctor!.lastName ?? ''}';
+          _updateDoctorDisplay(_methods.selectedDoctor!);
         }
       }
 
       // Check if any selected diagnosis type is Franchise Lab
-      bool hasFranchiseLab = _methods.selectedDiagnosisTypes.any(
-        (dt) => dt.categoryName?.toLowerCase() == 'franchise lab',
-      );
-      if (hasFranchiseLab && franchiseNameController.text.isNotEmpty) {
+      if (_hasFranchiseLab && franchiseNameController.text.isNotEmpty) {
         _methods.selectedFranchise = franchises.firstWhere(
           (f) => f.franchiseName == franchiseNameController.text,
         );
@@ -213,15 +228,6 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     } catch (e) {
       //
     }
-  }
-
-  /// Recalculates total amount based on selected diagnosis types
-  void _updateTotalAmount() {
-    // Calculate total from selected diagnosis types
-    _methods.selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price);
-
-    // The Bill model will recalculate when saved, but this helps user see the total
-    // Note: There's no totalAmountController because total is calculated from diagnosis types
   }
 
   @override
@@ -456,39 +462,32 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
           onDiagnosisTypeRemoved: (dt) {
             setState(() {
               _methods.selectedDiagnosisTypes.remove(dt);
-              diagnosisTypeController.text = _methods.selectedDiagnosisTypes.map((d) => d.id.toString()).join(',');
-              diagnosisTypeDisplayController.text = _methods.selectedDiagnosisTypes.map((d) => '${d.category} ${d.name}').join(', ');
-              _updateTotalAmount();
+              _updateDiagnosisDisplay();
             });
           },
           onDiagnosisTypeSelected: (selected) {
             setState(() {
               if (!_methods.selectedDiagnosisTypes.any((dt) => dt.id == selected.id)) {
                 _methods.selectedDiagnosisTypes.add(selected);
-                diagnosisTypeController.text = _methods.selectedDiagnosisTypes.map((d) => d.id.toString()).join(',');
-                diagnosisTypeDisplayController.text = _methods.selectedDiagnosisTypes.map((d) => '${d.categoryName ?? "Unknown"} ${d.name}').join(', ');
-                bool hasFranchiseLab = _methods.selectedDiagnosisTypes.any((dt) => dt.categoryName?.toLowerCase() == 'franchise lab');
-                if (!hasFranchiseLab) {
+                _updateDiagnosisDisplay();
+                if (!_hasFranchiseLab) {
                   _methods.selectedFranchise = null;
                   franchiseNameController.clear();
                   franchiseNameDisplayController.clear();
                 }
-                _updateTotalAmount();
               }
             });
           },
           onFranchiseSelected: (selected) {
             setState(() {
               _methods.selectedFranchise = selected;
-              franchiseNameController.text = selected.id.toString();
-              franchiseNameDisplayController.text = selected.franchiseName ?? '';
+              _updateFranchiseDisplay(selected);
             });
           },
           onDoctorSelected: (selected) {
             setState(() {
               _methods.selectedDoctor = selected;
-              refByDoctorController.text = selected.id.toString();
-              refByDoctorDisplayController.text = '${selected.firstName} ${selected.lastName ?? ''}';
+              _updateDoctorDisplay(selected);
             });
           },
           onUpdateDisplayControllers: _updateDisplayControllers,
@@ -515,7 +514,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     return AmountDetailsCard(
       defaultColor: color,
       height: height,
-      totalAmount: _methods.selectedDiagnosisTypes.fold(0, (sum, dt) => sum + dt.price),
+      totalAmount: _totalAmount,
       paidAmountController: paidAmountController,
       discByDoctorController: discByDoctorController,
       discByCenterController: discByCenterController,

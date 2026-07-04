@@ -9,12 +9,15 @@ import 'package:labledger/screens/doctors/doctor_edit_screen.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
-import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/entity_summary_card.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/doctors/methods/doctor_methods.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/utils/controller_disposer.dart';
+import 'package:labledger/screens/ui_components/shared_components.dart';
+import 'package:labledger/methods/responsive_helpers.dart';
+import 'package:labledger/screens/ui_components/skeleton_loaders.dart';
+import 'package:labledger/methods/string_utils.dart';
 
 extension ColorValues on Color {
   Color withValues({double? alpha, double? red, double? green, double? blue}) {
@@ -69,29 +72,7 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
     super.dispose();
   }
 
-  int getCrossAxisCount(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    if (size.width < initialWindowWidth && size.width > 1200) {
-      return 3;
-    }
-    if (size.width < 1200) {
-      return 2;
-    }
-    return 4;
-  }
 
-  double getChildAspectRatio(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    if (size.width < initialWindowWidth && size.width > 1200) {
-      return 2.3;
-    }
-    if (size.width < 1200 || size.width > initialWindowWidth) {
-      return 2.7;
-    }
-
-    return 2.3;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,10 +140,10 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context),
       ),
       itemCount: doctors.length,
       itemBuilder: (context, index) {
@@ -198,7 +179,7 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
         radius: 40,
         backgroundColor: effectiveColor.withValues(alpha: 0.2),
         child: Text(
-          _getInitials(doctor.firstName, doctor.lastName),
+          getInitials(doctor.firstName, doctor.lastName),
           style: theme.textTheme.titleMedium?.copyWith(
             color: textColor,
             fontWeight: FontWeight.bold,
@@ -253,54 +234,23 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context),
       ),
       itemCount: 8,
       itemBuilder: (context, index) {
         return TintedContainer(
           baseColor: effectiveColor,
           intensity: 0.05,
-          child: _buildSkeletonLoader(context, shimmerColor),
+          child: buildEntitySkeletonLoader(context, shimmerColor),
         );
       },
     );
   }
 
-  Widget _buildSkeletonLoader(BuildContext context, Color shimmerColor) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        CircleAvatar(radius: 40, backgroundColor: shimmerColor),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              height: 22,
-              width: 180,
-              decoration: BoxDecoration(
-                color: shimmerColor,
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              height: 16,
-              width: 150,
-              decoration: BoxDecoration(
-                color: shimmerColor,
-                borderRadius: BorderRadius.circular(7),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+
 
   Widget _buildErrorState(
     BuildContext context,
@@ -308,18 +258,7 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
     Object error,
     Color effectiveColor,
   ) {
-    final theme = Theme.of(context);
-
-    return buildErrorState(
-      context: context,
-      error: error,
-      theme: theme,
-      onTap: () => ref.invalidate(doctorsProvider),
-      errorHeading: 'Failed to load doctors',
-      errorTitle: error.toString(),
-      buttonLabel: 'Retry',
-      icon: const Icon(Icons.refresh),
-    );
+    return CustomErrorState(error: error, onTap: () => ref.invalidate(doctorsProvider), errorHeading: 'Failed to load doctors', errorTitle: error.toString(), buttonLabel: 'Retry', icon: const Icon(Icons.refresh));
   }
 
   Widget _buildEmptyState(BuildContext context, Color effectiveColor) {
@@ -342,11 +281,5 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen>
     );
   }
 
-  String _getInitials(String? firstName, String? lastName) {
-    final first = firstName?.isNotEmpty == true
-        ? firstName![0].toUpperCase()
-        : '';
-    final last = lastName?.isNotEmpty == true ? lastName![0].toUpperCase() : '';
-    return '$first$last'.isEmpty ? '??' : '$first$last';
-  }
+
 }

@@ -10,11 +10,14 @@ import 'package:labledger/screens/franchise_labs/franchise_lab_bills_list_screen
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
-import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/franchise_labs/methods/franchise_lab_methods.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/utils/controller_disposer.dart';
+import 'package:labledger/screens/ui_components/shared_components.dart';
+import 'package:labledger/methods/responsive_helpers.dart';
+import 'package:labledger/screens/ui_components/skeleton_loaders.dart';
+import 'package:labledger/methods/string_utils.dart';
 
 extension ColorValues on Color {
   Color withValues({double? alpha, double? red, double? green, double? blue}) {
@@ -70,29 +73,7 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
     super.dispose();
   }
 
-  int getCrossAxisCount(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    if (size.width < initialWindowWidth && size.width > 1200) {
-      return 3;
-    }
-    if (size.width < 1200) {
-      return 2;
-    }
-    return 4;
-  }
 
-  double getChildAspectRatio(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    if (size.width < initialWindowWidth && size.width > 1200) {
-      return 2.3;
-    }
-    if (size.width < 1200 || size.width > initialWindowWidth) {
-      return 2.7;
-    }
-
-    return 2.3;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -169,10 +150,10 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context),
       ),
       itemCount: franchises.length,
       itemBuilder: (context, index) {
@@ -217,7 +198,7 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
               radius: 40,
               backgroundColor: effectiveColor.withValues(alpha: 0.2),
               child: Text(
-                _getInitials(
+                getInitials(
                   franchise.franchiseName,
                 ), // Using new initials logic
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -288,56 +269,23 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
 
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: getCrossAxisCount(context),
+        crossAxisCount: getResponsiveCrossAxisCount(context),
         crossAxisSpacing: defaultPadding,
         mainAxisSpacing: defaultPadding,
-        childAspectRatio: getChildAspectRatio(context),
+        childAspectRatio: getResponsiveAspectRatio(context),
       ),
       itemCount: 8,
       itemBuilder: (context, index) {
         return TintedContainer(
           baseColor: effectiveColor,
           intensity: 0.05,
-          child: _buildSkeletonLoader(context, shimmerColor),
+          child: buildEntitySkeletonLoader(context, shimmerColor),
         );
       },
     );
   }
 
-  Widget _buildSkeletonLoader(BuildContext context, Color shimmerColor) {
-    // This is identical to the DoctorsListScreen skeleton loader
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        CircleAvatar(radius: 40, backgroundColor: shimmerColor),
-        SizedBox(width: defaultWidth),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              height: 22,
-              width: 180,
-              decoration: BoxDecoration(
-                color: shimmerColor,
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              height: 16,
-              width: 150,
-              decoration: BoxDecoration(
-                color: shimmerColor,
-                borderRadius: BorderRadius.circular(7),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+
 
   Widget _buildErrorState(
     BuildContext context,
@@ -345,33 +293,7 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
     Object error,
     Color effectiveColor,
   ) {
-    final theme = Theme.of(context);
-
-    return buildErrorState(
-      context: context,
-      error: error,
-      theme: theme,
-      onTap: () => ref.invalidate(franchiseProvider),
-      errorHeading: 'Failed to load franchise labs',
-      errorTitle: error.toString(),
-      buttonLabel: 'Retry',
-      icon: const Icon(Icons.refresh),
-    );
+    return CustomErrorState(error: error, onTap: () => ref.invalidate(franchiseProvider), errorHeading: 'Failed to load franchise labs', errorTitle: error.toString(), buttonLabel: 'Retry', icon: const Icon(Icons.refresh));
   }
 
-  // Helper method to get initials from the franchise name
-  String _getInitials(String? name) {
-    if (name == null || name.isEmpty) {
-      return '??';
-    }
-    // Split the name by spaces to get words
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.length > 1) {
-      // Return the first letter of the first two words
-      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    } else {
-      // If only one word, return the first two letters
-      return name.substring(0, name.length >= 2 ? 2 : 1).toUpperCase();
-    }
-  }
 }

@@ -10,13 +10,14 @@ import 'package:labledger/screens/diagnosis_types/diagnosis_type_edit_screen.dar
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/methods/custom_methods.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
-import 'package:labledger/screens/ui_components/custom_error_state_widget.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 import 'package:labledger/screens/diagnosis_types/methods/diagnosis_type_methods.dart';
 import 'package:labledger/methods/responsive_helpers.dart';
 import 'package:labledger/methods/string_utils.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:labledger/utils/controller_disposer.dart';
+import 'package:labledger/screens/ui_components/shared_components.dart';
+import 'package:labledger/screens/ui_components/skeleton_loaders.dart';
 
 class DiagnosisTypesListScreen extends ConsumerStatefulWidget {
   const DiagnosisTypesListScreen({super.key, this.baseColor});
@@ -239,42 +240,9 @@ class _DiagnosisTypesListScreenState
         return TintedContainer(
           baseColor: effectiveColor,
           intensity: 0.05,
-          child: _buildSkeletonLoader(shimmerColor),
+          child: buildEntitySkeletonLoader(context, shimmerColor),
         );
       },
-    );
-  }
-
-  Widget _buildSkeletonLoader(Color shimmerColor) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        CircleAvatar(radius: 40, backgroundColor: shimmerColor),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              height: 22,
-              width: 180,
-              decoration: BoxDecoration(
-                color: shimmerColor,
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              height: 16,
-              width: 150,
-              decoration: BoxDecoration(
-                color: shimmerColor,
-                borderRadius: BorderRadius.circular(7),
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -284,17 +252,7 @@ class _DiagnosisTypesListScreenState
     Object error,
     Color effectiveColor,
   ) {
-    final theme = Theme.of(context);
-    return buildErrorState(
-      context: context,
-      error: error,
-      theme: theme,
-      onTap: () => ref.invalidate(diagnosisTypeProvider),
-      errorHeading: 'Failed to load diagnosis types',
-      errorTitle: error.toString(),
-      buttonLabel: 'Retry',
-      icon: const Icon(Icons.refresh),
-    );
+    return CustomErrorState(error: error, onTap: () => ref.invalidate(diagnosisTypeProvider), errorHeading: 'Failed to load diagnosis types', errorTitle: error.toString(), buttonLabel: 'Retry', icon: const Icon(Icons.refresh));
   }
 
   Widget _buildEmptyState(BuildContext context, Color effectiveColor) {
