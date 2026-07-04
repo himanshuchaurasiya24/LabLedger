@@ -260,7 +260,7 @@ class _DoctorEditScreenState extends ConsumerState<DoctorEditScreen>
         controller: _tabController,
         indicator: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(dialogRadius),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         labelColor: Colors.white,

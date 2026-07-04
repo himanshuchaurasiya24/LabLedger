@@ -273,7 +273,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
       controller: _tabController,
       indicator: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(dialogRadius),
       ),
       indicatorSize: TabBarIndicatorSize.tab,
       labelColor: Colors.white,
@@ -344,7 +344,7 @@ class _UserAddEditScreenState extends ConsumerState<UserAddEditScreen>
 
   Widget _buildStatusBadge(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: smallPadding, vertical: minimalPadding),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(defaultRadius),

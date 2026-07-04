@@ -109,8 +109,8 @@ class UserPersonalDetailsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
+          topLeft: Radius.circular(mediumRadius),
+          topRight: Radius.circular(mediumRadius),
         ),
       ),
       child: Row(
@@ -293,8 +293,8 @@ class UserSecurityCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
+          topLeft: Radius.circular(mediumRadius),
+          topRight: Radius.circular(mediumRadius),
         ),
       ),
       child: Row(
@@ -325,7 +325,7 @@ class UserSecurityCard extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: defaultPadding, vertical: smallPadding),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(defaultRadius),

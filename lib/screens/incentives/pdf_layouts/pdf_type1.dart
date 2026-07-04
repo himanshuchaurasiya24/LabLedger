@@ -102,8 +102,8 @@ List<pw.Widget> buildBillsTableType1(
           end: pw.Alignment.centerRight,
         ),
         borderRadius: const pw.BorderRadius.only(
-          topLeft: pw.Radius.circular(12),
-          topRight: pw.Radius.circular(12),
+          topLeft: pw.Radius.circular(defaultRadius),
+          topRight: pw.Radius.circular(defaultRadius),
         ),
       ),
       child: pw.Row(
@@ -228,8 +228,8 @@ List<pw.Widget> buildBillsTableType1(
               .map(
                 (header) => pw.Padding(
                   padding: const pw.EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 10,
+                    horizontal: smallPadding,
+                    vertical: formPadding,
                   ),
                   child: pw.Text(
                     header,
@@ -417,7 +417,7 @@ pw.Widget _buildInfoChip(
   PdfColor? bgColor,
 ]) {
   return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    padding: const pw.EdgeInsets.symmetric(horizontal: smallPadding, vertical: 3),
     decoration: pw.BoxDecoration(
       color: bgColor ?? PdfColors.teal,
       borderRadius: pw.BorderRadius.circular(tinyRadius),
@@ -440,7 +440,7 @@ pw.Widget _buildModernCell(
   pw.TextAlign align = pw.TextAlign.center,
 }) {
   return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    padding: const pw.EdgeInsets.symmetric(horizontal: smallPadding, vertical: smallPadding),
     child: pw.Text(
       text,
       style: pw.TextStyle(
@@ -466,10 +466,10 @@ pw.Widget _buildStatusCell(String status, pw.Font font, bool isEven) {
       colors[status.toLowerCase()] ?? [PdfColors.grey100, PdfColors.grey800];
 
   return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    padding: const pw.EdgeInsets.symmetric(horizontal: smallPadding, vertical: smallPadding),
     child: pw.Center(
       child: pw.Container(
-        padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const pw.EdgeInsets.symmetric(horizontal: smallPadding, vertical: minimalPadding),
         decoration: pw.BoxDecoration(
           color: colorPair[0],
           borderRadius: pw.BorderRadius.circular(tinyRadius),
@@ -498,7 +498,7 @@ pw.Widget _buildAmountCell(
   PdfColor color,
 ) {
   return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    padding: const pw.EdgeInsets.symmetric(horizontal: smallPadding, vertical: smallPadding),
     child: pw.Text(
       "₹${NumberFormat('#,##,###').format(amount)}",
       style: pw.TextStyle(font: font, fontSize: fontSize, color: color),
@@ -514,9 +514,9 @@ pw.Widget _buildPercentageCell(
   bool isEven,
 ) {
   return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    padding: const pw.EdgeInsets.symmetric(horizontal: smallPadding, vertical: smallPadding),
     child: pw.Container(
-      padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: const pw.EdgeInsets.symmetric(horizontal: tinyPadding, vertical: 3),
       decoration: pw.BoxDecoration(
         color: const PdfColor.fromInt(0xFFE0F2FE),
         borderRadius: pw.BorderRadius.circular(tinyRadius),
@@ -543,7 +543,7 @@ pw.Widget _buildIncentiveAmountCell(
 ) {
   final isNegative = amount < 0;
   return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    padding: const pw.EdgeInsets.symmetric(horizontal: smallPadding, vertical: smallPadding),
     decoration: pw.BoxDecoration(
       color: isNegative
           ? const PdfColor.fromInt(0xFFFFEBEE)
@@ -574,8 +574,8 @@ pw.Widget _buildModernFooter(pw.Font font, PdfColor tealColor) {
     decoration: const pw.BoxDecoration(
       color: PdfColors.grey50,
       borderRadius: pw.BorderRadius.only(
-        bottomLeft: pw.Radius.circular(12),
-        bottomRight: pw.Radius.circular(12),
+        bottomLeft: pw.Radius.circular(defaultRadius),
+        bottomRight: pw.Radius.circular(defaultRadius),
       ),
     ),
     child: pw.Row(
@@ -588,7 +588,7 @@ pw.Widget _buildModernFooter(pw.Font font, PdfColor tealColor) {
               height: 12,
               decoration: pw.BoxDecoration(
                 color: tealColor,
-                borderRadius: pw.BorderRadius.circular(2),
+                borderRadius: pw.BorderRadius.circular(microRadius),
               ),
             ),
             pw.SizedBox(width: 6),

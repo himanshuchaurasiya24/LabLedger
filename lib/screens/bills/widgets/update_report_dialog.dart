@@ -283,8 +283,8 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                 decoration: BoxDecoration(
                   color: widget.color.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(largeRadius),
+                    topRight: Radius.circular(largeRadius),
                   ),
                   border: Border(
                     bottom: BorderSide(
@@ -412,12 +412,12 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                         child: Container(
                           height: 50,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
+                            horizontal: mediumPadding,
+                            vertical: defaultPadding,
                           ),
                           decoration: BoxDecoration(
                             color: widget.color.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(dialogRadius),
                             border: Border.all(
                               color: widget.color.withValues(alpha: 0.3),
                             ),
@@ -464,7 +464,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 32,
-                              vertical: 12,
+                              vertical: defaultPadding,
                             ),
                             child: SizedBox(
                               width: 20,
@@ -555,12 +555,12 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
             : allReports.where((r) => r.category == _selectedCategory).toList();
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: largePadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(intermediatePadding),
                 decoration: BoxDecoration(
                   color: widget.color.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(defaultRadius),
@@ -795,7 +795,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
             onTap: _pickLocalFile,
             borderRadius: BorderRadius.circular(mediumRadius),
             child: Container(
-              padding: const EdgeInsets.all(40),
+              padding: const EdgeInsets.all(xxlargePadding),
               decoration: BoxDecoration(
                 color: widget.color.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(mediumRadius),
@@ -809,7 +809,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(defaultPadding * 2),
+                    padding: EdgeInsets.all(defaultPadding * microPadding),
                     decoration: BoxDecoration(
                       color: widget.color.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
@@ -872,7 +872,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
                     padding: const EdgeInsets.all(defaultPadding),
                     decoration: BoxDecoration(
                       color: widget.color.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(dialogRadius),
                     ),
                     child: Icon(
                       _getFileIcon(_reportFileToUpload!.path),

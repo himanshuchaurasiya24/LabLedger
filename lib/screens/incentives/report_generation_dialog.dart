@@ -120,10 +120,10 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
       onClose: () => Navigator.of(context).pop({'generate': false}),
       content: Padding(
         padding: const EdgeInsets.only(
-          top: 8.0,
-          left: 24.0,
-          right: 24.0,
-          bottom: 24.0,
+          top: smallPadding,
+          left: xlargePadding,
+          right: xlargePadding,
+          bottom: xlargePadding,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,14 +164,14 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
                 const SizedBox(width: 10),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
+                    horizontal: smallPadding,
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.secondary.withAlpha(
                       38,
                     ), // 0.15 alpha
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(dialogRadius),
                   ),
                   child: Text(
                     '$_selectedCount/${_selectedFields.length}',
@@ -269,8 +269,8 @@ class _ReportGenerationDialogState extends State<ReportGenerationDialog>
                           setState(() => _selectedFields[key] = !isSelected),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
+                          horizontal: defaultPadding,
+                          vertical: formPadding,
                         ),
                         decoration: BoxDecoration(
                           color: isSelected

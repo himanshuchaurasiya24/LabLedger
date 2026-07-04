@@ -1,7 +1,6 @@
 // screens/ui_components/cards/chart_stats_card.dart
 
 import 'package:flutter/material.dart';
-import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
@@ -13,12 +12,14 @@ class ChartStatsCard extends StatefulWidget {
   final String title;
   final List<ChartData> data;
   final Color baseColor;
+  final VoidCallback? onTap;
 
   const ChartStatsCard({
     super.key,
     required this.title,
     required this.data,
     required this.baseColor,
+    this.onTap,
   });
 
   @override
@@ -72,9 +73,14 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     // NEW: Set a minimum height for the card
     return TintedContainer(
       baseColor: widget.baseColor,
+      onTap: widget.onTap,
       // CHANGED: Make the card's content scrollable
-      child: SingleChildScrollView(
-        child: Column(
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(defaultRadius),
+        clipBehavior: Clip.antiAlias,
+        child: SingleChildScrollView(
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
@@ -128,7 +134,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   // NEW: Extracted breakdown row to its own method
@@ -139,7 +145,7 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
     final barWidth = rawBarWidth.isFinite ? rawBarWidth.clamp(0.0, 1.0) : 0.0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: microPadding),
       child: Row(
         children: [
           Expanded(
@@ -244,10 +250,10 @@ class _ChartStatsCardState extends State<ChartStatsCard> {
 
   Widget _buildBadge(BuildContext context, bool isDark) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: mediumPadding, vertical: minimalPadding),
       decoration: BoxDecoration(
         color: isDark ? accentFillColor : importantTextColor,
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(pillRadius),
       ),
       child: const Center(
         child: Text(
@@ -275,19 +281,15 @@ Widget buildChartStatsCard(
   return chartStatsAsync.when(
     data: (chartResponse) {
       final chartData = chartResponse.getDataForPeriod(selectedPeriod);
-      return AppInkWell(
-        borderRadius: BorderRadius.circular(defaultRadius),
-        mouseCursor: SystemMouseCursors.click,
+      return ChartStatsCard(
+        title: selectedPeriod,
+        baseColor: accentColor,
+        data: chartData,
         onTap: () {
           navigatorKey.currentState?.push(
             MaterialPageRoute(builder: (context) => const BillsScreen()),
           );
         },
-        child: ChartStatsCard(
-          title: selectedPeriod,
-          baseColor: accentColor,
-          data: chartData,
-        ),
       );
     },
     loading: () => Center(child: CircularProgressIndicator(color: accentColor)),

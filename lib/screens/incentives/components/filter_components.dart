@@ -409,8 +409,9 @@ class _CompactMultiSelectDropdownState<T>
       builder: (context) => Stack(
         children: [
           Positioned.fill(
-            child: AppInkWell(
+            child: GestureDetector(
               onTap: _closeDropdown,
+              behavior: HitTestBehavior.opaque,
               child: Container(color: Colors.transparent),
             ),
           ),
@@ -425,12 +426,14 @@ class _CompactMultiSelectDropdownState<T>
                 disablePadding: true,
                 elevationLevel: 4,
                 intensity: 0.08,
-                child: SizedBox(
-                  width: size.width,
-                  child: Container(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(defaultRadius),
+                  child: SizedBox(
+                    width: size.width,
+                    child: Container(
                     constraints: BoxConstraints(maxHeight: 250),
                     child: SingleChildScrollView(
-                      padding: EdgeInsets.all(defaultPadding / 2),
+                      padding: EdgeInsets.all(defaultPadding / microPadding),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -483,6 +486,7 @@ class _CompactMultiSelectDropdownState<T>
               ),
             ),
           ),
+          ),
         ],
       ),
     );
@@ -508,9 +512,10 @@ class _CompactMultiSelectDropdownState<T>
       link: _layerLink,
       child: AppInkWell(
         onTap: _toggleDropdown,
+        borderRadius: BorderRadius.circular(defaultRadius),
         child: Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          padding: EdgeInsets.symmetric(horizontal: intermediatePadding, vertical: formPadding),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(defaultRadius),
@@ -586,9 +591,9 @@ class _DropdownItem<T> extends ConsumerWidget {
       color: Colors.transparent,
       child: AppInkWell(
         onTap: () => onTap(value),
-        borderRadius: BorderRadius.circular(defaultRadius / 2),
+        borderRadius: BorderRadius.circular(defaultRadius / microRadius),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: formPadding, vertical: formPadding),
           child: Row(
             children: [
               Container(

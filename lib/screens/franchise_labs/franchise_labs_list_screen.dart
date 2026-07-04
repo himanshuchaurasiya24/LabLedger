@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
@@ -187,9 +186,7 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
 
     return TintedContainer(
       baseColor: effectiveColor,
-      child: AppInkWell(
-        borderRadius: BorderRadius.circular(defaultRadius),
-        onTap: onTap,
+      onTap: onTap,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -258,7 +255,6 @@ class _FranchiseListScreenState extends ConsumerState<FranchiseListScreen>
             ),
           ],
         ),
-      ),
     );
   }
 

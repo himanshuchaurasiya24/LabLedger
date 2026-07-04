@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/screens/ui_components/app_inkwell.dart';
+import 'package:labledger/constants/constants.dart';
 
 class CustomFilterChips extends StatefulWidget {
   const CustomFilterChips({
@@ -26,7 +27,7 @@ class _CustomFilterChipsState extends State<CustomFilterChips> {
         widget.primaryColor ?? Theme.of(context).colorScheme.secondary;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: minimalPadding),
       child: AppInkWell(
         borderRadius: BorderRadius.circular(25),
 
@@ -34,7 +35,7 @@ class _CustomFilterChipsState extends State<CustomFilterChips> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: defaultPadding),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
             color: isDark

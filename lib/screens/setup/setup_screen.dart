@@ -8,6 +8,7 @@ import 'package:labledger/screens/setup/pages/license_page.dart';
 import 'package:labledger/screens/ui_components/custom_elevated_button.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:labledger/screens/setup/methods/setup_methods.dart';
+import 'package:labledger/constants/constants.dart';
 
 class SetupScreen extends ConsumerStatefulWidget {
   final AuthResponse authResponse;
@@ -117,7 +118,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   Widget _buildBottomNav() {
     return Padding(
-      padding: const EdgeInsets.all(40.0),
+      padding: const EdgeInsets.all(xxlargePadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [

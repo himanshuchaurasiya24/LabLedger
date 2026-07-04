@@ -16,7 +16,7 @@ class SetupLicensePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.all(40.0),
+      padding: const EdgeInsets.all(xxlargePadding),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1000),

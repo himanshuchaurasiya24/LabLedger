@@ -59,7 +59,7 @@ class DiagnosisDetailsCard extends StatelessWidget {
       radius: defaultRadius,
       elevationLevel: 1,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.only(bottom: mediumPadding),
         child: Column(
           children: [
             CardHeader(

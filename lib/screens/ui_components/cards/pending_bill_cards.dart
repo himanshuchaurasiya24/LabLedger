@@ -163,17 +163,20 @@ class PendingBillsCard extends StatelessWidget {
     final solidChipBg = importantTextColor(context);
     final solidChipFg = isDark ? baseColor : Colors.white;
 
-    return AppInkWell(
-      onTap: onBillTap != null ? () => onBillTap!(bill) : null,
-      child: Container(
-        padding: const EdgeInsets.all(smallPadding),
-        decoration: BoxDecoration(
-          color: backgroundColor(context),
-          borderRadius: BorderRadius.circular(defaultRadius),
-          border: Border.all(color: baseColor.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: backgroundColor(context),
+        borderRadius: BorderRadius.circular(defaultRadius),
+        border: Border.all(color: baseColor.withValues(alpha: 0.3)),
+      ),
+      child: AppInkWell(
+        onTap: onBillTap != null ? () => onBillTap!(bill) : null,
+        borderRadius: BorderRadius.circular(defaultRadius),
+        child: Padding(
+          padding: const EdgeInsets.all(smallPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +186,7 @@ class PendingBillsCard extends StatelessWidget {
                   height: 44,
                   decoration: BoxDecoration(
                     color: accentFillColor(context),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(dialogRadius),
                   ),
                   child: Icon(
                     Icons.person_outline,
@@ -230,8 +233,8 @@ class PendingBillsCard extends StatelessWidget {
             ),
             SizedBox(height: defaultHeight / 2),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: smallPadding,
+              runSpacing: smallPadding,
               children: [
                 _buildDetailChip(
                   context,
@@ -275,7 +278,7 @@ class PendingBillsCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildDetailChip(

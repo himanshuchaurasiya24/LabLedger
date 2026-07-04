@@ -133,7 +133,7 @@ Widget customBar({
     children: [
       Container(
         height: MediaQuery.of(context).size.height / 10,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: largePadding, vertical: mediumPadding),
         decoration: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.light
               ? containerLightColor
@@ -179,7 +179,7 @@ class ThemeToggleBar extends ConsumerWidget {
       child: DropdownButton<ThemeMode>(
         value: themeMode,
         dropdownColor: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(dialogRadius),
         underline: const SizedBox.shrink(),
         onChanged: (mode) {
           if (mode != null) {
@@ -296,7 +296,7 @@ class SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
+        margin: const EdgeInsets.symmetric(horizontal: smallPadding),
         padding: const EdgeInsets.all(mediumPadding),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,

@@ -233,8 +233,8 @@ class _DiagnosisTypeBillsListScreenState
                     const SizedBox(height: minimalPadding),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: smallPadding,
+                        vertical: minimalPadding,
                       ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary.withValues(alpha: 0.1),

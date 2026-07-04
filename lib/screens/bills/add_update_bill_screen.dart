@@ -290,7 +290,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
     final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: largePadding, vertical: formPadding),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(defaultRadius),
@@ -306,7 +306,7 @@ class _AddUpdateBillScreenState extends ConsumerState<AddUpdateBillScreen>
         controller: _tabController,
         indicator: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(dialogRadius),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         labelColor: Colors.white,

@@ -39,7 +39,7 @@ class PremiumDialog extends StatelessWidget {
       child: Dialog(
         elevation: 24,
         shadowColor: Colors.black45,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(xlargeRadius)),
         clipBehavior: Clip.antiAlias,
         child: Container(
           width: width,
@@ -47,7 +47,7 @@ class PremiumDialog extends StatelessWidget {
           constraints: BoxConstraints(maxHeight: maxHeight),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(xlargeRadius),
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.1),
               width: 1,
@@ -67,7 +67,7 @@ class PremiumDialog extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context, ThemeData theme) {
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(dialogPadding),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [

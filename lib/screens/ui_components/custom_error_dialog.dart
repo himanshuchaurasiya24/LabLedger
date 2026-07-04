@@ -47,7 +47,7 @@ class ErrorDialog extends StatelessWidget {
                           color: theme.colorScheme.errorContainer.withValues(
                             alpha: 0.28,
                           ),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(dialogRadius),
                           border: Border.all(
                             color: accentColor.withValues(alpha: 0.25),
                           ),
@@ -71,7 +71,7 @@ class ErrorDialog extends StatelessWidget {
                             color: theme.colorScheme.surface.withValues(
                               alpha: 0.7,
                             ),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(dialogRadius),
                             border: Border.all(
                               color: theme.colorScheme.outline.withValues(
                                 alpha: 0.2,
@@ -112,7 +112,7 @@ class ErrorDialog extends StatelessWidget {
                         backgroundColor: theme.colorScheme.secondary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(dialogRadius),
                         ),
                       ),
                       icon: const Icon(Icons.check_rounded),

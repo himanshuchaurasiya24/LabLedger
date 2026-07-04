@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
+import 'package:labledger/screens/ui_components/app_inkwell.dart';
 
 class TintedContainer extends StatelessWidget {
   const TintedContainer({
@@ -13,6 +14,7 @@ class TintedContainer extends StatelessWidget {
     this.intensity = 0.1, // Controls tint intensity
     this.useGradient = true, // Enable gradient backgrounds
     this.elevationLevel = 1, // Shadow elevation (0-5)
+    this.onTap,
   });
 
   final Color baseColor;
@@ -24,6 +26,7 @@ class TintedContainer extends StatelessWidget {
   final double intensity;
   final bool useGradient;
   final int elevationLevel;
+  final VoidCallback? onTap;
 
   // --- 🎨 Enhanced Color Logic ---
   Color _getBackgroundColor(BuildContext context) {
@@ -137,18 +140,38 @@ class TintedContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget content = child;
+    final paddingInsets = disablePadding ? null : EdgeInsets.all(defaultPadding);
+    final currentBorderRadius = BorderRadius.circular(radius ?? defaultRadius);
+
+    if (onTap != null) {
+      content = AppInkWell(
+        onTap: onTap,
+        borderRadius: currentBorderRadius,
+        child: Padding(
+          padding: paddingInsets ?? EdgeInsets.zero,
+          child: content,
+        ),
+      );
+    } else if (paddingInsets != null) {
+      content = Padding(
+        padding: paddingInsets,
+        child: content,
+      );
+    }
+
     return Container(
+      clipBehavior: Clip.antiAlias,
       height: height ?? tintedContainerHeight,
       width: width,
-      padding: disablePadding ? null : EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: useGradient ? null : _getBackgroundColor(context),
         gradient: _getGradient(context),
-        borderRadius: BorderRadius.circular(radius ?? defaultRadius),
+        borderRadius: currentBorderRadius,
         border: Border.all(color: _getBorderColor(context), width: 1.0),
         boxShadow: _getShadows(context),
       ),
-      child: child,
+      child: content,
     );
   }
 }

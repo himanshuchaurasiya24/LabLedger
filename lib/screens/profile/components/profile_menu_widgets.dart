@@ -25,7 +25,7 @@ class ProfileMenuItem extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(smallRadius),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: mediumPadding, vertical: defaultPadding),
         child: Row(
           children: [
             Container(
@@ -85,7 +85,7 @@ class ProfileThemeOption extends StatelessWidget {
     return AppInkWell(
       onTap: () => onSelect(themeMode),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: smallPadding),
         child: Row(
           children: [
             Icon(
@@ -138,7 +138,7 @@ class ProfileMessageOption extends StatelessWidget {
     return AppInkWell(
       onTap: () => onSelect(messagePlatform),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: smallPadding),
         child: Row(
           children: [
             Icon(

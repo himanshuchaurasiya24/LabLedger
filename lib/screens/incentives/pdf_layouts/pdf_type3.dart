@@ -83,9 +83,9 @@ List<pw.Widget> buildBillsTableType3(
   return [
     pw.Container(
       padding: pw.EdgeInsets.only(
-        left: defaultPadding / 2,
-        right: defaultPadding / 2,
-        top: defaultPadding / 2,
+        left: defaultPadding / microPadding,
+        right: defaultPadding / microPadding,
+        top: defaultPadding / microPadding,
       ),
       decoration: pw.BoxDecoration(
         borderRadius: pw.BorderRadius.only(
@@ -148,8 +148,8 @@ List<pw.Widget> buildBillsTableType3(
               ),
               pw.Container(
                 padding: const pw.EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
+                  horizontal: defaultPadding,
+                  vertical: tinyPadding,
                 ),
                 decoration: pw.BoxDecoration(
                   color: lightBlueColor,
@@ -187,7 +187,7 @@ List<pw.Widget> buildBillsTableType3(
       ),
     ),
     pw.Padding(
-      padding: pw.EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+      padding: pw.EdgeInsets.symmetric(horizontal: defaultPadding / microPadding),
       child: pw.Table(
         border: pw.TableBorder.all(color: PdfColors.grey300, width: 1),
         columnWidths: columnWidths,
@@ -199,8 +199,8 @@ List<pw.Widget> buildBillsTableType3(
                   (header) => pw.Center(
                     child: pw.Padding(
                       padding: pw.EdgeInsets.symmetric(
-                        horizontal: defaultPadding / 2,
-                        vertical: defaultPadding / 4,
+                        horizontal: defaultPadding / microPadding,
+                        vertical: defaultPadding / minimalPadding,
                       ),
                       child: pw.Text(
                         header,
@@ -314,8 +314,8 @@ List<pw.Widget> buildBillsTableType3(
 pw.Widget _buildLabLedgerBrandingFooter(pw.Font font) {
   return pw.Padding(
     padding: pw.EdgeInsets.symmetric(
-      horizontal: defaultPadding / 2,
-      vertical: defaultPadding / 2,
+      horizontal: defaultPadding / microPadding,
+      vertical: defaultPadding / microPadding,
     ),
     child: pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.end,
@@ -337,7 +337,7 @@ pw.Widget _buildLabLedgerBrandingFooter(pw.Font font) {
 
 pw.Widget _buildTableCell(String text, double fontSize, pw.Font font) =>
     pw.Container(
-      padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      padding: const pw.EdgeInsets.symmetric(horizontal: tinyPadding, vertical: tinyPadding),
       child: pw.Text(
         text,
         style: pw.TextStyle(
@@ -360,9 +360,9 @@ pw.Widget _buildPaymentStatusCell(String status, pw.Font font) {
   final colorPair =
       colors[status.toLowerCase()] ?? [PdfColors.grey100, PdfColors.grey800];
   return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+    padding: const pw.EdgeInsets.symmetric(horizontal: tinyPadding, vertical: tinyPadding),
     child: pw.Container(
-      padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const pw.EdgeInsets.symmetric(horizontal: smallPadding, vertical: 3),
       decoration: pw.BoxDecoration(
         color: colorPair[0],
         borderRadius: pw.BorderRadius.circular(defaultRadius),
@@ -383,7 +383,7 @@ pw.Widget _buildPaymentStatusCell(String status, pw.Font font) {
 
 pw.Widget _buildIncentiveCell(int amount, pw.Font font) {
   return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+    padding: const pw.EdgeInsets.symmetric(horizontal: tinyPadding, vertical: tinyPadding),
     child: pw.Text(
       "₹${NumberFormat('#,##,###').format(amount)}",
       style: pw.TextStyle(

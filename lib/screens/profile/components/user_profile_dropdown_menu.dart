@@ -149,8 +149,8 @@ class CustomDropdownMenu extends ConsumerWidget {
                                           const SizedBox(height: 2),
                                           Container(
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 2,
+                                              horizontal: smallPadding,
+                                              vertical: microPadding,
                                             ),
                                             decoration: BoxDecoration(
                                               color: baseColor.withValues(
@@ -422,7 +422,7 @@ class _QuotaBar extends StatelessWidget {
         : bucket.normalizedUsage;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: defaultPadding, vertical: formPadding),
       decoration: BoxDecoration(
         color: isDark ? Colors.grey.shade800 : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(defaultRadius),
@@ -451,7 +451,7 @@ class _QuotaBar extends StatelessWidget {
           ),
           const SizedBox(height: smallPadding),
           ClipRRect(
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(circularRadius),
             child: LinearProgressIndicator(
               minHeight: 6,
               value: progressValue.clamp(0, 1),

@@ -109,7 +109,7 @@ class PaginatedBillsView extends ConsumerWidget {
       },
       loading: () => const Center(
         child: Padding(
-          padding: EdgeInsets.all(50.0),
+          padding: EdgeInsets.all(massivePadding),
           child: CircularProgressIndicator(),
         ),
       ),

@@ -96,7 +96,7 @@ class ShimmerListLoading extends StatelessWidget {
         3,
         (index) => Container(
           height: 100,
-          margin: const EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: mediumPadding),
           decoration: BoxDecoration(
             color: shimmerColor,
             borderRadius: BorderRadius.circular(smallRadius),

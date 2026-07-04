@@ -40,7 +40,7 @@ Future<bool> showCustomConfirmationDialog({
           children: [
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 22, 24, 18),
+                padding: const EdgeInsets.fromLTRB(xlargePadding, 22, xlargePadding, 18),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -188,7 +188,7 @@ class _FranchiseEditScreenState extends ConsumerState<FranchiseEditScreen>
             child: Form(
               key: _detailsFormKey,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.only(bottom: largePadding),
                 child: Column(
                   children: [
                     CustomTextField(

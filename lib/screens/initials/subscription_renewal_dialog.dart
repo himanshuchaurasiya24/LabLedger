@@ -115,7 +115,7 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
               Container(
                 width: double.infinity,
                 margin: EdgeInsets.fromLTRB(defaultPadding, defaultPadding, defaultPadding, 0),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: mediumPadding, vertical: defaultPadding),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.errorContainer.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(defaultRadius),
@@ -156,7 +156,7 @@ class _SubscriptionRenewalDialogState extends State<SubscriptionRenewalDialog> {
         if (snapshot.hasError) {
           return Center(
             child: Padding(
-              padding: EdgeInsets.all(defaultPadding * 2),
+              padding: EdgeInsets.all(defaultPadding * microPadding),
               child: Text(
                 'Unable to load plans. Please try again in a moment.',
                 style: theme.textTheme.bodyMedium,

@@ -139,7 +139,7 @@ class _CategoryEditScreenState extends ConsumerState<CategoryEditScreen>
             child: Form(
               key: _formKey,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.only(bottom: largePadding),
                 child: Column(
                   children: [
                     CustomTextField(

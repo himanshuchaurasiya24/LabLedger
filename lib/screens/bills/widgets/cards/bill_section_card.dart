@@ -11,7 +11,7 @@ class BillSectionCard extends StatelessWidget {
     required this.child,
     this.height,
     this.elevationLevel = 1,
-    this.bottomPadding = const EdgeInsets.only(bottom: 16),
+    this.bottomPadding = const EdgeInsets.only(bottom: mediumPadding),
   });
 
   final Color baseColor;

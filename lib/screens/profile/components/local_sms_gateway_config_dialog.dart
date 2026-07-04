@@ -59,7 +59,7 @@ class _LocalSmsGatewayConfigDialogState
       subtitle: 'Configure connection details for your local SMS gateway app',
       expandContent: false,
       content: Padding(
-        padding: const EdgeInsets.all(28.0),
+        padding: const EdgeInsets.all(dialogPadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

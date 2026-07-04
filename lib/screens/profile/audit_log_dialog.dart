@@ -69,7 +69,7 @@ class AuditLogDialog extends ConsumerWidget {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+                        padding: const EdgeInsets.fromLTRB(defaultPadding, tinyPadding, defaultPadding, defaultPadding),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surfaceContainerHighest
                               .withValues(alpha: 0.35),
@@ -112,7 +112,7 @@ class _AuditLogCard extends StatelessWidget {
     final actionColor = _actionColor(theme, log.action);
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: defaultPadding / 2, vertical: 4),
+      margin: EdgeInsets.symmetric(horizontal: defaultPadding / microPadding, vertical: minimalPadding),
       padding: EdgeInsets.all(defaultPadding * 1.2),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -133,12 +133,12 @@ class _AuditLogCard extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
+                  horizontal: formPadding,
+                  vertical: minimalPadding,
                 ),
                 decoration: BoxDecoration(
                   color: actionColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(circularRadius),
                   border: Border.all(
                     color: actionColor.withValues(alpha: 0.35),
                   ),
@@ -272,7 +272,7 @@ class _AuditErrorView extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(defaultPadding * 2),
+        padding: EdgeInsets.all(defaultPadding * microPadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

@@ -255,7 +255,7 @@ class DoctorIncentiveExpansionTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: defaultPadding),
           child: Text(
             "Bill Details (${bills.length} bills)",
             style: theme.textTheme.titleMedium?.copyWith(
@@ -326,8 +326,8 @@ class DoctorIncentiveExpansionTile extends StatelessWidget {
                   DataCell(
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
+                        horizontal: smallPadding,
+                        vertical: microPadding,
                       ),
                       decoration: BoxDecoration(
                         color: statusColor.withAlpha(51),
@@ -427,7 +427,7 @@ class DoctorIncentiveExpansionTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(defaultRadius),
         side: BorderSide(color: cardColor, width: 1),
       ),
-      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      childrenPadding: const EdgeInsets.fromLTRB(mediumPadding, 0, mediumPadding, mediumPadding),
       leading: CircleAvatar(
         radius: 24,
         backgroundColor: cardColor.withAlpha(51),
@@ -453,7 +453,7 @@ class DoctorIncentiveExpansionTile extends StatelessWidget {
         ),
       ),
       trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: defaultPadding, vertical: tinyPadding),
         decoration: BoxDecoration(
           color: incentiveColor.withAlpha(51),
           borderRadius: BorderRadius.circular(largeRadius),

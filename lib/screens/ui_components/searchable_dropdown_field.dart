@@ -205,8 +205,8 @@ class _SearchableMenuContentState<T> extends State<_SearchableMenuContent<T>>
                 prefixIcon: Icon(Icons.search, size: 18, color: widget.color),
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(
-                  vertical: 10.0,
-                  horizontal: 12.0,
+                  vertical: formPadding,
+                  horizontal: defaultPadding,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(defaultRadius),

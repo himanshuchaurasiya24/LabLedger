@@ -30,7 +30,7 @@ class CustomActionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(defaultRadius),
         ),
         child: Padding(
-          padding:  EdgeInsets.symmetric(horizontal: defaultPadding*2, vertical: defaultPadding),
+          padding:  EdgeInsets.symmetric(horizontal: defaultPadding*microPadding, vertical: defaultPadding),
           child: Text(
             label,
             style: theme.textTheme.labelLarge?.copyWith(

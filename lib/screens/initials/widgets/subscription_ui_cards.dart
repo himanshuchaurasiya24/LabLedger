@@ -31,7 +31,7 @@ class SubscriptionPlanCard extends StatelessWidget {
         planContext.canShowUpgradeDialog && plan.planIndex > currentPlanIndex;
 
     return Container(
-      margin: EdgeInsets.only(bottom: defaultHeight / 4),
+      margin: EdgeInsets.only(bottom: defaultHeight / minimalPadding),
       padding: EdgeInsets.all(defaultPadding * 1.5),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -65,16 +65,16 @@ class SubscriptionPlanCard extends StatelessWidget {
               ),
               if (isCurrentExpiredPlan)
                 Container(
-                  margin: const EdgeInsets.only(right: 8),
+                  margin: const EdgeInsets.only(right: smallPadding),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+                    horizontal: formPadding,
+                    vertical: minimalPadding,
                   ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.error.withValues(
                       alpha: 0.1,
                     ),
-                    borderRadius: BorderRadius.circular(99),
+                    borderRadius: BorderRadius.circular(circularRadius),
                     border: Border.all(
                       color: theme.colorScheme.error.withValues(
                         alpha: 0.4,
@@ -92,14 +92,14 @@ class SubscriptionPlanCard extends StatelessWidget {
                 ),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
+                  horizontal: formPadding,
+                  vertical: minimalPadding,
                 ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary.withValues(
                     alpha: 0.1,
                   ),
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(circularRadius),
                 ),
                 child: Text(
                   'Price: ${plan.formattedPrice}',
@@ -117,8 +117,8 @@ class SubscriptionPlanCard extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 8,
+                horizontal: formPadding,
+                vertical: smallPadding,
               ),
               decoration: BoxDecoration(
                 color: theme.colorScheme.error.withValues(alpha: 0.1),
@@ -203,7 +203,7 @@ class SubscriptionCustomCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      margin: EdgeInsets.only(bottom: defaultHeight / 4),
+      margin: EdgeInsets.only(bottom: defaultHeight / minimalPadding),
       padding: EdgeInsets.all(defaultPadding * 1.5),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -234,12 +234,12 @@ class SubscriptionCustomCard extends StatelessWidget {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
+                  horizontal: formPadding,
+                  vertical: minimalPadding,
                 ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.secondary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(circularRadius),
                 ),
                 child: Text(
                   'Custom',
@@ -288,7 +288,7 @@ class SubscriptionContactCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      margin: EdgeInsets.only(bottom: defaultHeight / 4),
+      margin: EdgeInsets.only(bottom: defaultHeight / minimalPadding),
       padding: EdgeInsets.all(defaultPadding * 1.5),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -318,7 +318,7 @@ class SubscriptionContactCard extends StatelessWidget {
             onTap: onContactSupport,
             borderRadius: BorderRadius.circular(defaultRadius),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: defaultPadding, vertical: formPadding),
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(defaultRadius),
@@ -366,10 +366,10 @@ class SubscriptionQuotaChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: formPadding, vertical: tinyPadding),
       decoration: BoxDecoration(
         color: theme.colorScheme.secondary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(99),
+        borderRadius: BorderRadius.circular(circularRadius),
       ),
       child: Text(
         '$label: $value',

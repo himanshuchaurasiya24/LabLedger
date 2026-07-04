@@ -171,8 +171,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: defaultPadding * 2,
-                vertical: defaultPadding / 2,
+                horizontal: defaultPadding * microPadding,
+                vertical: defaultPadding / microPadding,
               ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(defaultRadius),

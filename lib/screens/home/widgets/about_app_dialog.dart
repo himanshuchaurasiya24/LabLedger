@@ -21,7 +21,7 @@ class AboutAppDialog extends StatelessWidget {
       filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
       child: Dialog(
         backgroundColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(xlargeRadius)),
         clipBehavior: Clip.antiAlias,
         child: TintedContainer(
           baseColor: theme.colorScheme.primary,
@@ -38,7 +38,7 @@ class AboutAppDialog extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
                     vertical: 32,
-                    horizontal: 24,
+                    horizontal: xlargePadding,
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -76,8 +76,8 @@ class AboutAppDialog extends StatelessWidget {
 
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 6,
+                          horizontal: mediumPadding,
+                          vertical: tinyPadding,
                         ),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.primary.withValues(
@@ -219,7 +219,7 @@ class AboutAppDialog extends StatelessWidget {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
                             child: Text(
                               'POWERED BY',
                               style: theme.textTheme.labelSmall?.copyWith(
@@ -311,7 +311,7 @@ class AboutAppDialog extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(intermediatePadding),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(defaultRadius),
@@ -326,7 +326,7 @@ class AboutAppDialog extends StatelessWidget {
             padding: const EdgeInsets.all(smallPadding),
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(dialogRadius),
               boxShadow: [
                 BoxShadow(
                   color: color.withValues(alpha: 0.1),

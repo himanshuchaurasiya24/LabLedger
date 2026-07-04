@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/main.dart';
@@ -150,19 +149,17 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen>
 
     return TintedContainer(
       baseColor: effectiveColor,
-      child: AppInkWell(
-        borderRadius: BorderRadius.circular(defaultRadius),
-        onTap: isAdmin
-            ? () {
-                navigatorKey.currentState?.push(
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CategoryEditScreen(category: category),
-                  ),
-                );
-              }
-            : null,
-        child: Padding(
+      onTap: isAdmin
+          ? () {
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      CategoryEditScreen(category: category),
+                ),
+              );
+            }
+          : null,
+      child: Padding(
           padding: EdgeInsets.all(defaultPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,7 +221,6 @@ class _CategoryListScreenState extends ConsumerState<CategoryListScreen>
             ],
           ),
         ),
-      ),
     );
   }
 

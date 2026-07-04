@@ -104,10 +104,14 @@ class _BillStatsCardState extends State<BillStatsCard> {
         ? baseColor.withValues(alpha: 0.6)
         : baseColor.withValues(alpha: 0.15);
 
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        PageView.builder(
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(defaultRadius),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          PageView.builder(
           controller: _pageController,
           itemCount: 2,
           onPageChanged: (index) {
@@ -161,7 +165,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
           ),
         ),
       ],
-    );
+    ));
   }
 
   Widget _buildInfoPage({
@@ -248,10 +252,10 @@ class _BillStatsCardState extends State<BillStatsCard> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: mediumPadding, vertical: minimalPadding),
           decoration: BoxDecoration(
             color: isDark ? accent : text,
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(pillRadius),
           ),
           child: const Center(
             child: Text(
@@ -324,7 +328,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
     Color accentColor,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: microPadding),
       child: Row(
         children: [
           Expanded(
@@ -424,7 +428,7 @@ class _BillStatsCardState extends State<BillStatsCard> {
   }) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      margin: const EdgeInsets.symmetric(horizontal: 4.0),
+      margin: const EdgeInsets.symmetric(horizontal: minimalPadding),
       height: 8.0,
       width: isActive ? 24.0 : 8.0,
       decoration: BoxDecoration(

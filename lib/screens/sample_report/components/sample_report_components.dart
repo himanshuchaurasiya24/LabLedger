@@ -74,10 +74,10 @@ class _ReportFormDialogState extends ConsumerState<ReportFormDialog> {
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(formPadding),
                           decoration: BoxDecoration(
                             color: widget.themeColor.withValues(alpha: 0.16),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(dialogRadius),
                           ),
                           child: Icon(
                             Icons.description,

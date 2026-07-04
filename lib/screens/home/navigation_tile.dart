@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
-import 'package:labledger/screens/ui_components/app_inkwell.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 
 class NavigationTile extends StatelessWidget {
@@ -21,43 +20,40 @@ class NavigationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppInkWell(
-      borderRadius: BorderRadius.circular(defaultRadius),
+    return TintedContainer(
+      height: height,
+      baseColor: color,
       onTap: onTap,
-      child: TintedContainer(
-        height: height,
-        baseColor: color,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Icon(
-              icon,
-              color: color,
-              size: 50,
-            ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 50,
+          ),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: smallPadding),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
-            Icon(
-              Icons.arrow_forward_ios_outlined,
-              color: color,
-              size: 30,
-            ),
-          ],
-        ),
+          ),
+          Icon(
+            Icons.arrow_forward_ios_outlined,
+            color: color,
+            size: 30,
+          ),
+        ],
       ),
     );
   }

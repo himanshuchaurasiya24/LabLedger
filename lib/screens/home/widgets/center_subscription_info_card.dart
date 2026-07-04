@@ -47,12 +47,12 @@ class CenterSubscriptionInfoCard extends StatelessWidget {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
+                  horizontal: formPadding,
+                  vertical: minimalPadding,
                 ),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(99),
+                  borderRadius: BorderRadius.circular(circularRadius),
                 ),
                 child: Text(
                   isActive ? 'Active' : 'Expired',

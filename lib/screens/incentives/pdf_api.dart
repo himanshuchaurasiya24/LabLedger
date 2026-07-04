@@ -28,7 +28,7 @@ Future<Uint8List> createPDF({
   pdf.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4.portrait,
-      margin: pw.EdgeInsets.all(defaultPadding / 2),
+      margin: pw.EdgeInsets.all(defaultPadding / microPadding),
 
       build: (pw.Context context) {
         final List<pw.Widget> allWidgets = [];

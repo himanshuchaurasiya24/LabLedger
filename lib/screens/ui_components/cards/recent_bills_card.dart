@@ -155,7 +155,7 @@ class RecentBillsCard extends StatelessWidget {
           );
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
+          padding: const EdgeInsets.symmetric(vertical: tinyPadding, horizontal: minimalPadding),
           child: Row(
             children: [
               // --- Status Icon ---

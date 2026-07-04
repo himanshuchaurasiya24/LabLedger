@@ -136,7 +136,7 @@ class BillCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: cardBorderRadius,
 
-      child: Container(
+      child: Ink(
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: cardBorderRadius,

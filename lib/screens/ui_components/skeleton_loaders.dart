@@ -25,7 +25,7 @@ Widget buildEntitySkeletonLoader(BuildContext context, Color shimmerColor) {
             width: 150,
             decoration: BoxDecoration(
               color: shimmerColor,
-              borderRadius: BorderRadius.circular(7),
+              borderRadius: BorderRadius.circular(skeletonRadius),
             ),
           ),
         ],
@@ -62,7 +62,7 @@ Widget buildCategorySkeletonLoader(BuildContext context, Color shimmerColor) {
                   width: 180,
                   decoration: BoxDecoration(
                     color: shimmerColor,
-                    borderRadius: BorderRadius.circular(7),
+                    borderRadius: BorderRadius.circular(skeletonRadius),
                   ),
                 ),
               ],

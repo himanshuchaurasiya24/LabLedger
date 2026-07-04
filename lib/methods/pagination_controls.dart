@@ -101,7 +101,7 @@ class _PaginationControlsState extends State<PaginationControls>
     final totalPages = (widget.totalItems / widget.itemsPerPage).ceil();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: mediumPadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

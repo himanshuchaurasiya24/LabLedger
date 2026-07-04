@@ -109,9 +109,13 @@ class _ReferralCardState extends State<ReferralCard> {
   Widget build(BuildContext context) {
     final displayReferrers = _getDisplayReferrers();
 
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(defaultRadius),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
         SizedBox(
           height: tintedContainerHeight,
           child: PageView.builder(
@@ -149,7 +153,7 @@ class _ReferralCardState extends State<ReferralCard> {
             ),
           ),
       ],
-    );
+    ));
   }
 
   Widget _buildIndicator({
@@ -159,7 +163,7 @@ class _ReferralCardState extends State<ReferralCard> {
   }) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      margin: const EdgeInsets.symmetric(horizontal: 4.0),
+      margin: const EdgeInsets.symmetric(horizontal: minimalPadding),
       height: 8.0,
       width: isActive ? 24.0 : 8.0,
       decoration: BoxDecoration(
@@ -188,12 +192,12 @@ class _ReferralCardState extends State<ReferralCard> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+                  horizontal: mediumPadding,
+                  vertical: smallPadding,
                 ),
                 decoration: BoxDecoration(
                   color: isDark ? accentFillColor : importantTextColor,
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(pillRadius),
                 ),
                 child: Text(
                   cardTitle,
@@ -263,7 +267,7 @@ class _ReferralCardState extends State<ReferralCard> {
                     ? entry.value / referrer.total
                     : 0.0;
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  padding: const EdgeInsets.symmetric(vertical: microPadding),
                   child: Row(
                     children: [
                       Expanded(

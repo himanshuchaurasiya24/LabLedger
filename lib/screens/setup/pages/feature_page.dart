@@ -19,11 +19,11 @@ class FeaturePage extends StatelessWidget {
     return Center(
       child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(40.0),
+          padding: const EdgeInsets.all(xxlargePadding),
           child: Container(
             constraints: const BoxConstraints(maxWidth: 800),
             child: Padding(
-              padding: const EdgeInsets.all(40.0),
+              padding: const EdgeInsets.all(xxlargePadding),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,

@@ -236,7 +236,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
                             Padding(
                               padding: EdgeInsets.only(
                                 left: defaultPadding,
-                                top: defaultPadding / 2,
+                                top: defaultPadding / microPadding,
                               ),
                               child: AppInkWell(
                                 onTap: _handleBackButton,
@@ -370,7 +370,7 @@ class _WindowScaffoldState extends State<WindowScaffold>
                         behavior: HitTestBehavior.translucent,
                         onPanStart: (_) => windowManager.startDragging(),
                         child: Padding(
-                          padding: EdgeInsets.only(top: defaultPadding / 2),
+                          padding: EdgeInsets.only(top: defaultPadding / microPadding),
                           child: widget.centerWidget!,
                         ),
                       ),

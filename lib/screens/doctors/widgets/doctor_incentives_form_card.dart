@@ -113,7 +113,7 @@ class DoctorIncentivesFormCard extends StatelessWidget {
       return [
         Center(
           child: Padding(
-            padding: EdgeInsets.all(defaultPadding * 2),
+            padding: EdgeInsets.all(defaultPadding * microPadding),
             child: const Text('Loading categories...'),
           ),
         ),

@@ -2,20 +2,32 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 const appName = 'LabLedger';
 const appDescription = 'Medical Records Made Simple';
-const double tinyPadding = 6;
+const double microPadding = 2;
 const double minimalPadding = 4;
+const double tinyPadding = 6;
 const double smallPadding = 8;
+const double formPadding = 10;
 const double defaultPadding = 12;
+const double intermediatePadding = 14;
 const double mediumPadding = 16;
 const double largePadding = 20;
 const double xlargePadding = 24;
+const double dialogPadding = 28;
+const double xxlargePadding = 40;
+const double massivePadding = 50;
 
+const double microRadius = 2;
 const double tinyRadius = 4;
 const double minimalBorderRadius = 6;
+const double skeletonRadius = 7;
 const double smallRadius = 8;
+const double dialogRadius = 10;
 const double defaultRadius = 12;
 const double mediumRadius = 16;
 const double largeRadius = 20;
+const double xlargeRadius = 24;
+const double pillRadius = 30;
+const double circularRadius = 999;
 
 const double defaultHeight = 20;
 const double defaultWidth = 20;
