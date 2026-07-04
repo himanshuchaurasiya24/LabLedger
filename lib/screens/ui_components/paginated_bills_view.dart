@@ -4,7 +4,7 @@ import 'package:labledger/models/bill_model.dart';
 import 'package:labledger/models/paginated_response.dart';
 import 'package:labledger/methods/pagination_controls.dart';
 import 'package:labledger/providers/bills_provider.dart';
-import 'package:labledger/screens/ui_components/cards/bill_card.dart';
+import 'package:labledger/screens/bills/widgets/cards/bill_card.dart';
 import 'package:labledger/screens/ui_components/custom_empty_state_widget.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/screens/ui_components/shared_components.dart';

@@ -12,7 +12,6 @@ import 'package:labledger/screens/ui_components/window_loading_screen.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:labledger/screens/ui_components/ambient_background.dart';
 import 'dart:async';
 
 
@@ -177,7 +176,6 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
         debugShowCheckedModeBanner: false,
         title: 'LabLedger',
         themeMode: themeMode,
-        builder: (context, child) => AmbientBackground(child: child!),
         // 🌞 LIGHT THEME
         theme: ThemeData(
           hoverColor: Colors.transparent,
@@ -209,7 +207,6 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                   0xFFF0F4F8,
                 ), // subtle cards
               ),
-          scaffoldBackgroundColor: Colors.transparent,
           appBarTheme: const AppBarTheme(
             backgroundColor: Colors.transparent,
             foregroundColor: Color(0xFF0072B5),
@@ -260,7 +257,6 @@ class _MyAppState extends ConsumerState<MyApp> with WindowListener {
                 surface: const Color(0xFF1C1C1E),
                 surfaceContainerHighest: const Color(0xFF2A2A2C),
               ),
-          scaffoldBackgroundColor: Colors.transparent,
           fontFamily: 'Ubuntu',
           textTheme: const TextTheme(
             headlineSmall: TextStyle(

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:labledger/constants/constants.dart';
 import 'package:labledger/models/bill_stats_model.dart';
-import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
+import 'package:labledger/screens/bills/widgets/cards/chart_stats_card.dart';
 import 'package:labledger/models/referral_and_bill_chart_model.dart';
 import 'package:labledger/screens/ui_components/tinted_container.dart';
 

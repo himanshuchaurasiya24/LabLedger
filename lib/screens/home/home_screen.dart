@@ -18,11 +18,11 @@ import 'package:labledger/screens/franchise_labs/franchise_labs_list_screen.dart
 import 'package:labledger/screens/profile/user_list_screen.dart';
 import 'package:labledger/screens/sample_report/sample_report_screen.dart';
 import 'package:labledger/screens/home/methods/home_methods.dart';
-import 'package:labledger/screens/ui_components/cards/chart_stats_card.dart';
-import 'package:labledger/screens/ui_components/cards/pending_report_bill_card.dart';
-import 'package:labledger/screens/ui_components/cards/recent_bills_card.dart';
-import 'package:labledger/screens/ui_components/cards/pending_bill_cards.dart';
-import 'package:labledger/screens/ui_components/cards/referral_card.dart';
+import 'package:labledger/screens/bills/widgets/cards/chart_stats_card.dart';
+import 'package:labledger/screens/bills/widgets/cards/pending_report_bill_card.dart';
+import 'package:labledger/screens/bills/widgets/cards/recent_bills_card.dart';
+import 'package:labledger/screens/bills/widgets/cards/pending_bill_cards.dart';
+import 'package:labledger/screens/bills/widgets/cards/referral_card.dart';
 import 'package:labledger/screens/ui_components/window_scaffold.dart';
 import 'package:labledger/screens/profile/user_profile_widget.dart';
 import 'package:labledger/screens/home/widgets/custom_filter_chips.dart';
