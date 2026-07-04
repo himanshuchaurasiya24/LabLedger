@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:labledger/constants/constants.dart';
-import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -180,9 +179,10 @@ class IncentiveMethods extends ChangeNotifier {
             final fileName =
                 "LabLedger Incentive Report ${DateFormat("dd MMM yyyy hh-mm-ss").format(DateTime.now())}.pdf";
 
-            final savePath = await FilePicker.platform.saveFile(
+            final savePath = await FilePicker.saveFile(
               dialogTitle: 'Save report file',
               fileName: fileName,
+              bytes: pdfBytes,
             );
 
             if (savePath == null || savePath.isEmpty) {
@@ -190,8 +190,6 @@ class IncentiveMethods extends ChangeNotifier {
               return;
             }
 
-            final file = File(savePath);
-            await file.writeAsBytes(pdfBytes);
             showSnackBar('Report saved to $savePath', isError: false);
           }
         case AsyncLoading():

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:labledger/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -114,15 +113,13 @@ class _UserProfileWidgetState extends ConsumerState<UserProfileWidget> {
                                     );
 
                                     if (response.statusCode == 200) {
-                                      final savePath = await FilePicker.platform
-                                          .saveFile(
-                                            dialogTitle: 'Save SMS Gateway APK',
-                                            fileName: 'local_sms_gateway.apk',
-                                          );
+                                      final savePath = await FilePicker.saveFile(
+                                        dialogTitle: 'Save SMS Gateway APK',
+                                        fileName: 'local_sms_gateway.apk',
+                                        bytes: response.bodyBytes,
+                                      );
 
                                       if (savePath != null && savePath.isNotEmpty) {
-                                        final file = File(savePath);
-                                        await file.writeAsBytes(response.bodyBytes);
                                         if (context.mounted) {
                                           showSuccessSnackBar(
                                             context,

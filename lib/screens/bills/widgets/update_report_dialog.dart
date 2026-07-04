@@ -66,7 +66,7 @@ class _UpdateReportDialogState extends ConsumerState<UpdateReportDialog>
   }
 
   Future<void> _pickLocalFile() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc', 'docx', 'odt', 'jpg', 'jpeg', 'png'],
     );

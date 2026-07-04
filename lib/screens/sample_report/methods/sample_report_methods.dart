@@ -193,7 +193,7 @@ class SampleReportMethods extends ChangeNotifier {
 
   Future<void> pickFile() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['doc', 'docx', 'rtf', 'odt'],
       );

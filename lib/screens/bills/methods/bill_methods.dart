@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,17 +105,16 @@ class BillMethods extends ChangeNotifier {
       final downloadPayload = await ref.read(
         downloadPatientReportProvider(reportId).future,
       );
-      final savePath = await FilePicker.platform.saveFile(
+      final savePath = await FilePicker.saveFile(
         dialogTitle: 'Save report file',
         fileName: downloadPayload.fileName,
+        bytes: downloadPayload.bytes,
       );
 
       if (savePath == null || savePath.isEmpty) {
         return;
       }
 
-      final file = File(savePath);
-      await file.writeAsBytes(downloadPayload.bytes);
       if (!context.mounted) return;
       showSuccessSnackBar(context, 'Report saved to $savePath');
     } catch (e) {

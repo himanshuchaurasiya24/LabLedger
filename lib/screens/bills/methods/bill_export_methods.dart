@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -205,9 +204,10 @@ class BillExportMethods extends ChangeNotifier {
     if (kIsWeb) {
       _downloadWeb(bytes, fileName, mimeType);
     } else {
-      final savePath = await FilePicker.platform.saveFile(
+      final savePath = await FilePicker.saveFile(
         dialogTitle: 'Save export file',
         fileName: fileName,
+        bytes: bytes,
       );
 
       if (savePath == null || savePath.isEmpty) {
@@ -215,8 +215,6 @@ class BillExportMethods extends ChangeNotifier {
         return;
       }
 
-      final file = File(savePath);
-      await file.writeAsBytes(bytes);
       _showSnackBar('Saved to $savePath', isError: false);
     }
   }
