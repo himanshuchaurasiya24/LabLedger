@@ -8,41 +8,38 @@ environment:
   sdk: ^3.8.1
 
 dependencies:
+  collection: ^1.19.1
+  csv: ^8.0.0
+  cupertino_icons: ^1.0.9
+  dio: ^5.10.0
+  file_picker: ^10.3.10
   flutter:
     sdk: flutter
-
-  collection: ^1.19.1
-  cupertino_icons: ^1.0.8
-  flutter_riverpod: ^2.6.1
-  window_manager: ^0.5.0
-  http: ^1.4.0
-  flutter_secure_storage: ^10.3.1
-  shared_preferences: ^2.3.2
-  intl: ^0.20.2
-  dio: ^5.9.0
-  version: ^3.0.2
-  font_awesome_flutter: ^11.0.0
-  pdf: ^3.10.4
-  printing: ^5.11.0
-  universal_html: ^2.2.4
-  path_provider: ^2.1.5
-  open_file_plus: ^3.4.1+1
-  url_launcher: ^6.3.2
-  file_picker: ^10.3.10
-  flutter_svg: ^2.2.1
-  package_info_plus: ^9.0.1
   flutter_lucide: ^1.11.0
-  csv: ^8.0.0
+  flutter_riverpod: ^2.6.1
+  flutter_secure_storage: ^10.3.1
+  flutter_svg: ^2.3.0
+  font_awesome_flutter: ^11.0.0
+  http: ^1.6.0
+  intl: ^0.20.3
+  open_file_plus: ^3.4.1+1
+  package_info_plus: ^9.0.1
+  path_provider: ^2.1.6
+  pdf: ^3.13.0
+  printing: ^5.15.0
+  shared_preferences: ^2.5.5
+  universal_html: ^2.3.0
+  url_launcher: ^6.3.2
+  version: ^3.0.2
+  window_manager: ^0.5.1
 
 dev_dependencies:
+  change_app_package_name: ^1.5.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
-  flutter_launcher_icons: ^0.14.4 # Or your desired version
-  change_app_package_name: ^1.5.0
 
-# This is the configuration for the launcher icons package.
-# It must be at the root indentation level.
 flutter_launcher_icons:
   image_path: "assets/images/app_icon.png"
   android: true
@@ -61,8 +58,10 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+
   assets:
     - assets/images/
+
   fonts:
     - family: Ubuntu
       fonts:
@@ -81,10 +80,3 @@ flutter:
         - asset: assets/fonts/Ubuntu-BoldItalic.ttf
           weight: 700
           style: italic
-
-dependency_overrides:
-  flutter_secure_storage_windows: ^4.0.0
-  flutter_secure_storage_linux: ^2.0.1
-  flutter_secure_storage_macos: ^4.0.0
-  flutter_secure_storage_web: ^2.0.0
-  flutter_secure_storage_platform_interface: ^2.0.1

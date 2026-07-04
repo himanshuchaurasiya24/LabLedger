@@ -45,48 +45,14 @@ static void my_application_activate(GApplication* application) {
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "LabLedger");
+    gtk_header_bar_set_title(header_bar, "labledger");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   } else {
-    gtk_window_set_title(window, "LabLedger");
+    gtk_window_set_title(window, "labledger");
   }
 
   gtk_window_set_default_size(window, 1280, 720);
-  
-  // Set icon name for desktop integration (helps window managers find the icon)
-  gtk_window_set_icon_name(GTK_WINDOW(window), "labledger");
-
-  // DEBUG: Load icon from assets for Debug mode
-  g_print("DEBUG: Current Dir: %s\n", g_get_current_dir());
-  GError* err = nullptr;
-  
-  // Try direct path (for flutter run from root)
-  gchar* icon_path = g_build_filename(g_get_current_dir(), "assets", "images", "app_icon.png", nullptr);
-  
-  // Fallback: Try build/bundle path (if running from build dir)
-  if (!g_file_test(icon_path, G_FILE_TEST_EXISTS)) {
-      g_free(icon_path);
-      icon_path = g_build_filename(g_get_current_dir(), "data", "flutter_assets", "assets", "images", "app_icon.png", nullptr);
-  }
-
-  g_print("DEBUG: Trying to load icon from: %s\n", icon_path);
-  GdkPixbuf* icon = gdk_pixbuf_new_from_file(icon_path, &err);
-  g_free(icon_path);
-  
-  if (icon) {
-    g_print("DEBUG: Icon loaded successfully!\n");
-    // Set both window icon and default icon list for proper taskbar display
-    gtk_window_set_icon(GTK_WINDOW(window), icon);
-    GList* icon_list = nullptr;
-    icon_list = g_list_append(icon_list, icon);
-    gtk_window_set_default_icon_list(icon_list);
-    g_list_free(icon_list);
-    g_object_unref(icon);
-  } else {
-    g_print("DEBUG: Failed to load icon: %s\n", err ? err->message : "Unknown error");
-    if (err) g_error_free(err);
-  }
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(
@@ -174,9 +140,7 @@ MyApplication* my_application_new() {
   // like GTK and desktop environments map this running application to its
   // corresponding .desktop file. This ensures better integration by allowing
   // the application to be recognized beyond its binary name.
-  // Set the program name to match the .desktop file name (without .desktop extension)
-  // This is CRITICAL for dock icon recognition in modern GTK applications
-  g_set_prgname("labledger");
+  g_set_prgname(APPLICATION_ID);
 
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID, "flags",
