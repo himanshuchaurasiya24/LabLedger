@@ -21,7 +21,9 @@ class AboutAppDialog extends StatelessWidget {
       filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
       child: Dialog(
         backgroundColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(xlargeRadius)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(xlargeRadius),
+        ),
         clipBehavior: Clip.antiAlias,
         child: TintedContainer(
           baseColor: theme.colorScheme.primary,
@@ -145,64 +147,70 @@ class AboutAppDialog extends StatelessWidget {
                       SizedBox(height: defaultHeight * 1.2),
 
                       // Developer Info Card
-                      AppInkWell(
-                        onTap: () => _launchURL(AppUrls.developerGithub),
-                        child: Container(
-                          padding: const EdgeInsets.all(mediumPadding),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surface.withValues(
-                              alpha: 0.5,
-                            ),
-                            borderRadius: BorderRadius.circular(defaultRadius),
-                            border: Border.all(
-                              color: theme.colorScheme.primary.withValues(
-                                alpha: 0.2,
-                              ),
-                              width: 1,
-                            ),
+                      Container(
+                        padding: const EdgeInsets.all(mediumPadding),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface.withValues(
+                            alpha: 0.5,
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                LucideIcons.code,
-                                size: 24,
-                                color: theme.colorScheme.primary,
-                              ),
-                              const SizedBox(width: defaultPadding),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Developed by',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onSurface,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                          borderRadius: BorderRadius.circular(defaultRadius),
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.2,
+                            ),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              LucideIcons.code,
+                              size: 24,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: defaultPadding),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Developed by',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurface,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  Text(
-                                    developer,
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(
-                                          color: theme.colorScheme.primary,
-                                          fontWeight: FontWeight.w800,
-                                          decoration: TextDecoration.underline,
-                                          decorationColor:
-                                              theme.colorScheme.primary,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: smallPadding),
-                              Icon(
-                                LucideIcons.external_link,
-                                size: 16,
-                                color: theme.colorScheme.primary.withValues(
-                                  alpha: 0.7,
                                 ),
-                              ),
-                            ],
-                          ),
+                                AppInkWell(
+                                  onTap: () =>
+                                      _launchURL(AppUrls.developerGithub),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        developer,
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
+                                              color: theme.colorScheme.primary,
+                                              fontWeight: FontWeight.w800,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor:
+                                                  theme.colorScheme.primary,
+                                            ),
+                                      ),
+                                      const SizedBox(width: smallPadding),
+                                      Icon(
+                                        LucideIcons.external_link,
+                                        size: 16,
+                                        color: theme.colorScheme.primary
+                                            .withValues(alpha: 0.7),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
 
@@ -219,7 +227,9 @@ class AboutAppDialog extends StatelessWidget {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: defaultPadding,
+                            ),
                             child: Text(
                               'POWERED BY',
                               style: theme.textTheme.labelSmall?.copyWith(
